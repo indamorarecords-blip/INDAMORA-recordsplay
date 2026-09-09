@@ -1,0 +1,1 @@
+- [API response normalization](api-response-normalization.md) — normalize database-native values before generated response validation.

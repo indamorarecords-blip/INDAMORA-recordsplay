@@ -10,6 +10,12 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: catalog
+    description: Public catalog operations
+  - name: artists
+    description: Artist profile operations
+  - name: submissions
+    description: INDAMORA RECORDS moderation operations
 paths:
   /healthz:
     get:
@@ -24,6 +30,153 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /catalog:
+    get:
+      operationId: getCatalog
+      tags: [catalog]
+      summary: List featured content
+      responses:
+        "200":
+          description: Public content catalog
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Work"
+  /catalog/{id}:
+    get:
+      operationId: getWork
+      tags: [catalog]
+      summary: Get a work by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Work details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Work"
+        "404":
+          description: Work not found
+  /artists:
+    get:
+      operationId: getArtists
+      tags: [artists]
+      summary: List featured artists
+      responses:
+        "200":
+          description: Artist profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Artist"
+    post:
+      operationId: createArtist
+      tags: [artists]
+      summary: Create an artist profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ArtistInput"
+      responses:
+        "201":
+          description: Artist profile created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Artist"
+  /artists/{id}:
+    get:
+      operationId: getArtist
+      tags: [artists]
+      summary: Get an artist profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Artist profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Artist"
+        "404":
+          description: Artist not found
+  /submissions:
+    get:
+      operationId: getSubmissions
+      tags: [submissions]
+      summary: List work submissions
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+      responses:
+        "200":
+          description: Submitted works
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Submission"
+    post:
+      operationId: createSubmission
+      tags: [submissions]
+      summary: Submit a work for review
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmissionInput"
+      responses:
+        "201":
+          description: Submission created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
+  /submissions/{id}/status:
+    patch:
+      operationId: updateSubmissionStatus
+      tags: [submissions]
+      summary: Update a submission review status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmissionStatusInput"
+      responses:
+        "200":
+          description: Updated submission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +186,67 @@ components:
           type: string
       required:
         - status
+    Artist:
+      type: object
+      required: [id, name, category, bio, location, worksCount]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        category: { type: string }
+        bio: { type: string }
+        location: { type: string }
+        avatar: { type: string }
+        worksCount: { type: integer }
+    ArtistInput:
+      type: object
+      required: [name, category, bio, location]
+      properties:
+        name: { type: string, minLength: 2 }
+        category: { type: string, minLength: 2 }
+        bio: { type: string, minLength: 10 }
+        location: { type: string, minLength: 2 }
+        avatar: { type: string }
+    Work:
+      type: object
+      required: [id, title, artist, category, description, duration, image, featured, access]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        artist: { type: string }
+        category: { type: string }
+        description: { type: string }
+        duration: { type: string }
+        image: { type: string }
+        featured: { type: boolean }
+        access:
+          type: string
+          enum: [free, premium]
+    Submission:
+      type: object
+      required: [id, title, artist, category, submittedAt, status]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        artist: { type: string }
+        category: { type: string }
+        submittedAt: { type: string }
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+        note: { type: ["string", "null"] }
+    SubmissionInput:
+      type: object
+      required: [title, artist, category]
+      properties:
+        title: { type: string, minLength: 2 }
+        artist: { type: string, minLength: 2 }
+        category: { type: string, minLength: 2 }
+        note: { type: string }
+    SubmissionStatusInput:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [pending, approved, rejected]
 

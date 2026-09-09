@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "INDAMORA PLAY"
+description = "Plateforme culturelle centrafricaine mobile-first pour découvrir la musique, l’humour, le cinéma et les podcasts, mettre en avant les artistes et proposer les œuvres à la validation d’INDAMORA RECORDS."
+version = "1.0.0"
+id = "artifacts/indamora-play"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18345
+
+[services.development]
+run = "pnpm --filter @workspace/indamora-play run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/indamora-play", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/indamora-play/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18345"
+BASE_PATH = "/"

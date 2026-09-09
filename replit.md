@@ -1,6 +1,6 @@
-# [Project name]
+# INDAMORA PLAY
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Plateforme culturelle centrafricaine pour découvrir et partager la musique, l’humour, le cinéma et les podcasts.
 
 ## Run & Operate
 
@@ -22,15 +22,26 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/indamora-play/src/App.tsx` — parcours publics, artistes, soumission, modération et offres.
+- `artifacts/indamora-play/src/index.css` — tokens visuels et responsive mobile-first.
+- `lib/api-spec/openapi.yaml` — contrat API source de vérité.
+- `artifacts/api-server/src/routes/indamora.ts` — catalogue, artistes et validation INDAMORA RECORDS.
+- `lib/db/src/schema/indamora.ts` — tables artistes, œuvres et soumissions.
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- L’expérience publique est en français, avec les catégories affichées en français pour la RCA et la diaspora.
+- Les œuvres gratuites et premium partagent le même catalogue afin de rendre la valeur de l’offre premium lisible dès la découverte.
+- Les soumissions passent par une file de modération dédiée à INDAMORA RECORDS avant publication.
+- Les fichiers audio/vidéo ne sont pas encore stockés dans PostgreSQL ; la première version persiste le catalogue et prépare les métadonnées pour un stockage objet.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Découvrir les œuvres mises en avant et filtrer par musique, humour, cinéma ou podcasts.
+- Consulter les profils artistes et leurs œuvres.
+- Proposer une œuvre et créer son profil artiste en même temps.
+- Examiner, approuver ou refuser les propositions depuis l’espace INDAMORA RECORDS.
+- Comparer l’accès gratuit et l’accès premium à 500 FCFA par mois.
 
 ## User preferences
 

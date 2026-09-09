@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --font-sans: var(--app-font-sans);
+  --font-mono: var(--app-font-mono);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --background: 39 46% 94%;
+  --foreground: 220 28% 17%;
+  --border: 38 29% 82%;
+  --input: 38 29% 82%;
+  --ring: 13 72% 47%;
+  --card: 39 48% 97%;
+  --card-foreground: 220 28% 17%;
+  --card-border: 38 29% 82%;
+  --primary: 13 72% 47%;
+  --primary-foreground: 39 46% 94%;
+  --secondary: 174 34% 30%;
+  --secondary-foreground: 39 46% 94%;
+  --muted: 38 25% 88%;
+  --muted-foreground: 220 12% 42%;
+  --accent: 42 88% 59%;
+  --accent-foreground: 220 28% 17%;
+  --destructive: 3 64% 45%;
+  --destructive-foreground: 39 46% 94%;
+  --app-font-sans: 'Manrope', sans-serif;
+  --app-font-mono: 'DM Mono', monospace;
+  --radius: 1rem;
+  --shadow-card: 0 18px 50px rgba(50, 38, 25, 0.09);
+}
+
+.dark {
+  --background: 220 28% 12%;
+  --foreground: 39 46% 94%;
+  --border: 220 17% 27%;
+  --input: 220 17% 27%;
+  --ring: 13 72% 55%;
+  --card: 220 24% 16%;
+  --card-foreground: 39 46% 94%;
+  --card-border: 220 17% 27%;
+  --primary: 13 72% 55%;
+  --primary-foreground: 220 28% 12%;
+  --secondary: 174 34% 38%;
+  --secondary-foreground: 39 46% 94%;
+  --muted: 220 18% 22%;
+  --muted-foreground: 39 15% 72%;
+  --accent: 42 88% 59%;
+  --accent-foreground: 220 28% 12%;
+  --destructive: 3 64% 53%;
+  --destructive-foreground: 39 46% 94%;
+}
+
+@layer base {
+  * { @apply border-border; }
+  html { scroll-behavior: smooth; }
+  body { @apply font-sans antialiased bg-background text-foreground; }
+  button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
+}
+
+@keyframes rise-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes drift { from { transform: translate3d(0, 0, 0) rotate(-2deg); } to { transform: translate3d(0, -8px, 0) rotate(1deg); } }
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+.animate-rise-in { animation: rise-in .65s cubic-bezier(.2,.7,.2,1) both; }
+.animate-drift { animation: drift 5s ease-in-out infinite alternate; }
+.skeleton { background: linear-gradient(100deg, hsl(var(--muted)) 20%, hsl(var(--card)) 40%, hsl(var(--muted)) 60%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
+.grain::after { content: ''; position: fixed; inset: 0; pointer-events: none; opacity: .045; z-index: 50; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E"); }
+.display { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.045em; }
+.safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
