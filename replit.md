@@ -41,7 +41,8 @@ Plateforme culturelle centrafricaine pour découvrir et partager la musique, l�
 - Consulter les profils artistes et leurs œuvres.
 - Proposer une œuvre et créer son profil artiste en même temps.
 - Examiner, approuver ou refuser les propositions depuis l’espace INDAMORA RECORDS.
-- Comparer l’accès gratuit et l’offre Premium prévue à 500 FCFA par mois, sans paiement réel dans cette V1.
+- Comparer l’accès gratuit, Premium Afrique à 500 FCFA par mois et Premium International à 5 € par mois, sans paiement réel dans cette V1.
+- Présenter le Premium comme une contribution au développement de la plateforme et au soutien futur des créateurs, sans promettre de revenu fixe ni de rémunération garantie.
 
 ## User preferences
 

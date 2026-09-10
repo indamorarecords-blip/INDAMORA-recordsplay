@@ -1,0 +1,50 @@
+Je souhaite modifier la conception de l’abonnement Premium d’INDAMORA PLAY\.
+
+Il doit y avoir DEUX offres Premium :
+
+### 1\. PREMIUM AFRIQUE
+
+Prix : 500 FCFA par mois\.
+
+Cette offre est destinée aux utilisateurs situés en Afrique\.
+
+### 2\. PREMIUM INTERNATIONAL
+
+Prix : 5 € par mois\.
+
+Cette offre est destinée aux utilisateurs situés en Europe, aux États\-Unis et dans les autres pays hors Afrique\.
+
+IMPORTANT :
+
+Pour le moment, ne mets PAS en place de paiement réel\. Nous sommes encore en phase de construction de la V1\.
+
+Crée uniquement l’interface et la présentation des deux offres afin que le système soit prêt pour une future intégration du paiement\.
+
+L’objectif du Premium est de permettre aux membres qui le souhaitent de soutenir INDAMORA PLAY et son écosystème de créateurs\.
+
+À terme, lorsque la plateforme aura suffisamment d’abonnés Premium et des revenus suffisants, une partie des ressources pourra servir notamment à :
+
+- soutenir les artistes et créateurs ;
+- mettre en place des récompenses ou mécanismes de soutien basés sur la consommation des contenus ;
+- accompagner certains projets artistiques ;
+- produire ou financer de nouveaux projets INDAMORA PLAY ;
+- développer de nouvelles activités et fonctionnalités de la plateforme ;
+- contribuer au développement de la création centrafricaine et africaine\.
+
+IMPORTANT :
+
+Ne promettre aucun montant fixe ni aucun revenu garanti aux artistes\.
+
+Ne pas présenter le Premium comme une garantie de rémunération par stream\.
+
+Le fonctionnement futur de la redistribution sera défini par INDAMORA RECORDS lorsque la plateforme aura suffisamment d’abonnés, de revenus et de données pour mettre en place un système équitable et transparent\.
+
+Le message doit être présenté de manière simple et honnête :
+
+« Votre abonnement contribue au développement d’INDAMORA PLAY et au soutien des artistes et créateurs\. »
+
+Prévoir dans l’interface une section expliquant que plus la communauté Premium grandira, plus INDAMORA PLAY pourra développer ses projets et mettre en place des mécanismes de soutien aux créateurs\.
+
+L’identité reste sobre, moderne et inspirée de la Centrafrique sans utiliser excessivement les couleurs du drapeau\.
+
+Toute l’interface et tous les textes doivent être en français\.
