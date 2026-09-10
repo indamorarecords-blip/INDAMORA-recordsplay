@@ -218,6 +218,14 @@ router.patch("/submissions/:id/status", async (req, res): Promise<void> => {
     res.status(400).json({ error: body.error.message });
     return;
   }
+  const [existingSubmission] = await db
+    .select()
+    .from(submissionsTable)
+    .where(eq(submissionsTable.id, params.data.id));
+  if (!existingSubmission) {
+    res.status(404).json({ error: "Submission not found" });
+    return;
+  }
   const [submission] = await db
     .update(submissionsTable)
     .set({ status: body.data.status })
@@ -226,6 +234,18 @@ router.patch("/submissions/:id/status", async (req, res): Promise<void> => {
   if (!submission) {
     res.status(404).json({ error: "Submission not found" });
     return;
+  }
+  if (body.data.status === "approved" && existingSubmission.status !== "approved") {
+    await db.insert(worksTable).values({
+      title: existingSubmission.title,
+      artist: existingSubmission.artist,
+      category: existingSubmission.category,
+      description: existingSubmission.note || "Une nouvelle création validée par INDAMORA RECORDS.",
+      duration: "03:20",
+      image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=900&q=80",
+      featured: "false",
+      access: "free",
+    });
   }
   res.json(UpdateSubmissionStatusResponse.parse(submissionsForClient([submission])[0]));
 });

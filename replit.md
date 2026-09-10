@@ -22,7 +22,7 @@ Plateforme culturelle centrafricaine pour découvrir et partager la musique, l�
 
 ## Where things live
 
-- `artifacts/indamora-play/src/App.tsx` — parcours publics, artistes, soumission, modération et offres.
+- `artifacts/indamora-play/src/App.tsx` — parcours publics, recherche, catégories, lecteur de démonstration, comptes de démonstration, espace artiste, tableau de bord et modération.
 - `artifacts/indamora-play/src/index.css` — tokens visuels et responsive mobile-first.
 - `lib/api-spec/openapi.yaml` — contrat API source de vérité.
 - `artifacts/api-server/src/routes/indamora.ts` — catalogue, artistes et validation INDAMORA RECORDS.
@@ -32,16 +32,16 @@ Plateforme culturelle centrafricaine pour découvrir et partager la musique, l�
 
 - L’expérience publique est en français, avec les catégories affichées en français pour la RCA et la diaspora.
 - Les œuvres gratuites et premium partagent le même catalogue afin de rendre la valeur de l’offre premium lisible dès la découverte.
-- Les soumissions passent par une file de modération dédiée à INDAMORA RECORDS avant publication.
+- Les soumissions passent par une file de modération dédiée à INDAMORA RECORDS avant publication ; une validation crée l’entrée publique dans le catalogue.
 - Les fichiers audio/vidéo ne sont pas encore stockés dans PostgreSQL ; la première version persiste le catalogue et prépare les métadonnées pour un stockage objet.
 
 ## Product
 
-- Découvrir les œuvres mises en avant et filtrer par musique, humour, cinéma ou podcasts.
+- Découvrir les œuvres mises en avant, rechercher dans le catalogue et parcourir les catégories musique, humour, cinéma et vidéos, podcasts ou autres créations.
 - Consulter les profils artistes et leurs œuvres.
 - Proposer une œuvre et créer son profil artiste en même temps.
 - Examiner, approuver ou refuser les propositions depuis l’espace INDAMORA RECORDS.
-- Comparer l’accès gratuit et l’accès premium à 500 FCFA par mois.
+- Comparer l’accès gratuit et l’offre Premium prévue à 500 FCFA par mois, sans paiement réel dans cette V1.
 
 ## User preferences
 

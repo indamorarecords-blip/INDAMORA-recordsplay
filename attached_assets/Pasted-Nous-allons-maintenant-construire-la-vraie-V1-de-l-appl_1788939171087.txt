@@ -1,0 +1,46 @@
+Nous allons maintenant construire la vraie V1 de l’application INDAMORA PLAY.
+
+Ne passe pas encore à l’abonnement Premium, au paiement réel ou à la sécurisation avancée. Nous allons d’abord terminer et vérifier toute l’interface et les fonctionnalités principales de la V1.
+
+INDAMORA PLAY est une plateforme culturelle centrafricaine destinée à la République centrafricaine et à la diaspora centrafricaine dans le monde.
+
+La V1 doit contenir :
+
+1. Accueil
+2. Explorer
+3. Recherche
+4. Musique
+5. Humour
+6. Cinéma et vidéos
+7. Podcasts
+8. Autres créations artistiques
+9. Liste des artistes
+10. Page d’un artiste
+11. Page d’une œuvre
+12. Lecteur audio et vidéo de démonstration
+13. Inscription
+14. Connexion
+15. Profil utilisateur
+16. Espace artiste
+17. Fonction « Envoyer une œuvre »
+18. Statut d’une œuvre : En attente / Validée / Refusée
+19. Espace INDAMORA RECORDS pour examiner et valider les œuvres
+20. Tableau de bord administrateur
+
+Règles importantes :
+
+* Un artiste peut envoyer une œuvre, mais elle ne doit pas être visible publiquement avant validation par INDAMORA RECORDS.
+* Utiliser uniquement des contenus fictifs de démonstration pour la V1.
+* Ne pas intégrer de véritable paiement pour le moment.
+* Ne pas demander d’argent à l’utilisateur.
+* Préparer simplement l’emplacement futur de l’offre Premium à 500 FCFA/mois.
+* Toute l’interface doit être en français, sans aucun texte anglais.
+* Les boutons, menus, formulaires, messages, notifications et pages doivent être en français.
+* L’application doit être pensée en priorité pour une utilisation sur téléphone.
+* L’identité visuelle doit être moderne, culturelle, africaine et professionnelle, tout en restant simple.
+* Le nom INDAMORA PLAY doit rester inchangé.
+* INDAMORA RECORDS doit être présenté comme l’organisme qui valide les œuvres.
+
+Construis maintenant cette V1 de manière fonctionnelle et navigable. Vérifie que chaque bouton principal mène à la bonne page et que l’utilisateur peut parcourir l’application comme une véritable plateforme.
+
+Ne commence pas les prochaines étapes techniques tant que cette V1 n’est pas terminée et cohérente.

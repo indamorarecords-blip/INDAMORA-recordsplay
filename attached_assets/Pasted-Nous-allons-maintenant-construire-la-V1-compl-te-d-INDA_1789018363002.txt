@@ -1,0 +1,65 @@
+Nous allons maintenant construire la V1 complète d’INDAMORA PLAY.
+
+IMPORTANT :
+
+* Toute l’application doit être en français.
+* Ne mets aucun texte anglais dans l’interface.
+* L’application doit être pensée d’abord pour le téléphone.
+* Ne mets pas encore en place de paiement réel.
+* Ne mets pas encore en place l’abonnement Premium réel.
+* Utilise uniquement des contenus fictifs pour les démonstrations.
+
+Construis une V1 fonctionnelle avec les écrans suivants :
+
+1. Accueil
+2. Explorer
+3. Recherche
+4. Musique
+5. Humour
+6. Cinéma et vidéos
+7. Podcasts
+8. Autres créations
+9. Artistes
+10. Page artiste
+11. Page œuvre
+12. Lecteur audio/vidéo de démonstration
+13. Créer un compte
+14. Se connecter
+15. Profil utilisateur
+16. Espace artiste
+17. Envoyer une œuvre
+18. Suivi du statut d’une œuvre
+19. Espace INDAMORA RECORDS
+20. Tableau de bord administrateur
+
+FONCTIONNEMENT IMPORTANT :
+
+Un artiste doit pouvoir envoyer une œuvre depuis son espace artiste.
+
+Lorsqu’une œuvre est envoyée, son statut doit être « En attente ».
+
+Elle ne doit pas apparaître publiquement tant qu’un administrateur INDAMORA RECORDS ne l’a pas validée.
+
+L’administrateur doit pouvoir :
+
+* voir les œuvres en attente ;
+* consulter les informations de l’œuvre ;
+* valider une œuvre ;
+* refuser une œuvre.
+
+Une œuvre validée peut ensuite apparaître dans INDAMORA PLAY.
+
+Crée une navigation mobile simple avec :
+Accueil | Explorer | Créer | Profil
+
+Ajoute des exemples fictifs d’artistes, de chansons, de vidéos, de podcasts et d’humoristes centrafricains afin que l’application ne soit pas vide pendant la démonstration.
+
+L’identité visuelle doit être moderne, africaine, culturelle et professionnelle.
+
+Le nom INDAMORA PLAY doit être visible clairement.
+
+INDAMORA RECORDS doit être présenté comme l’organisme qui contrôle et valide les œuvres avant leur publication.
+
+Pour cette étape, concentre-toi uniquement sur la V1 et rends toutes les pages navigables et cohérentes.
+
+Ne passe pas aux étapes suivantes tant que cette V1 n’est pas construite.
