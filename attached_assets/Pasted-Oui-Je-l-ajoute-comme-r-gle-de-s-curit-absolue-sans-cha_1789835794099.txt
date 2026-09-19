@@ -1,0 +1,498 @@
+Oui. Je l’ajoute comme règle de sécurité absolue, sans changer le reste du prompt.
+
+CONTINUE LE PROJET INDAMORA PLAY ACTUEL.
+
+NE RECOMMENCE PAS LE PROJET.
+
+Cette étape est une étape de FINALISATION et de VÉRIFICATION.
+
+Tu dois d’abord inspecter l’état réel du projet actuel et comparer ce qui est réellement présent avec les fonctionnalités déjà demandées précédemment.
+
+RÈGLE ABSOLUE :
+
+SI UNE FONCTIONNALITÉ EST DÉJÀ IMPLÉMENTÉE, TESTÉE ET FONCTIONNELLE → NE LA REFAIS PAS.
+
+SI ELLE EST FONCTIONNELLE → NE MODIFIE PAS SON ARCHITECTURE, SON DESIGN OU SON COMPORTEMENT SANS RAISON TECHNIQUE.
+
+SI ELLE EST PARTIELLE → CORRIGE UNIQUEMENT CE QUI MANQUE.
+
+SI ELLE N’EXISTE PAS → CONSTRUIS-LA.
+
+==================================================
+
+1. AUDIT DE L’ÉTAT ACTUEL
+    ==================================================
+
+Commence par inspecter le projet actuel.
+
+Ne modifie aucun fichier pendant cette première vérification.
+
+Vérifie notamment :
+
+* pages existantes ;
+* routes ;
+* composants ;
+* API ;
+* fonctions serveur ;
+* base de données ;
+* authentification ;
+* profils utilisateurs ;
+* profils artistes ;
+* espace artiste ;
+* espace administrateur ;
+* musique ;
+* vidéos ;
+* recherche ;
+* Premium ;
+* dons ;
+* notifications ;
+* statistiques ;
+* stockage média ;
+* paiements ;
+* responsive ;
+* variables d’environnement ;
+* sécurité.
+
+Pour chaque élément, classe-le :
+
+FONCTIONNEL
+PARTIEL
+MANQUANT
+BUGUÉ
+
+Ensuite seulement, travaille sur PARTIEL + MANQUANT + BUGUÉ.
+
+==================================================
+2. PRIORITÉ N°1 — FINALISER LA SÉPARATION DES ESPACES
+
+La prochaine priorité est de finaliser la séparation réelle :
+
+VISITEUR / USER
+ARTISTE
+ADMIN
+
+Ne refais pas le système de rôles s’il existe déjà et fonctionne.
+
+Vérifie simplement qu’il est réellement appliqué partout.
+
+Un visiteur doit rester dans l’espace public et son compte.
+
+Un artiste doit accéder à son propre espace artiste.
+
+Un administrateur doit accéder à l’administration.
+
+Les permissions doivent être cohérentes entre :
+
+frontend
+backend
+base de données
+RLS
+
+ET SURTOUT :
+
+UN ARTISTE OU UN VISITEUR NE DOIT JAMAIS POUVOIR ACCÉDER À L’ESPACE ADMINISTRATEUR SIMPLEMENT EN CONNAISSANT L’URL.
+
+Par exemple, si un artiste ou un visiteur saisit directement dans son navigateur :
+
+/admin
+/admin.html
+/admin/dashboard
+ou toute autre URL administrative existante dans le projet,
+
+L’ACCÈS DOIT ÊTRE REFUSÉ.
+
+Cette protection doit fonctionner côté serveur et/ou via les contrôles d’authentification et d’autorisation réellement sécurisés du projet, et pas uniquement en cachant les boutons de navigation.
+
+Un utilisateur non autorisé ne doit jamais pouvoir contourner la sécurité en entrant directement l’URL.
+
+Un artiste qui tente d’accéder à l’administration doit être redirigé vers son espace artiste ou recevoir un accès refusé.
+
+Un visiteur/utilisateur normal qui tente d’accéder à l’administration doit être redirigé vers son compte ou une page publique appropriée.
+
+Même si les liens « Administration » sont invisibles pour ces utilisateurs, l’accès direct par URL doit rester bloqué.
+
+Si cette protection est déjà réellement fonctionnelle et testée, NE LA REFAIS PAS.
+
+Si elle est absente ou incomplète, corrige uniquement ce qui manque.
+
+==================================================
+3. PRIORITÉ N°2 — PROPRIÉTÉ DES DONNÉES ARTISTE
+
+Vérifie qu’un artiste ne peut manipuler que SES données.
+
+Tester réellement :
+
+* profil ;
+* musiques ;
+* albums ;
+* vidéos/médias ;
+* œuvres ;
+* statistiques ;
+* éventuelles données financières.
+
+Un artiste A ne doit pas pouvoir modifier l’artiste B en changeant simplement un ID ou UUID.
+
+Si cette protection existe déjà et fonctionne :
+NE LA REFAIS PAS.
+
+Si elle est incomplète :
+corrige uniquement le contrôle manquant.
+
+==================================================
+4. PRIORITÉ N°3 — PROTECTION DES API ET FONCTIONS SERVEUR
+
+Inspecte les API et fonctions serveur existantes.
+
+Cherche uniquement les endpoints qui ne possèdent pas encore les vérifications nécessaires.
+
+Pour chaque endpoint sensible :
+
+* utilisateur authentifié ;
+* rôle vérifié ;
+* propriétaire vérifié lorsque nécessaire ;
+* autorisation vérifiée avant lecture/modification/suppression.
+
+Ne modifie pas les endpoints déjà correctement protégés.
+
+Ne crée pas une nouvelle architecture d’API si celle actuelle fonctionne.
+
+==================================================
+5. PRIORITÉ N°4 — RLS ET BASE DE DONNÉES
+
+Inspecte les politiques RLS actuellement présentes.
+
+Ne supprime aucune politique fonctionnelle.
+
+Identifie uniquement les tables ou opérations qui restent insuffisamment protégées.
+
+Vérifie notamment les données privées liées :
+
+* utilisateurs ;
+* artistes ;
+* œuvres ;
+* soumissions ;
+* statistiques ;
+* paiements ;
+* revenus ;
+* administration.
+
+Corrige uniquement les failles réellement présentes.
+
+Teste ensuite les accès avec différents rôles.
+
+==================================================
+6. PRIORITÉ N°5 — ESPACE ARTISTE
+
+Vérifie ce qui manque encore réellement dans l’espace artiste.
+
+L’espace doit, lorsque les fonctions correspondantes existent dans le projet, permettre :
+
+* tableau de bord ;
+* profil artiste ;
+* œuvres ;
+* ajout d’œuvre ;
+* musiques ;
+* albums ;
+* médias ;
+* statut de validation ;
+* statistiques ;
+* notifications ;
+* paramètres.
+
+Ne crée pas une nouvelle interface si celle-ci existe déjà.
+
+Complète uniquement les écrans ou fonctions absents.
+
+==================================================
+7. PRIORITÉ N°6 — WORKFLOW DE VALIDATION
+
+Vérifie le cycle complet :
+
+ARTISTE
+→ soumission
+→ EN ATTENTE
+→ ADMINISTRATION
+→ VALIDATION ou REFUS
+→ publication si validée
+
+Vérifie que l’artiste peut voir le statut de SES propres œuvres.
+
+Vérifie que l’administrateur peut gérer les soumissions.
+
+Vérifie qu’une œuvre refusée n’est pas publiée par erreur.
+
+Vérifie qu’un artiste ne peut pas modifier directement le statut de validation.
+
+Si ce workflow fonctionne déjà :
+NE LE REFAIS PAS.
+
+==================================================
+8. PRIORITÉ N°7 — MÉDIAS
+
+Vérifie le fonctionnement réel des médias.
+
+Selon ce qui existe déjà :
+
+* upload ;
+* stockage ;
+* couverture ;
+* audio ;
+* vidéo ;
+* lecture ;
+* suppression ;
+* association artiste/œuvre ;
+* publication après validation.
+
+Ne remplace pas le système de stockage existant s’il fonctionne.
+
+Corrige uniquement les problèmes constatés.
+
+==================================================
+9. PRIORITÉ N°8 — RECHERCHE ET CATALOGUE
+
+Vérifie la recherche globale.
+
+Elle doit rechercher, lorsque les données existent :
+
+* artistes ;
+* morceaux ;
+* albums ;
+* vidéos.
+
+Vérifie également les catégories et les filtres.
+
+Ne modifie pas les catégories déjà fonctionnelles.
+
+Ne crée pas de données fictives pour remplir le catalogue.
+
+==================================================
+10. PRIORITÉ N°9 — NOTIFICATIONS
+
+Vérifie si le système de notifications existe déjà.
+
+Si oui :
+teste-le et conserve-le.
+
+S’il est incomplet :
+complète uniquement ce qui manque.
+
+Cas importants :
+
+* œuvre reçue ;
+* œuvre validée ;
+* œuvre refusée ;
+* informations administratives importantes.
+
+==================================================
+11. PRIORITÉ N°10 — STATISTIQUES
+
+Vérifie les statistiques existantes.
+
+Séparer clairement :
+
+STATISTIQUES ARTISTE
+→ uniquement ses propres données.
+
+STATISTIQUES ADMIN
+→ données globales autorisées.
+
+Ne crée pas de faux chiffres.
+
+S’il n’existe pas encore suffisamment de données réelles pour certaines statistiques, afficher un état vide approprié plutôt qu’inventer des chiffres.
+
+==================================================
+12. PRIORITÉ N°11 — COMPTE UTILISATEUR
+
+Vérifie que l’utilisateur peut réellement gérer son compte :
+
+* informations personnelles ;
+* session ;
+* paramètres ;
+* abonnement si disponible ;
+* historique de dons si disponible.
+
+Un utilisateur ne doit pouvoir modifier que ses propres informations.
+
+==================================================
+13. PRIORITÉ N°12 — ÉTATS VIDES ET ERREURS
+
+Vérifie les écrans lorsqu’il n’y a aucune donnée.
+
+Utiliser des états propres comme :
+
+« Aucune musique disponible pour le moment. »
+
+« Aucun artiste disponible pour le moment. »
+
+« Aucune vidéo disponible pour le moment. »
+
+« Aucune œuvre disponible pour le moment. »
+
+Évite les pages blanches et les erreurs JavaScript visibles.
+
+==================================================
+14. PRIORITÉ N°13 — RESPONSIVE FINAL
+
+Teste les fonctionnalités déjà présentes sur :
+
+* téléphone ;
+* tablette ;
+* ordinateur.
+
+Ne refais pas le responsive.
+
+Corrige uniquement les problèmes réellement constatés :
+
+* débordement ;
+* bouton inaccessible ;
+* formulaire cassé ;
+* menu cassé ;
+* lecteur inutilisable ;
+* contenu coupé.
+
+==================================================
+15. PRIORITÉ N°14 — QUALITÉ TECHNIQUE
+
+À la fin :
+
+* typecheck ;
+* build ;
+* tests disponibles ;
+* vérification des routes ;
+* vérification des API ;
+* vérification des permissions ;
+* vérification des erreurs console importantes.
+
+Corrige les erreurs introduites par ton travail.
+
+Ne fais pas de refactoring massif.
+
+==================================================
+16. TESTS DE SÉCURITÉ OBLIGATOIRES
+
+Teste explicitement les accès directs aux URLs.
+
+TEST 1 :
+Visiteur → /admin ou URL administrative existante
+→ ACCÈS REFUSÉ.
+
+TEST 2 :
+Artiste → /admin ou URL administrative existante
+→ ACCÈS REFUSÉ.
+
+TEST 3 :
+Artiste A → données artiste B
+→ ACCÈS REFUSÉ.
+
+TEST 4 :
+Artiste → modification du rôle depuis le navigateur
+→ ACCÈS REFUSÉ.
+
+TEST 5 :
+Visiteur → données privées administratives
+→ ACCÈS REFUSÉ.
+
+TEST 6 :
+Artiste → données financières d’un autre artiste
+→ ACCÈS REFUSÉ.
+
+TEST 7 :
+Administrateur → espace administratif
+→ ACCÈS AUTORISÉ.
+
+IMPORTANT :
+
+Le test d’accès direct à l’URL administrative est obligatoire.
+
+Ne considère pas la sécurité comme terminée simplement parce que le bouton « Administration » est caché.
+
+==================================================
+17. CE QU’IL NE FAUT PAS REFAIRE
+
+NE REFAIS PAS :
+
+* l’application depuis zéro ;
+* le design global ;
+* le logo ;
+* les pages déjà fonctionnelles ;
+* l’authentification déjà fonctionnelle ;
+* les paiements déjà fonctionnels ;
+* les dons déjà fonctionnels ;
+* les fonctionnalités déjà validées ;
+* la base de données sans nécessité ;
+* les composants déjà fonctionnels.
+
+Ne remplace jamais une fonctionnalité fonctionnelle uniquement parce qu’une autre méthode te paraît meilleure.
+
+==================================================
+18. RAPPORT FINAL OBLIGATOIRE
+
+À la fin, indique clairement :
+
+DÉJÀ FONCTIONNEL ET LAISSÉ INTACT :
+
+* …
+
+CORRIGÉ :
+
+* …
+
+NOUVELLEMENT AJOUTÉ :
+
+* …
+
+RESTE À FAIRE :
+
+* …
+
+TESTS DE SÉCURITÉ :
+
+* visiteur → admin : …
+* artiste → admin : …
+* artiste A → artiste B : …
+* modification de rôle : …
+* données financières : …
+
+TESTS :
+
+* …
+
+TYPECHECK :
+
+* …
+
+BUILD :
+
+* …
+
+ERREURS RESTANTES :
+
+* …
+
+CONFIGURATION EXTERNE RESTANTE :
+
+* …
+
+IMPORTANT :
+
+Ne prétends pas qu’une fonctionnalité est fonctionnelle si tu ne l’as pas réellement vérifiée.
+
+Ne crée pas de faux comptes, faux paiements, faux revenus ou fausses statistiques pour faire croire que le système fonctionne.
+
+Travaille directement dans le projet actuel.
+
+Commence par l’audit, puis implémente uniquement ce qui est réellement encore nécessaire.
+
+RÈGLE FINALE :
+
+FONCTIONNEL = NE PAS TOUCHER.
+
+PARTIEL = CORRIGER MINIMALEMENT.
+
+MANQUANT = AJOUTER.
+
+INCERTAIN = INSPECTER ET TESTER AVANT DE MODIFIER.
+
+ET SURTOUT :
+
+UN ARTISTE OU UN VISITEUR NE DOIT JAMAIS POUVOIR ACCÉDER À L’ESPACE ADMINISTRATEUR SIMPLEMENT EN CONNAISSANT L’URL.
