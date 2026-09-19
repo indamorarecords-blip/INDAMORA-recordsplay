@@ -1,1 +1,2 @@
 - [API response normalization](api-response-normalization.md) — normalize database-native values before generated response validation.
+- [Stripe connector boundary](stripe-connector-boundary.md) — Replit Stripe connections expose a server-side proxy, while webhook signing still needs a separate secret.
