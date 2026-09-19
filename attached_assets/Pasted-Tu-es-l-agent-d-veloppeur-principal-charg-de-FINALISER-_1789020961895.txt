@@ -1,0 +1,979 @@
+Tu es l’agent développeur principal chargé de FINALISER mon projet existant INDAMORA PLAY, plateforme officielle liée à INDAMORA RECORDS.
+
+IMPORTANT :
+
+* Le projet existe déjà.
+* NE RECOMMENCE PAS le projet depuis zéro.
+* NE SUPPRIME PAS la V1 existante.
+* Commence par analyser l’architecture et le code déjà présents.
+* Réutilise au maximum l’existant : React, Vite, TypeScript, Tailwind, PostgreSQL, Drizzle, API, composants, routes et dépendances déjà installées.
+* L’objectif est de construire tout ce qui manque directement dans ce projet.
+* Je veux une intervention aussi complète que possible en UNE SEULE intervention Agent.
+* Ne me demande pas de refaire manuellement des dizaines de modifications.
+* Ne crée aucune fausse fonctionnalité : les boutons importants doivent réellement fonctionner ou afficher clairement ce qui nécessite encore une configuration externe.
+
+1. IDENTITÉ DU PROJET
+
+Nom de la plateforme :
+
+INDAMORA PLAY
+
+Écosystème :
+
+INDAMORA RECORDS
+
+La plateforme doit être moderne, professionnelle, élégante, rapide et parfaitement adaptée :
+
+* smartphone
+* tablette
+* ordinateur
+
+Langue principale :
+FRANÇAIS
+
+L’identité visuelle doit rester cohérente avec l’identité existante d’INDAMORA PLAY / INDAMORA RECORDS.
+
+LOGO EXISTANT
+
+J’ai déjà un logo officiel pour INDAMORA PLAY.
+
+IMPORTANT :
+
+* NE PAS recréer le logo.
+* NE PAS modifier son design.
+* NE PAS générer un nouveau logo.
+* Si le fichier du logo est présent dans attached_assets ou dans les fichiers du projet, identifie-le et utilise-le.
+* Si je fournis le fichier du logo à Replit, utilise exactement ce fichier comme asset officiel.
+* Si plusieurs formats existent, privilégier la meilleure qualité disponible.
+* Prévoir une version adaptée au fond clair et/ou sombre uniquement si les fichiers fournis le permettent.
+* Conserver les proportions du logo.
+* Ne jamais l’étirer ou le déformer.
+
+Intégrer le logo officiel notamment :
+
+* header / navigation
+* page d’accueil
+* écran de connexion
+* inscription
+* espace artiste
+* espace administrateur
+* footer
+* page Premium
+* page Don / Soutenir
+* favicon si un format adapté existe
+* écran mobile
+* éventuellement écran de chargement
+
+Créer si nécessaire une gestion propre des assets du logo afin qu’il soit facilement remplaçable plus tard.
+
+2. OBJECTIF GLOBAL
+
+Je veux que le projet devienne une véritable plateforme INDAMORA PLAY avec :
+
+* utilisateurs
+* comptes artistes
+* authentification
+* profils artistes
+* œuvres
+* validation des artistes
+* validation des œuvres
+* espace administrateur INDAMORA RECORDS
+* musique
+* lecteur audio
+* vidéos
+* recherche
+* stockage des médias
+* abonnement Premium
+* paiements réels
+* dons réels
+* statistiques
+* gestion administrative
+* système sécurisé de rôles
+* interface responsive
+* architecture prête pour évoluer
+
+Le but est que INDAMORA RECORDS puisse administrer la plateforme elle-même, depuis téléphone, tablette ou ordinateur, sans devoir demander à Replit de valider chaque artiste ou chaque œuvre.
+
+3. ARCHITECTURE EXISTANTE
+
+Avant toute modification :
+
+1. Inspecte le projet.
+2. Identifie l’application frontend.
+3. Identifie le backend/API existant.
+4. Identifie PostgreSQL.
+5. Identifie Drizzle ORM et les schémas.
+6. Identifie les routes existantes.
+7. Identifie les composants UI existants.
+8. Identifie le système de stockage existant.
+9. Identifie les dépendances déjà installées.
+10. Identifie les fichiers OpenAPI/API existants.
+11. Réutilise l’architecture actuelle au lieu de créer une architecture parallèle inutile.
+
+Le projet possède notamment une structure avec :
+
+* artifact
+* lib/db
+* lib/api-client-react
+* lib/api-spec
+* lib/api-zod
+* scripts
+
+Respecte cette architecture lorsqu’elle est adaptée.
+
+4. BASE DE DONNÉES
+
+Utiliser PostgreSQL déjà présent dans le projet.
+
+Utiliser Drizzle ORM déjà présent.
+
+Créer/migrer proprement les tables nécessaires.
+
+Prévoir notamment :
+
+users
+
+* id
+* username
+* firstName
+* lastName
+* email
+* passwordHash
+* role
+* createdAt
+* updatedAt
+
+Rôles minimum :
+
+* USER
+* ARTIST
+* ADMIN
+
+artist_profiles
+
+* id
+* userId
+* artistName
+* biography
+* country
+* city
+* genre
+* profileImage
+* status
+* createdAt
+* updatedAt
+
+Statuts :
+
+* PENDING
+* VALIDATED
+* REFUSED
+
+works
+
+* id
+* artistId
+* title
+* description
+* type
+* audioUrl
+* videoUrl
+* coverUrl
+* status
+* createdAt
+* updatedAt
+
+Statuts :
+
+* PENDING
+* VALIDATED
+* REFUSED
+
+subscriptions
+
+Prévoir :
+
+* id
+* userId
+* plan
+* country/region
+* provider
+* providerCustomerId
+* providerSubscriptionId
+* status
+* startedAt
+* expiresAt
+* createdAt
+* updatedAt
+
+payments
+
+Prévoir :
+
+* id
+* userId
+* type
+* provider
+* providerPaymentId
+* amount
+* currency
+* status
+* metadata
+* createdAt
+
+donations
+
+Prévoir :
+
+* id
+* userId nullable
+* donorName nullable
+* donorEmail nullable
+* amount
+* currency
+* provider
+* providerPaymentId
+* status
+* createdAt
+
+validation / audit
+
+Prévoir si nécessaire une table d’audit afin de garder une trace des actions administratives :
+
+* administrateur
+* action
+* cible
+* date
+* résultat
+
+Ne jamais stocker les mots de passe en clair.
+
+5. AUTHENTIFICATION
+
+Mettre en place une authentification réelle.
+
+Fonctions :
+
+* inscription
+* connexion
+* déconnexion
+* session persistante
+* mot de passe sécurisé
+* hash sécurisé des mots de passe
+* protection des routes
+* récupération de mot de passe si l’architecture permet de le faire correctement
+* contrôle des rôles côté serveur
+
+Ne jamais faire confiance uniquement au frontend pour déterminer qu’un utilisateur est administrateur.
+
+6. ADMINISTRATEUR PRINCIPAL
+
+Créer un espace :
+
+/admin
+
+Administrateur principal :
+
+Nom d’utilisateur :
+INDIANA
+
+Prénom :
+SHELLAY
+
+Email :
+indamorarecords@gmail.com
+
+Rôle :
+ADMINISTRATEUR PRINCIPAL / INDAMORA RECORDS
+
+IMPORTANT :
+NE PAS mettre de mot de passe dans le code, dans ce prompt ou dans le frontend.
+
+Le compte administrateur doit être créé/configuré de manière sécurisée via variable d’environnement / secret ou mécanisme sécurisé adapté.
+
+7. ESPACE ADMINISTRATEUR
+
+Créer une vraie interface d’administration responsive.
+
+Elle doit fonctionner parfaitement sur :
+
+* téléphone
+* tablette
+* ordinateur
+
+Dashboard :
+
+* nombre total d’utilisateurs
+* nombre d’artistes
+* artistes en attente
+* artistes validés
+* œuvres en attente
+* œuvres validées
+* abonnés Premium
+* revenus Premium
+* dons
+* paiements
+* activités récentes
+
+Gestion des artistes
+
+L’administrateur doit pouvoir :
+
+* voir les artistes
+* rechercher un artiste
+* ouvrir son profil
+* voir ses informations
+* voir ses œuvres
+* valider
+* refuser
+* éventuellement désactiver
+
+Lorsqu’un artiste est validé :
+son statut PostgreSQL doit réellement passer à VALIDATED.
+
+Lorsqu’il est refusé :
+son statut doit réellement passer à REFUSED.
+
+Gestion des œuvres
+
+L’administrateur doit pouvoir :
+
+* voir les œuvres en attente
+* écouter/prévisualiser les contenus lorsque disponibles
+* voir les informations
+* valider
+* refuser
+
+Les changements doivent réellement être enregistrés en base.
+
+Gestion des utilisateurs
+
+L’administrateur doit pouvoir :
+
+* voir les utilisateurs
+* rechercher
+* consulter leur profil
+* voir leur rôle
+* voir leur statut Premium
+* désactiver si nécessaire
+
+8. ESPACE ARTISTE
+
+Créer un espace artiste permettant à un artiste de :
+
+* créer son profil
+* ajouter photo/avatar
+* nom artistique
+* biographie
+* pays
+* ville
+* genre musical
+* envoyer des œuvres
+* envoyer une couverture
+* envoyer des fichiers audio
+* envoyer des vidéos
+* voir le statut de validation
+
+Afficher clairement :
+
+EN ATTENTE
+
+VALIDÉ
+
+REFUSÉ
+
+Un artiste non validé ne doit pas être présenté comme artiste officiellement validé sur la plateforme.
+
+9. MUSIQUE
+
+Créer une véritable section musique.
+
+Prévoir :
+
+* artistes
+* albums/projets si pertinent
+* singles
+* morceaux
+* pochettes
+* catégories
+* recherche
+* lecture audio
+
+Créer un vrai lecteur audio HTML5/React fonctionnel.
+
+Fonctions :
+
+* play
+* pause
+* précédent
+* suivant
+* progression
+* durée
+* volume
+* affichage du morceau
+* pochette
+* lecture sur mobile
+
+Ne pas créer simplement un bouton décoratif.
+
+10. VIDÉOS
+
+Créer une section vidéos.
+
+Prévoir :
+
+* vidéos d’artistes
+* miniature
+* titre
+* artiste
+* description
+* lecteur vidéo
+* recherche
+* navigation responsive
+
+Utiliser un lecteur HTML5 ou une solution adaptée aux fichiers réellement disponibles.
+
+11. RECHERCHE
+
+Créer une recherche globale permettant de rechercher :
+
+* artistes
+* morceaux
+* œuvres
+* vidéos
+
+Prévoir une expérience mobile propre.
+
+12. STOCKAGE DES MÉDIAS
+
+Utiliser le système de stockage déjà présent si disponible.
+
+Sinon, préparer une intégration de stockage adaptée.
+
+Les fichiers audio/vidéo/images ne doivent pas être inutilement stockés directement dans la base PostgreSQL.
+
+Prévoir :
+
+* upload sécurisé
+* validation des types de fichiers
+* limites de taille
+* URLs sécurisées
+* suppression/remplacement lorsque nécessaire
+
+13. PREMIUM
+
+Créer :
+
+PREMIUM AFRIQUE — 500 FCFA / mois
+
+et
+
+PREMIUM INTERNATIONAL — 5 € / mois
+
+La région doit être déterminée proprement.
+
+Ne pas présenter le système comme garantissant un revenu fixe aux artistes.
+
+Message officiel :
+
+« Votre abonnement contribue au développement d’INDAMORA PLAY et au soutien des artistes et créateurs. »
+
+Prévoir une présentation claire expliquant que plus la communauté Premium grandit, plus INDAMORA RECORDS pourra développer des projets et mécanismes de soutien aux créateurs.
+
+Ne pas promettre :
+
+* montant fixe par stream
+* rémunération fixe par abonnement
+* redistribution automatique d’un pourcentage non défini
+
+Préparer l’architecture afin qu’un futur mécanisme de redistribution puisse être défini par INDAMORA RECORDS selon les revenus et données disponibles.
+
+14. PAIEMENTS PREMIUM
+
+Je veux de vrais paiements, PAS une simulation.
+
+Choisir une solution de paiement adaptée :
+
+* Afrique
+* Europe
+* international
+
+Selon les possibilités réelles du projet et des fournisseurs disponibles.
+
+L’intégration doit prévoir :
+
+* création du paiement
+* validation serveur
+* webhooks
+* vérification de signature
+* statut du paiement
+* création/activation de l’abonnement après confirmation réelle
+* gestion des paiements échoués
+* gestion des annulations
+* gestion des renouvellements si le fournisseur le permet
+
+IMPORTANT :
+
+Ne jamais considérer un paiement comme réussi uniquement parce que le navigateur revient sur une page success.
+
+La confirmation doit être faite côté serveur via le mécanisme officiel du fournisseur.
+
+Ne jamais mettre :
+
+* clé secrète
+* secret API
+* webhook secret
+* mot de passe
+
+dans le frontend ou dans Git.
+
+Utiliser les Replit Secrets / variables d’environnement.
+
+Si les identifiants du fournisseur de paiement ne sont pas encore disponibles, construire toute l’intégration et afficher clairement dans le rapport final les variables qui devront être renseignées.
+
+NE PAS prétendre que les paiements sont réellement actifs tant que les credentials et la configuration du fournisseur ne sont pas renseignés.
+
+15. DONS — SOUTENIR INDAMORA
+
+Créer une section complètement séparée de Premium :
+
+DONNER / SOUTENIR INDAMORA
+
+Le don ne doit pas nécessiter un abonnement Premium.
+
+Un utilisateur peut être :
+
+* utilisateur gratuit
+* Premium
+* donateur uniquement
+* Premium + donateur
+
+Prévoir plusieurs montants rapides :
+
+* 1 €
+* 5 €
+* 10 €
+* 20 €
+* 50 €
+* 100 €
+* Autre montant
+
+L’utilisateur doit pouvoir entrer librement son montant.
+
+Texte :
+
+« Chaque contribution compte. Votre don aide INDAMORA à développer INDAMORA PLAY, à soutenir les artistes indépendants à travers VOIX DE L’AVENIR et à faire grandir nos projets. »
+
+VOIX DE L’AVENIR est une branche/projet de l’écosystème INDAMORA destiné à soutenir les artistes indépendants et les projets de l’association.
+
+Le système de don doit être réellement connecté à un fournisseur de paiement lorsque les credentials sont disponibles.
+
+Prévoir :
+
+* paiement
+* confirmation serveur
+* webhook
+* statut
+* transaction ID
+* montant
+* devise
+* date
+* historique
+
+Ne jamais prétendre qu’un don est réussi simplement parce que l’utilisateur arrive sur une page de confirmation.
+
+Ne pas promettre de déductibilité fiscale ou de reçu fiscal sans validation juridique.
+
+Ne pas promettre qu’un pourcentage précis des dons sera reversé aux artistes.
+
+16. ADMIN — GESTION DES DONS
+
+Dans /admin, ajouter une rubrique :
+
+DONS
+
+Afficher :
+
+* total des dons
+* nombre de dons
+* dons récents
+* montant
+* devise
+* date
+* statut
+* transaction ID
+* donateur lorsque disponible
+
+Ne jamais afficher de données bancaires complètes.
+
+Ajouter éventuellement des statistiques simples.
+
+17. NAVIGATION
+
+Créer une navigation claire :
+
+* Accueil
+* Musique
+* Vidéos
+* Artistes
+* Recherche
+* Premium
+* Soutenir / Donner
+* Connexion
+* Inscription
+
+Une fois connecté :
+
+* Mon compte
+* Mon espace artiste si artiste
+* Premium
+* Dons
+* Déconnexion
+
+Pour l’administrateur :
+
+* Admin
+
+18. PAGE D’ACCUEIL
+
+Créer une vraie homepage professionnelle.
+
+Elle doit présenter :
+
+INDAMORA PLAY
+
+Une plateforme destinée à mettre en avant :
+
+* musique
+* artistes
+* vidéos
+* créativité
+* culture
+* talents
+
+Mettre en avant :
+
+* artistes validés
+* nouveautés
+* morceaux
+* vidéos
+* Premium
+* Soutenir INDAMORA
+
+Utiliser le LOGO OFFICIEL fourni.
+
+19. DESIGN
+
+Le design doit être moderne et professionnel.
+
+Inspiration générale :
+
+* plateformes musicales modernes
+* expérience fluide
+* interface sombre/élégante si compatible avec l’identité actuelle
+* cartes propres
+* gros visuels
+* pochettes
+* boutons visibles
+* navigation mobile
+
+Mais ne copie pas Spotify, Apple Music ou une autre plateforme.
+
+INDAMORA PLAY doit avoir sa propre identité.
+
+Respecter notamment l’identité visuelle existante et les couleurs du logo officiel.
+
+20. RESPONSIVE
+
+Tester et corriger :
+
+* smartphone
+* tablette
+* desktop
+
+Priorité absolue au mobile.
+
+L’espace /admin doit être utilisable depuis un téléphone.
+
+Les tableaux administratifs doivent devenir responsives :
+
+* cartes
+* scroll horizontal contrôlé
+* filtres
+* menus adaptés
+
+21. SÉCURITÉ
+
+Mettre en place :
+
+* validation des données
+* protection des routes
+* contrôle des rôles côté serveur
+* hash des mots de passe
+* protection des endpoints admin
+* vérification des webhooks
+* secrets uniquement côté serveur
+* validation des uploads
+* limites de taille
+* prévention des accès non autorisés
+
+Ne jamais exposer les secrets dans le frontend.
+
+22. API
+
+Réutiliser l’API existante et les schémas existants.
+
+Si l’architecture OpenAPI/API Zod est déjà utilisée :
+
+* respecter cette architecture
+* ajouter les endpoints nécessaires proprement
+* régénérer les clients/types si nécessaire
+
+Éviter de créer des endpoints parallèles inutiles.
+
+23. DONNÉES DE TEST
+
+Créer quelques données de démonstration raisonnables si nécessaire :
+
+* utilisateurs
+* artistes
+* œuvres
+* contenus
+
+Mais distinguer clairement les données de test des vraies données.
+
+Ne pas créer de faux paiements présentés comme réels.
+
+Ne pas créer de faux dons présentés comme réels.
+
+24. EXPÉRIENCE UTILISATEUR
+
+Ajouter :
+
+* états de chargement
+* erreurs compréhensibles
+* confirmations
+* notifications
+* messages lorsque aucun contenu n’existe
+* formulaires propres
+* validations
+* boutons réellement fonctionnels
+
+Éviter les éléments décoratifs qui ressemblent à des fonctions mais qui ne fonctionnent pas.
+
+25. SEO / META
+
+Prévoir si possible :
+
+* titre INDAMORA PLAY
+* description
+* favicon utilisant le logo si possible
+* Open Graph
+* métadonnées adaptées
+
+26. PERFORMANCE
+
+Optimiser :
+
+* images
+* chargement des médias
+* requêtes DB
+* affichage mobile
+* composants inutiles
+* chargement initial
+
+27. TESTS
+
+À la fin :
+
+1. lancer le typecheck
+2. corriger les erreurs TypeScript
+3. lancer le build
+4. corriger les erreurs de build
+5. tester les routes principales
+6. tester l’authentification
+7. tester les rôles
+8. tester l’espace admin
+9. tester les validations artistes
+10. tester les validations œuvres
+11. tester le lecteur audio
+12. tester les vidéos
+13. tester la recherche
+14. tester les pages Premium
+15. tester le parcours don
+16. tester le responsive
+
+Ne laisse pas volontairement le projet dans un état cassé.
+
+28. IMPORTANT POUR LES PAIEMENTS
+
+Si une information externe est indispensable pour activer les paiements réels :
+
+* ne bloque pas tout le développement
+* implémente toute l’architecture possible
+* utilise des variables d’environnement
+* indique exactement les secrets/configurations nécessaires dans le rapport final
+* ne mets jamais mes secrets dans le code
+* ne me demande jamais de t’envoyer mon mot de passe dans le chat
+
+Le site doit être fonctionnel même si la dernière étape d’activation d’un fournisseur nécessite des credentials externes.
+
+29. IMPORTANT POUR LE LOGO
+
+Le logo officiel que je possède doit être intégré comme asset officiel.
+
+Si le fichier est présent dans attached_assets :
+
+* retrouve-le
+* utilise-le
+* optimise seulement son affichage
+* ne le redessine pas
+
+Si plusieurs fichiers existent :
+
+* identifier le meilleur fichier
+* utiliser la version haute qualité pour le site
+* utiliser une version adaptée pour favicon si disponible
+
+Créer éventuellement un composant Logo réutilisable afin d’avoir le même logo partout.
+
+Exemple d’utilisation :
+
+* <Logo />
+* <Logo variant="compact" />
+
+mais adapte cela à l’architecture réelle du projet.
+
+30. NE PAS CASSER L’EXISTANT
+
+Avant chaque grosse modification :
+
+* comprendre le code existant
+* réutiliser les composants
+* conserver les fonctionnalités V1 qui fonctionnent
+* éviter les réécritures inutiles
+
+Si une fonctionnalité existe déjà, améliore-la plutôt que de la remplacer sans raison.
+
+31. OBJECTIF FINAL
+
+Je veux obtenir une plateforme INDAMORA PLAY réellement exploitable avec :
+
+V1 :
+Application + interface
+
+V1.1 :
+Comptes utilisateurs et artistes
+
+V1.2 :
+Espace administrateur INDAMORA RECORDS
+
+V1.3 :
+Validation des artistes et œuvres
+
+V2 :
+Lecteur audio/vidéo + Premium + paiements + dons + évolution de la plateforme
+
+Le tout dans le projet existant.
+
+32. RAPPORT FINAL OBLIGATOIRE
+
+À la fin de ton intervention, donne-moi un rapport très clair indiquant :
+
+CE QUI EST TERMINÉ
+
+* frontend
+* backend
+* base de données
+* authentification
+* artistes
+* validation
+* œuvres
+* admin
+* musique
+* vidéos
+* recherche
+* stockage
+* Premium
+* paiements
+* dons
+* responsive
+* logo
+
+ADMIN
+
+Indique :
+
+* URL de l’espace admin
+* comment se connecter
+* rôle administrateur
+
+Ne jamais afficher le mot de passe.
+
+PAIEMENTS
+
+Indique :
+
+* fournisseur choisi
+* ce qui est déjà configuré
+* variables d’environnement nécessaires
+* ce qui nécessite encore une action externe
+
+DONS
+
+Indique :
+
+* fournisseur
+* fonctionnement
+* variables nécessaires
+* webhook
+* statut
+
+LOGO
+
+Indique :
+
+* fichier utilisé
+* endroits où il a été intégré
+
+BASE DE DONNÉES
+
+Indique :
+
+* tables créées/modifiées
+* migrations effectuées
+
+TESTS
+
+Indique :
+
+* typecheck
+* build
+* tests
+* éventuelles erreurs restantes
+
+FICHIERS MODIFIÉS
+
+Donne une liste concise des principaux fichiers modifiés/créés.
+
+33. RÈGLE ABSOLUE
+
+Ne recommence pas INDAMORA PLAY depuis zéro.
+
+Ne supprime pas la V1 existante.
+
+Ne crée pas une simple maquette.
+
+Je veux une vraie application full-stack.
+
+Je veux que INDAMORA RECORDS puisse administrer elle-même les artistes, les œuvres, les utilisateurs, Premium et les dons.
+
+Je veux que l’utilisateur puisse réellement s’inscrire, se connecter, devenir artiste, envoyer ses œuvres, puis attendre la validation de l’administrateur.
+
+Je veux que l’administrateur puisse réellement valider ou refuser depuis son téléphone, sa tablette ou son ordinateur.
+
+Je veux que Premium et les dons soient préparés pour de vrais paiements et que les paiements réels soient activables avec les credentials officiels des fournisseurs.
+
+Je veux que le LOGO OFFICIEL que je fournis soit utilisé sur le site et non remplacé par un logo généré.
+
+Travaille maintenant directement dans le projet existant et réalise le maximum possible en une seule intervention.

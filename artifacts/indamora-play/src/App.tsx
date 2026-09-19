@@ -62,6 +62,21 @@ function cx(...values: Array<string | false | null | undefined>) {
   return values.filter(Boolean).join(' ');
 }
 
+const assetUrl = (path: string) => `${import.meta.env.BASE_URL}${path}`;
+
+function Logo({ variant = 'compact', className = '' }: { variant?: 'compact' | 'full' | 'mark'; className?: string }) {
+  if (variant === 'full') {
+    return <img src={assetUrl('assets/indamora-play-logo.png')} alt="INDAMORA PLAY — Notre musique. Notre culture. Notre scène." className={cx('h-auto w-full mix-blend-multiply', className)} data-testid="img-official-logo" />;
+  }
+  if (variant === 'mark') {
+    return <img src={assetUrl('assets/indamora-play-mark.png')} alt="" className={cx('h-10 w-12 object-contain mix-blend-multiply', className)} aria-hidden="true" data-testid="img-official-mark" />;
+  }
+  return <span className={cx('inline-flex items-center gap-2', className)} aria-label="INDAMORA PLAY">
+    <img src={assetUrl('assets/indamora-play-mark.png')} alt="" className="h-9 w-10 object-contain mix-blend-multiply" aria-hidden="true" data-testid="img-official-mark" />
+    <span className="display text-[1.35rem] font-bold tracking-tight">INDAMORA <span className="text-primary">PLAY</span></span>
+  </span>;
+}
+
 function Avatar({ name, src, size = 'md' }: { name: string; src?: string; size?: 'sm' | 'md' | 'lg' }) {
   const initials = name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase();
   return src ? (
@@ -86,10 +101,7 @@ function Shell({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between px-5 lg:px-8">
           <Link href="/" className="group flex items-center gap-3" data-testid="link-logo">
-            <span className="relative grid h-10 w-10 place-items-center rounded-[13px] bg-primary text-primary-foreground shadow-[4px_4px_0_hsl(var(--accent))] transition-transform group-hover:-translate-y-0.5">
-              <span className="display text-xl font-bold">I</span>
-            </span>
-            <span className="display text-[1.35rem] font-bold tracking-tight">INDAMORA <span className="text-primary">PLAY</span></span>
+            <Logo className="transition-transform group-hover:-translate-y-0.5" />
           </Link>
           <nav className="hidden items-center gap-1 md:flex">
             {nav.map(({ href, label, icon: Icon }) => (
@@ -119,7 +131,7 @@ function Shell({ children }: { children: ReactNode }) {
       <main>{children}</main>
       <footer className="mt-24 border-t border-border bg-secondary px-5 py-10 text-secondary-foreground lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
-          <div><div className="display text-2xl font-bold">INDAMORA <span className="text-accent">PLAY</span></div><p className="mt-2 max-w-xs text-sm leading-6 text-secondary-foreground/70">Le foyer chaleureux des sons, des histoires et des écrans d’Afrique centrale.</p></div>
+          <div><div className="mb-3 w-36 rounded-xl bg-white p-1"><Logo variant="full" /></div><p className="max-w-xs text-sm leading-6 text-secondary-foreground/70">Le foyer chaleureux des sons, des histoires et des écrans d’Afrique centrale.</p></div>
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-secondary-foreground/80"><Link href="/explorer" data-testid="link-footer-explorer">Explorer</Link><Link href="/artists" data-testid="link-footer-artists">Artistes</Link><Link href="/pricing" data-testid="link-footer-pricing">Premium</Link><Link href="/profil" data-testid="link-footer-profile">Mon profil</Link><Link href="/espace-artiste" data-testid="link-footer-artist-space">Espace artiste</Link><Link href="/administration" data-testid="link-footer-admin">Administration</Link><Link href="/submit" data-testid="link-footer-submit">Proposer une œuvre</Link></div>
         </div>
         <div className="mx-auto mt-8 max-w-7xl border-t border-secondary-foreground/15 pt-4 font-mono text-[10px] uppercase tracking-[.2em] text-secondary-foreground/50">Bangui · République centrafricaine · La diaspora</div>
@@ -182,7 +194,7 @@ function Home() {
       <div className="absolute -right-24 -top-32 h-80 w-80 rounded-full border-[42px] border-accent/80 opacity-80 md:h-[34rem] md:w-[34rem]" />
       <div className="absolute bottom-[-5rem] left-[42%] h-40 w-40 rotate-12 border-[20px] border-primary/70 md:h-64 md:w-64" />
       <div className="relative mx-auto grid max-w-7xl items-end gap-12 px-5 pb-16 pt-16 lg:grid-cols-[1.1fr_.9fr] lg:px-8 lg:pb-24 lg:pt-24">
-        <div className="animate-rise-in"><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-secondary-foreground/20 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[.18em] text-accent"><span className="h-1.5 w-1.5 rounded-full bg-accent" /> Depuis Bangui, avec émotion</div><h1 className="display max-w-3xl text-5xl font-bold leading-[.98] md:text-7xl">Écoutez les voix<br /><span className="text-accent">qui ont le goût du pays.</span></h1><p className="mt-6 max-w-lg text-base leading-7 text-secondary-foreground/75 md:text-lg">Musique, humour, cinéma et podcasts d’Afrique centrale — pour celles et ceux d’ici, et pour partout où nous emportons notre chez-nous.</p><div className="mt-8 flex flex-wrap gap-3"><a href="#discover" className="flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-1" data-testid="link-start-discover">Commencer à découvrir <ArrowRight className="h-4 w-4" /></a><Link href="/submit" className="rounded-full border border-secondary-foreground/25 px-5 py-3 text-sm font-bold transition-colors hover:border-accent hover:text-accent" data-testid="link-share-hero">Je crée</Link></div></div>
+         <div className="animate-rise-in"><div className="mb-6 w-44 rounded-2xl bg-white p-2 shadow-xl"><Logo variant="full" /></div><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-secondary-foreground/20 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[.18em] text-accent"><span className="h-1.5 w-1.5 rounded-full bg-accent" /> Depuis Bangui, avec émotion</div><h1 className="display max-w-3xl text-5xl font-bold leading-[.98] md:text-7xl">Écoutez les voix<br /><span className="text-accent">qui ont le goût du pays.</span></h1><p className="mt-6 max-w-lg text-base leading-7 text-secondary-foreground/75 md:text-lg">Musique, humour, cinéma et podcasts d’Afrique centrale — pour celles et ceux d’ici, et pour partout où nous emportons notre chez-nous.</p><div className="mt-8 flex flex-wrap gap-3"><a href="#discover" className="flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-1" data-testid="link-start-discover">Commencer à découvrir <ArrowRight className="h-4 w-4" /></a><Link href="/submit" className="rounded-full border border-secondary-foreground/25 px-5 py-3 text-sm font-bold transition-colors hover:border-accent hover:text-accent" data-testid="link-share-hero">Je crée</Link></div></div>
         <div className="relative hidden min-h-[20rem] lg:block"><div className="absolute left-8 top-2 h-64 w-64 rotate-[-8deg] overflow-hidden rounded-[2rem] border-8 border-background/10 bg-primary shadow-2xl animate-drift">{featured[0]?.image && <img src={featured[0].image} alt="" className="h-full w-full object-cover mix-blend-luminosity opacity-90" />}<div className="absolute inset-0 bg-primary/25" /></div><div className="absolute bottom-2 right-3 w-56 rotate-[7deg] rounded-2xl bg-accent p-5 text-accent-foreground shadow-2xl"><Star className="mb-8 h-6 w-6 fill-current" /><p className="display text-xl font-bold leading-tight">Votre prochain coup de cœur est déjà ici.</p><div className="mt-5 font-mono text-[9px] uppercase tracking-[.18em]">Sélection Indamora / 001</div></div></div>
       </div>
     </section>
