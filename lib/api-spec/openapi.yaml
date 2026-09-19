@@ -16,6 +16,8 @@ tags:
     description: Artist profile operations
   - name: submissions
     description: INDAMORA RECORDS moderation operations
+  - name: Storage
+    description: Object storage upload and serving endpoints.
 paths:
   /healthz:
     get:
@@ -185,6 +187,78 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Submission"
+  /storage/uploads/request-url:
+    post:
+      operationId: requestUploadUrl
+      tags: [Storage]
+      summary: Request a presigned URL for direct upload
+      security:
+        - clerkSession: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadUrlRequest"
+      responses:
+        "200":
+          description: Presigned upload URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadUrlResponse"
+  /storage/uploads/complete:
+    post:
+      operationId: completeUpload
+      tags: [Storage]
+      summary: Attach owner ACL metadata to an uploaded object
+      security:
+        - clerkSession: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompleteUploadRequest"
+      responses:
+        "200":
+          description: Uploaded object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompleteUploadResult"
+  /storage/public-objects/{filePath}:
+    get:
+      operationId: getPublicObject
+      tags: [Storage]
+      summary: Serve a public object
+      parameters:
+        - name: filePath
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Object content
+          content:
+            "*/*":
+              schema: { type: string, format: binary }
+  /storage/objects/{objectPath}:
+    get:
+      operationId: getStorageObject
+      tags: [Storage]
+      summary: Serve an uploaded object
+      parameters:
+        - name: objectPath
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Object content
+          content:
+            "*/*":
+              schema: { type: string, format: binary }
 components:
   securitySchemes:
     clerkSession:
@@ -221,15 +295,18 @@ components:
         avatar: { type: string }
     Work:
       type: object
-      required: [id, title, artist, category, description, duration, image, featured, access]
+      required: [id, title, artist, category, description, duration, image, featured, access, mediaType, mediaObjectPath, coverObjectPath]
       properties:
         id: { type: integer }
         title: { type: string }
         artist: { type: string }
         category: { type: string }
         description: { type: string }
-        duration: { type: string }
+        duration: { type: ["string", "null"] }
         image: { type: string }
+        mediaType: { type: ["string", "null"] }
+        mediaObjectPath: { type: ["string", "null"] }
+        coverObjectPath: { type: ["string", "null"] }
         featured: { type: boolean }
         access:
           type: string
@@ -247,14 +324,24 @@ components:
           type: string
           enum: [pending, approved, rejected]
         note: { type: ["string", "null"] }
+        mediaType: { type: ["string", "null"] }
+        mediaObjectPath: { type: ["string", "null"] }
+        coverObjectPath: { type: ["string", "null"] }
+        duration: { type: ["string", "null"] }
     SubmissionInput:
       type: object
-      required: [title, artist, category]
+      required: [title, artist, category, mediaType, mediaObjectPath]
       properties:
         title: { type: string, minLength: 2 }
         artist: { type: string, minLength: 2 }
         category: { type: string, minLength: 2 }
         note: { type: string }
+        mediaType:
+          type: string
+          enum: [audio, video]
+        mediaObjectPath: { type: string, minLength: 1 }
+        coverObjectPath: { type: string, minLength: 1 }
+        duration: { type: string }
     SubmissionStatusInput:
       type: object
       required: [status]
@@ -262,4 +349,29 @@ components:
         status:
           type: string
           enum: [pending, approved, rejected]
+    UploadUrlRequest:
+      type: object
+      required: [name, size, contentType]
+      properties:
+        name: { type: string, minLength: 1 }
+        size: { type: integer, minimum: 1 }
+        contentType: { type: string, minLength: 1 }
+    UploadUrlResponse:
+      type: object
+      required: [uploadURL, objectPath]
+      properties:
+        uploadURL: { type: string, format: uri }
+        objectPath: { type: string }
+        metadata:
+          $ref: "#/components/schemas/UploadUrlRequest"
+    CompleteUploadRequest:
+      type: object
+      required: [objectPath]
+      properties:
+        objectPath: { type: string, minLength: 1 }
+    CompleteUploadResult:
+      type: object
+      required: [objectPath]
+      properties:
+        objectPath: { type: string }
 

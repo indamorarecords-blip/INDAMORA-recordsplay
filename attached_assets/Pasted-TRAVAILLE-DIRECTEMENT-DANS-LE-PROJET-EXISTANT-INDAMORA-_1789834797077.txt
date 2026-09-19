@@ -1,0 +1,252 @@
+TRAVAILLE DIRECTEMENT DANS LE PROJET EXISTANT INDAMORA PLAY.
+
+IMPORTANT — RÈGLE ABSOLUE :
+NE MODIFIE PAS, NE SUPPRIME PAS, NE REMPLACE PAS ET NE REFAIS PAS une fonctionnalité qui existe déjà et qui est validée et fonctionnelle.
+
+Avant toute modification :
+
+1. Analyse complètement le projet actuel.
+2. Identifie ce qui est déjà présent.
+3. Identifie ce qui fonctionne réellement.
+4. Identifie ce qui est partiellement fonctionnel.
+5. Identifie uniquement ce qui manque ou doit être corrigé.
+6. Vérifie les routes, composants, API, base de données, authentification, styles et fonctionnalités existantes.
+7. Ne touche à un fichier existant que si cela est strictement nécessaire pour ajouter une fonctionnalité manquante ou corriger un problème réel.
+
+OBJECTIF DE CETTE ÉTAPE :
+Faire progresser INDAMORA PLAY sans régression et sans repartir de zéro.
+
+MÉTHODE OBLIGATOIRE :
+
+ÉTAPE 1 — AUDIT
+Commence par auditer l’application existante.
+
+Classe les éléments dans 3 catégories :
+
+A. DÉJÀ FONCTIONNEL → NE PAS TOUCHER
+B. PRÉSENT MAIS INCOMPLET / BUGUÉ → CORRIGER UNIQUEMENT SI NÉCESSAIRE
+C. MANQUANT → CONSTRUIRE
+
+Ne remplace jamais une fonctionnalité de catégorie A par une nouvelle implémentation.
+
+ÉTAPE 2 — VÉRIFICATION
+Teste les fonctionnalités déjà présentes avant de modifier quoi que ce soit :
+
+* navigation
+* accueil
+* musique
+* vidéos
+* artistes
+* recherche
+* authentification
+* compte utilisateur
+* espace artiste
+* administration
+* responsive mobile
+* base de données
+* API
+* composants existants
+* styles existants
+* logo existant
+
+Si une fonctionnalité fonctionne, conserve exactement son comportement fonctionnel.
+
+ÉTAPE 3 — DÉVELOPPEMENT DES MANQUES
+Après l’audit, implémente uniquement les éléments réellement manquants ou incomplets.
+
+Priorité :
+
+1. Finaliser les fonctionnalités déjà commencées mais incomplètes.
+2. Finaliser la connexion entre frontend, backend et PostgreSQL.
+3. Vérifier les comptes utilisateurs.
+4. Vérifier les profils artistes.
+5. Vérifier l’envoi et la validation des œuvres.
+6. Vérifier l’espace administrateur INDAMORA RECORDS.
+7. Vérifier les validations artiste/œuvre.
+8. Vérifier la recherche.
+9. Vérifier les médias.
+10. Vérifier le lecteur audio si déjà présent.
+11. Vérifier Premium.
+12. Vérifier les dons.
+13. Vérifier les notifications.
+14. Vérifier les statistiques.
+15. Vérifier la sécurité et les permissions.
+
+IMPORTANT :
+Si l’une de ces fonctionnalités est déjà correctement fonctionnelle, NE LA REFAIS PAS.
+
+ÉTAPE 4 — BASE DE DONNÉES
+Réutilise la base PostgreSQL et le schéma Drizzle déjà présents.
+
+Ne crée pas de nouvelles tables si une table existante permet déjà de répondre au besoin.
+
+Avant de modifier le schéma :
+
+* inspecte les tables existantes ;
+* vérifie les relations ;
+* vérifie les migrations/configurations ;
+* évite les doublons ;
+* préserve les données existantes.
+
+Toute modification de base de données doit être minimale et justifiée.
+
+ÉTAPE 5 — AUTHENTIFICATION ET PERMISSIONS
+Préserve le système d’authentification existant s’il fonctionne.
+
+Vérifie simplement que les rôles et permissions sont correctement appliqués :
+
+USER
+ARTIST
+ADMIN
+
+L’administration INDAMORA RECORDS doit être protégée.
+
+Les utilisateurs normaux ne doivent jamais pouvoir accéder aux fonctions administrateur.
+
+Les artistes ne doivent pouvoir gérer que leurs propres données et œuvres.
+
+Ne stocke jamais de mot de passe en clair.
+
+Ne me demande jamais mon mot de passe ou mes clés secrètes.
+
+ÉTAPE 6 — ADMINISTRATION
+Conserve l’administration existante si elle fonctionne.
+
+Ajoute uniquement les éléments manquants.
+
+L’administrateur principal est :
+
+INDIANA
+SHELLAY
+INDAMORA RECORDS
+indamorarecords@gmail.com
+
+IMPORTANT :
+Ne crée pas de mot de passe dans le code.
+
+Utilise le système sécurisé existant ou les variables d’environnement/secrets de Replit.
+
+ÉTAPE 7 — PAIEMENTS
+Ne casse aucun système de paiement déjà fonctionnel.
+
+Si Premium ou les dons sont déjà connectés à un véritable prestataire :
+
+* conserve l’intégration ;
+* vérifie les webhooks ;
+* vérifie la confirmation serveur ;
+* vérifie les statuts ;
+* vérifie la sécurité.
+
+Si le paiement réel n’est pas encore configuré :
+
+* prépare proprement l’architecture ;
+* utilise les secrets/env nécessaires ;
+* ne simule pas un paiement comme s’il était réel ;
+* ne prétends jamais qu’un paiement est fonctionnel sans configuration réelle.
+
+Premium :
+
+PREMIUM AFRIQUE — 500 FCFA / mois
+
+PREMIUM INTERNATIONAL — 5 € / mois
+
+Message :
+« Votre abonnement contribue au développement d’INDAMORA PLAY et au soutien des artistes et créateurs. »
+
+Dons :
+1 €
+5 €
+10 €
+20 €
+50 €
+100 €
+Autre montant
+
+Message :
+« Chaque contribution compte. Votre don aide INDAMORA à développer INDAMORA PLAY, à soutenir les artistes indépendants à travers VOIX DE L’AVENIR et à faire grandir nos projets. »
+
+Ne promets aucun montant fixe reversé aux artistes.
+
+ÉTAPE 8 — DESIGN
+Ne refais pas le design si celui actuellement présent est déjà validé et fonctionnel.
+
+Conserve les composants existants.
+
+Améliore uniquement les éléments réellement nécessaires.
+
+Identité :
+INDAMORA PLAY
+« La voix de nos talents. »
+
+Palette :
+#090909
+#111111
+#181818
+#FFFFFF
+#B8B8B8
+#D92525
+#F2C230
+#168447
+#1689C7
+
+Le logo officiel existant doit être conservé et utilisé.
+
+NE REDESSINE PAS LE LOGO.
+
+ÉTAPE 9 — MOBILE
+Vérifie l’application sur mobile et tablette.
+
+Ne modifie pas les éléments mobiles déjà fonctionnels.
+
+Corrige uniquement :
+
+* débordements ;
+* boutons inutilisables ;
+* menus cassés ;
+* textes coupés ;
+* lecteur audio mal positionné ;
+* formulaires inutilisables ;
+* problèmes de responsive réellement constatés.
+
+ÉTAPE 10 — QUALITÉ
+Après les modifications :
+
+* lance le typecheck ;
+* lance le build ;
+* corrige les erreurs introduites ;
+* vérifie les routes ;
+* vérifie les API ;
+* vérifie les permissions ;
+* vérifie les formulaires ;
+* vérifie les états loading/error/empty ;
+* vérifie que les anciennes fonctionnalités fonctionnent toujours.
+
+NE FAIS PAS DE REFACTORING MASSIF.
+
+NE CHANGE PAS L’ARCHITECTURE POUR LE SIMPLE PLAISIR DE LA CHANGER.
+
+NE REMPLACE PAS UNE IMPLÉMENTATION QUI FONCTIONNE PAR UNE AUTRE.
+
+NE SUPPRIME AUCUNE DONNÉE EXISTANTE.
+
+NE SUPPRIME AUCUNE FONCTIONNALITÉ EXISTANTE.
+
+NE RECOMMENCE PAS LE PROJET.
+
+À LA FIN :
+Donne-moi un rapport très clair avec uniquement :
+
+1. Fonctionnalités déjà présentes et conservées.
+2. Fonctionnalités corrigées.
+3. Fonctionnalités nouvellement ajoutées.
+4. Fichiers importants modifiés.
+5. Éventuels problèmes restant à résoudre.
+6. Résultat du typecheck.
+7. Résultat du build.
+8. Ce qui nécessite encore une configuration externe (secrets, paiement, domaine, etc.).
+
+RÈGLE FINALE :
+SI ÇA FONCTIONNE → TU N’Y TOUCHES PAS.
+SI C’EST CASSÉ → TU CORRIGES MINIMALEMENT.
+SI C’EST MANQUANT → TU L’AJOUTES.
+SI TU N’ES PAS CERTAIN → TU INSPECTES ET TESTES AVANT DE MODIFIER.

@@ -26,8 +26,11 @@ export const GetCatalogResponseItem = zod.object({
   "artist": zod.string(),
   "category": zod.string(),
   "description": zod.string(),
-  "duration": zod.string(),
+  "duration": zod.string().nullable(),
   "image": zod.string(),
+  "mediaType": zod.string().nullable(),
+  "mediaObjectPath": zod.string().nullable(),
+  "coverObjectPath": zod.string().nullable(),
   "featured": zod.boolean(),
   "access": zod.enum(['free', 'premium'])
 })
@@ -47,8 +50,11 @@ export const GetWorkResponse = zod.object({
   "artist": zod.string(),
   "category": zod.string(),
   "description": zod.string(),
-  "duration": zod.string(),
+  "duration": zod.string().nullable(),
   "image": zod.string(),
+  "mediaType": zod.string().nullable(),
+  "mediaObjectPath": zod.string().nullable(),
+  "coverObjectPath": zod.string().nullable(),
   "featured": zod.boolean(),
   "access": zod.enum(['free', 'premium'])
 })
@@ -133,7 +139,11 @@ export const GetSubmissionsResponseItem = zod.object({
   "category": zod.string(),
   "submittedAt": zod.string(),
   "status": zod.enum(['pending', 'approved', 'rejected']),
-  "note": zod.string().nullish()
+  "note": zod.string().nullish(),
+  "mediaType": zod.string().nullish(),
+  "mediaObjectPath": zod.string().nullish(),
+  "coverObjectPath": zod.string().nullish(),
+  "duration": zod.string().nullish()
 })
 export const GetSubmissionsResponse = zod.array(GetSubmissionsResponseItem)
 
@@ -149,11 +159,17 @@ export const createSubmissionBodyCategoryMin = 2;
 
 
 
+
+
 export const CreateSubmissionBody = zod.object({
   "title": zod.string().min(createSubmissionBodyTitleMin),
   "artist": zod.string().min(createSubmissionBodyArtistMin),
   "category": zod.string().min(createSubmissionBodyCategoryMin),
-  "note": zod.string().optional()
+  "note": zod.string().optional(),
+  "mediaType": zod.enum(['audio', 'video']),
+  "mediaObjectPath": zod.string().min(1),
+  "coverObjectPath": zod.string().min(1).optional(),
+  "duration": zod.string().optional()
 })
 
 export const CreateSubmissionResponse = zod.object({
@@ -163,7 +179,11 @@ export const CreateSubmissionResponse = zod.object({
   "category": zod.string(),
   "submittedAt": zod.string(),
   "status": zod.enum(['pending', 'approved', 'rejected']),
-  "note": zod.string().nullish()
+  "note": zod.string().nullish(),
+  "mediaType": zod.string().nullish(),
+  "mediaObjectPath": zod.string().nullish(),
+  "coverObjectPath": zod.string().nullish(),
+  "duration": zod.string().nullish()
 })
 
 
@@ -185,7 +205,76 @@ export const UpdateSubmissionStatusResponse = zod.object({
   "category": zod.string(),
   "submittedAt": zod.string(),
   "status": zod.enum(['pending', 'approved', 'rejected']),
-  "note": zod.string().nullish()
+  "note": zod.string().nullish(),
+  "mediaType": zod.string().nullish(),
+  "mediaObjectPath": zod.string().nullish(),
+  "coverObjectPath": zod.string().nullish(),
+  "duration": zod.string().nullish()
 })
+
+
+/**
+ * @summary Request a presigned URL for direct upload
+ */
+
+
+
+
+
+export const RequestUploadUrlBody = zod.object({
+  "name": zod.string().min(1),
+  "size": zod.number().int().min(1),
+  "contentType": zod.string().min(1)
+})
+
+
+
+
+
+
+export const RequestUploadUrlResponse = zod.object({
+  "uploadURL": zod.string().url(),
+  "objectPath": zod.string(),
+  "metadata": zod.object({
+  "name": zod.string().min(1),
+  "size": zod.number().int().min(1),
+  "contentType": zod.string().min(1)
+}).optional()
+})
+
+
+/**
+ * @summary Attach owner ACL metadata to an uploaded object
+ */
+
+
+
+export const CompleteUploadBody = zod.object({
+  "objectPath": zod.string().min(1)
+})
+
+export const CompleteUploadResponse = zod.object({
+  "objectPath": zod.string()
+})
+
+
+/**
+ * @summary Serve a public object
+ */
+export const GetPublicObjectParams = zod.object({
+  "filePath": zod.coerce.string()
+})
+
+export const GetPublicObjectResponse = zod.unknown()
+
+
+/**
+ * @summary Serve an uploaded object
+ */
+export const GetStorageObjectParams = zod.object({
+  "objectPath": zod.coerce.string()
+})
+
+export const GetStorageObjectResponse = zod.unknown()
 
 

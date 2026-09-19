@@ -20,8 +20,17 @@ import {
 } from "@workspace/api-zod";
 import { logger } from "../lib/logger";
 import { isAdminUser, requireAdmin, requireAuth } from "../middlewares/auth";
+import { ObjectPermission } from "../lib/objectAcl";
+import { ObjectStorageService } from "../lib/objectStorage";
 
 const router: IRouter = Router();
+const objectStorage = new ObjectStorageService();
+const allowedAudioTypes = new Set(["audio/mpeg", "audio/mp4", "audio/wav", "audio/ogg"]);
+const allowedVideoTypes = new Set(["video/mp4", "video/webm", "video/quicktime"]);
+const allowedImageTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+const maxAudioBytes = 100 * 1024 * 1024;
+const maxVideoBytes = 500 * 1024 * 1024;
+const maxImageBytes = 10 * 1024 * 1024;
 
 const worksForClient = (rows: typeof worksTable.$inferSelect[]) =>
   rows.map((work) => ({
@@ -38,6 +47,10 @@ const submissionsForClient = (rows: typeof submissionsTable.$inferSelect[]) =>
     category: submission.category,
     status: submission.status,
     note: submission.note,
+    mediaType: submission.mediaType,
+    mediaObjectPath: submission.mediaObjectPath,
+    coverObjectPath: submission.coverObjectPath,
+    duration: submission.duration,
     submittedAt: submission.submittedAt.toISOString(),
   }));
 
@@ -224,6 +237,45 @@ router.post("/submissions", requireAuth, async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
+  try {
+    const media = await objectStorage.getObjectEntityFile(parsed.data.mediaObjectPath);
+    const [mediaMetadata] = await media.getMetadata();
+    const mediaType = String(mediaMetadata.contentType ?? "");
+    const mediaSize = Number(mediaMetadata.size ?? 0);
+    const validMedia =
+      parsed.data.mediaType === "video"
+        ? allowedVideoTypes.has(mediaType) && mediaSize > 0 && mediaSize <= maxVideoBytes
+        : allowedAudioTypes.has(mediaType) && mediaSize > 0 && mediaSize <= maxAudioBytes;
+    if (!validMedia) {
+      res.status(400).json({ error: "Le type du fichier ne correspond pas à l’œuvre." });
+      return;
+    }
+    if (!(await objectStorage.canAccessObjectEntity({
+      userId: req.clerkUserId,
+      objectFile: media,
+      requestedPermission: ObjectPermission.WRITE,
+    }))) {
+      res.status(403).json({ error: "Le média doit être téléversé par votre compte." });
+      return;
+    }
+    if (parsed.data.coverObjectPath) {
+      const cover = await objectStorage.getObjectEntityFile(parsed.data.coverObjectPath);
+      const [coverMetadata] = await cover.getMetadata();
+      const coverType = String(coverMetadata.contentType ?? "");
+      const coverSize = Number(coverMetadata.size ?? 0);
+      if (!allowedImageTypes.has(coverType) || coverSize <= 0 || coverSize > maxImageBytes) {
+        res.status(400).json({ error: "La couverture doit être une image." });
+        return;
+      }
+      if (!(await objectStorage.canAccessObjectEntity({ userId: req.clerkUserId, objectFile: cover, requestedPermission: ObjectPermission.WRITE }))) {
+        res.status(403).json({ error: "La couverture doit être téléversée par votre compte." });
+        return;
+      }
+    }
+  } catch {
+    res.status(400).json({ error: "Les fichiers téléversés sont introuvables." });
+    return;
+  }
   const [submission] = await db
     .insert(submissionsTable)
     .values({ ...parsed.data, ownerId: req.clerkUserId })
@@ -242,36 +294,37 @@ router.patch("/submissions/:id/status", requireAdmin, async (req, res): Promise<
     res.status(400).json({ error: body.error.message });
     return;
   }
-  const [existingSubmission] = await db
-    .select()
-    .from(submissionsTable)
-    .where(eq(submissionsTable.id, params.data.id));
-  if (!existingSubmission) {
-    res.status(404).json({ error: "Submission not found" });
-    return;
-  }
-  const [submission] = await db
-    .update(submissionsTable)
-    .set({ status: body.data.status })
-    .where(eq(submissionsTable.id, params.data.id))
-    .returning();
-  if (!submission) {
-    res.status(404).json({ error: "Submission not found" });
-    return;
-  }
-  if (body.data.status === "approved" && existingSubmission.status !== "approved") {
-    await db.insert(worksTable).values({
-      title: existingSubmission.title,
-      artist: existingSubmission.artist,
-      category: existingSubmission.category,
-      description: existingSubmission.note || "Une nouvelle création validée par INDAMORA RECORDS.",
-      duration: "03:20",
-      image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=900&q=80",
-      featured: "false",
-      access: "free",
-    });
-  }
-  res.json(UpdateSubmissionStatusResponse.parse(submissionsForClient([submission])[0]));
+  const submission = await db.transaction(async (tx) => {
+    const [existing] = await tx.select().from(submissionsTable).where(eq(submissionsTable.id, params.data.id)).for("update");
+    if (!existing) return null;
+    if (existing.publishedWorkId && body.data.status === "rejected") {
+      return { conflict: true as const };
+    }
+    if (body.data.status === "approved" && !existing.publishedWorkId) {
+      const [work] = await tx.insert(worksTable).values({
+        title: existing.title,
+        artist: existing.artist,
+        category: existing.category,
+        description: existing.note || "Une nouvelle création validée par INDAMORA RECORDS.",
+        duration: existing.duration,
+        image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=900&q=80",
+        mediaType: existing.mediaType,
+        mediaObjectPath: existing.mediaObjectPath,
+        coverObjectPath: existing.coverObjectPath,
+        featured: "false",
+        access: "free",
+      }).returning({ id: worksTable.id });
+      if (existing.mediaObjectPath) await objectStorage.setAcl(existing.mediaObjectPath, { owner: existing.ownerId ?? req.clerkUserId!, visibility: "public" });
+      if (existing.coverObjectPath) await objectStorage.setAcl(existing.coverObjectPath, { owner: existing.ownerId ?? req.clerkUserId!, visibility: "public" });
+      const [updated] = await tx.update(submissionsTable).set({ status: "approved", publishedWorkId: work.id }).where(eq(submissionsTable.id, params.data.id)).returning();
+      return { updated };
+    }
+    const [updated] = await tx.update(submissionsTable).set({ status: body.data.status }).where(eq(submissionsTable.id, params.data.id)).returning();
+    return { updated };
+  });
+  if (!submission) { res.status(404).json({ error: "Submission not found" }); return; }
+  if ("conflict" in submission) { res.status(409).json({ error: "Une œuvre publiée ne peut pas être refusée sans procédure de retrait." }); return; }
+  res.json(UpdateSubmissionStatusResponse.parse(submissionsForClient([submission.updated])[0]));
 });
 
 export default router;

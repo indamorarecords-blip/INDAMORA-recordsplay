@@ -20,8 +20,11 @@ export const worksTable = pgTable("works", {
   artist: text("artist").notNull(),
   category: text("category").notNull(),
   description: text("description").notNull(),
-  duration: text("duration").notNull(),
+  duration: text("duration"),
   image: text("image").notNull(),
+  mediaType: text("media_type"),
+  mediaObjectPath: text("media_object_path"),
+  coverObjectPath: text("cover_object_path"),
   featured: text("featured").notNull().default("false"),
   access: text("access").notNull().default("free"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -36,6 +39,11 @@ export const submissionsTable = pgTable("submissions", {
   status: text("status").notNull().default("pending"),
   note: text("note"),
   ownerId: text("owner_id"),
+  mediaType: text("media_type"),
+  mediaObjectPath: text("media_object_path"),
+  coverObjectPath: text("cover_object_path"),
+  duration: text("duration"),
+  publishedWorkId: integer("published_work_id"),
 });
 
 export const insertArtistSchema = createInsertSchema(artistsTable).omit({

@@ -16,4 +16,12 @@ export interface Submission {
   status: SubmissionStatus;
   /** @nullable */
   note?: string | null;
+  /** @nullable */
+  mediaType?: string | null;
+  /** @nullable */
+  mediaObjectPath?: string | null;
+  /** @nullable */
+  coverObjectPath?: string | null;
+  /** @nullable */
+  duration?: string | null;
 }

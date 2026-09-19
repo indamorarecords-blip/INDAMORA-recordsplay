@@ -13,8 +13,15 @@ export interface Work {
   artist: string;
   category: string;
   description: string;
-  duration: string;
+  /** @nullable */
+  duration: string | null;
   image: string;
+  /** @nullable */
+  mediaType: string | null;
+  /** @nullable */
+  mediaObjectPath: string | null;
+  /** @nullable */
+  coverObjectPath: string | null;
   featured: boolean;
   access: WorkAccess;
 }

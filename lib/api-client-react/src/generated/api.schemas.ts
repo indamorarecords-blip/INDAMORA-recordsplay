@@ -45,8 +45,15 @@ export interface Work {
   artist: string;
   category: string;
   description: string;
-  duration: string;
+  /** @nullable */
+  duration: string | null;
   image: string;
+  /** @nullable */
+  mediaType: string | null;
+  /** @nullable */
+  mediaObjectPath: string | null;
+  /** @nullable */
+  coverObjectPath: string | null;
   featured: boolean;
   access: WorkAccess;
 }
@@ -69,7 +76,23 @@ export interface Submission {
   status: SubmissionStatus;
   /** @nullable */
   note?: string | null;
+  /** @nullable */
+  mediaType?: string | null;
+  /** @nullable */
+  mediaObjectPath?: string | null;
+  /** @nullable */
+  coverObjectPath?: string | null;
+  /** @nullable */
+  duration?: string | null;
 }
+
+export type SubmissionInputMediaType = typeof SubmissionInputMediaType[keyof typeof SubmissionInputMediaType];
+
+
+export const SubmissionInputMediaType = {
+  audio: 'audio',
+  video: 'video',
+} as const;
 
 export interface SubmissionInput {
   /** @minLength 2 */
@@ -79,6 +102,12 @@ export interface SubmissionInput {
   /** @minLength 2 */
   category: string;
   note?: string;
+  mediaType: SubmissionInputMediaType;
+  /** @minLength 1 */
+  mediaObjectPath: string;
+  /** @minLength 1 */
+  coverObjectPath?: string;
+  duration?: string;
 }
 
 export type SubmissionStatusInputStatus = typeof SubmissionStatusInputStatus[keyof typeof SubmissionStatusInputStatus];
@@ -92,6 +121,30 @@ export const SubmissionStatusInputStatus = {
 
 export interface SubmissionStatusInput {
   status: SubmissionStatusInputStatus;
+}
+
+export interface UploadUrlRequest {
+  /** @minLength 1 */
+  name: string;
+  /** @minimum 1 */
+  size: number;
+  /** @minLength 1 */
+  contentType: string;
+}
+
+export interface UploadUrlResponse {
+  uploadURL: string;
+  objectPath: string;
+  metadata?: UploadUrlRequest;
+}
+
+export interface CompleteUploadRequest {
+  /** @minLength 1 */
+  objectPath: string;
+}
+
+export interface CompleteUploadResult {
+  objectPath: string;
 }
 
 export type GetSubmissionsParams = {

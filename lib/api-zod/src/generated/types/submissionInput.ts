@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { SubmissionInputMediaType } from './submissionInputMediaType';
 
 export interface SubmissionInput {
   /** @minLength 2 */
@@ -14,4 +15,10 @@ export interface SubmissionInput {
   /** @minLength 2 */
   category: string;
   note?: string;
+  mediaType: SubmissionInputMediaType;
+  /** @minLength 1 */
+  mediaObjectPath: string;
+  /** @minLength 1 */
+  coverObjectPath?: string;
+  duration?: string;
 }
