@@ -9,15 +9,47 @@ export interface HealthStatus {
   status: string;
 }
 
+export type ArtistProfileGroup = typeof ArtistProfileGroup[keyof typeof ArtistProfileGroup];
+
+
+export const ArtistProfileGroup = {
+  artists: 'artists',
+  creations: 'creations',
+  partners: 'partners',
+  press: 'press',
+} as const;
+
 export interface Artist {
   id: number;
   name: string;
   category: string;
   bio: string;
   location: string;
-  avatar?: string;
+  /** @nullable */
+  avatar?: string | null;
   worksCount: number;
+  profileGroup: ArtistProfileGroup;
+  /** @nullable */
+  subcategory?: string | null;
+  /** @nullable */
+  country?: string | null;
+  specialties: string[];
+  /** @nullable */
+  website?: string | null;
+  socialLinks: string[];
+  /** @nullable */
+  professionalContact?: string | null;
 }
+
+export type ArtistInputProfileGroup = typeof ArtistInputProfileGroup[keyof typeof ArtistInputProfileGroup];
+
+
+export const ArtistInputProfileGroup = {
+  artists: 'artists',
+  creations: 'creations',
+  partners: 'partners',
+  press: 'press',
+} as const;
 
 export interface ArtistInput {
   /** @minLength 2 */
@@ -29,6 +61,57 @@ export interface ArtistInput {
   /** @minLength 2 */
   location: string;
   avatar?: string;
+  profileGroup?: ArtistInputProfileGroup;
+  subcategory?: string;
+  country?: string;
+  specialties?: string[];
+  website?: string;
+  socialLinks?: string[];
+  professionalContact?: string;
+}
+
+export type PressRequestStatus = typeof PressRequestStatus[keyof typeof PressRequestStatus];
+
+
+export const PressRequestStatus = {
+  pending: 'pending',
+  handled: 'handled',
+  archived: 'archived',
+} as const;
+
+export interface PressRequest {
+  id: number;
+  name: string;
+  organization: string;
+  role: string;
+  email: string;
+  /** @nullable */
+  phone?: string | null;
+  requestType: string;
+  subject: string;
+  message: string;
+  /** @nullable */
+  requestedDate?: string | null;
+  status: PressRequestStatus;
+  createdAt: string;
+}
+
+export interface PressRequestInput {
+  /** @minLength 2 */
+  name: string;
+  /** @minLength 2 */
+  organization: string;
+  /** @minLength 2 */
+  role: string;
+  email: string;
+  phone?: string;
+  /** @minLength 2 */
+  requestType: string;
+  /** @minLength 2 */
+  subject: string;
+  /** @minLength 10 */
+  message: string;
+  requestedDate?: string;
 }
 
 export type WorkAccess = typeof WorkAccess[keyof typeof WorkAccess];
@@ -146,6 +229,23 @@ export interface CompleteUploadRequest {
 export interface CompleteUploadResult {
   objectPath: string;
 }
+
+export type GetArtistsParams = {
+group?: GetArtistsGroup;
+subcategory?: string;
+country?: string;
+search?: string;
+};
+
+export type GetArtistsGroup = typeof GetArtistsGroup[keyof typeof GetArtistsGroup];
+
+
+export const GetArtistsGroup = {
+  artists: 'artists',
+  creations: 'creations',
+  partners: 'partners',
+  press: 'press',
+} as const;
 
 export type GetSubmissionsParams = {
 status?: GetSubmissionsStatus;

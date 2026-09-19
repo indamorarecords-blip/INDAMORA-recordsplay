@@ -8,13 +8,17 @@ import {
   ArrowRight, AudioLines, BarChart3, Check, ChevronLeft, CirclePlay, Crown, Disc3,
   FileMusic, Headphones, HeartHandshake, History, LayoutDashboard, LoaderCircle, LockKeyhole, Menu, Mic2,
   Pause, Play, Plus, Search, Send, ShieldCheck, Sparkles, Star, Ticket, UserRound,
-  UsersRound, Video, X, Zap,
+  UsersRound, Video, X, Zap, Globe, Mail, Newspaper, Briefcase, ExternalLink, MapPin
 } from 'lucide-react';
 import { Link, Redirect, Route, Router as WouterRouter, Switch, useLocation, useParams } from 'wouter';
+import { useToast } from '@/hooks/use-toast';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import {
   getGetArtistQueryKey, getGetArtistsQueryKey, getGetCatalogQueryKey, getGetSubmissionsQueryKey,
   getGetWorkQueryKey, useCreateArtist, useCreateSubmission, useGetArtist, useGetArtists,
-  useGetCatalog, useGetSubmissions, useGetWork, useUpdateSubmissionStatus,
+  useGetCatalog, useGetSubmissions, useGetWork, useUpdateSubmissionStatus, useCreatePressRequest
 } from '@workspace/api-client-react';
 import type { Artist, Submission, Work } from '@workspace/api-client-react';
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -153,10 +157,11 @@ function Shell({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { isSignedIn, user } = useUser();
   const { signOut } = useClerk();
+  const isAdmin = isAdminEmail(user?.primaryEmailAddress?.emailAddress);
   const nav = [
     { href: '/', label: 'Accueil', icon: Sparkles },
     { href: '/explorer', label: 'Explorer', icon: CirclePlay },
-    { href: '/artists', label: 'Artistes', icon: UsersRound },
+    { href: '/repertoire', label: 'Répertoire', icon: UsersRound },
     { href: '/pricing', label: 'Premium', icon: Crown },
     { href: '/soutenir', label: 'Soutenir', icon: HeartHandshake },
   ];
@@ -196,12 +201,12 @@ function Shell({ children }: { children: ReactNode }) {
       <footer className="mt-24 border-t border-border bg-secondary px-5 py-10 text-secondary-foreground lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
           <div><div className="mb-3 w-36 rounded-xl bg-white p-1"><Logo variant="full" /></div><p className="max-w-xs text-sm leading-6 text-secondary-foreground/70">Le foyer chaleureux des sons, des histoires et des écrans d’Afrique centrale.</p></div>
-          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-secondary-foreground/80"><Link href="/explorer" data-testid="link-footer-explorer">Explorer</Link><Link href="/artists" data-testid="link-footer-artists">Artistes</Link><Link href="/pricing" data-testid="link-footer-pricing">Premium</Link><Link href="/soutenir" data-testid="link-footer-support">Soutenir INDAMORA</Link><Link href="/profil" data-testid="link-footer-profile">Mon profil</Link><Link href="/espace-artiste" data-testid="link-footer-artist-space">Espace artiste</Link><Link href="/administration" data-testid="link-footer-admin">Administration</Link><Link href="/submit" data-testid="link-footer-submit">Proposer une œuvre</Link></div>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-secondary-foreground/80"><Link href="/explorer" data-testid="link-footer-explorer">Explorer</Link><Link href="/repertoire" data-testid="link-footer-repertoire">Répertoire</Link><Link href="/presse" data-testid="link-footer-presse">Presse</Link><Link href="/pricing" data-testid="link-footer-pricing">Premium</Link><Link href="/soutenir" data-testid="link-footer-support">Soutenir INDAMORA</Link><Link href="/profil" data-testid="link-footer-profile">Mon profil</Link><Link href="/espace-artiste" data-testid="link-footer-artist-space">Espace artiste</Link>{isAdmin && <Link href="/administration" data-testid="link-footer-admin">Administration</Link>}<Link href="/submit" data-testid="link-footer-submit">Proposer une œuvre</Link></div>
         </div>
         <div className="mx-auto mt-8 max-w-7xl border-t border-secondary-foreground/15 pt-4 font-mono text-[10px] uppercase tracking-[.2em] text-secondary-foreground/50">Bangui · République centrafricaine · La diaspora</div>
       </footer>
       <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-border bg-card/95 px-2 pt-2 backdrop-blur-xl md:hidden">
-        {[{ href: '/', label: 'Accueil', icon: Sparkles }, { href: '/explorer', label: 'Explorer', icon: CirclePlay }, { href: '/submit', label: 'Créer', icon: Plus }, { href: '/profil', label: 'Profil', icon: UserRound }].map(({ href, label, icon: Icon }) => <Link href={href} key={href} className={cx('flex flex-col items-center gap-1 px-4 py-1 text-[10px] font-bold', location === href ? 'text-primary' : 'text-muted-foreground')} data-testid={`link-bottom-${label.toLowerCase()}`}><Icon className="h-5 w-5" />{label}</Link>)}
+        {[{ href: '/', label: 'Accueil', icon: Sparkles }, { href: '/explorer', label: 'Explorer', icon: CirclePlay }, { href: '/repertoire', label: 'Répertoire', icon: UsersRound }, { href: '/submit', label: 'Créer', icon: Plus }, { href: '/profil', label: 'Profil', icon: UserRound }].map(({ href, label, icon: Icon }) => <Link href={href} key={href} className={cx('flex flex-col items-center gap-1 px-4 py-1 text-[10px] font-bold', location === href ? 'text-primary' : 'text-muted-foreground')} data-testid={`link-bottom-${label.toLowerCase()}`}><Icon className="h-5 w-5" />{label}</Link>)}
       </div>
     </div>
   );
@@ -249,7 +254,7 @@ function WorkSheet({ id, onClose }: { id: number | null; onClose: () => void }) 
 
 function Home() {
   const catalog = useGetCatalog({ query: { queryKey: getGetCatalogQueryKey() } });
-  const artists = useGetArtists({ query: { queryKey: getGetArtistsQueryKey() } });
+  const artists = useGetArtists(undefined, { query: { queryKey: getGetArtistsQueryKey() } });
   const [category, setCategory] = useState('Toutes');
   const [selectedWork, setSelectedWork] = useState<number | null>(null);
    const works = useMemo(() => (catalog.data ?? []).filter((work) => category === 'Toutes' || isCategory(work.category, category)), [catalog.data, category]);
@@ -272,16 +277,73 @@ function Home() {
       {works.length > 0 && <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">{works.map((work) => <WorkArtwork key={work.id} work={work} onOpen={setSelectedWork} />)}</div>}
     </section>
     <section className="mx-auto max-w-7xl px-5 pb-14 lg:px-8"><div className="rounded-[2rem] bg-primary px-6 py-8 text-primary-foreground md:flex md:items-center md:justify-between md:px-10"><div><div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary-foreground/70">Une place à la table</div><h2 className="display mt-2 text-3xl font-bold">Une histoire à partager&nbsp;?</h2><p className="mt-2 max-w-md text-sm leading-6 text-primary-foreground/80">Faites découvrir votre son, votre écran ou votre regard à un public centrafricain grandissant.</p></div><Link href="/submit" className="mt-6 inline-flex items-center gap-2 rounded-full bg-background px-5 py-3 text-sm font-bold text-foreground md:mt-0" data-testid="link-submit-banner">Proposer une œuvre <ArrowRight className="h-4 w-4" /></Link></div></section>
-    <section className="mx-auto max-w-7xl px-5 pb-16 lg:px-8"><SectionHeading eyebrow="Les personnes à suivre" title="Rencontrez les créateurs" action={<Link href="/artists" className="flex items-center gap-1 text-sm font-bold text-primary" data-testid="link-view-artists">Tout voir <ArrowRight className="h-4 w-4" /></Link>} />{artists.isLoading ? <LoadingCards count={4} /> : artists.error ? <QueryState error={artists.error} onRetry={() => void artists.refetch()} label="artists" /> : <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{(artists.data ?? []).slice(0, 4).map((artist) => <Link href={`/artists/${artist.id}`} key={artist.id} className="group rounded-2xl border border-border bg-card p-4 transition-all hover:-translate-y-1 hover:border-primary" data-testid={`card-artist-${artist.id}`}><Avatar name={artist.name} src={artist.avatar} /><p className="mt-4 font-bold group-hover:text-primary">{artist.name}</p><p className="mt-1 text-xs text-muted-foreground">{categoryLabel(artist.category)} · {artist.location}</p></Link>)}</div>}</section>
+    <section className="mx-auto max-w-7xl px-5 pb-16 lg:px-8"><SectionHeading eyebrow="Les personnes à suivre" title="Rencontrez les créateurs" action={<Link href="/repertoire" className="flex items-center gap-1 text-sm font-bold text-primary" data-testid="link-view-artists">Tout voir <ArrowRight className="h-4 w-4" /></Link>} />{artists.isLoading ? <LoadingCards count={4} /> : artists.error ? <QueryState error={artists.error} onRetry={() => void artists.refetch()} label="artists" /> : <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{(artists.data ?? []).slice(0, 4).map((artist) => <Link href={`/artists/${artist.id}`} key={artist.id} className="group rounded-2xl border border-border bg-card p-4 transition-all hover:-translate-y-1 hover:border-primary" data-testid={`card-artist-${artist.id}`}><Avatar name={artist.name} src={artist.avatar ?? undefined} /><p className="mt-4 font-bold group-hover:text-primary">{artist.name}</p><p className="mt-1 text-xs text-muted-foreground">{categoryLabel(artist.category)} · {artist.location}</p></Link>)}</div>}</section>
     <WorkSheet id={selectedWork} onClose={() => setSelectedWork(null)} />
   </div>;
 }
 
-function Artists() {
-  const artists = useGetArtists({ query: { queryKey: getGetArtistsQueryKey() } });
+type DirectoryGroup = Artist['profileGroup'];
+
+const directoryGroups: Array<{
+  id: DirectoryGroup;
+  label: string;
+  description: string;
+  icon: typeof Mic2;
+  subcategories: string[];
+}> = [
+  { id: 'artists', label: 'Artistes', description: 'Chanteurs, Gospel, DJ, animateurs, MC et speakers', icon: Mic2, subcategories: ['Artiste / Chanteur', 'Gospel / Chantre', 'Serviteur de Dieu', 'DJ', 'Animateur', 'Maître de cérémonie', 'Speaker'] },
+  { id: 'creations', label: 'Créations', description: 'Cinéma, vidéo, humour, podcasts et contenus', icon: Video, subcategories: ['Cinéma', 'Acteur', 'Réalisateur', 'Vidéaste', 'Humoriste', 'Podcast', 'Créateur de contenu', 'Influenceur', 'Créateur / Talent'] },
+  { id: 'partners', label: 'Partenaires', description: 'Associations, labels, producteurs, radios et médias', icon: Briefcase, subcategories: ['Association', 'Label', 'Producteur', 'Organisateur', 'Radio', 'Média', 'Partenaire culturel'] },
+  { id: 'press', label: 'Presse & Médias', description: 'Journalistes, radios, télévisions et médias en ligne', icon: Newspaper, subcategories: ['Journaliste', 'Radio', 'Télévision', 'Média en ligne'] },
+];
+
+function Directory({ defaultGroup = 'artists' }: { defaultGroup?: DirectoryGroup }) {
+  const [group, setGroup] = useState<DirectoryGroup>(defaultGroup);
+  const [subcategory, setSubcategory] = useState('');
   const [search, setSearch] = useState('');
-  const shown = useMemo(() => (artists.data ?? []).filter((artist) => `${artist.name} ${artist.category} ${artist.location}`.toLowerCase().includes(search.toLowerCase())), [artists.data, search]);
-  return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16"><div className="max-w-2xl animate-rise-in"><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Le répertoire</div><h1 className="display mt-3 text-5xl font-bold leading-none md:text-6xl">Les personnes<br /><span className="text-primary">qui font vibrer.</span></h1><p className="mt-5 leading-7 text-muted-foreground">Découvrez les voix qui façonnent la culture centrafricaine, de Bangui au reste du monde.</p></div><div className="mt-10 flex max-w-md items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-sm"><Search className="h-5 w-5 text-muted-foreground" /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Rechercher un nom, un lieu, un univers" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" data-testid="input-search-artists" /></div><div className="mt-12">{artists.isLoading ? <LoadingCards count={6} /> : artists.error ? <QueryState error={artists.error} onRetry={() => void artists.refetch()} label="artists" /> : shown.length === 0 ? <div className="rounded-2xl border border-dashed border-border px-5 py-16 text-center text-muted-foreground">Aucun artiste ne correspond à cette recherche.</div> : <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{shown.map((artist, index) => <Link href={`/artists/${artist.id}`} key={artist.id} className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-[var(--shadow-card)]" data-testid={`card-directory-artist-${artist.id}`}><Avatar name={artist.name} src={artist.avatar} size="lg" /><div className="min-w-0 flex-1"><div className="mb-2 font-mono text-[10px] text-primary">0{index + 1}</div><h2 className="truncate text-lg font-bold group-hover:text-primary">{artist.name}</h2><p className="mt-1 text-sm text-muted-foreground">{categoryLabel(artist.category)}</p><p className="mt-3 text-xs text-muted-foreground">{artist.location} · {artist.worksCount} œuvres</p></div><ChevronRightIcon /></Link>)}</div>}</div></div>;
+  const queryParams = { group, ...(subcategory ? { subcategory } : {}) };
+  const artists = useGetArtists(queryParams, { query: { queryKey: getGetArtistsQueryKey(queryParams) } });
+  const activeGroup = directoryGroups.find((item) => item.id === group)!;
+
+  const shown = useMemo(() => {
+    return (artists.data ?? []).filter((artist) => {
+      const text = `${artist.name} ${artist.category} ${artist.location} ${artist.country ?? ''} ${artist.subcategory ?? ''} ${artist.specialties.join(' ')}`.toLowerCase();
+      return text.includes(search.toLowerCase());
+    });
+  }, [artists.data, search]);
+
+  return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16">
+    <div className="max-w-2xl animate-rise-in">
+      <div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Le répertoire</div>
+      <h1 className="display mt-3 text-5xl font-bold leading-none md:text-6xl">La communauté<br /><span className="text-primary">Indamora.</span></h1>
+      <p className="mt-5 leading-7 text-muted-foreground">Découvrez les talents, créateurs, partenaires et médias qui façonnent la culture centrafricaine, de Bangui au reste du monde.</p>
+    </div>
+
+    <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      {directoryGroups.map(g => {
+        const Icon = g.icon;
+        const isActive = group === g.id;
+        return <button key={g.id} onClick={() => { setGroup(g.id); setSubcategory(''); setSearch(''); }} className={cx('rounded-2xl border p-5 text-left transition-all hover:-translate-y-0.5', isActive ? 'border-primary bg-primary text-primary-foreground shadow-[var(--shadow-card)]' : 'border-border bg-card hover:border-primary')} data-testid={`button-filter-${g.id}`}>
+          <Icon className={cx('h-5 w-5', isActive ? 'text-primary-foreground' : 'text-primary')} />
+          <span className="mt-4 block font-bold">{g.label}</span>
+          <span className={cx('mt-2 block text-xs leading-5', isActive ? 'text-primary-foreground/75' : 'text-muted-foreground')}>{g.description}</span>
+        </button>;
+      })}
+    </div>
+
+    <div className="mt-8 flex gap-2 overflow-x-auto pb-2">
+      {['', ...activeGroup.subcategories].map((item) => <button key={item || 'all'} type="button" onClick={() => setSubcategory(item)} className={cx('shrink-0 rounded-full border px-4 py-2 text-sm font-bold', subcategory === item ? 'border-secondary bg-secondary text-secondary-foreground' : 'border-border bg-card hover:border-secondary')} data-testid={`button-subcategory-${item || 'all'}`}>{item || 'Tous'}</button>)}
+    </div>
+
+    <div className="mt-6 flex max-w-xl items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-sm">
+      <Search className="h-5 w-5 text-muted-foreground" />
+      <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Rechercher un nom, un domaine..." className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" data-testid="input-search-directory" />
+    </div>
+
+    <div className="mt-12">
+      {artists.isLoading ? <LoadingCards count={6} /> : artists.error ? <QueryState error={artists.error} onRetry={() => void artists.refetch()} label="directory" /> : shown.length === 0 ? <div className="rounded-2xl border border-dashed border-border px-5 py-16 text-center"><p className="font-bold">Aucun profil publié dans cette sélection.</p><p className="mt-2 text-sm text-muted-foreground">Les profils apparaîtront ici après leur validation par INDAMORA RECORDS.</p>{group === 'press' && <Link href="/presse" className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">Contacter l’espace presse <ArrowRight className="h-4 w-4" /></Link>}</div> : <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{shown.map((artist, index) => <Link href={`/artists/${artist.id}`} key={artist.id} className="group flex items-center gap-4 rounded-2xl border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-[var(--shadow-card)]" data-testid={`card-directory-artist-${artist.id}`}><Avatar name={artist.name} src={artist.avatar ?? undefined} size="lg" /><div className="min-w-0 flex-1"><div className="mb-2 font-mono text-[10px] text-primary">0{index + 1}</div><h2 className="truncate text-lg font-bold group-hover:text-primary">{artist.name}</h2><p className="mt-1 text-sm text-muted-foreground">{artist.subcategory || categoryLabel(artist.category)}</p><p className="mt-3 flex items-center gap-1 text-xs text-muted-foreground"><MapPin className="h-3 w-3 shrink-0" /> <span className="truncate">{artist.location}{artist.country ? `, ${artist.country}` : ''}</span></p></div><ChevronRightIcon /></Link>)}</div>}
+    </div>
+  </div>;
 }
 
 function ChevronRightIcon() { return <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1" />; }
@@ -296,7 +358,67 @@ function ArtistProfile() {
   if (artist.isLoading) return <div className="mx-auto max-w-7xl px-5 py-14 lg:px-8"><div className="skeleton h-64 rounded-[2rem]" /><div className="skeleton mt-6 h-8 w-1/3 rounded" /></div>;
   if (artist.error || !artist.data) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><QueryState error={artist.error ?? new Error('Artiste introuvable')} onRetry={() => void artist.refetch()} label="profil artiste" /></div>;
   const person = artist.data;
-  return <div><section className="bg-secondary text-secondary-foreground"><div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-20"><Link href="/artists" className="mb-10 inline-flex items-center gap-2 text-sm font-semibold text-secondary-foreground/70 hover:text-accent" data-testid="link-back-artists"><ChevronLeft className="h-4 w-4" /> Tous les artistes</Link><div className="flex flex-col items-start gap-7 sm:flex-row sm:items-end"><Avatar name={person.name} src={person.avatar} size="lg" /><div><div className="font-mono text-[10px] uppercase tracking-[.2em] text-accent">{categoryLabel(person.category)} · {person.location}</div><h1 className="display mt-2 text-5xl font-bold md:text-7xl">{person.name}</h1><p className="mt-4 max-w-2xl leading-7 text-secondary-foreground/75">{person.bio}</p></div></div></div></section><section className="mx-auto max-w-7xl px-5 py-14 lg:px-8"><SectionHeading eyebrow={`${person.worksCount} œuvres sur Indamora`} title="Écoutez, regardez, restez un peu" />{catalog.isLoading ? <LoadingCards /> : catalog.error ? <QueryState error={catalog.error} onRetry={() => void catalog.refetch()} /> : works.length === 0 ? <div className="rounded-2xl border border-dashed border-border px-5 py-16 text-center text-muted-foreground">Ses œuvres arrivent bientôt.</div> : <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">{works.map((work) => <WorkArtwork key={work.id} work={work} onOpen={setSelectedWork} />)}</div>}</section><WorkSheet id={selectedWork} onClose={() => setSelectedWork(null)} /></div>;
+  return <div>
+    <section className="bg-secondary text-secondary-foreground">
+      <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-20">
+        <Link href="/repertoire" className="mb-10 inline-flex items-center gap-2 text-sm font-semibold text-secondary-foreground/70 hover:text-accent" data-testid="link-back-repertoire"><ChevronLeft className="h-4 w-4" /> Le répertoire</Link>
+        <div className="flex flex-col items-start gap-7 sm:flex-row sm:items-end">
+          <Avatar name={person.name} src={person.avatar ?? undefined} size="lg" />
+          <div>
+            <div className="font-mono text-[10px] uppercase tracking-[.2em] text-accent">{person.subcategory || categoryLabel(person.category)} · {person.location}</div>
+            <h1 className="display mt-2 text-5xl font-bold md:text-7xl">{person.name}</h1>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section className="mx-auto max-w-7xl px-5 py-14 lg:px-8">
+      <div className="grid gap-12 lg:grid-cols-[1fr_320px]">
+        <div>
+          <h2 className="display text-3xl font-bold mb-4">À propos</h2>
+          <p className="leading-8 text-muted-foreground whitespace-pre-wrap">{person.bio}</p>
+
+          {person.specialties && person.specialties.length > 0 && (
+            <div className="mt-10">
+              <h3 className="font-bold mb-4">Spécialités</h3>
+              <div className="flex flex-wrap gap-2">
+                {person.specialties.map(s => <span key={s} className="rounded-full border border-border bg-muted/50 px-4 py-1.5 text-sm font-semibold text-muted-foreground">{s}</span>)}
+              </div>
+            </div>
+          )}
+
+          <div className="mt-16">
+            <SectionHeading eyebrow={`${person.worksCount} œuvres sur Indamora`} title="Portfolio & Créations" />
+            {catalog.isLoading ? <LoadingCards /> : catalog.error ? <QueryState error={catalog.error} onRetry={() => void catalog.refetch()} /> : works.length === 0 ? <div className="rounded-2xl border border-dashed border-border px-5 py-16 text-center text-muted-foreground">Ses œuvres arrivent bientôt.</div> : <div className="grid grid-cols-2 gap-x-4 gap-y-8">{works.map((work) => <WorkArtwork key={work.id} work={work} onOpen={setSelectedWork} />)}</div>}
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+            <h3 className="font-bold mb-5 flex items-center gap-2"><UserRound className="h-4 w-4 text-primary" /> Informations</h3>
+            <dl className="space-y-4 text-sm">
+              {person.subcategory && <div><dt className="text-muted-foreground mb-1 font-medium">Domaine</dt><dd className="font-bold">{person.subcategory}</dd></div>}
+              <div><dt className="text-muted-foreground mb-1 font-medium">Localisation</dt><dd className="font-bold flex items-center gap-1.5"><MapPin className="h-4 w-4 text-primary" /> {person.location}{person.country ? `, ${person.country}` : ''}</dd></div>
+              {person.website && <div><dt className="text-muted-foreground mb-1 font-medium">Site web</dt><dd className="font-bold"><a href={person.website} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 hover:text-primary transition-colors"><Globe className="h-4 w-4 text-primary" /> {person.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}</a></dd></div>}
+              {person.professionalContact && <div><dt className="text-muted-foreground mb-1 font-medium">Contact professionnel</dt><dd className="font-bold"><a href={`mailto:${person.professionalContact}`} className="flex items-center gap-1.5 hover:text-primary transition-colors"><Mail className="h-4 w-4 text-primary" /> Envoyer un e-mail</a></dd></div>}
+            </dl>
+
+            {person.socialLinks && person.socialLinks.length > 0 && (
+              <div className="mt-6 pt-6 border-t border-border">
+                <p className="text-muted-foreground text-sm font-medium mb-3">Réseaux sociaux</p>
+                <div className="flex flex-wrap gap-2">
+                  {person.socialLinks.map((link, i) => (
+                    <a key={i} href={link} target="_blank" rel="noreferrer" className="grid h-10 w-10 place-items-center rounded-full bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-all hover:-translate-y-1"><ExternalLink className="h-4 w-4" /></a>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+    <WorkSheet id={selectedWork} onClose={() => setSelectedWork(null)} />
+  </div>;
 }
 
 function DemoPlayer({ work }: { work: Work }) {
@@ -313,7 +435,7 @@ function WorkPage() {
   const params = useParams<{ id: string }>();
   const id = Number(params.id);
   const workQuery = useGetWork(id, { query: { enabled: Number.isFinite(id), queryKey: getGetWorkQueryKey(id) } });
-  const artists = useGetArtists({ query: { queryKey: getGetArtistsQueryKey() } });
+  const artists = useGetArtists(undefined, { query: { queryKey: getGetArtistsQueryKey() } });
   if (workQuery.isLoading) return <div className="mx-auto max-w-6xl px-5 py-16 lg:px-8"><div className="skeleton aspect-video rounded-[2rem]" /><div className="skeleton mt-7 h-10 w-2/3 rounded" /></div>;
   if (workQuery.error || !workQuery.data) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><QueryState error={workQuery.error ?? new Error('Œuvre introuvable')} onRetry={() => void workQuery.refetch()} label="œuvre" /></div>;
   const work = workQuery.data;
@@ -358,7 +480,7 @@ function CategoryPage() {
 
 function SearchPage() {
   const catalog = useGetCatalog({ query: { queryKey: getGetCatalogQueryKey() } });
-  const artists = useGetArtists({ query: { queryKey: getGetArtistsQueryKey() } });
+  const artists = useGetArtists(undefined, { query: { queryKey: getGetArtistsQueryKey() } });
   const [, navigate] = useLocation();
   const [query, setQuery] = useState('');
   const term = query.trim().toLowerCase();
@@ -367,7 +489,7 @@ function SearchPage() {
   return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16">
     <div className="max-w-2xl"><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Recherche</div><h1 className="display mt-3 text-5xl font-bold leading-none md:text-6xl">Trouvez ce qui<br /><span className="text-primary">vous ressemble.</span></h1></div>
     <div className="mt-8 flex max-w-2xl items-center gap-3 rounded-2xl border border-border bg-card px-4 py-4 shadow-sm"><Search className="h-5 w-5 text-primary" /><input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Nom, titre, catégorie ou lieu" className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted-foreground" data-testid="input-search" /></div>
-     {!term ? <div className="mt-12 rounded-2xl bg-muted px-6 py-10 text-center"><Search className="mx-auto h-8 w-8 text-primary" /><h2 className="mt-4 font-bold">Commencez votre recherche</h2><p className="mt-1 text-sm text-muted-foreground">Essayez « Bangui », « musique » ou le nom d’un artiste.</p></div> : <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_.7fr]"><section><SectionHeading eyebrow={`${works.length} résultat${works.length > 1 ? 's' : ''}`} title="Œuvres" />{works.length === 0 ? <p className="text-sm text-muted-foreground">Aucune œuvre ne correspond à cette recherche.</p> : <div className="grid grid-cols-2 gap-x-4 gap-y-8">{works.map((work) => <WorkArtwork key={work.id} work={work} onOpen={(id) => navigate(`/oeuvres/${id}`)} />)}</div>}</section><section><SectionHeading eyebrow={`${people.length} résultat${people.length > 1 ? 's' : ''}`} title="Artistes" />{people.length === 0 ? <p className="text-sm text-muted-foreground">Aucun artiste ne correspond à cette recherche.</p> : <div className="space-y-3">{people.map((artist) => <Link href={`/artists/${artist.id}`} key={artist.id} className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 hover:border-primary" data-testid={`search-artist-${artist.id}`}><Avatar name={artist.name} src={artist.avatar} size="sm" /><div><p className="font-bold">{artist.name}</p><p className="text-xs text-muted-foreground">{categoryLabel(artist.category)} · {artist.location}</p></div><ArrowRight className="ml-auto h-4 w-4 text-muted-foreground" /></Link>)}</div>}</section></div>}
+     {!term ? <div className="mt-12 rounded-2xl bg-muted px-6 py-10 text-center"><Search className="mx-auto h-8 w-8 text-primary" /><h2 className="mt-4 font-bold">Commencez votre recherche</h2><p className="mt-1 text-sm text-muted-foreground">Essayez « Bangui », « musique » ou le nom d’un artiste.</p></div> : <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_.7fr]"><section><SectionHeading eyebrow={`${works.length} résultat${works.length > 1 ? 's' : ''}`} title="Œuvres" />{works.length === 0 ? <p className="text-sm text-muted-foreground">Aucune œuvre ne correspond à cette recherche.</p> : <div className="grid grid-cols-2 gap-x-4 gap-y-8">{works.map((work) => <WorkArtwork key={work.id} work={work} onOpen={(id) => navigate(`/oeuvres/${id}`)} />)}</div>}</section><section><SectionHeading eyebrow={`${people.length} résultat${people.length > 1 ? 's' : ''}`} title="Artistes" />{people.length === 0 ? <p className="text-sm text-muted-foreground">Aucun artiste ne correspond à cette recherche.</p> : <div className="space-y-3">{people.map((artist) => <Link href={`/artists/${artist.id}`} key={artist.id} className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 hover:border-primary" data-testid={`search-artist-${artist.id}`}><Avatar name={artist.name} src={artist.avatar ?? undefined} size="sm" /><div><p className="font-bold">{artist.name}</p><p className="text-xs text-muted-foreground">{categoryLabel(artist.category)} · {artist.location}</p></div><ArrowRight className="ml-auto h-4 w-4 text-muted-foreground" /></Link>)}</div>}</section></div>}
   </div>;
 }
 
@@ -554,13 +676,80 @@ function AdminDashboard() {
   return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Tableau de bord</div><h1 className="display mt-3 text-5xl font-bold">Piloter INDAMORA<br /><span className="text-primary">RECORDS.</span></h1><p className="mt-4 text-muted-foreground">Une vue simple sur le catalogue et la file de validation.</p></div><Link href="/moderation" className="inline-flex items-center justify-center gap-2 rounded-full bg-secondary px-5 py-3 text-sm font-bold text-secondary-foreground" data-testid="link-dashboard-moderation"><ShieldCheck className="h-4 w-4" /> Ouvrir la modération</Link></div><div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><div className="rounded-2xl border border-border bg-card p-5"><BarChart3 className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{catalog.data?.length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">Œuvres publiées</p></div><div className="rounded-2xl border border-border bg-card p-5"><LoaderCircle className="h-5 w-5 text-accent-foreground" /><div className="mt-5 text-3xl font-bold">{counts.pending}</div><p className="mt-1 text-sm text-muted-foreground">En attente</p></div><div className="rounded-2xl border border-border bg-card p-5"><Check className="h-5 w-5 text-secondary" /><div className="mt-5 text-3xl font-bold">{counts.approved}</div><p className="mt-1 text-sm text-muted-foreground">Validées</p></div><div className="rounded-2xl border border-border bg-card p-5"><ShieldCheck className="h-5 w-5 text-destructive" /><div className="mt-5 text-3xl font-bold">{counts.rejected}</div><p className="mt-1 text-sm text-muted-foreground">Refusées</p></div></div><div className="mt-12 rounded-[2rem] bg-muted p-6 md:p-8"><div className="flex items-center gap-3"><LayoutDashboard className="h-5 w-5 text-primary" /><h2 className="display text-2xl font-bold">Prochaine action</h2></div><p className="mt-3 max-w-2xl leading-7 text-muted-foreground">{counts.pending > 0 ? `Il reste ${counts.pending} œuvre${counts.pending > 1 ? 's' : ''} à examiner par INDAMORA RECORDS.` : 'La file de validation est à jour pour le moment.'}</p><Link href="/moderation" className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground" data-testid="link-dashboard-review">Examiner la file <ArrowRight className="h-4 w-4" /></Link></div></div>;
 }
 
+const pressSchema = z.object({
+  name: z.string().min(2, 'Nom requis'),
+  organization: z.string().min(2, 'Organisation requise'),
+  role: z.string().min(2, 'Rôle requis'),
+  email: z.string().email('E-mail invalide'),
+  phone: z.string().optional(),
+  requestType: z.string().min(2, 'Type de demande requis'),
+  subject: z.string().min(2, 'Sujet requis'),
+  message: z.string().min(10, 'Message trop court'),
+  requestedDate: z.string().optional(),
+});
+
+function Presse() {
+  const { toast } = useToast();
+  const createPress = useCreatePressRequest();
+  const form = useForm<z.infer<typeof pressSchema>>({
+    resolver: zodResolver(pressSchema),
+    defaultValues: { name: '', organization: '', role: '', email: '', phone: '', requestType: 'Interview', subject: '', message: '', requestedDate: '' }
+  });
+
+  const onSubmit = (data: z.infer<typeof pressSchema>) => {
+    createPress.mutate({ data }, {
+      onSuccess: () => {
+        toast({ title: 'Demande envoyée', description: 'Notre équipe presse vous répondra dans les plus brefs délais.' });
+        form.reset();
+      },
+      onError: () => {
+        toast({ title: 'Erreur', description: 'Impossible d\'envoyer la demande.', variant: 'destructive' });
+      }
+    });
+  };
+
+  const { register, handleSubmit, formState: { errors } } = form;
+  const pending = createPress.isPending;
+
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-20">
+    <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:items-start">
+      <div>
+        <div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Relations Presse</div>
+        <h1 className="display mt-3 text-5xl font-bold leading-[.95] md:text-6xl">Espace<br /><span className="text-primary">Médias.</span></h1>
+        <p className="mt-6 leading-7 text-muted-foreground">INDAMORA PLAY met en lumière les artistes, les créations et les initiatives culturelles d’Afrique centrale et de sa diaspora. Cet espace reçoit les demandes professionnelles des journalistes, radios, télévisions et médias en ligne.</p>
+
+        <div className="mt-10 rounded-3xl bg-secondary p-8 text-secondary-foreground shadow-sm">
+          <h3 className="mb-2 flex items-center gap-2 text-lg font-bold"><Newspaper className="h-5 w-5 text-accent" /> Ressources presse</h3>
+          <p className="text-sm leading-relaxed text-secondary-foreground/80">Les logos, photos officielles, visuels, présentations institutionnelles et communiqués seront publiés ici lorsqu’ils seront disponibles. Aucun document provisoire n’est présenté comme officiel.</p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="rounded-[2.5rem] border border-border bg-card p-6 shadow-[var(--shadow-card)] md:p-10">
+        <h2 className="display mb-8 text-2xl font-bold">Nouvelle demande</h2>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <label className="grid gap-2 text-sm font-bold">Nom complet <input {...register('name')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Votre nom" data-testid="input-press-name" />{errors.name && <span className="text-xs text-destructive">{errors.name.message}</span>}</label>
+          <label className="grid gap-2 text-sm font-bold">Média / Organisation <input {...register('organization')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Nom du média" data-testid="input-press-org" />{errors.organization && <span className="text-xs text-destructive">{errors.organization.message}</span>}</label>
+          <label className="grid gap-2 text-sm font-bold">Rôle <input {...register('role')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Journaliste, Rédacteur..." data-testid="input-press-role" />{errors.role && <span className="text-xs text-destructive">{errors.role.message}</span>}</label>
+          <label className="grid gap-2 text-sm font-bold">E-mail <input type="email" {...register('email')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="adresse@media.com" data-testid="input-press-email" />{errors.email && <span className="text-xs text-destructive">{errors.email.message}</span>}</label>
+          <label className="grid gap-2 text-sm font-bold">Type de demande <select {...register('requestType')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="select-press-type"><option value="Interview">Interview</option><option value="Demande d’informations">Demande d’informations</option><option value="Demande de visuels">Demande de visuels</option><option value="Demande de communiqué">Demande de communiqué</option><option value="Demande de partenariat média">Partenariat média</option><option value="Autre">Autre</option></select>{errors.requestType && <span className="text-xs text-destructive">{errors.requestType.message}</span>}</label>
+          <label className="grid gap-2 text-sm font-bold">Téléphone <input {...register('phone')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="+236..." data-testid="input-press-phone" /></label>
+          <label className="grid gap-2 text-sm font-bold sm:col-span-2">Date souhaitée (optionnelle) <input type="date" {...register('requestedDate')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="input-press-date" /></label>
+          <label className="grid gap-2 text-sm font-bold sm:col-span-2">Sujet <input {...register('subject')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Objet de votre demande" data-testid="input-press-subject" />{errors.subject && <span className="text-xs text-destructive">{errors.subject.message}</span>}</label>
+          <label className="grid gap-2 text-sm font-bold sm:col-span-2">Message <textarea {...register('message')} className="min-h-32 rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Détaillez votre demande..." data-testid="textarea-press-message" />{errors.message && <span className="text-xs text-destructive">{errors.message.message}</span>}</label>
+        </div>
+        <button disabled={pending} className="mt-8 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-4 font-bold text-primary-foreground transition-all hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-60" data-testid="button-submit-press">{pending ? <><LoaderCircle className="h-5 w-5 animate-spin" /> Envoi en cours...</> : <><Send className="h-5 w-5" /> Envoyer la demande</>}</button>
+      </form>
+    </div>
+  </div>;
+}
+
 function NotFound() {
   return <div className="mx-auto max-w-xl px-5 py-32 text-center"><div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary">404 / hors piste</div><h1 className="display mt-4 text-6xl font-bold">Cette piste<br />n’existe pas.</h1><Link href="/" className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground" data-testid="link-404-home">Retour à la découverte <ArrowRight className="h-4 w-4" /></Link></div>;
 }
 
 function Router() {
   const [location] = useLocation();
-  return <ErrorBoundary resetKey={location}><Shell><Switch><Route path="/" component={Home} /><Route path="/explorer" component={Explorer} /><Route path="/recherche" component={SearchPage} /><Route path="/categorie/:slug" component={CategoryPage} /><Route path="/oeuvres/:id" component={WorkPage} /><Route path="/artists" component={Artists} /><Route path="/artists/:id" component={ArtistProfile} /><Route path="/submit" component={Submit} /><Route path="/espace-artiste" component={ArtistSpace} /><Route path="/moderation" component={Moderation} /><Route path="/administration" component={AdminDashboard} /><Route path="/pricing" component={Pricing} /><Route path="/soutenir" component={Support} /><Route path="/inscription" component={() => <Redirect to="/sign-up" />} /><Route path="/login" component={() => <Redirect to="/sign-in" />} /><Route path="/profil" component={Profile} /><Route component={NotFound} /></Switch></Shell></ErrorBoundary>;
+  return <ErrorBoundary resetKey={location}><Shell><Switch><Route path="/" component={Home} /><Route path="/explorer" component={Explorer} /><Route path="/recherche" component={SearchPage} /><Route path="/categorie/:slug" component={CategoryPage} /><Route path="/oeuvres/:id" component={WorkPage} /><Route path="/repertoire" component={() => <Directory />} /><Route path="/artists" component={() => <Directory />} /><Route path="/artists/:id" component={ArtistProfile} /><Route path="/presse" component={Presse} /><Route path="/submit" component={Submit} /><Route path="/espace-artiste" component={ArtistSpace} /><Route path="/moderation" component={Moderation} /><Route path="/administration" component={AdminDashboard} /><Route path="/pricing" component={Pricing} /><Route path="/soutenir" component={Support} /><Route path="/inscription" component={() => <Redirect to="/sign-up" />} /><Route path="/login" component={() => <Redirect to="/sign-in" />} /><Route path="/profil" component={Profile} /><Route component={NotFound} /></Switch></Shell></ErrorBoundary>;
 }
 
 function ClerkQueryClientCacheInvalidator() {

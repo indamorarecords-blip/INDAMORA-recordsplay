@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { ArtistProfileGroup } from './artistProfileGroup';
 
 export interface Artist {
   id: number;
@@ -12,6 +13,18 @@ export interface Artist {
   category: string;
   bio: string;
   location: string;
-  avatar?: string;
+  /** @nullable */
+  avatar?: string | null;
   worksCount: number;
+  profileGroup: ArtistProfileGroup;
+  /** @nullable */
+  subcategory?: string | null;
+  /** @nullable */
+  country?: string | null;
+  specialties: string[];
+  /** @nullable */
+  website?: string | null;
+  socialLinks: string[];
+  /** @nullable */
+  professionalContact?: string | null;
 }

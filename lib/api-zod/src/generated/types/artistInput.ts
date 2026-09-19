@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { ArtistInputProfileGroup } from './artistInputProfileGroup';
 
 export interface ArtistInput {
   /** @minLength 2 */
@@ -16,4 +17,11 @@ export interface ArtistInput {
   /** @minLength 2 */
   location: string;
   avatar?: string;
+  profileGroup?: ArtistInputProfileGroup;
+  subcategory?: string;
+  country?: string;
+  specialties?: string[];
+  website?: string;
+  socialLinks?: string[];
+  professionalContact?: string;
 }

@@ -1,11 +1,14 @@
 import { Router, type IRouter } from "express";
-import { and, eq } from "drizzle-orm";
-import { db, artistsTable, submissionsTable, worksTable } from "@workspace/db";
+import { and, eq, ilike, or } from "drizzle-orm";
+import { db, artistsTable, pressRequestsTable, submissionsTable, worksTable } from "@workspace/db";
 import {
   CreateArtistBody,
   CreateArtistResponse,
+  CreatePressRequestBody,
+  CreatePressRequestResponse,
   GetArtistParams,
   GetArtistResponse,
+  GetArtistsQueryParams,
   GetArtistsResponse,
   GetCatalogResponse,
   GetSubmissionsQueryParams,
@@ -54,6 +57,38 @@ const submissionsForClient = (rows: typeof submissionsTable.$inferSelect[]) =>
     submittedAt: submission.submittedAt.toISOString(),
   }));
 
+const directoryProfilesForClient = (rows: typeof artistsTable.$inferSelect[]) =>
+  rows.map((profile) => ({
+    id: profile.id,
+    name: profile.name,
+    category: profile.category,
+    bio: profile.bio,
+    location: profile.location,
+    avatar: profile.avatar,
+    worksCount: profile.worksCount,
+    profileGroup:
+      profile.profileGroup === "creations" ||
+      profile.profileGroup === "partners" ||
+      profile.profileGroup === "press"
+        ? profile.profileGroup
+        : ("artists" as const),
+    subcategory: profile.subcategory,
+    country: profile.country,
+    specialties: profile.specialties,
+    website: profile.website,
+    socialLinks: profile.socialLinks,
+    professionalContact: profile.professionalContact,
+  }));
+
+const pressRequestForClient = (request: typeof pressRequestsTable.$inferSelect) => ({
+  ...request,
+  status:
+    request.status === "handled" || request.status === "archived"
+      ? request.status
+      : ("pending" as const),
+  createdAt: request.createdAt.toISOString(),
+});
+
 const seedCatalog = async (): Promise<void> => {
   const [artistCount] = await db.select({ count: artistsTable.id }).from(artistsTable);
   if (artistCount?.count) return;
@@ -64,6 +99,10 @@ const seedCatalog = async (): Promise<void> => {
       {
         name: "Béatrice Londo",
         category: "Musique",
+        profileGroup: "artists",
+        subcategory: "Artiste / Chanteur",
+        country: "République centrafricaine",
+        specialties: ["Afro-fusion", "Chant"],
         bio: "Une voix solaire entre Bangui et la diaspora.",
         location: "Bangui, RCA",
         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
@@ -72,6 +111,10 @@ const seedCatalog = async (): Promise<void> => {
       {
         name: "Mikaël Gbaï",
         category: "Humour",
+        profileGroup: "creations",
+        subcategory: "Humoriste",
+        country: "France",
+        specialties: ["Humour", "Spectacle"],
         bio: "Des histoires du quotidien racontées avec tendresse.",
         location: "Paris, France",
         avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
@@ -173,9 +216,47 @@ router.get("/catalog/:id", async (req, res): Promise<void> => {
   res.json(GetWorkResponse.parse(worksForClient([work])[0]));
 });
 
-router.get("/artists", async (_req, res): Promise<void> => {
-  const artists = await db.select().from(artistsTable).orderBy(artistsTable.createdAt);
-  res.json(GetArtistsResponse.parse(artists));
+router.get("/artists", async (req, res): Promise<void> => {
+  const params = GetArtistsQueryParams.safeParse(req.query);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  let where = and(
+    eq(artistsTable.profileStatus, "approved"),
+    eq(artistsTable.isPublished, "true"),
+  );
+  if (params.data.group) {
+    where = and(where, eq(artistsTable.profileGroup, params.data.group));
+  }
+  if (params.data.subcategory) {
+    where = and(where, eq(artistsTable.subcategory, params.data.subcategory));
+  }
+  if (params.data.country) {
+    where = and(where, eq(artistsTable.country, params.data.country));
+  }
+  if (params.data.search?.trim()) {
+    const term = `%${params.data.search.trim()}%`;
+    where = and(
+      where,
+      or(
+        ilike(artistsTable.name, term),
+        ilike(artistsTable.category, term),
+        ilike(artistsTable.bio, term),
+        ilike(artistsTable.location, term),
+        ilike(artistsTable.subcategory, term),
+        ilike(artistsTable.country, term),
+      ),
+    );
+  }
+
+  const artists = await db
+    .select()
+    .from(artistsTable)
+    .where(where)
+    .orderBy(artistsTable.createdAt);
+  res.json(GetArtistsResponse.parse(directoryProfilesForClient(artists)));
 });
 
 router.post("/artists", requireAuth, async (req, res): Promise<void> => {
@@ -186,9 +267,14 @@ router.post("/artists", requireAuth, async (req, res): Promise<void> => {
   }
   const [artist] = await db
     .insert(artistsTable)
-    .values({ ...parsed.data, ownerId: req.clerkUserId })
+    .values({
+      ...parsed.data,
+      ownerId: req.clerkUserId,
+      profileStatus: "pending",
+      isPublished: "false",
+    })
     .returning();
-  res.status(201).json(CreateArtistResponse.parse(artist));
+  res.status(201).json(CreateArtistResponse.parse(directoryProfilesForClient([artist])[0]));
 });
 
 router.get("/artists/:id", async (req, res): Promise<void> => {
@@ -197,12 +283,36 @@ router.get("/artists/:id", async (req, res): Promise<void> => {
     res.status(400).json({ error: params.error.message });
     return;
   }
-  const [artist] = await db.select().from(artistsTable).where(eq(artistsTable.id, params.data.id));
+  const [artist] = await db
+    .select()
+    .from(artistsTable)
+    .where(
+      and(
+        eq(artistsTable.id, params.data.id),
+        eq(artistsTable.profileStatus, "approved"),
+        eq(artistsTable.isPublished, "true"),
+      ),
+    );
   if (!artist) {
     res.status(404).json({ error: "Artist not found" });
     return;
   }
-  res.json(GetArtistResponse.parse(artist));
+  res.json(GetArtistResponse.parse(directoryProfilesForClient([artist])[0]));
+});
+
+router.post("/press-requests", async (req, res): Promise<void> => {
+  const parsed = CreatePressRequestBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+  const [request] = await db
+    .insert(pressRequestsTable)
+    .values(parsed.data)
+    .returning();
+  res
+    .status(201)
+    .json(CreatePressRequestResponse.parse(pressRequestForClient(request)));
 });
 
 router.get("/submissions", requireAuth, async (req, res): Promise<void> => {

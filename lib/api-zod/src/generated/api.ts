@@ -61,16 +61,30 @@ export const GetWorkResponse = zod.object({
 
 
 /**
- * @summary List featured artists
+ * @summary List public directory profiles
  */
+export const GetArtistsQueryParams = zod.object({
+  "group": zod.enum(['artists', 'creations', 'partners', 'press']).optional(),
+  "subcategory": zod.coerce.string().optional(),
+  "country": zod.coerce.string().optional(),
+  "search": zod.coerce.string().optional()
+})
+
 export const GetArtistsResponseItem = zod.object({
   "id": zod.number().int(),
   "name": zod.string(),
   "category": zod.string(),
   "bio": zod.string(),
   "location": zod.string(),
-  "avatar": zod.string().optional(),
-  "worksCount": zod.number().int()
+  "avatar": zod.string().nullish(),
+  "worksCount": zod.number().int(),
+  "profileGroup": zod.enum(['artists', 'creations', 'partners', 'press']),
+  "subcategory": zod.string().nullish(),
+  "country": zod.string().nullish(),
+  "specialties": zod.array(zod.string()),
+  "website": zod.string().url().nullish(),
+  "socialLinks": zod.array(zod.string().url()),
+  "professionalContact": zod.string().nullish()
 })
 export const GetArtistsResponse = zod.array(GetArtistsResponseItem)
 
@@ -93,7 +107,14 @@ export const CreateArtistBody = zod.object({
   "category": zod.string().min(createArtistBodyCategoryMin),
   "bio": zod.string().min(createArtistBodyBioMin),
   "location": zod.string().min(createArtistBodyLocationMin),
-  "avatar": zod.string().optional()
+  "avatar": zod.string().optional(),
+  "profileGroup": zod.enum(['artists', 'creations', 'partners', 'press']).optional(),
+  "subcategory": zod.string().optional(),
+  "country": zod.string().optional(),
+  "specialties": zod.array(zod.string()).optional(),
+  "website": zod.string().url().optional(),
+  "socialLinks": zod.array(zod.string().url()).optional(),
+  "professionalContact": zod.string().optional()
 })
 
 export const CreateArtistResponse = zod.object({
@@ -102,8 +123,15 @@ export const CreateArtistResponse = zod.object({
   "category": zod.string(),
   "bio": zod.string(),
   "location": zod.string(),
-  "avatar": zod.string().optional(),
-  "worksCount": zod.number().int()
+  "avatar": zod.string().nullish(),
+  "worksCount": zod.number().int(),
+  "profileGroup": zod.enum(['artists', 'creations', 'partners', 'press']),
+  "subcategory": zod.string().nullish(),
+  "country": zod.string().nullish(),
+  "specialties": zod.array(zod.string()),
+  "website": zod.string().url().nullish(),
+  "socialLinks": zod.array(zod.string().url()),
+  "professionalContact": zod.string().nullish()
 })
 
 
@@ -120,8 +148,60 @@ export const GetArtistResponse = zod.object({
   "category": zod.string(),
   "bio": zod.string(),
   "location": zod.string(),
-  "avatar": zod.string().optional(),
-  "worksCount": zod.number().int()
+  "avatar": zod.string().nullish(),
+  "worksCount": zod.number().int(),
+  "profileGroup": zod.enum(['artists', 'creations', 'partners', 'press']),
+  "subcategory": zod.string().nullish(),
+  "country": zod.string().nullish(),
+  "specialties": zod.array(zod.string()),
+  "website": zod.string().url().nullish(),
+  "socialLinks": zod.array(zod.string().url()),
+  "professionalContact": zod.string().nullish()
+})
+
+
+/**
+ * @summary Send a press or media request
+ */
+export const createPressRequestBodyNameMin = 2;
+
+export const createPressRequestBodyOrganizationMin = 2;
+
+export const createPressRequestBodyRoleMin = 2;
+
+export const createPressRequestBodyRequestTypeMin = 2;
+
+export const createPressRequestBodySubjectMin = 2;
+
+export const createPressRequestBodyMessageMin = 10;
+
+
+
+export const CreatePressRequestBody = zod.object({
+  "name": zod.string().min(createPressRequestBodyNameMin),
+  "organization": zod.string().min(createPressRequestBodyOrganizationMin),
+  "role": zod.string().min(createPressRequestBodyRoleMin),
+  "email": zod.string().email(),
+  "phone": zod.string().optional(),
+  "requestType": zod.string().min(createPressRequestBodyRequestTypeMin),
+  "subject": zod.string().min(createPressRequestBodySubjectMin),
+  "message": zod.string().min(createPressRequestBodyMessageMin),
+  "requestedDate": zod.string().optional()
+})
+
+export const CreatePressRequestResponse = zod.object({
+  "id": zod.number().int(),
+  "name": zod.string(),
+  "organization": zod.string(),
+  "role": zod.string(),
+  "email": zod.string().email(),
+  "phone": zod.string().nullish(),
+  "requestType": zod.string(),
+  "subject": zod.string(),
+  "message": zod.string(),
+  "requestedDate": zod.string().nullish(),
+  "status": zod.enum(['pending', 'handled', 'archived']),
+  "createdAt": zod.string()
 })
 
 

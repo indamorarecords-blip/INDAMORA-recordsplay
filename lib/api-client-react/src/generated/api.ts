@@ -24,8 +24,11 @@ import type {
   ArtistInput,
   CompleteUploadRequest,
   CompleteUploadResult,
+  GetArtistsParams,
   GetSubmissionsParams,
   HealthStatus,
+  PressRequest,
+  PressRequestInput,
   Submission,
   SubmissionInput,
   SubmissionStatusInput,
@@ -134,11 +137,6 @@ export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, 
 }
 
 
-
-
-
-
-
 export const getGetCatalogUrl = () => {
 
 
@@ -209,13 +207,6 @@ export function useGetCatalog<TData = Awaited<ReturnType<typeof getCatalog>>, TE
 
   return withQueryKey(query, queryOptions.queryKey);
 }
-
-
-
-
-
-
-
 export const getGetWorkUrl = (id: number,) => {
 
 
@@ -293,20 +284,27 @@ export function useGetWork<TData = Awaited<ReturnType<typeof getWork>>, TError =
 
 
 
-export const getGetArtistsUrl = () => {
+export const getGetArtistsUrl = (params?: GetArtistsParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/artists`
+  return stringifiedParams.length > 0 ? `/api/artists?${stringifiedParams}` : `/api/artists`
 }
 
 /**
- * @summary List featured artists
+ * @summary List public directory profiles
  */
-export const getArtists = async ( options?: Parameters<typeof customFetch>[1]): Promise<Artist[]> => {
+export const getArtists = async (params?: GetArtistsParams, options?: Parameters<typeof customFetch>[1]): Promise<Artist[]> => {
 
-  return customFetch<Artist[]>(getGetArtistsUrl(),
+  return customFetch<Artist[]>(getGetArtistsUrl(params),
   {
     ...options,
     method: 'GET'
@@ -319,23 +317,23 @@ export const getArtists = async ( options?: Parameters<typeof customFetch>[1]): 
 
 
 
-export const getGetArtistsQueryKey = () => {
+export const getGetArtistsQueryKey = (params?: GetArtistsParams,) => {
     return [
-    `/api/artists`
+    `/api/artists`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetArtistsQueryOptions = <TData = Awaited<ReturnType<typeof getArtists>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getArtists>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetArtistsQueryOptions = <TData = Awaited<ReturnType<typeof getArtists>>, TError = ErrorType<unknown>>(params?: GetArtistsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getArtists>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetArtistsQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetArtistsQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getArtists>>> = ({ signal }) => getArtists({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getArtists>>> = ({ signal }) => getArtists(params, { signal, ...requestOptions });
 
 
 
@@ -349,15 +347,15 @@ export type GetArtistsQueryError = ErrorType<unknown>
 
 
 /**
- * @summary List featured artists
+ * @summary List public directory profiles
  */
 
 export function useGetArtists<TData = Awaited<ReturnType<typeof getArtists>>, TError = ErrorType<unknown>>(
-  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getArtists>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ params?: GetArtistsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getArtists>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetArtistsQueryOptions(options)
+  const queryOptions = getGetArtistsQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -517,6 +515,77 @@ export function useGetArtist<TData = Awaited<ReturnType<typeof getArtist>>, TErr
 
 
 
+
+export const getCreatePressRequestUrl = () => {
+
+
+
+
+  return `/api/press-requests`
+}
+
+/**
+ * @summary Send a press or media request
+ */
+export const createPressRequest = async (pressRequestInput: PressRequestInput, options?: Parameters<typeof customFetch>[1]): Promise<PressRequest> => {
+
+  return customFetch<PressRequest>(getCreatePressRequestUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(pressRequestInput)
+  }
+);}
+
+
+
+
+
+export const getCreatePressRequestMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPressRequest>>, TError,{data: BodyType<PressRequestInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createPressRequest>>, TError,{data: BodyType<PressRequestInput>}, TContext> => {
+
+const mutationKey = ['createPressRequest'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createPressRequest>>, {data: BodyType<PressRequestInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createPressRequest(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreatePressRequestMutationResult = NonNullable<Awaited<ReturnType<typeof createPressRequest>>>
+    export type CreatePressRequestMutationBody = BodyType<PressRequestInput>
+    export type CreatePressRequestMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Send a press or media request
+ */
+export const useCreatePressRequest = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPressRequest>>, TError,{data: BodyType<PressRequestInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createPressRequest>>,
+        TError,
+        {data: BodyType<PressRequestInput>},
+        TContext
+      > => {
+      return useMutation(getCreatePressRequestMutationOptions(options));
+    }
 
 export const getGetSubmissionsUrl = (params?: GetSubmissionsParams,) => {
   const normalizedParams = new URLSearchParams();
