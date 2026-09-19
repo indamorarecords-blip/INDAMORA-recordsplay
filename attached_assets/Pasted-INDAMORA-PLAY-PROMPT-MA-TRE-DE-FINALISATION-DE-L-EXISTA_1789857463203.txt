@@ -1,0 +1,1409 @@
+INDAMORA PLAY — PROMPT MAÎTRE DE FINALISATION DE L’EXISTANT
+
+⚠️ CONSIGNE ABSOLUE — NE PAS RECONSTRUIRE LE PROJET
+
+Tu travailles sur le projet existant INDAMORA PLAY.
+
+NE RECONSTRUIS PAS LE PROJET.
+
+Le projet existe déjà, possède une architecture, une identité visuelle, des fonctionnalités, une base de données, une authentification, un stockage et une navigation.
+
+Ton rôle est uniquement de :
+
+* finaliser ce qui est incomplet ;
+* corriger ce qui est réellement cassé ;
+* sécuriser ce qui doit l’être ;
+* connecter les services nécessaires ;
+* améliorer les fonctionnalités existantes lorsque cela est indispensable ;
+* tester chaque modification ;
+* ne jamais remplacer inutilement une fonctionnalité déjà fonctionnelle.
+
+RÈGLE PRINCIPALE
+
+PRÉSERVER → AUDITER → COMPLÉTER → TESTER → VÉRIFIER → CORRIGER → RETESTER
+
+Ne considère jamais une fonctionnalité comme terminée simplement parce que le code compile.
+
+Elle doit fonctionner réellement dans l’application.
+
+⸻
+
+1. PROTECTION DE L’EXISTANT
+
+Avant toute modification :
+
+1. Inspecte l’intégralité de l’architecture existante.
+2. Identifie les fonctionnalités déjà opérationnelles.
+3. Identifie les fonctionnalités partielles.
+4. Identifie les fonctionnalités réellement cassées.
+5. Identifie les doublons éventuels.
+6. Identifie les risques techniques.
+7. Ne modifie pas une fonctionnalité simplement pour la réécrire.
+
+INTERDICTIONS
+
+Ne pas :
+
+* reconstruire l’application ;
+* recréer une nouvelle architecture ;
+* changer inutilement le framework ;
+* remplacer Clerk ;
+* remplacer le stockage existant ;
+* remplacer la base de données existante ;
+* refaire toute l’interface ;
+* supprimer des pages fonctionnelles ;
+* créer de nouveaux menus sans nécessité ;
+* créer de fausses données ;
+* créer de faux comptes ;
+* créer de faux paiements ;
+* créer de faux abonnements ;
+* simuler des revenus ;
+* simuler des écoutes ;
+* promettre une rémunération automatique des artistes ;
+* modifier le logo existant ;
+* modifier inutilement l’identité visuelle ;
+* changer le domaine ;
+* supprimer des données existantes.
+
+Toute suppression doit être techniquement indispensable et clairement justifiée.
+
+⸻
+
+2. RÉPERTOIRE = CŒUR D’INDAMORA PLAY
+
+Le RÉPERTOIRE doit rester le centre de l’écosystème INDAMORA PLAY.
+
+Il doit permettre de retrouver et consulter les contenus existants.
+
+Vérifier réellement :
+
+* artistes ;
+* œuvres ;
+* catégories ;
+* genres ;
+* profils artistes ;
+* recherche ;
+* filtres ;
+* affichage public ;
+* permissions ;
+* navigation ;
+* données existantes ;
+* relations artiste / œuvre ;
+* pages publiques ;
+* compatibilité mobile.
+
+Ne pas considérer le RÉPERTOIRE comme terminé tant que l’utilisateur ne peut pas réellement :
+
+ouvrir → rechercher → filtrer → consulter → écouter → découvrir l’artiste → découvrir ses œuvres.
+
+Si une relation artiste/œuvre existe déjà mais est techniquement fragile, corrige-la avec la modification minimale nécessaire.
+
+Ne pas recréer inutilement toute la base.
+
+⸻
+
+3. DONNÉES EXISTANTES
+
+Conserver les données réelles déjà présentes.
+
+Les éventuelles données de démonstration existantes doivent être clairement identifiables comme telles.
+
+Ne jamais présenter des données fictives comme de vraies données.
+
+Ne jamais inventer :
+
+* nombre d’écoutes ;
+* revenus ;
+* abonnés ;
+* utilisateurs ;
+* statistiques ;
+* paiements ;
+* artistes ;
+* œuvres.
+
+Si une donnée n’existe pas réellement :
+
+ne pas l’inventer.
+
+Afficher plutôt un état vide propre.
+
+⸻
+
+4. AUTHENTIFICATION — CONSERVER CLERK
+
+L’authentification existante utilise Clerk.
+
+NE PAS REMPLACER CLERK.
+
+Avant toute modification :
+
+* inspecter la configuration Clerk ;
+* vérifier les routes ;
+* vérifier les protections ;
+* vérifier les rôles ;
+* vérifier les sessions ;
+* vérifier le profil utilisateur.
+
+Conserver l’intégration existante et la compléter uniquement si nécessaire.
+
+⸻
+
+5. VÉRIFICATION EMAIL OBLIGATOIRE À L’INSCRIPTION
+
+Lorsqu’une personne crée son premier compte sur INDAMORA PLAY, elle doit pouvoir recevoir un email de vérification contenant un lien sécurisé.
+
+Flux attendu
+
+INSCRIPTION
+      ↓
+COMPTE CRÉÉ
+      ↓
+EMAIL NON VÉRIFIÉ
+      ↓
+EMAIL DE VÉRIFICATION ENVOYÉ
+      ↓
+UTILISATEUR CLIQUE SUR LE LIEN
+      ↓
+EMAIL VÉRIFIÉ
+      ↓
+COMPTE ACTIVÉ
+      ↓
+ACCÈS NORMAL À INDAMORA PLAY
+
+Utiliser Clerk
+
+Utiliser les mécanismes natifs de Clerk pour la vérification email.
+
+Ne pas créer un deuxième système d’authentification.
+
+Ne pas créer inutilement de tokens personnalisés si Clerk fournit déjà cette fonctionnalité.
+
+Ne pas stocker inutilement des tokens de vérification personnalisés en base.
+
+⸻
+
+Après inscription
+
+Afficher clairement un écran ou message indiquant :
+
+« Vérifiez votre adresse email »
+
+Expliquer que l’utilisateur doit consulter sa boîte email et cliquer sur le lien de vérification.
+
+Prévoir également :
+
+* possibilité de renvoyer l’email ;
+* état “email vérifié” ;
+* état “email non vérifié” ;
+* gestion correcte du retour après clic ;
+* fonctionnement sur mobile.
+
+⸻
+
+Sécurité
+
+Un compte dont l’email n’est pas vérifié ne doit pas être considéré comme un compte pleinement vérifié.
+
+Respecter la configuration de sécurité existante.
+
+Ne pas contourner la vérification côté frontend.
+
+La vérification doit être confirmée par Clerk côté serveur / système d’authentification.
+
+⸻
+
+Tests obligatoires
+
+Tester réellement :
+
+TEST 1
+
+Nouvelle inscription avec une adresse email.
+
+Résultat attendu :
+
+* compte créé ;
+* email de vérification envoyé.
+
+TEST 2
+
+Utilisateur qui ne clique pas sur le lien.
+
+Résultat attendu :
+
+* compte toujours non vérifié.
+
+TEST 3
+
+Renvoi de l’email.
+
+Résultat attendu :
+
+* nouvel email de vérification envoyé.
+
+TEST 4
+
+Clic sur le lien.
+
+Résultat attendu :
+
+* email vérifié ;
+* compte correctement reconnu comme vérifié.
+
+TEST 5
+
+Connexion après vérification.
+
+Résultat attendu :
+
+* connexion normale.
+
+TEST 6
+
+Test mobile.
+
+TEST 7
+
+Test d’un lien expiré ou invalide si Clerk le gère.
+
+Si cette fonctionnalité est déjà opérationnelle :
+
+NE RIEN REFAIRE.
+
+Si elle est partiellement opérationnelle :
+
+FINALISER L’EXISTANT.
+
+Si elle est cassée :
+
+CORRIGER MINIMALEMENT.
+
+⸻
+
+6. STRIPE — PAIEMENTS ET ABONNEMENTS
+
+Intégrer Stripe au projet existant sans modifier inutilement l’architecture.
+
+Stripe doit servir pour :
+
+* abonnements Premium ;
+* paiements récurrents ;
+* dons ponctuels.
+
+Ne jamais simuler un paiement.
+
+Ne jamais considérer un paiement comme réussi uniquement parce que le frontend affiche “succès”.
+
+La confirmation doit provenir de Stripe côté serveur.
+
+⸻
+
+7. ABONNEMENT PREMIUM
+
+L’offre actuelle doit être présentée ainsi :
+
+AFRIQUE
+
+500 FCFA / mois
+
+HORS AFRIQUE
+
+5 € / mois
+
+Texte explicatif à intégrer :
+
+Les abonnements permettent actuellement de contribuer au fonctionnement et au développement de la plateforme associative INDAMORA PLAY ainsi qu’à la promotion des artistes.
+
+Ajouter également une note claire :
+
+Lorsque les ressources de l’association le permettront, une partie pourra être consacrée à des actions de soutien ou de rémunération des artistes.
+
+Ne pas présenter cette rémunération comme une garantie.
+
+Ne pas promettre de revenu aux artistes.
+
+⸻
+
+8. STRIPE CHECKOUT — ABONNEMENTS
+
+Utiliser Stripe Checkout et Stripe Billing pour les abonnements.
+
+Créer ou réutiliser les produits/prix Stripe appropriés.
+
+Prévoir deux prix récurrents :
+
+PRICE AFRICA
+
+* montant : 500 XOF
+* périodicité : mensuelle
+
+PRICE INTERNATIONAL
+
+* montant : 5 EUR
+* périodicité : mensuelle
+
+Les montants ne doivent pas être écrits en dur dans le frontend comme source de vérité.
+
+Utiliser des Price IDs Stripe configurés côté serveur.
+
+Exemple de variables d’environnement :
+
+STRIPE_SECRET_KEY
+STRIPE_WEBHOOK_SECRET
+STRIPE_PRICE_AFRICA_MONTHLY
+STRIPE_PRICE_INTERNATIONAL_MONTHLY
+
+Ne jamais exposer STRIPE_SECRET_KEY au navigateur.
+
+⸻
+
+9. STRIPE ET UTILISATEUR CLERK
+
+Conserver Clerk comme système d’identité.
+
+Lorsqu’un utilisateur connecté souscrit :
+
+1. récupérer son identité depuis Clerk ;
+2. rechercher son client Stripe existant ;
+3. créer un Customer Stripe si nécessaire ;
+4. associer correctement le Customer Stripe au compte utilisateur ;
+5. lancer Stripe Checkout ;
+6. enregistrer les identifiants nécessaires ;
+7. attendre la confirmation Stripe côté serveur.
+
+Éviter de créer plusieurs Customers Stripe pour la même personne.
+
+⸻
+
+10. WEBHOOK STRIPE — OBLIGATOIRE
+
+Créer ou finaliser le webhook Stripe.
+
+Le webhook doit :
+
+* vérifier la signature Stripe ;
+* être sécurisé ;
+* être idempotent ;
+* traiter correctement les événements ;
+* ne pas faire confiance aux données envoyées directement par le navigateur.
+
+Gérer notamment les événements pertinents liés à :
+
+* création d’abonnement ;
+* mise à jour d’abonnement ;
+* annulation ;
+* fin d’abonnement ;
+* paiement réussi ;
+* paiement échoué ;
+* renouvellement ;
+* changement de statut.
+
+Le statut Premium dans INDAMORA PLAY doit être déterminé à partir des informations Stripe confirmées côté serveur.
+
+⸻
+
+11. IDÉMPOTENCE STRIPE
+
+Un même webhook peut être reçu plusieurs fois.
+
+Le système doit donc empêcher :
+
+* création multiple d’abonnement local ;
+* traitement multiple d’un paiement ;
+* double attribution d’un statut Premium ;
+* double écriture comptable ;
+* double traitement d’un événement.
+
+Stocker ou gérer les identifiants d’événements Stripe lorsque nécessaire.
+
+⸻
+
+12. DON — PAIEMENT UNIQUE
+
+Ajouter une fonctionnalité :
+
+❤️ Faire un DON
+
+Avec le texte :
+
+Votre don peut faire la différence.
+
+Le don doit être séparé de l’abonnement Premium.
+
+Il s’agit d’un paiement ponctuel.
+
+Objectifs affichés :
+
+* développer la plateforme ;
+* améliorer les services musicaux ;
+* promouvoir les artistes centrafricains ;
+* soutenir les artistes qui publient sur la plateforme ;
+* permettre progressivement à l’association de réaliser des gestes de soutien envers les artistes.
+
+⸻
+
+13. TEXTE DU DON
+
+Intégrer le contenu suivant de manière claire et élégante :
+
+Votre don peut faire la différence.
+
+Un don permet de soutenir ponctuellement INDAMORA PLAY et son développement.
+
+Votre contribution peut nous aider à :
+
+* développer la plateforme ;
+* améliorer les services musicaux ;
+* promouvoir les artistes centrafricains ;
+* soutenir les artistes qui publient leurs œuvres sur la plateforme ;
+* permettre progressivement à l’association de mettre en place des actions de soutien envers les artistes.
+
+Notre objectif est de maintenir une plateforme musicale accessible, de réduire progressivement notre dépendance aux financements extérieurs, de créer des ressources permettant de soutenir les artistes et, lorsque les ressources financières le permettront, de mettre en place un système de rémunération transparent.
+
+❤️ Merci pour votre soutien à INDAMORA PLAY.
+
+⸻
+
+14. STRIPE DON
+
+Utiliser Stripe Checkout pour les dons ponctuels.
+
+Le montant du don doit être clairement indiqué à l’utilisateur avant paiement.
+
+Si plusieurs montants sont proposés, ne pas inventer de logique inutile.
+
+Prévoir éventuellement :
+
+* montant prédéfini ;
+* montant personnalisé si techniquement pertinent.
+
+Le paiement doit être confirmé par Stripe côté serveur.
+
+Ne jamais afficher “don effectué” uniquement parce que Checkout a été ouvert.
+
+⸻
+
+15. PAIEMENTS — MODE TEST D’ABORD
+
+Commencer par le mode test Stripe.
+
+Avant tout passage en production :
+
+Tester au minimum :
+
+ABONNEMENT
+
+* création ;
+* paiement réussi ;
+* paiement échoué ;
+* renouvellement ;
+* annulation ;
+* changement de statut ;
+* webhook ;
+* webhook reçu deux fois.
+
+DON
+
+* paiement réussi ;
+* paiement échoué ;
+* confirmation serveur ;
+* webhook ;
+* retour utilisateur.
+
+SÉCURITÉ
+
+Tester :
+
+* mauvais Price ID ;
+* Price ID non autorisé ;
+* tentative de modification du montant côté navigateur ;
+* webhook invalide ;
+* webhook avec signature invalide ;
+* session Stripe inexistante ;
+* utilisateur non connecté.
+
+⸻
+
+16. STRIPE — NE PAS EXPOSER LES SECRETS
+
+Toutes les clés Stripe sensibles doivent être stockées dans les secrets / variables d’environnement de Replit.
+
+Ne jamais mettre :
+
+STRIPE_SECRET_KEY
+STRIPE_WEBHOOK_SECRET
+
+dans le code frontend.
+
+Ne jamais les envoyer au navigateur.
+
+⸻
+
+17. STRIPE — PRIX AUTORISÉS
+
+Le serveur doit contrôler les Price IDs autorisés.
+
+Ne jamais accepter aveuglément un priceId fourni par le navigateur.
+
+Le serveur doit vérifier que le prix demandé correspond à un prix Stripe autorisé pour INDAMORA PLAY.
+
+⸻
+
+18. PREMIUM — SOURCE DE VÉRITÉ
+
+Le frontend ne doit pas pouvoir se déclarer lui-même Premium.
+
+Le statut doit être déterminé côté serveur.
+
+Le système doit pouvoir distinguer au minimum :
+
+* aucun abonnement ;
+* abonnement actif ;
+* abonnement en période pertinente ;
+* abonnement annulé ;
+* abonnement expiré ;
+* paiement échoué / statut problématique.
+
+Adapter les états à ce que Stripe et l’architecture existante permettent réellement.
+
+⸻
+
+19. STRIPE ET BASE DE DONNÉES
+
+Inspecter d’abord le schéma existant.
+
+Ne créer de nouvelles tables/champs que si nécessaire.
+
+Si nécessaire, prévoir une structure permettant de conserver les informations non sensibles utiles, par exemple :
+
+* Clerk user ID ;
+* Stripe customer ID ;
+* Stripe subscription ID ;
+* statut d’abonnement ;
+* Price ID ;
+* dates utiles ;
+* identifiants d’événements Stripe traités.
+
+Ne jamais stocker les données bancaires sensibles.
+
+Stripe reste responsable des informations de paiement.
+
+⸻
+
+20. PAGE / ESPACE PREMIUM
+
+Conserver la page et le design Premium existants.
+
+Ne pas créer un nouveau menu si une page Premium existe déjà.
+
+Compléter l’existant.
+
+La page doit clairement expliquer :
+
+PREMIUM
+
+500 FCFA / mois — Afrique
+
+5 € / mois — Hors Afrique
+
+Puis expliquer :
+
+* fonctionnement ;
+* destination actuelle des contributions ;
+* possibilité future de soutien aux artistes lorsque les ressources de l’association le permettront.
+
+⸻
+
+21. PAGE / SECTION DON
+
+Conserver la navigation actuelle.
+
+Si une section “Soutenir INDAMORA” existe déjà :
+
+l’utiliser.
+
+Ne pas créer inutilement une nouvelle page.
+
+Y intégrer :
+
+* abonnement ;
+* don ponctuel ;
+* explications ;
+* boutons Stripe.
+
+L’objectif est d’éviter de multiplier les menus.
+
+⸻
+
+22. NAVIGATION
+
+Conserver la navigation actuelle.
+
+Ne pas multiplier les menus.
+
+Le RÉPERTOIRE reste central.
+
+Conserver autant que possible :
+
+* Accueil ;
+* Explorer ;
+* Répertoire ;
+* Premium ;
+* Soutenir INDAMORA ;
+* Espace artiste ;
+* Proposer une œuvre ;
+* Profil ;
+* Presse ;
+* Administration.
+
+Ne pas ajouter de navigation parallèle simplement pour Stripe.
+
+⸻
+
+23. STOCKAGE ET UPLOADS
+
+Inspecter le système de stockage existant avant toute modification.
+
+Le système existant utilise déjà un stockage objet.
+
+Ne pas remplacer le système si celui-ci fonctionne.
+
+Vérifier :
+
+* upload ;
+* sécurité ;
+* permissions ;
+* fichiers publics ;
+* fichiers privés ;
+* URL signées ;
+* streaming ;
+* suppression ;
+* fichiers orphelins ;
+* erreurs ;
+* accès non autorisé.
+
+Corriger uniquement les problèmes réels.
+
+⸻
+
+24. LECTEUR AUDIO
+
+Conserver le lecteur existant.
+
+Vérifier :
+
+* lecture ;
+* pause ;
+* reprise ;
+* progression ;
+* volume ;
+* mobile ;
+* fichiers absents ;
+* erreurs ;
+* accès autorisé.
+
+Ne pas créer de faux compteurs d’écoute.
+
+Si des statistiques d’écoute existent déjà, vérifier qu’elles correspondent à de véritables événements.
+
+⸻
+
+25. ARTISTES
+
+Conserver le système artiste existant.
+
+Vérifier :
+
+* profil artiste ;
+* œuvres ;
+* image ;
+* biographie ;
+* catalogue ;
+* visibilité ;
+* modification ;
+* soumission ;
+* modération.
+
+Le lien :
+
+ARTISTE → ŒUVRES
+
+doit fonctionner réellement.
+
+⸻
+
+26. ESPACE ARTISTE
+
+Finaliser uniquement les fonctionnalités nécessaires.
+
+Un artiste doit pouvoir, selon les permissions existantes :
+
+* gérer son profil ;
+* proposer une œuvre ;
+* voir l’état de ses soumissions ;
+* consulter ses œuvres ;
+* comprendre ce qui est publié ou en attente.
+
+Ne pas afficher de revenus fictifs.
+
+Ne pas afficher de rémunération fictive.
+
+Ne pas promettre automatiquement une rémunération.
+
+⸻
+
+27. MODÉRATION
+
+Conserver le système de modération existant.
+
+Vérifier les états :
+
+SOUMIS
+↓
+EN ATTENTE
+↓
+VALIDÉ
+↓
+PUBLIÉ
+
+Et les éventuels états de refus/correction existants.
+
+Ne pas contourner la modération.
+
+⸻
+
+28. ADMINISTRATION
+
+Conserver le système d’administration existant.
+
+Vérifier les permissions.
+
+Ne pas élargir arbitrairement les droits administrateur.
+
+Si un système basé sur une adresse email existe actuellement, inspecter sa sécurité et proposer une amélioration uniquement si nécessaire.
+
+Ne pas casser l’accès administrateur existant.
+
+⸻
+
+29. RECHERCHE
+
+Vérifier la recherche sur :
+
+* artistes ;
+* œuvres ;
+* catégories ;
+* genres ;
+* contenus disponibles.
+
+La recherche doit fonctionner avec les données réellement présentes.
+
+Pas de résultats artificiels.
+
+⸻
+
+30. RESPONSIVE / MOBILE
+
+Tester toutes les fonctionnalités importantes sur mobile :
+
+* inscription ;
+* vérification email ;
+* connexion ;
+* Répertoire ;
+* recherche ;
+* profil ;
+* espace artiste ;
+* Premium ;
+* Stripe Checkout ;
+* don ;
+* lecteur ;
+* navigation.
+
+Ne pas casser la navigation mobile existante.
+
+⸻
+
+31. DESIGN
+
+Préserver l’identité visuelle INDAMORA PLAY.
+
+Ne pas modifier inutilement :
+
+* logo ;
+* couleurs ;
+* typographies ;
+* structure ;
+* animations ;
+* composants ;
+* navigation.
+
+Toute modification visuelle doit avoir une raison fonctionnelle.
+
+Le site doit rester cohérent avec l’identité existante.
+
+⸻
+
+32. SEO ET PAGES PUBLIQUES
+
+Vérifier les pages publiques :
+
+* artistes ;
+* œuvres ;
+* catégories ;
+* Répertoire ;
+* pages principales.
+
+Vérifier :
+
+* titres ;
+* descriptions ;
+* métadonnées ;
+* URLs ;
+* partage social si déjà prévu.
+
+Ne pas entreprendre une refonte SEO massive.
+
+Corriger uniquement les problèmes constatés.
+
+⸻
+
+33. PERFORMANCE
+
+Identifier les problèmes réels de performance.
+
+Vérifier notamment :
+
+* requêtes inutiles ;
+* chargement des images ;
+* pagination ;
+* listes importantes ;
+* appels API ;
+* chargement du catalogue ;
+* lecteur audio.
+
+Ne pas optimiser prématurément ce qui fonctionne déjà.
+
+⸻
+
+34. SÉCURITÉ
+
+Vérifier :
+
+* authentification ;
+* autorisations ;
+* routes protégées ;
+* données privées ;
+* stockage ;
+* uploads ;
+* Stripe ;
+* webhooks ;
+* secrets ;
+* accès admin ;
+* injections ;
+* validation des entrées.
+
+Toutes les données sensibles doivent être protégées.
+
+Les validations importantes doivent exister côté serveur.
+
+⸻
+
+35. API
+
+Inspecter les API existantes.
+
+Ne pas créer de doublons.
+
+Réutiliser les routes existantes lorsque possible.
+
+Vérifier :
+
+* validation ;
+* erreurs ;
+* permissions ;
+* statuts HTTP ;
+* cohérence frontend/backend.
+
+Si une route existe déjà et fonctionne :
+
+NE PAS LA RÉÉCRIRE.
+
+⸻
+
+36. BASE DE DONNÉES
+
+Avant toute migration :
+
+1. inspecter le schéma ;
+2. identifier les relations existantes ;
+3. identifier les données existantes ;
+4. vérifier les contraintes ;
+5. déterminer si une migration est réellement nécessaire.
+
+Ne pas supprimer de données.
+
+Ne pas recréer les tables existantes inutilement.
+
+Toute migration doit être réversible lorsque c’est raisonnablement possible.
+
+⸻
+
+37. VARIABLES D’ENVIRONNEMENT
+
+Vérifier les secrets déjà existants.
+
+Pour Stripe, prévoir si nécessaire :
+
+STRIPE_SECRET_KEY
+STRIPE_WEBHOOK_SECRET
+STRIPE_PRICE_AFRICA_MONTHLY
+STRIPE_PRICE_INTERNATIONAL_MONTHLY
+
+Utiliser les noms adaptés à l’architecture existante si des conventions différentes sont déjà en place.
+
+Ne jamais exposer les secrets.
+
+Ne jamais écrire de secrets directement dans Git.
+
+⸻
+
+38. CLERK — EMAIL EN PRODUCTION
+
+Vérifier la configuration Clerk pour la production :
+
+* domaine ;
+* email de vérification ;
+* URL de retour ;
+* configuration email ;
+* environnement production ;
+* comportement mobile.
+
+Si une configuration est manquante, la signaler précisément dans le rapport final.
+
+Ne pas créer une solution parallèle.
+
+⸻
+
+39. STRIPE — PRODUCTION
+
+Ne pas basculer directement en production.
+
+Étape obligatoire :
+
+STRIPE TEST
+↓
+TEST COMPLET
+↓
+WEBHOOK TEST
+↓
+CORRECTIONS
+↓
+RETEST
+↓
+VALIDATION
+↓
+CONFIGURATION LIVE
+
+Le passage en live doit être clairement identifié comme une étape distincte.
+
+⸻
+
+40. TESTS DE NON-RÉGRESSION
+
+Après chaque modification importante :
+
+TESTER
+
+Puis :
+
+VÉRIFIER
+
+Puis :
+
+CORRIGER
+
+Puis :
+
+RETESTER
+
+Tester également les fonctionnalités qui n’ont pas été modifiées directement mais qui pourraient être affectées.
+
+⸻
+
+41. PARCOURS UTILISATEUR COMPLET
+
+Tester au minimum ce parcours :
+
+ARRIVÉE SUR LE SITE
+↓
+INSCRIPTION
+↓
+EMAIL DE VÉRIFICATION
+↓
+CLIC SUR LE LIEN
+↓
+CONNEXION
+↓
+PROFIL
+↓
+RÉPERTOIRE
+↓
+RECHERCHE
+↓
+ARTISTE
+↓
+ŒUVRE
+↓
+LECTEUR
+↓
+PREMIUM
+↓
+STRIPE CHECKOUT
+↓
+CONFIRMATION
+↓
+RETOUR SUR INDAMORA PLAY
+
+Puis tester :
+
+SOUTENIR INDAMORA
+↓
+FAIRE UN DON
+↓
+STRIPE CHECKOUT
+↓
+PAIEMENT
+↓
+CONFIRMATION
+
+⸻
+
+42. TEST DES ERREURS
+
+Tester également les cas négatifs :
+
+* email invalide ;
+* email déjà utilisé ;
+* email non vérifié ;
+* vérification non effectuée ;
+* lien expiré ;
+* paiement refusé ;
+* paiement annulé ;
+* abonnement annulé ;
+* webhook invalide ;
+* webhook doublé ;
+* session Stripe inexistante ;
+* accès non autorisé ;
+* œuvre inexistante ;
+* artiste inexistant ;
+* fichier inexistant ;
+* upload refusé.
+
+Chaque erreur doit produire un comportement propre et compréhensible.
+
+⸻
+
+43. PRIORITÉS
+
+P0 — ABSOLUMENT NÉCESSAIRE
+
+* stabilité générale ;
+* authentification ;
+* vérification email ;
+* RÉPERTOIRE ;
+* artistes ;
+* œuvres ;
+* stockage ;
+* permissions ;
+* sécurité ;
+* Stripe ;
+* abonnements ;
+* dons ;
+* webhooks ;
+* paiements réels en mode test ;
+* absence de régression.
+
+P1 — IMPORTANT
+
+* recherche ;
+* filtres ;
+* espace artiste ;
+* modération ;
+* performances ;
+* SEO ;
+* responsive ;
+* qualité UX.
+
+P2 — APRÈS
+
+Tout ce qui n’est pas indispensable au fonctionnement actuel.
+
+Ne pas transformer la mission en refonte complète.
+
+⸻
+
+44. RÈGLE DE MINIMUM ABSOLU
+
+À chaque fois que tu envisages une modification, pose-toi cette question :
+
+« Est-ce indispensable pour finaliser ou sécuriser INDAMORA PLAY ? »
+
+Si la réponse est non :
+
+ne modifie pas.
+
+⸻
+
+45. SI UNE FONCTIONNALITÉ EST DÉJÀ BONNE
+
+Si une fonctionnalité fonctionne correctement :
+
+NE RIEN CHANGER.
+
+Même si tu pourrais techniquement l’implémenter autrement.
+
+L’objectif n’est pas de produire un nouveau projet.
+
+L’objectif est de finaliser INDAMORA PLAY existant.
+
+⸻
+
+46. SI UNE FONCTIONNALITÉ EST PARTIELLE
+
+Ne la remplace pas.
+
+Complète-la.
+
+⸻
+
+47. SI UNE FONCTIONNALITÉ EST CASSÉE
+
+Identifier précisément :
+
+* cause ;
+* impact ;
+* fichier concerné ;
+* correction minimale.
+
+Puis :
+
+corriger → tester → retester.
+
+⸻
+
+48. DONNÉES ET TRANSPARENCE
+
+Ne jamais inventer :
+
+* paiements ;
+* dons ;
+* abonnements ;
+* revenus ;
+* écoutes ;
+* statistiques ;
+* artistes ;
+* œuvres.
+
+Si aucune donnée réelle n’est disponible :
+
+afficher un état vide propre.
+
+⸻
+
+49. CE QUI NE DOIT PAS ÊTRE PROMIS
+
+INDAMORA PLAY ne doit pas présenter comme garanti :
+
+* une rémunération des artistes ;
+* un revenu artiste ;
+* un montant reversé automatiquement ;
+* une redistribution automatique des abonnements ;
+* un nombre d’écoutes rémunérées.
+
+Le texte doit rester conforme à la réalité financière de l’association.
+
+⸻
+
+50. RAPPORT FINAL OBLIGATOIRE
+
+À la fin du travail, fournir un rapport clair avec :
+
+A. FONCTIONNALITÉS CONSERVÉES
+
+Lister les fonctionnalités existantes conservées sans modification.
+
+B. FONCTIONNALITÉS CORRIGÉES
+
+Lister précisément les corrections.
+
+C. FONCTIONNALITÉS FINALISÉES
+
+Lister ce qui était partiel et a été terminé.
+
+D. CLERK
+
+Indiquer :
+
+* configuration vérifiée ;
+* vérification email ;
+* comportement utilisateur non vérifié ;
+* comportement utilisateur vérifié ;
+* éventuelles actions restantes.
+
+E. STRIPE
+
+Indiquer :
+
+* produits créés ou réutilisés ;
+* Price IDs ;
+* abonnement Afrique ;
+* abonnement international ;
+* dons ;
+* Checkout ;
+* webhooks ;
+* événements traités ;
+* gestion des erreurs ;
+* gestion des doublons.
+
+F. BASE DE DONNÉES
+
+Indiquer :
+
+* tables modifiées ;
+* champs ajoutés ;
+* migrations réalisées ;
+* raisons.
+
+G. VARIABLES D’ENVIRONNEMENT
+
+Lister uniquement les noms des variables nécessaires.
+
+Ne jamais afficher les valeurs secrètes.
+
+H. TESTS
+
+Lister :
+
+* tests réussis ;
+* tests échoués ;
+* tests corrigés ;
+* tests restant éventuellement à faire.
+
+I. MOBILE
+
+Indiquer le résultat des tests mobile.
+
+J. SÉCURITÉ
+
+Indiquer les contrôles réalisés.
+
+K. PRODUCTION
+
+Indiquer clairement :
+
+* ce qui est prêt ;
+* ce qui nécessite encore une configuration manuelle ;
+* ce qui doit encore être testé ;
+* ce qui empêche éventuellement le passage en production.
+
+⸻
+
+51. CRITÈRE FINAL DE RÉUSSITE
+
+Le travail n’est terminé que lorsque :
+
+UTILISATEUR
+
+INSCRIPTION
+→ EMAIL DE VÉRIFICATION
+→ VALIDATION
+→ CONNEXION
+
+fonctionne réellement.
+
+RÉPERTOIRE
+
+RECHERCHE
+→ ARTISTE
+→ ŒUVRE
+→ LECTURE
+
+fonctionne réellement avec les données existantes.
+
+ARTISTE
+
+PROFIL
+→ ŒUVRE
+→ SOUMISSION
+→ MODÉRATION
+→ PUBLICATION
+
+fonctionne selon les permissions existantes.
+
+PREMIUM
+
+PREMIUM
+→ CHOIX DU TARIF
+→ STRIPE CHECKOUT
+→ PAIEMENT
+→ WEBHOOK
+→ STATUT PREMIUM
+
+fonctionne réellement en environnement de test.
+
+DON
+
+FAIRE UN DON
+→ STRIPE CHECKOUT
+→ PAIEMENT
+→ WEBHOOK / CONFIRMATION
+
+fonctionne réellement.
+
+SÉCURITÉ
+
+Les utilisateurs ne peuvent pas :
+
+* se déclarer eux-mêmes Premium ;
+* modifier un prix Stripe arbitrairement ;
+* contourner les permissions ;
+* accéder aux données privées ;
+* falsifier les confirmations de paiement.
+
+⸻
+
+52. RÈGLE FINALE ABSOLUE
+
+NE RECONSTRUIS PAS INDAMORA PLAY.
+
+NE REFAIS PAS CE QUI FONCTIONNE.
+
+NE SUPPRIME PAS CE QUI EXISTE SANS RAISON TECHNIQUE INDISPENSABLE.
+
+NE CRÉE PAS DE FAUSSES DONNÉES.
+
+NE SIMULE PAS LES PAIEMENTS.
+
+NE SIMULE PAS LES ABONNEMENTS.
+
+NE SIMULE PAS LES DONS.
+
+NE PROMETS PAS DE RÉMUNÉRATION AUX ARTISTES.
+
+NE REMPLACE PAS CLERK.
+
+UTILISE LA VÉRIFICATION EMAIL CLERK.
+
+INTÈGRE STRIPE RÉELLEMENT, D’ABORD EN MODE TEST.
+
+GARDE LE RÉPERTOIRE AU CENTRE DU PROJET.
+
+PRÉSERVE LE DESIGN ET LE LOGO EXISTANTS.
+
+NE MULTIPLIE PAS LES MENUS.
+
+APRÈS CHAQUE MODIFICATION IMPORTANTE : TEST → VÉRIFICATION → CORRECTION → RETEST.
+
+Le résultat attendu est un INDAMORA PLAY existant, finalisé, fonctionnel, sécurisé et prêt à évoluer, et non une nouvelle application.
+
+Avant de terminer, vérifie une dernière fois l’ensemble du projet et assure-toi qu’aucune fonctionnalité existante n’a été cassée.
