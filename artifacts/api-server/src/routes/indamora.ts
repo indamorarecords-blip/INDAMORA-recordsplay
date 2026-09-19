@@ -417,7 +417,7 @@ router.patch("/submissions/:id/status", requireAdmin, async (req, res): Promise<
         category: existing.category,
         description: existing.note || "Une nouvelle création validée par INDAMORA RECORDS.",
         duration: existing.duration,
-        image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=900&q=80",
+         image: "/assets/indamora-play-mark.png",
         mediaType: existing.mediaType,
         mediaObjectPath: existing.mediaObjectPath,
         coverObjectPath: existing.coverObjectPath,

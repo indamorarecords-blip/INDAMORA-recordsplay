@@ -4,7 +4,7 @@ import { Router, type IRouter, type Request, type Response } from "express";
 import { CompleteUploadBody, CompleteUploadResponse, RequestUploadUrlBody, RequestUploadUrlResponse } from "@workspace/api-zod";
 import { requireAuth, isAdminUser } from "../middlewares/auth";
 import { ObjectNotFoundError, ObjectStorageService } from "../lib/objectStorage";
-import { ObjectPermission } from "../lib/objectAcl";
+import { getObjectAclPolicy, ObjectPermission } from "../lib/objectAcl";
 
 const router: IRouter = Router();
 const storage = new ObjectStorageService();
@@ -32,6 +32,12 @@ router.post("/storage/uploads/complete", requireAuth, async (req, res) => {
   const parsed = CompleteUploadBody.safeParse(req.body);
   if (!parsed.success) { res.status(400).json({ error: "Chemin d'objet invalide." }); return; }
   try {
+    const objectFile = await storage.getObjectEntityFile(parsed.data.objectPath);
+    const existingPolicy = await getObjectAclPolicy(objectFile);
+    if (existingPolicy && existingPolicy.owner !== req.clerkUserId) {
+      res.status(403).json({ error: "Cet objet appartient déjà à un autre compte." });
+      return;
+    }
     const path = await storage.setAcl(parsed.data.objectPath, { owner: req.clerkUserId!, visibility: "private" });
     res.json(CompleteUploadResponse.parse({ objectPath: path }));
   } catch (error) { req.log.error({ error }, "Unable to finalize upload"); res.status(400).json({ error: "Upload introuvable ou incomplet." }); }
