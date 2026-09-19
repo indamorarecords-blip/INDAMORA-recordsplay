@@ -1,0 +1,122 @@
+Je veux que tu comprennes comment les accès Stripe et Supabase ont été établis afin de reproduire la même méthode de connexion sécurisée dans Replit.
+
+IMPORTANT :
+
+* Ne me demande aucune clé API secrète dans le chat.
+* Ne demande jamais la clé service_role Supabase.
+* Ne mets aucun secret dans le code client.
+* Ne crée aucun nouveau compte Stripe ou Supabase.
+* Utilise les connexions OAuth/intégrations sécurisées lorsqu’elles sont disponibles.
+
+STRIPE
+
+Le compte Stripe existant est :
+
+Nom : INDAMORA records
+Compte : acct_1UGmqVJK2gfz9jMj
+
+Le compte possède bien un environnement Live.
+
+Dans la connexion sécurisée utilisée par ChatGPT, le compte est exposé avec :
+
+livemode = true
+
+L’environnement Test est un compte séparé :
+
+acct_1UGmqsJ0liKZk29k
+
+Il ne faut pas utiliser ce compte pour les paiements réels.
+
+La méthode utilisée pour autoriser Stripe est une connexion OAuth sécurisée, via une page d’autorisation Stripe générée pour la session.
+
+Il ne s’agit pas d’une clé API copiée dans le code.
+
+Je veux que tu utilises le même principe :
+
+1. connexion Stripe sécurisée ;
+2. autorisation du compte existant ;
+3. sélection du contexte Live ;
+4. vérification que le compte retourné est acct_1UGmqVJK2gfz9jMj ;
+5. vérification que livemode = true ;
+6. seulement après cette vérification, permettre l’activation des paiements réels.
+
+Si ton intégration Stripe retourne encore :
+
+acct_1UGmqVJK2gfz9jMj
+livemode = false
+
+alors considère que l’autorisation Live n’est pas correctement exposée à Replit et ne modifie aucun produit, prix ou Payment Link.
+
+SUPABASE
+
+Le projet Supabase existant est :
+
+Nom : INDAMORA-PLAY
+Project ID : adqsdnqkbitplbhbihiv
+
+URL du projet :
+
+https://adqsdnqkbitplbhbihiv.supabase.co
+
+L’accès utilisé pour les opérations administratives Supabase passe par une connexion/intégration sécurisée à Supabase, et non par l’exposition d’une clé secrète dans le code public.
+
+Le projet contient déjà :
+
+* Authentification ;
+* profils ;
+* rôles listener / artist / admin ;
+* artistes ;
+* albums ;
+* musiques ;
+* médias ;
+* catégories ;
+* relations artistes/catégories ;
+* statistiques ;
+* revenus ;
+* paiements ;
+* Edge Functions ;
+* RLS.
+
+Les clés publiques nécessaires au fonctionnement du navigateur peuvent être utilisées côté client lorsqu’elles sont prévues pour cela.
+
+En revanche :
+
+* service_role ;
+* clés secrètes ;
+* secrets Stripe ;
+* secrets webhook ;
+
+doivent rester uniquement côté serveur / variables d’environnement.
+
+OBJECTIF
+
+Je ne veux pas que tu recrées l’architecture.
+
+Je veux que tu reproduises le principe suivant :
+
+ChatGPT
+   ↓
+connexion sécurisée / OAuth
+   ↓
+Stripe Live
+   ↓
+acct_1UGmqVJK2gfz9jMj
+   ↓
+livemode = true
+
+et :
+
+ChatGPT
+   ↓
+connexion sécurisée Supabase
+   ↓
+projet INDAMORA-PLAY
+   ↓
+adqsdnqkbitplbhbihiv
+
+Avant toute modification, vérifie les autorisations réellement disponibles dans Replit.
+
+Si Replit ne permet pas d’obtenir le contexte Stripe Live avec livemode = true, arrête-toi à cette étape et explique-moi exactement quelle autorisation ou connexion doit être renouvelée.
+
+Ne contourne jamais cette vérification en utilisant le mode Test pour simuler le mode Live.
+::
