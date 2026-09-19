@@ -1,5 +1,5 @@
 import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ClerkProvider, SignIn, SignUp, useClerk, useUser } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
 import { frFR } from '@clerk/localizations';
@@ -62,6 +62,26 @@ function isAdminEmail(email?: string | null) {
   return email?.toLowerCase() === ADMIN_EMAIL;
 }
 const storageUrl = (path?: string | null) => path ? `/api/storage${path}` : undefined;
+type BillingStatus = {
+  status: string;
+  subscription: {
+    id: string;
+    status: string;
+    currentPeriodEnd: number | null;
+    cancelAtPeriodEnd: boolean;
+    priceId: string | null;
+  } | null;
+};
+async function billingRequest<T>(path: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(path, { ...init, credentials: 'include', headers: { 'Content-Type': 'application/json', ...init?.headers } });
+  const body = await response.json().catch(() => null) as { error?: string } | T | null;
+  if (!response.ok) throw new Error((body && typeof body === 'object' && 'error' in body ? body.error : undefined) ?? 'Opération de paiement impossible.');
+  return body as T;
+}
+function checkoutStatusMessage() {
+  const value = new URLSearchParams(window.location.search).get('checkout');
+  return value === 'success' ? 'Votre paiement a été confirmé par Stripe. Le statut Premium sera actualisé après le retour du webhook.' : value === 'cancelled' ? 'Le paiement a été annulé. Aucun débit confirmé n’est affiché ici.' : null;
+}
 async function uploadAsset(file: File, onProgress: (value: number) => void) {
   const response = await fetch('/api/storage/uploads/request-url', {
     method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
@@ -549,6 +569,15 @@ function Moderation() {
 }
 
 function Pricing() {
+  const { isSignedIn } = useUser();
+  const { toast } = useToast();
+  const statusMessage = checkoutStatusMessage();
+  const billingStatus = useQuery({ queryKey: ['billing-status'], queryFn: () => billingRequest<BillingStatus>('/api/billing/status'), enabled: Boolean(isSignedIn) });
+  const checkout = useMutation({
+    mutationFn: (plan: 'africa' | 'international') => billingRequest<{ url: string }>('/api/billing/checkout', { method: 'POST', body: JSON.stringify({ kind: 'subscription', plan }) }),
+    onSuccess: ({ url }) => window.location.assign(url),
+    onError: (error: Error) => toast({ title: 'Checkout indisponible', description: error.message, variant: 'destructive' }),
+  });
   const premiumBenefits = ['Tout le catalogue gratuit', 'Débloquer les sorties Premium', 'Accéder en avant-première aux nouveautés', 'Soutenir le développement d’INDAMORA PLAY'];
   const futureUses = ['Soutenir les artistes et créateurs', 'Accompagner certains projets artistiques', 'Produire de nouvelles créations et fonctionnalités', 'Contribuer au développement de la création centrafricaine et africaine'];
   return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-20">
@@ -574,14 +603,14 @@ function Pricing() {
         <div className="flex items-center justify-between gap-4"><div><h2 className="display text-3xl font-bold">Premium Afrique</h2><p className="mt-1 text-sm text-secondary-foreground/65">Pour les membres situés en Afrique.</p></div><Crown className="h-7 w-7 shrink-0 text-accent" /></div>
         <div className="mt-8 text-4xl font-bold">500 <span className="text-sm font-medium text-secondary-foreground/65">FCFA / mois</span></div>
         <ul className="mt-8 space-y-4 text-sm text-secondary-foreground/85">{premiumBenefits.map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-4 w-4 shrink-0 text-accent" />{item}</li>)}</ul>
-        <span className="mt-10 flex items-center justify-center gap-2 rounded-full bg-accent/30 py-3 text-center text-sm font-bold text-secondary-foreground/70" data-testid="status-pricing-africa"><LockKeyhole className="h-4 w-4" /> Bientôt disponible</span>
+         <button type="button" disabled={!isSignedIn || checkout.isPending} onClick={() => checkout.mutate('africa')} className="mt-10 flex w-full items-center justify-center gap-2 rounded-full bg-accent py-3 text-center text-sm font-bold text-accent-foreground transition-opacity disabled:cursor-not-allowed disabled:opacity-50" data-testid="button-pricing-africa"><Crown className="h-4 w-4" />{!isSignedIn ? 'Se connecter pour souscrire' : checkout.isPending ? 'Ouverture de Checkout…' : 'Souscrire avec Stripe'}</button>
       </div>
 
       <div className="rounded-[2rem] border border-primary/30 bg-card p-7 shadow-[var(--shadow-card)] md:p-8">
         <div className="flex items-center justify-between gap-4"><div><h2 className="display text-3xl font-bold">Premium International</h2><p className="mt-1 text-sm text-muted-foreground">Pour l’Europe, les États-Unis et les autres pays hors Afrique.</p></div><Crown className="h-7 w-7 shrink-0 text-primary" /></div>
         <div className="mt-8 text-4xl font-bold">5 <span className="text-sm font-medium text-muted-foreground">€ / mois</span></div>
         <ul className="mt-8 space-y-4 text-sm">{premiumBenefits.map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-4 w-4 shrink-0 text-primary" />{item}</li>)}</ul>
-        <span className="mt-10 flex items-center justify-center gap-2 rounded-full bg-primary/10 py-3 text-center text-sm font-bold text-primary/70" data-testid="status-pricing-international"><LockKeyhole className="h-4 w-4" /> Bientôt disponible</span>
+         <button type="button" disabled={!isSignedIn || checkout.isPending} onClick={() => checkout.mutate('international')} className="mt-10 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3 text-center text-sm font-bold text-primary-foreground transition-opacity disabled:cursor-not-allowed disabled:opacity-50" data-testid="button-pricing-international"><Crown className="h-4 w-4" />{!isSignedIn ? 'Se connecter pour souscrire' : checkout.isPending ? 'Ouverture de Checkout…' : 'Souscrire avec Stripe'}</button>
       </div>
     </div>
 
@@ -595,23 +624,26 @@ function Pricing() {
       <p className="mt-8 border-t border-border/70 pt-6 text-sm leading-6 text-muted-foreground"><strong className="text-foreground">Une précision importante :</strong> aucun montant fixe ni revenu garanti n’est promis aux artistes. La redistribution éventuelle ne sera définie par INDAMORA RECORDS que lorsque la plateforme disposera de suffisamment d’abonnés, de revenus et de données pour mettre en place un système équitable et transparent.</p>
     </section>
 
-    <p className="mx-auto mt-10 flex max-w-xl items-center justify-center gap-2 text-center text-xs leading-5 text-muted-foreground"><LockKeyhole className="h-3.5 w-3.5 shrink-0" /> Les deux offres Premium sont en préparation. Aucun paiement n’est demandé dans cette V1.</p>
+     {statusMessage && <div className="mx-auto mt-8 max-w-3xl rounded-2xl border border-primary/30 bg-primary/10 px-5 py-4 text-center text-sm text-primary">{statusMessage}</div>}
+     {isSignedIn && billingStatus.data?.subscription && <div className="mx-auto mt-4 flex max-w-3xl flex-wrap items-center justify-center gap-3 text-center text-sm text-muted-foreground"><span>Statut Premium Stripe : <strong className="text-foreground">{billingStatus.data.status}</strong></span><button type="button" onClick={async () => { const { url } = await billingRequest<{ url: string }>('/api/billing/portal', { method: 'POST' }); window.location.assign(url); }} className="rounded-full border border-border px-4 py-2 font-bold hover:border-primary hover:text-primary">Gérer mon abonnement</button></div>}
+     <p className="mx-auto mt-10 max-w-xl text-center text-xs leading-5 text-muted-foreground">Les abonnements permettent actuellement de contribuer au fonctionnement et au développement de la plateforme associative INDAMORA PLAY ainsi qu’à la promotion des artistes. Lorsque les ressources de l’association le permettront, une partie pourra être consacrée à des actions de soutien ou de rémunération des artistes. Cela ne constitue pas une garantie de rémunération.</p>
   </div>;
 }
 
 function Support() {
   const amounts = [1, 5, 10, 20, 50, 100];
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(10);
-  const [customAmount, setCustomAmount] = useState('');
+  const [selectedAmount, setSelectedAmount] = useState<number>(10);
+  const { toast } = useToast();
+  const checkout = useMutation({
+    mutationFn: (amountEur: number) => billingRequest<{ url: string }>('/api/billing/checkout', { method: 'POST', body: JSON.stringify({ kind: 'donation', amountEur }) }),
+    onSuccess: ({ url }) => window.location.assign(url),
+    onError: (error: Error) => toast({ title: 'Don indisponible', description: error.message, variant: 'destructive' }),
+  });
+  const statusMessage = checkoutStatusMessage();
   const chooseAmount = (amount: number) => {
     setSelectedAmount(amount);
-    setCustomAmount('');
   };
-  const enterCustomAmount = (value: string) => {
-    setCustomAmount(value);
-    setSelectedAmount(null);
-  };
-  const displayAmount = selectedAmount ?? Number(customAmount || 0);
+  const displayAmount = selectedAmount;
   return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-20">
     <div className="grid gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-start">
       <div>
@@ -629,12 +661,11 @@ function Support() {
           <HeartHandshake className="h-8 w-8 shrink-0 text-primary" />
         </div>
         <div className="mt-8 grid grid-cols-3 gap-3">{amounts.map((amount) => <button type="button" key={amount} onClick={() => chooseAmount(amount)} className={cx('rounded-2xl border px-3 py-4 font-bold transition-colors', selectedAmount === amount ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:border-primary')} data-testid={`button-donation-${amount}`}>{amount} €</button>)}</div>
-        <label className="mt-5 grid gap-2 text-sm font-bold">Autre montant
-          <div className="flex items-center rounded-2xl border border-input bg-background px-4 focus-within:border-primary"><input type="number" min="1" step="1" value={customAmount} onChange={(event) => enterCustomAmount(event.target.value)} className="min-w-0 flex-1 bg-transparent py-4 font-normal outline-none" placeholder="Montant libre" data-testid="input-donation-custom" /><span className="font-bold text-muted-foreground">€</span></div>
-        </label>
+         <p className="mt-5 text-sm text-muted-foreground">Choisissez un montant prédéfini. Les dons personnalisés pourront être ajoutés après validation du catalogue Stripe.</p>
         <div className="mt-6 rounded-2xl bg-secondary p-5 text-secondary-foreground"><div className="font-mono text-[10px] uppercase tracking-[.18em] text-accent">Votre sélection</div><div className="mt-2 text-3xl font-bold">{displayAmount > 0 ? `${displayAmount} €` : 'À définir'}</div></div>
-        <button type="button" disabled className="mt-6 flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full bg-muted py-3.5 font-bold text-muted-foreground" data-testid="button-donation-unavailable"><LockKeyhole className="h-4 w-4" /> Paiement bientôt disponible</button>
-        <p className="mt-4 text-center text-xs leading-5 text-muted-foreground">Aucun paiement n’est envoyé actuellement. Un fournisseur sécurisé doit encore être connecté et configuré côté serveur.</p>
+         <button type="button" disabled={checkout.isPending} onClick={() => checkout.mutate(selectedAmount)} className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground transition-opacity disabled:cursor-not-allowed disabled:opacity-50" data-testid="button-donation-checkout"><HeartHandshake className="h-4 w-4" />{checkout.isPending ? 'Ouverture de Checkout…' : `Faire un don de ${selectedAmount} € avec Stripe`}</button>
+         {statusMessage && <p className="mt-4 rounded-xl bg-primary/10 px-4 py-3 text-center text-xs leading-5 text-primary">{statusMessage}</p>}
+         <p className="mt-4 text-center text-xs leading-5 text-muted-foreground">Le paiement est traité par Stripe Checkout. La confirmation affichée par INDAMORA PLAY dépend de la confirmation serveur Stripe.</p>
       </section>
     </div>
     <div className="mt-14 grid gap-4 md:grid-cols-3">

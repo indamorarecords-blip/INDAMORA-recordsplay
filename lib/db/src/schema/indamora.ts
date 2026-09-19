@@ -1,4 +1,4 @@
-import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { integer, pgTable, serial, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -70,6 +70,21 @@ export const pressRequestsTable = pgTable("press_requests", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const billingAccountsTable = pgTable(
+  "billing_accounts",
+  {
+    id: serial("id").primaryKey(),
+    clerkUserId: text("clerk_user_id").notNull(),
+    stripeCustomerId: text("stripe_customer_id"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("billing_accounts_clerk_user_id_idx").on(table.clerkUserId),
+    uniqueIndex("billing_accounts_stripe_customer_id_idx").on(table.stripeCustomerId),
+  ],
+);
+
 export const insertArtistSchema = createInsertSchema(artistsTable).omit({
   id: true,
   createdAt: true,
@@ -98,3 +113,4 @@ export const insertPressRequestSchema = createInsertSchema(pressRequestsTable).o
 });
 export type InsertPressRequest = z.infer<typeof insertPressRequestSchema>;
 export type PressRequest = typeof pressRequestsTable.$inferSelect;
+export type BillingAccount = typeof billingAccountsTable.$inferSelect;
