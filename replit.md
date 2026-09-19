@@ -43,6 +43,8 @@ Plateforme culturelle centrafricaine pour découvrir et partager la musique, l�
 - Examiner, approuver ou refuser les propositions depuis l’espace INDAMORA RECORDS.
 - Comparer l’accès gratuit, Premium Afrique à 500 FCFA par mois et Premium International à 5 € par mois, sans paiement réel dans cette V1.
 - Présenter le Premium comme une contribution au développement de la plateforme et au soutien futur des créateurs, sans promettre de revenu fixe ni de rémunération garantie.
+- Présenter un parcours Soutenir INDAMORA distinct de Premium, sans simuler de paiement tant qu’un fournisseur sécurisé n’est pas connecté.
+- Utiliser le logo officiel fourni dans `artifacts/indamora-play/public/assets/` et conserver ses proportions.
 
 ## User preferences
 

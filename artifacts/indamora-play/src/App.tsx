@@ -2,7 +2,7 @@ import { type FormEvent, type ReactNode, useMemo, useState } from 'react';
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowRight, AudioLines, BarChart3, Check, ChevronLeft, CirclePlay, Crown, Disc3,
-  FileMusic, Headphones, History, LayoutDashboard, LoaderCircle, LockKeyhole, Menu, Mic2,
+  FileMusic, Headphones, HeartHandshake, History, LayoutDashboard, LoaderCircle, LockKeyhole, Menu, Mic2,
   Pause, Play, Plus, Search, Send, ShieldCheck, Sparkles, Star, Ticket, UserRound,
   UsersRound, Video, X, Zap,
 } from 'lucide-react';
@@ -95,6 +95,8 @@ function Shell({ children }: { children: ReactNode }) {
     { href: '/', label: 'Accueil', icon: Sparkles },
     { href: '/explorer', label: 'Explorer', icon: CirclePlay },
     { href: '/artists', label: 'Artistes', icon: UsersRound },
+    { href: '/pricing', label: 'Premium', icon: Crown },
+    { href: '/soutenir', label: 'Soutenir', icon: HeartHandshake },
   ];
   return (
     <div className="grain min-h-[100dvh] bg-background">
@@ -132,7 +134,7 @@ function Shell({ children }: { children: ReactNode }) {
       <footer className="mt-24 border-t border-border bg-secondary px-5 py-10 text-secondary-foreground lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
           <div><div className="mb-3 w-36 rounded-xl bg-white p-1"><Logo variant="full" /></div><p className="max-w-xs text-sm leading-6 text-secondary-foreground/70">Le foyer chaleureux des sons, des histoires et des écrans d’Afrique centrale.</p></div>
-          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-secondary-foreground/80"><Link href="/explorer" data-testid="link-footer-explorer">Explorer</Link><Link href="/artists" data-testid="link-footer-artists">Artistes</Link><Link href="/pricing" data-testid="link-footer-pricing">Premium</Link><Link href="/profil" data-testid="link-footer-profile">Mon profil</Link><Link href="/espace-artiste" data-testid="link-footer-artist-space">Espace artiste</Link><Link href="/administration" data-testid="link-footer-admin">Administration</Link><Link href="/submit" data-testid="link-footer-submit">Proposer une œuvre</Link></div>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-secondary-foreground/80"><Link href="/explorer" data-testid="link-footer-explorer">Explorer</Link><Link href="/artists" data-testid="link-footer-artists">Artistes</Link><Link href="/pricing" data-testid="link-footer-pricing">Premium</Link><Link href="/soutenir" data-testid="link-footer-support">Soutenir INDAMORA</Link><Link href="/profil" data-testid="link-footer-profile">Mon profil</Link><Link href="/espace-artiste" data-testid="link-footer-artist-space">Espace artiste</Link><Link href="/administration" data-testid="link-footer-admin">Administration</Link><Link href="/submit" data-testid="link-footer-submit">Proposer une œuvre</Link></div>
         </div>
         <div className="mx-auto mt-8 max-w-7xl border-t border-secondary-foreground/15 pt-4 font-mono text-[10px] uppercase tracking-[.2em] text-secondary-foreground/50">Bangui · République centrafricaine · La diaspora</div>
       </footer>
@@ -400,6 +402,51 @@ function Pricing() {
   </div>;
 }
 
+function Support() {
+  const amounts = [1, 5, 10, 20, 50, 100];
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(10);
+  const [customAmount, setCustomAmount] = useState('');
+  const chooseAmount = (amount: number) => {
+    setSelectedAmount(amount);
+    setCustomAmount('');
+  };
+  const enterCustomAmount = (value: string) => {
+    setCustomAmount(value);
+    setSelectedAmount(null);
+  };
+  const displayAmount = selectedAmount ?? Number(customAmount || 0);
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-20">
+    <div className="grid gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-start">
+      <div>
+        <div className="w-40 rounded-2xl bg-white p-2 shadow-[var(--shadow-card)]"><Logo variant="full" /></div>
+        <div className="mt-8 font-mono text-[10px] uppercase tracking-[.22em] text-primary">Donner / Soutenir INDAMORA</div>
+        <h1 className="display mt-3 text-5xl font-bold leading-none md:text-7xl">Chaque contribution<br /><span className="text-primary">compte.</span></h1>
+        <p className="mt-6 max-w-xl text-lg leading-8 text-muted-foreground">Votre don aide INDAMORA à développer INDAMORA PLAY, à soutenir les artistes indépendants à travers VOIX DE L’AVENIR et à faire grandir nos projets.</p>
+        <div className="mt-8 rounded-2xl border border-border bg-muted p-5 text-sm leading-6 text-muted-foreground">
+          <strong className="text-foreground">VOIX DE L’AVENIR</strong> est une branche de l’écosystème INDAMORA dédiée aux artistes indépendants et aux projets de l’association.
+        </div>
+      </div>
+      <section className="rounded-[2rem] border border-border bg-card p-6 shadow-[var(--shadow-card)] md:p-9">
+        <div className="flex items-center justify-between gap-4">
+          <div><h2 className="display text-3xl font-bold">Choisir une contribution</h2><p className="mt-2 text-sm text-muted-foreground">Le don est indépendant de l’abonnement Premium.</p></div>
+          <HeartHandshake className="h-8 w-8 shrink-0 text-primary" />
+        </div>
+        <div className="mt-8 grid grid-cols-3 gap-3">{amounts.map((amount) => <button type="button" key={amount} onClick={() => chooseAmount(amount)} className={cx('rounded-2xl border px-3 py-4 font-bold transition-colors', selectedAmount === amount ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:border-primary')} data-testid={`button-donation-${amount}`}>{amount} €</button>)}</div>
+        <label className="mt-5 grid gap-2 text-sm font-bold">Autre montant
+          <div className="flex items-center rounded-2xl border border-input bg-background px-4 focus-within:border-primary"><input type="number" min="1" step="1" value={customAmount} onChange={(event) => enterCustomAmount(event.target.value)} className="min-w-0 flex-1 bg-transparent py-4 font-normal outline-none" placeholder="Montant libre" data-testid="input-donation-custom" /><span className="font-bold text-muted-foreground">€</span></div>
+        </label>
+        <div className="mt-6 rounded-2xl bg-secondary p-5 text-secondary-foreground"><div className="font-mono text-[10px] uppercase tracking-[.18em] text-accent">Votre sélection</div><div className="mt-2 text-3xl font-bold">{displayAmount > 0 ? `${displayAmount} €` : 'À définir'}</div></div>
+        <button type="button" disabled className="mt-6 flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full bg-muted py-3.5 font-bold text-muted-foreground" data-testid="button-donation-unavailable"><LockKeyhole className="h-4 w-4" /> Paiement bientôt disponible</button>
+        <p className="mt-4 text-center text-xs leading-5 text-muted-foreground">Aucun paiement n’est envoyé actuellement. Un fournisseur sécurisé doit encore être connecté et configuré côté serveur.</p>
+      </section>
+    </div>
+    <div className="mt-14 grid gap-4 md:grid-cols-3">
+      {['Développer INDAMORA PLAY', 'Accompagner les artistes indépendants', 'Faire grandir les projets INDAMORA'].map((item) => <div key={item} className="rounded-2xl border border-border bg-card p-5"><Check className="h-5 w-5 text-primary" /><h2 className="mt-4 font-bold">{item}</h2></div>)}
+    </div>
+    <p className="mx-auto mt-10 max-w-2xl text-center text-xs leading-5 text-muted-foreground">Aucune déductibilité fiscale, aucun pourcentage reversé et aucun revenu artistique ne sont garantis par cette présentation.</p>
+  </div>;
+}
+
 function Login() {
   const [, navigate] = useLocation();
   const [sent, setSent] = useState(false);
@@ -429,7 +476,7 @@ function Profile() {
   const user = readDemoUser();
   const logout = () => { window.localStorage.removeItem('indamora-demo-user'); navigate('/'); };
   if (!user) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><UserRound className="mx-auto h-10 w-10 text-primary" /><h1 className="display mt-5 text-4xl font-bold">Votre profil vous attend.</h1><p className="mt-3 text-muted-foreground">Créez un compte de démonstration pour retrouver votre espace.</p><Link href="/inscription" className="mt-7 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground" data-testid="link-profile-register">Créer un compte</Link></div>;
-   return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-6 rounded-[2rem] bg-secondary p-7 text-secondary-foreground md:flex-row md:items-center md:justify-between md:p-10"><div className="flex items-center gap-5"><Avatar name={user.name} size="lg" /><div><div className="font-mono text-[10px] uppercase tracking-[.2em] text-accent">Mon profil</div><h1 className="display mt-2 text-4xl font-bold">{user.name}</h1><p className="mt-1 text-secondary-foreground/70">{user.email}</p></div></div><button onClick={logout} className="inline-flex items-center justify-center gap-2 rounded-full border border-secondary-foreground/25 px-4 py-2 text-sm font-bold hover:border-accent hover:text-accent" data-testid="button-profile-logout">Se déconnecter</button></div><div className="mt-12 grid gap-5 md:grid-cols-3"><Link href="/explorer" className="rounded-2xl border border-border bg-card p-6 hover:border-primary" data-testid="link-profile-explore"><History className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Mes découvertes</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Retrouvez les œuvres et artistes à explorer.</p></Link><Link href="/espace-artiste" className="rounded-2xl border border-border bg-card p-6 hover:border-primary" data-testid="link-profile-artist-space"><FileMusic className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Espace artiste</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Envoyez une œuvre et suivez son statut.</p></Link><Link href="/pricing" className="rounded-2xl border border-border bg-card p-6 hover:border-primary" data-testid="link-profile-premium"><Crown className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Offres Premium</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Comparez l’offre Afrique à 500 FCFA et l’offre International à 5 €.</p></Link></div></div>;
+   return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-6 rounded-[2rem] bg-secondary p-7 text-secondary-foreground md:flex-row md:items-center md:justify-between md:p-10"><div className="flex items-center gap-5"><Avatar name={user.name} size="lg" /><div><div className="font-mono text-[10px] uppercase tracking-[.2em] text-accent">Mon profil</div><h1 className="display mt-2 text-4xl font-bold">{user.name}</h1><p className="mt-1 text-secondary-foreground/70">{user.email}</p></div></div><button onClick={logout} className="inline-flex items-center justify-center gap-2 rounded-full border border-secondary-foreground/25 px-4 py-2 text-sm font-bold hover:border-accent hover:text-accent" data-testid="button-profile-logout">Se déconnecter</button></div><div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"><Link href="/explorer" className="rounded-2xl border border-border bg-card p-6 hover:border-primary" data-testid="link-profile-explore"><History className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Mes découvertes</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Retrouvez les œuvres et artistes à explorer.</p></Link><Link href="/espace-artiste" className="rounded-2xl border border-border bg-card p-6 hover:border-primary" data-testid="link-profile-artist-space"><FileMusic className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Espace artiste</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Envoyez une œuvre et suivez son statut.</p></Link><Link href="/pricing" className="rounded-2xl border border-border bg-card p-6 hover:border-primary" data-testid="link-profile-premium"><Crown className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Offres Premium</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Comparez l’offre Afrique à 500 FCFA et l’offre International à 5 €.</p></Link><Link href="/soutenir" className="rounded-2xl border border-border bg-card p-6 hover:border-primary" data-testid="link-profile-support"><HeartHandshake className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Soutenir INDAMORA</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Découvrez les futures possibilités de contribution.</p></Link></div></div>;
 }
 
 function ArtistSpace() {
@@ -453,7 +500,7 @@ function NotFound() {
 
 function Router() {
   const [location] = useLocation();
-  return <ErrorBoundary resetKey={location}><Shell><Switch><Route path="/" component={Home} /><Route path="/explorer" component={Explorer} /><Route path="/recherche" component={SearchPage} /><Route path="/categorie/:slug" component={CategoryPage} /><Route path="/oeuvres/:id" component={WorkPage} /><Route path="/artists" component={Artists} /><Route path="/artists/:id" component={ArtistProfile} /><Route path="/submit" component={Submit} /><Route path="/espace-artiste" component={ArtistSpace} /><Route path="/moderation" component={Moderation} /><Route path="/administration" component={AdminDashboard} /><Route path="/pricing" component={Pricing} /><Route path="/inscription" component={Register} /><Route path="/login" component={Login} /><Route path="/profil" component={Profile} /><Route component={NotFound} /></Switch></Shell></ErrorBoundary>;
+  return <ErrorBoundary resetKey={location}><Shell><Switch><Route path="/" component={Home} /><Route path="/explorer" component={Explorer} /><Route path="/recherche" component={SearchPage} /><Route path="/categorie/:slug" component={CategoryPage} /><Route path="/oeuvres/:id" component={WorkPage} /><Route path="/artists" component={Artists} /><Route path="/artists/:id" component={ArtistProfile} /><Route path="/submit" component={Submit} /><Route path="/espace-artiste" component={ArtistSpace} /><Route path="/moderation" component={Moderation} /><Route path="/administration" component={AdminDashboard} /><Route path="/pricing" component={Pricing} /><Route path="/soutenir" component={Support} /><Route path="/inscription" component={Register} /><Route path="/login" component={Login} /><Route path="/profil" component={Profile} /><Route component={NotFound} /></Switch></Shell></ErrorBoundary>;
 }
 
 function App() {
