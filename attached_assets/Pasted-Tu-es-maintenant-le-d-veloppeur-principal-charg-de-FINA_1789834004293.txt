@@ -1,0 +1,1002 @@
+Tu es maintenant le développeur principal chargé de FINALISER mon projet existant INDAMORA PLAY.
+
+⚠️ RÈGLE ABSOLUE
+
+Le projet existe déjà dans ce workspace.
+
+NE RECOMMENCE PAS LE PROJET DEPUIS ZÉRO.
+
+NE SUPPRIME PAS LA V1 EXISTANTE.
+
+NE REMPLACE PAS L’architecture existante sans raison.
+
+Commence obligatoirement par :
+
+1. inspecter l’architecture actuelle ;
+2. comprendre le frontend ;
+3. comprendre le backend/API ;
+4. comprendre PostgreSQL/Drizzle ;
+5. comprendre les routes ;
+6. comprendre les composants ;
+7. comprendre les schémas existants ;
+8. comprendre ce qui fonctionne déjà ;
+9. identifier ce qui manque ;
+10. puis implémenter les fonctionnalités manquantes.
+
+L’objectif est de TERMINER INDAMORA PLAY, pas de refaire inutilement ce qui existe déjà.
+
+⸻
+
+1 — IDENTITÉ DU PROJET
+
+Nom :
+
+INDAMORA PLAY
+
+Écosystème :
+
+INDAMORA RECORDS
+
+Plateforme musicale et culturelle destinée à mettre en avant :
+
+* artistes
+* musique
+* vidéos
+* créateurs
+* culture
+* talents indépendants
+
+Langue principale :
+
+FRANÇAIS
+
+L’interface doit être moderne, élégante, musicale, africaine contemporaine et professionnelle.
+
+Elle doit être parfaitement utilisable sur :
+
+* smartphone
+* tablette
+* ordinateur
+
+⸻
+
+2 — LOGO OFFICIEL
+
+J’ai un logo officiel INDAMORA PLAY.
+
+NE PAS créer un nouveau logo.
+
+NE PAS redessiner le logo.
+
+NE PAS remplacer le logo par une icône générique.
+
+Si le logo est déjà présent dans attached_assets, retrouve-le et utilise-le.
+
+S’il existe plusieurs formats, choisir le meilleur format disponible.
+
+Créer si nécessaire un composant réutilisable :
+
+Logo
+
+Utiliser le logo dans :
+
+* header
+* page d’accueil
+* connexion
+* inscription
+* espace artiste
+* espace administrateur
+* Premium
+* Soutenir INDAMORA
+* footer
+* favicon si possible
+* mobile
+
+Ne jamais déformer les proportions du logo.
+
+⸻
+
+3 — DESIGN
+
+Conserver l’identité actuelle lorsqu’elle fonctionne, mais finaliser l’ensemble avec une identité cohérente.
+
+Palette recommandée :
+
+* Fond principal : #090909
+* Fond secondaire : #111111
+* Cartes : #181818
+* Blanc : #FFFFFF
+* Texte secondaire : #B8B8B8
+* Rouge : #D92525
+* Jaune : #F2C230
+* Vert : #168447
+* Bleu : #1689C7
+
+Le noir et le blanc sont les couleurs dominantes.
+
+Les couleurs rouge/jaune/vert/bleu sont des accents inspirés de l’identité centrafricaine/africaine.
+
+Ne pas mettre toutes les couleurs partout.
+
+Ne pas copier Spotify ou Apple Music.
+
+INDAMORA PLAY doit avoir sa propre identité.
+
+⸻
+
+4 — NAVIGATION
+
+Navigation desktop :
+
+* Accueil
+* Musique
+* Vidéos
+* Artistes
+* Recherche
+* Premium
+* Soutenir
+* Connexion
+
+Après connexion :
+
+* Mon compte
+* Premium
+* Soutenir
+* Déconnexion
+
+Pour un artiste :
+
+* Espace artiste
+
+Pour l’administrateur :
+
+* Administration
+
+Sur mobile, créer une navigation adaptée avec menu hamburger et/ou barre inférieure.
+
+⸻
+
+5 — PAGE D’ACCUEIL
+
+La page d’accueil doit présenter :
+
+INDAMORA PLAY
+
+Signature :
+
+La voix de nos talents.
+
+Message :
+
+Découvrez la musique, les artistes et les créations qui font vibrer l’Afrique et le monde.
+
+Boutons :
+
+ÉCOUTER MAINTENANT
+
+DÉCOUVRIR LES ARTISTES
+
+Sections :
+
+À LA UNE
+
+Artistes et contenus mis en avant.
+
+LES NOUVEAUTÉS
+
+Dernières sorties.
+
+MUSIQUE
+
+Morceaux et artistes.
+
+VIDÉOS
+
+Clips et créations.
+
+PREMIUM
+
+Présentation de l’abonnement.
+
+SOUTENIR INDAMORA
+
+Présentation des dons.
+
+⸻
+
+6 — MUSIQUE
+
+Créer/finaliser une vraie section :
+
+MUSIQUE
+
+Catégories :
+
+* Tous
+* Nouveautés
+* Albums
+* Singles
+* Afrobeat
+* Afropop
+* Gospel
+* R&B
+* Hip-Hop
+* Rap
+* Reggae
+* Dancehall
+* Jazz
+* Musique traditionnelle
+* Musique centrafricaine
+* Musiques du monde
+
+Utiliser les contenus réellement présents en base.
+
+⸻
+
+7 — VRAI LECTEUR AUDIO
+
+Il faut un véritable lecteur audio fonctionnel.
+
+Fonctions :
+
+* lecture
+* pause
+* précédent
+* suivant
+* progression
+* durée
+* volume
+* pochette
+* titre
+* artiste
+
+Sur mobile, le lecteur doit rester utilisable.
+
+NE PAS créer un bouton Play purement décoratif.
+
+Si des fichiers audio existent, ils doivent réellement pouvoir être lus.
+
+⸻
+
+8 — VIDÉOS
+
+Créer/finaliser :
+
+VIDÉOS
+
+Prévoir :
+
+* miniature
+* titre
+* artiste
+* description
+* lecteur vidéo
+* catégories
+
+Lecteur réellement fonctionnel lorsque le média existe.
+
+⸻
+
+9 — ARTISTES
+
+Créer/finaliser :
+
+NOS ARTISTES
+
+Afficher uniquement les artistes validés publiquement.
+
+Carte :
+
+* photo
+* nom artistique
+* pays
+* genre
+
+Page artiste :
+
+* photo
+* couverture
+* nom
+* biographie
+* pays
+* genre
+* musique
+* albums
+* singles
+* vidéos
+
+⸻
+
+10 — COMPTES UTILISATEURS
+
+Créer/finaliser une authentification réelle.
+
+Fonctions :
+
+* inscription
+* connexion
+* déconnexion
+* session
+* profil
+* modification du profil
+* changement de mot de passe
+* récupération de mot de passe si possible avec l’architecture actuelle
+
+Rôles :
+
+USER
+
+ARTIST
+
+ADMIN
+
+Les mots de passe doivent être hashés.
+
+Ne jamais stocker de mot de passe en clair.
+
+⸻
+
+11 — ESPACE ARTISTE
+
+Créer/finaliser :
+
+/artist
+
+L’artiste doit pouvoir :
+
+* créer son profil
+* nom artistique
+* biographie
+* pays
+* ville
+* genre
+* photo
+* couverture
+* envoyer une œuvre
+* envoyer audio
+* envoyer vidéo
+* consulter ses œuvres
+* voir son statut
+
+Statuts :
+
+PENDING
+
+VALIDATED
+
+REFUSED
+
+Afficher en français :
+
+EN ATTENTE
+
+VALIDÉ
+
+REFUSÉ
+
+⸻
+
+12 — SOUMISSION D’ŒUVRES
+
+Un artiste peut envoyer :
+
+* titre
+* description
+* genre
+* type
+* pochette
+* audio
+* vidéo
+
+Bouton :
+
+ENVOYER POUR VALIDATION
+
+Message :
+
+Votre œuvre sera examinée par INDAMORA RECORDS avant sa publication.
+
+Une œuvre en attente ne doit pas être présentée comme officiellement publiée.
+
+⸻
+
+13 — ADMINISTRATEUR PRINCIPAL
+
+Administrateur principal :
+
+Nom d’utilisateur :
+
+INDIANA
+
+Prénom :
+
+SHELLAY
+
+Email :
+
+indamorarecords@gmail.com
+
+Rôle :
+
+ADMINISTRATEUR PRINCIPAL / INDAMORA RECORDS
+
+Ne jamais mettre le mot de passe dans le code.
+
+Utiliser le système sécurisé de secrets / variables d’environnement déjà disponible.
+
+⸻
+
+14 — ESPACE ADMINISTRATEUR
+
+Créer/finaliser :
+
+/admin
+
+Il doit fonctionner parfaitement sur :
+
+* téléphone
+* tablette
+* ordinateur
+
+Dashboard :
+
+* utilisateurs
+* artistes
+* artistes en attente
+* artistes validés
+* œuvres
+* œuvres en attente
+* œuvres validées
+* vidéos
+* Premium
+* paiements
+* dons
+* statistiques
+
+⸻
+
+15 — VALIDATION ARTISTES
+
+L’administrateur doit pouvoir :
+
+* voir les demandes
+* rechercher
+* ouvrir un profil
+* consulter les informations
+* valider
+* refuser
+
+Actions réelles en base.
+
+PENDING → VALIDATED
+
+ou
+
+PENDING → REFUSED
+
+Après validation, l’artiste devient publiquement visible.
+
+⸻
+
+16 — VALIDATION ŒUVRES
+
+L’administrateur doit pouvoir :
+
+* consulter l’œuvre
+* écouter l’audio
+* regarder la vidéo
+* voir la pochette
+* valider
+* refuser
+
+Actions réellement enregistrées dans PostgreSQL.
+
+⸻
+
+17 — GESTION DES UTILISATEURS
+
+L’admin doit pouvoir :
+
+* voir les utilisateurs
+* rechercher
+* consulter leur profil
+* voir leur rôle
+* voir leur statut Premium
+* désactiver si nécessaire
+
+⸻
+
+18 — RECHERCHE
+
+Créer une recherche globale :
+
+Placeholder :
+
+Artiste, morceau, album, vidéo…
+
+Rechercher :
+
+* artistes
+* morceaux
+* albums
+* vidéos
+
+Afficher les résultats par catégorie.
+
+⸻
+
+19 — PREMIUM
+
+Créer :
+
+PREMIUM AFRIQUE
+
+500 FCFA / mois
+
+PREMIUM INTERNATIONAL
+
+5 € / mois
+
+Message :
+
+« Votre abonnement contribue au développement d’INDAMORA PLAY et au soutien des artistes et créateurs. »
+
+Ajouter :
+
+Plus notre communauté grandit, plus INDAMORA RECORDS peut développer de nouveaux projets et renforcer les mécanismes de soutien aux créateurs.
+
+Ne pas promettre :
+
+* revenu fixe par artiste
+* rémunération fixe par stream
+* pourcentage fixe de redistribution
+
+⸻
+
+20 — PAIEMENTS PREMIUM
+
+Je veux une véritable intégration de paiement.
+
+Pas une simulation.
+
+Utiliser une solution adaptée à l’Afrique et à l’international, en privilégiant les fournisseurs réellement compatibles avec le projet.
+
+Prévoir :
+
+* création du paiement
+* validation serveur
+* webhooks
+* vérification des signatures
+* identifiant transaction
+* statut
+* abonnement
+* renouvellement si supporté
+* annulation
+* paiement échoué
+
+Ne jamais considérer un paiement comme réussi uniquement parce que le navigateur revient sur une page de succès.
+
+La confirmation doit venir du serveur/fournisseur.
+
+Utiliser les Secrets de Replit pour les clés.
+
+Ne jamais mettre de clé secrète dans le frontend.
+
+⸻
+
+21 — DONS
+
+Créer une page :
+
+SOUTENIR INDAMORA
+
+Texte :
+
+« Chaque contribution compte. Votre don aide INDAMORA à développer INDAMORA PLAY, à soutenir les artistes indépendants à travers VOIX DE L’AVENIR et à faire grandir nos projets. »
+
+Montants :
+
+* 1 €
+* 5 €
+* 10 €
+* 20 €
+* 50 €
+* 100 €
+* autre montant
+
+Permettre un montant libre.
+
+Le don est indépendant de Premium.
+
+Un utilisateur peut être :
+
+* gratuit
+* Premium
+* donateur
+* Premium + donateur
+
+⸻
+
+22 — VOIX DE L’AVENIR
+
+Présenter :
+
+VOIX DE L’AVENIR
+
+comme une branche/projet de l’écosystème INDAMORA qui contribue au soutien des artistes indépendants et au développement de projets culturels.
+
+Ne pas inventer de pourcentage fixe reversé aux artistes.
+
+Ne pas promettre de déductibilité fiscale sans validation juridique.
+
+⸻
+
+23 — PAIEMENTS DES DONS
+
+Les dons doivent utiliser un véritable système de paiement lorsque les credentials sont disponibles.
+
+Prévoir :
+
+* montant
+* devise
+* paiement
+* confirmation serveur
+* webhook
+* transaction ID
+* statut
+* date
+
+⸻
+
+24 — ADMIN — DONS
+
+Ajouter :
+
+DONS
+
+Afficher :
+
+* total
+* nombre de dons
+* derniers dons
+* montant
+* devise
+* date
+* statut
+* transaction ID
+
+Ne jamais afficher les données bancaires complètes.
+
+⸻
+
+25 — BASE DE DONNÉES
+
+Utiliser la base existante.
+
+Ne pas créer une deuxième base inutile.
+
+Adapter les schémas existants.
+
+Prévoir si nécessaire :
+
+users
+
+artist_profiles
+
+works
+
+albums
+
+tracks
+
+videos
+
+subscriptions
+
+payments
+
+donations
+
+audit_logs
+
+Ne crée pas toutes ces tables si une structure équivalente existe déjà : réutilise et adapte l’existant.
+
+⸻
+
+26 — STOCKAGE MÉDIAS
+
+Réutiliser le stockage existant si présent.
+
+Prévoir :
+
+* avatars
+* couvertures
+* pochettes
+* audio
+* vidéos
+
+Validation :
+
+* type
+* extension
+* taille
+
+Ne pas stocker les gros fichiers directement dans PostgreSQL.
+
+⸻
+
+27 — SÉCURITÉ
+
+Contrôle des rôles côté serveur.
+
+Un simple changement de frontend ne doit jamais permettre à un utilisateur de devenir admin.
+
+Protéger :
+
+* admin
+* artistes
+* paiements
+* dons
+* endpoints sensibles
+
+Secrets uniquement côté serveur.
+
+Validation des uploads.
+
+Protection des webhooks.
+
+⸻
+
+28 — RESPONSIVE
+
+Priorité mobile.
+
+Tester :
+
+Smartphone
+
+Tablette
+
+Desktop
+
+Corriger :
+
+* menus
+* cartes
+* tableaux
+* formulaires
+* lecteur
+* boutons
+* images
+* dashboard admin
+
+L’administration doit être utilisable depuis un téléphone.
+
+⸻
+
+29 — FOOTER
+
+Logo INDAMORA PLAY.
+
+Texte :
+
+INDAMORA PLAY — La voix de nos talents.
+
+Liens :
+
+INDAMORA PLAY
+
+* Accueil
+* Musique
+* Vidéos
+* Artistes
+
+COMMUNAUTÉ
+
+* Créer un compte
+* Devenir artiste
+* Premium
+* Soutenir
+
+INDAMORA
+
+* INDAMORA RECORDS
+* VOIX DE L’AVENIR
+* À propos
+* Contact
+
+LÉGAL
+
+* Conditions d’utilisation
+* Politique de confidentialité
+* Cookies
+
+Bas :
+
+© INDAMORA PLAY — INDAMORA RECORDS. Tous droits réservés.
+
+⸻
+
+30 — À PROPOS
+
+Créer/finaliser une page :
+
+À PROPOS D’INDAMORA PLAY
+
+Texte :
+
+INDAMORA PLAY est une plateforme de l’écosystème INDAMORA dédiée à la découverte, à la diffusion et à la mise en valeur des artistes, de la musique, des vidéos et des créations.
+
+Notre ambition est de créer un espace où les talents peuvent être découverts, où les cultures peuvent circuler et où les artistes indépendants peuvent trouver de nouvelles opportunités de visibilité.
+
+Puis :
+
+INDAMORA RECORDS
+
+et
+
+VOIX DE L’AVENIR
+
+avec des présentations cohérentes.
+
+⸻
+
+31 — CONTACT
+
+Email :
+
+indamorarecords@gmail.com
+
+Créer un formulaire :
+
+* nom
+* email
+* sujet
+* message
+
+Bouton :
+
+ENVOYER LE MESSAGE
+
+⸻
+
+32 — LOGO / ASSETS
+
+Si aucun logo n’est encore présent, ne fabrique pas un faux logo définitif.
+
+Prépare le composant et l’emplacement afin que le fichier officiel puisse être ajouté facilement.
+
+Si le logo existe déjà dans attached_assets, utilise-le.
+
+⸻
+
+33 — QUALITÉ
+
+Ne laisse pas :
+
+* boutons morts
+* liens morts
+* pages vides sans raison
+* erreurs TypeScript
+* erreurs de build
+* données fictives présentées comme réelles
+* paiements simulés présentés comme réels
+
+Les fonctionnalités qui nécessitent une configuration externe doivent afficher clairement leur état.
+
+⸻
+
+34 — TESTS
+
+À la fin :
+
+1. lancer le typecheck ;
+2. corriger les erreurs ;
+3. lancer le build ;
+4. corriger les erreurs ;
+5. vérifier les routes ;
+6. vérifier l’authentification ;
+7. vérifier les rôles ;
+8. vérifier l’admin ;
+9. vérifier la validation artiste ;
+10. vérifier la validation œuvre ;
+11. vérifier audio ;
+12. vérifier vidéo ;
+13. vérifier recherche ;
+14. vérifier Premium ;
+15. vérifier dons ;
+16. vérifier responsive.
+
+⸻
+
+35 — RAPPORT FINAL
+
+À la fin de l’intervention, donne-moi un rapport clair avec :
+
+TERMINÉ
+
+* frontend
+* backend
+* base de données
+* authentification
+* artistes
+* œuvres
+* admin
+* musique
+* audio
+* vidéos
+* recherche
+* Premium
+* paiements
+* dons
+* logo
+* responsive
+* sécurité
+
+ADMIN
+
+URL :
+
+Identifiant :
+
+INDIANA
+
+Email :
+
+indamorarecords@gmail.com
+
+Ne jamais afficher le mot de passe.
+
+PAIEMENTS
+
+Indiquer :
+
+* fournisseur
+* intégration réalisée
+* variables nécessaires
+* webhooks
+* ce qui est réellement actif
+* ce qui nécessite encore une configuration externe
+
+DONS
+
+Même chose.
+
+TESTS
+
+Indiquer :
+
+* typecheck
+* build
+* tests
+* erreurs restantes éventuelles
+
+FICHIERS
+
+Lister les principaux fichiers créés/modifiés.
+
+⸻
+
+36 — RÈGLE FINALE
+
+TRAVAILLE DIRECTEMENT DANS LE PROJET EXISTANT.
+
+Ne me donne pas simplement des instructions.
+
+Fais les modifications nécessaires.
+
+Ne recommence pas l’application.
+
+Ne supprime pas les fonctionnalités existantes qui fonctionnent.
+
+Réutilise PostgreSQL, Drizzle, l’API, les composants et les dépendances déjà présents lorsque cela est pertinent.
+
+Construis ce qui manque.
+
+Corrige ce qui est cassé.
+
+Teste le résultat.
+
+L’objectif est que INDAMORA RECORDS puisse réellement administrer INDAMORA PLAY, notamment depuis un téléphone.
+
+Commence maintenant par auditer le projet existant, puis exécute les modifications nécessaires jusqu’à obtenir le meilleur état fonctionnel possible dans cette intervention.

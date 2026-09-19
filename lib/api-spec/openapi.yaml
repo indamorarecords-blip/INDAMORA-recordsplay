@@ -82,6 +82,8 @@ paths:
       operationId: createArtist
       tags: [artists]
       summary: Create an artist profile
+      security:
+        - clerkSession: []
       requestBody:
         required: true
         content:
@@ -120,6 +122,8 @@ paths:
       operationId: getSubmissions
       tags: [submissions]
       summary: List work submissions
+      security:
+        - clerkSession: []
       parameters:
         - name: status
           in: query
@@ -140,6 +144,8 @@ paths:
       operationId: createSubmission
       tags: [submissions]
       summary: Submit a work for review
+      security:
+        - clerkSession: []
       requestBody:
         required: true
         content:
@@ -158,6 +164,8 @@ paths:
       operationId: updateSubmissionStatus
       tags: [submissions]
       summary: Update a submission review status
+      security:
+        - clerkSession: []
       parameters:
         - name: id
           in: path
@@ -178,6 +186,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/Submission"
 components:
+  securitySchemes:
+    clerkSession:
+      type: apiKey
+      in: cookie
+      name: __session
   schemas:
     HealthStatus:
       type: object

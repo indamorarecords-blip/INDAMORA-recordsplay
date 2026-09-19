@@ -10,6 +10,7 @@ export const artistsTable = pgTable("artists", {
   location: text("location").notNull(),
   avatar: text("avatar"),
   worksCount: integer("works_count").notNull().default(0),
+  ownerId: text("owner_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -34,6 +35,7 @@ export const submissionsTable = pgTable("submissions", {
   submittedAt: timestamp("submitted_at", { withTimezone: true }).notNull().defaultNow(),
   status: text("status").notNull().default("pending"),
   note: text("note"),
+  ownerId: text("owner_id"),
 });
 
 export const insertArtistSchema = createInsertSchema(artistsTable).omit({

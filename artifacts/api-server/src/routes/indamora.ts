@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db, artistsTable, submissionsTable, worksTable } from "@workspace/db";
 import {
   CreateArtistBody,
@@ -19,6 +19,7 @@ import {
   UpdateSubmissionStatusResponse,
 } from "@workspace/api-zod";
 import { logger } from "../lib/logger";
+import { isAdminUser, requireAdmin, requireAuth } from "../middlewares/auth";
 
 const router: IRouter = Router();
 
@@ -31,7 +32,12 @@ const worksForClient = (rows: typeof worksTable.$inferSelect[]) =>
 
 const submissionsForClient = (rows: typeof submissionsTable.$inferSelect[]) =>
   rows.map((submission) => ({
-    ...submission,
+    id: submission.id,
+    title: submission.title,
+    artist: submission.artist,
+    category: submission.category,
+    status: submission.status,
+    note: submission.note,
     submittedAt: submission.submittedAt.toISOString(),
   }));
 
@@ -159,13 +165,16 @@ router.get("/artists", async (_req, res): Promise<void> => {
   res.json(GetArtistsResponse.parse(artists));
 });
 
-router.post("/artists", async (req, res): Promise<void> => {
+router.post("/artists", requireAuth, async (req, res): Promise<void> => {
   const parsed = CreateArtistBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const [artist] = await db.insert(artistsTable).values(parsed.data).returning();
+  const [artist] = await db
+    .insert(artistsTable)
+    .values({ ...parsed.data, ownerId: req.clerkUserId })
+    .returning();
   res.status(201).json(CreateArtistResponse.parse(artist));
 });
 
@@ -183,31 +192,46 @@ router.get("/artists/:id", async (req, res): Promise<void> => {
   res.json(GetArtistResponse.parse(artist));
 });
 
-router.get("/submissions", async (req, res): Promise<void> => {
+router.get("/submissions", requireAuth, async (req, res): Promise<void> => {
   const params = GetSubmissionsQueryParams.safeParse(req.query);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
     return;
   }
+  const admin = await isAdminUser(req.clerkUserId!);
   const submissions = await db
     .select()
     .from(submissionsTable)
-    .where(params.data.status ? eq(submissionsTable.status, params.data.status) : undefined)
+    .where(
+      params.data.status
+        ? admin
+          ? eq(submissionsTable.status, params.data.status)
+          : and(
+              eq(submissionsTable.status, params.data.status),
+              eq(submissionsTable.ownerId, req.clerkUserId!),
+            )
+        : admin
+          ? undefined
+          : eq(submissionsTable.ownerId, req.clerkUserId!),
+    )
     .orderBy(submissionsTable.submittedAt);
   res.json(GetSubmissionsResponse.parse(submissionsForClient(submissions)));
 });
 
-router.post("/submissions", async (req, res): Promise<void> => {
+router.post("/submissions", requireAuth, async (req, res): Promise<void> => {
   const parsed = CreateSubmissionBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  const [submission] = await db.insert(submissionsTable).values(parsed.data).returning();
+  const [submission] = await db
+    .insert(submissionsTable)
+    .values({ ...parsed.data, ownerId: req.clerkUserId })
+    .returning();
   res.status(201).json(CreateSubmissionResponse.parse(submissionsForClient([submission])[0]));
 });
 
-router.patch("/submissions/:id/status", async (req, res): Promise<void> => {
+router.patch("/submissions/:id/status", requireAdmin, async (req, res): Promise<void> => {
   const params = UpdateSubmissionStatusParams.safeParse(req.params);
   const body = UpdateSubmissionStatusBody.safeParse(req.body);
   if (!params.success) {
