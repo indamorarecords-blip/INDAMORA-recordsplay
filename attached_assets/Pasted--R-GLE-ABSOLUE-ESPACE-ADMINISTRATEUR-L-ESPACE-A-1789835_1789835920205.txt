@@ -1,0 +1,131 @@
+==================================================
+RÈGLE ABSOLUE — ESPACE ADMINISTRATEUR
+
+L’ESPACE ADMINISTRATEUR DOIT ÊTRE TOTALEMENT INVISIBLE POUR LES VISITEURS, UTILISATEURS ET ARTISTES.
+
+Un visiteur ou utilisateur normal ne doit jamais voir :
+
+* Administration
+* Admin
+* Tableau de bord administrateur
+* Gestion des utilisateurs
+* Gestion des artistes
+* Modération
+* Gestion des œuvres
+* Statistiques administrateur
+* Paiements administrateur
+* Dons administrateur
+* aucun lien, bouton, menu ou élément permettant d’identifier ou d’ouvrir l’espace administrateur.
+
+Un artiste ne doit jamais voir :
+
+* Administration
+* Admin
+* Tableau de bord administrateur
+* Gestion globale
+* Modération
+* Gestion des utilisateurs
+* Statistiques globales
+* Paiements administrateur
+* Dons administrateur
+* aucun lien, bouton, menu ou élément appartenant à l’espace administrateur.
+
+L’espace administrateur doit apparaître UNIQUEMENT lorsqu’un utilisateur possède réellement le rôle ADMIN.
+
+==================================================
+SÉCURITÉ — ACCÈS DIRECT PAR URL
+
+Cacher les liens ne suffit PAS.
+
+Même si un visiteur ou un artiste connaît ou devine l’URL de l’administration, il ne doit jamais pouvoir y accéder.
+
+Exemples :
+
+/admin
+/admin.html
+/admin/dashboard
+/admin/users
+/admin/artists
+/admin/moderation
+
+ou toute autre route administrative réellement présente dans le projet.
+
+Comportement obligatoire :
+
+VISITEUR / USER
+→ aucune interface administrative visible
+→ accès direct à une URL admin
+→ ACCÈS REFUSÉ
+→ redirection vers son espace compte ou une page publique appropriée.
+
+ARTISTE
+→ aucune interface administrative visible
+→ accès direct à une URL admin
+→ ACCÈS REFUSÉ
+→ redirection vers son espace artiste.
+
+ADMIN
+→ interface administrative visible
+→ accès autorisé selon ses permissions.
+
+==================================================
+SÉPARATION VISUELLE ET TECHNIQUE
+
+L’administration doit être séparée du reste de l’application.
+
+Ne te contente pas de faire :
+
+if (isAdmin) afficher le bouton.
+
+Il faut également protéger les routes, API, fonctions serveur et données administratives.
+
+La sécurité doit être appliquée côté serveur et/ou via les mécanismes d’autorisation fiables déjà présents dans le projet.
+
+Le navigateur ne doit jamais pouvoir transformer un utilisateur en administrateur simplement en modifiant :
+
+* localStorage ;
+* sessionStorage ;
+* JavaScript ;
+* paramètres URL ;
+* données envoyées par un formulaire ;
+* rôle côté client.
+
+==================================================
+TEST OBLIGATOIRE
+
+Effectue les tests suivants :
+
+1. Visiteur connecté :
+    → vérifier toute la navigation
+    → aucun élément ADMIN visible.
+2. Artiste connecté :
+    → vérifier toute la navigation
+    → aucun élément ADMIN visible.
+3. Visiteur :
+    → saisir directement l’URL administrative
+    → accès refusé.
+4. Artiste :
+    → saisir directement l’URL administrative
+    → accès refusé.
+5. Visiteur ou artiste :
+    → tenter d’appeler directement une API administrative
+    → accès refusé.
+6. Administrateur :
+    → connexion
+    → espace administrateur visible
+    → accès autorisé.
+
+IMPORTANT :
+
+NE PAS afficher temporairement le menu ADMIN avant de vérifier le rôle.
+
+NE PAS charger inutilement les données administratives pour les visiteurs ou artistes.
+
+NE PAS exposer dans le frontend des informations administratives qui seraient simplement cachées avec CSS ou JavaScript.
+
+L’espace administrateur doit être :
+INVISIBLE pour les non-administrateurs
+ET
+INACCESSIBLE pour les non-administrateurs.
+
+Cette règle est NON NÉGOCIABLE.
