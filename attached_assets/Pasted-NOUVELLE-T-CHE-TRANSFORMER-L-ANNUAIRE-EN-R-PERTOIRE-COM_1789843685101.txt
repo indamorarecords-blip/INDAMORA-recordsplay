@@ -1,0 +1,896 @@
+NOUVELLE TÂCHE — TRANSFORMER L’ANNUAIRE EN RÉPERTOIRE COMMUNAUTAIRE INDAMORA PLAY
+
+OBJECTIF
+
+L’annuaire d’INDAMORA PLAY ne doit pas être limité à un simple annuaire d’artistes.
+
+Il doit évoluer vers un véritable RÉPERTOIRE COMMUNAUTAIRE INDAMORA PLAY, réunissant les artistes, créateurs, professionnels, acteurs culturels et spirituels, médias et partenaires.
+
+L’ambition est de contribuer à réunir la communauté musicale et culturelle d’Afrique centrale et, progressivement, d’Afrique et du monde.
+
+L’objectif devient :
+
+Découvrir les talents, créateurs, professionnels, acteurs culturels, médias et partenaires qui font vivre l’écosystème INDAMORA PLAY.
+
+⸻
+
+⚠️ RÈGLE ABSOLUE : CONSERVER L’EXISTANT
+
+NE PAS SUPPRIMER, REFAIRE OU CASSER CE QUI FONCTIONNE DÉJÀ.
+
+Avant toute modification :
+
+1. inspecter l’annuaire actuel ;
+2. inspecter les profils existants ;
+3. inspecter les tables et relations ;
+4. inspecter les routes ;
+5. inspecter les composants ;
+6. inspecter les permissions ;
+7. inspecter les fonctionnalités déjà opérationnelles ;
+8. identifier ce qui peut être simplement étendu.
+
+Si une fonctionnalité fonctionne déjà correctement :
+
+LA CONSERVER.
+
+Ne pas reconstruire inutilement.
+
+Ne pas créer de doublons :
+
+* pas deux systèmes de profils ;
+* pas deux systèmes de catégories ;
+* pas deux annuaires ;
+* pas deux systèmes de validation ;
+* pas deux systèmes de partenaires.
+
+Réutiliser et étendre l’architecture existante autant que possible.
+
+⸻
+
+1. NE PAS MULTIPLIER LES MENUS
+
+L’interface doit rester simple, élégante et mobile-first.
+
+Ne pas créer un menu principal pour chaque catégorie.
+
+❌ Pas de menu principal Gospel
+❌ Pas de menu principal DJ
+❌ Pas de menu principal Vidéastes
+❌ Pas de menu principal Podcasts
+❌ Pas de menu principal Influenceurs
+❌ Pas de menu principal Partenaires
+❌ Pas de menu principal Presse
+
+Tout doit être regroupé intelligemment dans :
+
+📖 RÉPERTOIRE
+
+Le RÉPERTOIRE devient le point d’entrée central de tous les profils professionnels et communautaires.
+
+La navigation principale doit rester compacte.
+
+Exemple :
+
+ACCUEIL | MUSIQUE | VIDÉOS | RÉPERTOIRE | RECHERCHE | PREMIUM | SOUTENIR
+
+Puis les éléments liés au compte selon l’état de connexion.
+
+⸻
+
+2. STRUCTURE DU RÉPERTOIRE
+
+Lorsqu’un visiteur clique sur :
+
+📖 RÉPERTOIRE
+
+il arrive sur une page claire présentant quatre grandes familles.
+
+🎤 ARTISTES
+
+Sous-catégories :
+
+* Artistes / Chanteurs ;
+* Gospel / Chantres ;
+* Serviteurs de Dieu ;
+* DJ ;
+* Animateurs événementiels ;
+* Maîtres de cérémonie ;
+* Speakers.
+
+🎬 CRÉATIONS
+
+Sous-catégories :
+
+* Cinéma ;
+* Acteurs / Actrices ;
+* Réalisateurs ;
+* Vidéastes ;
+* Humour ;
+* Podcasts ;
+* Créateurs de contenu ;
+* Influenceurs ;
+* Créateurs / Talents.
+
+🤝 PARTENAIRES
+
+Sous-catégories :
+
+* Associations ;
+* Labels ;
+* Producteurs ;
+* Organisateurs ;
+* Radios ;
+* Médias ;
+* Partenaires culturels.
+
+📰 PRESSE & MÉDIAS
+
+Sous-catégories / services :
+
+* Journalistes ;
+* Radios ;
+* Télévisions ;
+* Médias en ligne ;
+* Demandes d’interviews ;
+* Demandes de visuels ;
+* Demandes d’informations.
+
+⸻
+
+3. PRÉSENTATION VISUELLE DU RÉPERTOIRE
+
+La page doit être visuellement simple et attractive.
+
+Exemple :
+
+RÉPERTOIRE INDAMORA PLAY
+
+Découvrez les artistes, créateurs, professionnels, médias et partenaires qui font vivre notre communauté.
+
+Puis afficher quatre grandes cartes ou sections cliquables :
+
+🎤 ARTISTES
+
+Chanteurs • Gospel • Chantres • Serviteurs de Dieu • DJ • Animateurs • MC • Speakers
+
+🎬 CRÉATIONS
+
+Cinéma • Vidéastes • Humour • Podcasts • Créateurs de contenu • Influenceurs • Créateurs
+
+🤝 PARTENAIRES
+
+Associations • Labels • Producteurs • Organisateurs • Radios • Médias • Partenaires culturels
+
+📰 PRESSE & MÉDIAS
+
+Journalistes • Radios • Télévisions • Médias en ligne • Interviews • Visuels • Informations
+
+Chaque catégorie doit être cliquable.
+
+⸻
+
+4. NAVIGATION DANS LE RÉPERTOIRE
+
+L’utilisateur doit pouvoir naviguer simplement :
+
+RÉPERTOIRE → ARTISTES → GOSPEL
+
+ou :
+
+RÉPERTOIRE → CRÉATIONS → VIDÉASTES
+
+ou :
+
+RÉPERTOIRE → CRÉATIONS → PODCASTS
+
+ou :
+
+RÉPERTOIRE → PARTENAIRES → RADIOS
+
+etc.
+
+Prévoir également :
+
+TOUS
+
+pour afficher l’ensemble des profils correspondant au répertoire.
+
+L’utilisateur doit pouvoir revenir facilement au niveau précédent.
+
+⸻
+
+5. CATÉGORIES PROFESSIONNELLES
+
+Créer une structure suffisamment flexible pour qu’un profil puisse avoir :
+
+* une catégorie principale ;
+* éventuellement une sous-catégorie ;
+* des spécialités complémentaires lorsque cela est pertinent.
+
+Catégories initiales :
+
+ARTISTES
+
+* Artiste / Chanteur ;
+* Gospel / Chantre ;
+* Serviteur de Dieu ;
+* DJ ;
+* Animateur ;
+* Maître de cérémonie ;
+* Speaker.
+
+CRÉATIONS
+
+* Cinéma ;
+* Acteur ;
+* Réalisateur ;
+* Vidéaste ;
+* Humoriste ;
+* Podcast ;
+* Créateur de contenu ;
+* Influenceur ;
+* Créateur / Talent.
+
+PARTENAIRES
+
+* Association ;
+* Label ;
+* Producteur ;
+* Organisateur ;
+* Radio ;
+* Média ;
+* Partenaire culturel.
+
+Prévoir une architecture permettant à INDAMORA RECORDS d’ajouter ultérieurement de nouvelles catégories depuis l’administration.
+
+⸻
+
+6. UNE SEULE STRUCTURE DE PROFILS
+
+Ne pas créer un système complètement différent pour chaque métier.
+
+Utiliser un système de profil commun, avec des champs adaptés selon la catégorie.
+
+Un profil peut contenir selon son activité :
+
+* photo ou logo ;
+* nom ;
+* nom professionnel ;
+* catégorie ;
+* sous-catégorie ;
+* pays ;
+* ville ;
+* présentation ;
+* biographie ;
+* spécialité ;
+* genre ;
+* musique ;
+* albums ;
+* singles ;
+* vidéos ;
+* podcasts ;
+* portfolio ;
+* événements ;
+* réseaux sociaux ;
+* site web ;
+* contact professionnel.
+
+Les champs affichés doivent être adaptés à la catégorie.
+
+Ne pas demander des informations inutiles à un profil.
+
+⸻
+
+7. EXEMPLES DE PROFILS ADAPTÉS
+
+🎤 ARTISTE
+
+* nom artistique ;
+* photo ;
+* pays / ville ;
+* genre musical ;
+* biographie ;
+* musique ;
+* albums ;
+* singles ;
+* vidéos ;
+* réseaux sociaux ;
+* contact professionnel.
+
+🎙️ DJ / ANIMATEUR / MC / SPEAKER
+
+* nom professionnel ;
+* photo ;
+* spécialité ;
+* ville / pays ;
+* événements couverts ;
+* présentation ;
+* vidéos ou extraits ;
+* réseaux sociaux ;
+* contact professionnel.
+
+🎬 CINÉMA
+
+* nom ;
+* photo ;
+* rôle : acteur, réalisateur, etc. ;
+* biographie ;
+* œuvres ;
+* films ;
+* vidéos ;
+* pays ;
+* contact professionnel.
+
+🎥 VIDÉASTE / CRÉATEUR
+
+* nom ;
+* photo ;
+* spécialité ;
+* plateformes ;
+* portfolio ;
+* vidéos ;
+* réseaux sociaux ;
+* contact professionnel.
+
+🎧 PODCAST
+
+* nom du podcast / créateur ;
+* présentation ;
+* épisodes ;
+* catégorie ;
+* liens ;
+* réseaux sociaux ;
+* contact.
+
+⭐ INFLUENCEUR / CRÉATEUR DE CONTENU
+
+* nom ou nom public ;
+* domaine ;
+* plateformes ;
+* présentation ;
+* contenus ;
+* réseaux sociaux ;
+* contact professionnel.
+
+🙏 GOSPEL / CHANTRE / SERVITEUR DE DIEU
+
+Permettre une présentation respectueuse et adaptée :
+
+* nom ;
+* ministère ou activité ;
+* présentation ;
+* localisation ;
+* contenus ;
+* musique ;
+* vidéos ;
+* réseaux sociaux ;
+* contact professionnel.
+
+⸻
+
+8. PAGE PUBLIQUE D’UN PROFIL
+
+Chaque profil public doit disposer d’une véritable page professionnelle partageable.
+
+Structure possible :
+
+PHOTO / COUVERTURE
+
+NOM
+
+CATÉGORIE
+
+SOUS-CATÉGORIE
+
+LOCALISATION
+
+PRÉSENTATION
+
+Puis, selon la catégorie :
+
+* musique ;
+* albums ;
+* singles ;
+* vidéos ;
+* podcasts ;
+* portfolio ;
+* œuvres ;
+* événements ;
+* contenus ;
+* réseaux sociaux ;
+* informations professionnelles.
+
+Ajouter :
+
+CONTACT PROFESSIONNEL
+
+uniquement lorsque les informations nécessaires sont disponibles.
+
+Ne jamais exposer les données privées du compte.
+
+⸻
+
+9. FILTRES ET RECHERCHE
+
+Le RÉPERTOIRE doit être facilement exploitable.
+
+Prévoir :
+
+* Tous ;
+* Artistes ;
+* Gospel / Chantres ;
+* Serviteurs de Dieu ;
+* DJ / Animateurs / MC / Speakers ;
+* Cinéma ;
+* Vidéastes ;
+* Humour ;
+* Podcasts ;
+* Créateurs de contenu ;
+* Influenceurs ;
+* Créateurs / Talents ;
+* Partenaires.
+
+Ajouter lorsque pertinent :
+
+* pays ;
+* ville ;
+* spécialité ;
+* genre ;
+* recherche par nom.
+
+La recherche doit utiliser les données réelles de la base de données.
+
+Ne créer aucun faux profil, aucune fausse statistique et aucun faux résultat pour simuler le fonctionnement.
+
+⸻
+
+10. PARTENAIRES INDAMORA PLAY
+
+Les partenaires sont intégrés au RÉPERTOIRE, dans la catégorie :
+
+🤝 PARTENAIRES
+
+Catégories :
+
+* Associations ;
+* Labels ;
+* Producteurs ;
+* Organisateurs ;
+* Radios ;
+* Médias ;
+* Partenaires culturels.
+
+Chaque partenaire peut disposer d’une fiche professionnelle avec :
+
+* logo / photo ;
+* nom ;
+* catégorie ;
+* pays ;
+* ville ;
+* présentation ;
+* site web ;
+* réseaux sociaux ;
+* contact professionnel ;
+* activités ;
+* collaborations ou projets INDAMORA PLAY si pertinent.
+
+L’administration doit pouvoir :
+
+* ajouter ;
+* modifier ;
+* valider ;
+* publier ;
+* dépublier ;
+* catégoriser.
+
+⸻
+
+11. ESPACE PRESSE & MÉDIAS
+
+Créer dans le RÉPERTOIRE une section :
+
+📰 PRESSE & MÉDIAS
+
+Elle doit servir d’espace professionnel officiel pour INDAMORA PLAY / INDAMORA RECORDS.
+
+Elle doit permettre de gérer les demandes provenant notamment de :
+
+* journalistes ;
+* radios ;
+* télévisions ;
+* médias en ligne.
+
+Et les demandes :
+
+* d’interviews ;
+* de visuels ;
+* d’informations ;
+* de communiqués ;
+* de partenariats médias.
+
+⸻
+
+12. PAGE PRESSE
+
+Prévoir une page professionnelle avec :
+
+À PROPOS D’INDAMORA PLAY
+
+Présentation officielle du projet, de sa mission et de son écosystème.
+
+CONTACT PRESSE
+
+Formulaire comprenant lorsque nécessaire :
+
+* nom ;
+* média / organisme ;
+* fonction ;
+* email ;
+* téléphone ;
+* type de demande ;
+* sujet ;
+* message ;
+* date souhaitée.
+
+Types de demandes :
+
+* Interview ;
+* Demande d’informations ;
+* Demande de visuels ;
+* Demande de communiqué ;
+* Demande de partenariat média ;
+* Autre.
+
+Prévoir également une structure prête à recevoir :
+
+* logo officiel ;
+* photos officielles ;
+* visuels ;
+* présentation institutionnelle ;
+* communiqués ;
+* informations presse.
+
+Ne pas inventer de documents qui n’existent pas.
+
+Si le kit presse n’est pas encore disponible, préparer simplement l’espace pour son ajout futur.
+
+⸻
+
+13. ADMINISTRATION
+
+Étendre l’administration existante.
+
+Ne pas créer une seconde administration.
+
+L’administrateur doit pouvoir gérer :
+
+* catégories ;
+* sous-catégories ;
+* profils ;
+* validation des profils ;
+* partenaires ;
+* demandes presse ;
+* publication / dépublication ;
+* contenus associés.
+
+Statuts possibles :
+
+* EN ATTENTE ;
+* VALIDÉ ;
+* REFUSÉ ;
+* PUBLIÉ ;
+* DÉPUBLIÉ.
+
+⸻
+
+14. COMPTES ET RÔLES
+
+Les catégories professionnelles ne doivent JAMAIS devenir des rôles de sécurité.
+
+Exemple :
+
+Un membre peut avoir :
+
+Catégorie : DJ
+
+mais son rôle technique reste celui prévu par le système existant :
+
+USER / ARTIST / etc.
+
+Même principe pour :
+
+* chanteur ;
+* humoriste ;
+* vidéaste ;
+* podcasteur ;
+* journaliste ;
+* partenaire ;
+* créateur de contenu ;
+* etc.
+
+IMPORTANT
+
+Catégorie professionnelle = organisation du RÉPERTOIRE.
+
+Rôle technique = permissions et sécurité.
+
+Ne jamais mélanger les deux.
+
+⸻
+
+15. SÉCURITÉ
+
+Respecter toutes les protections déjà présentes dans INDAMORA PLAY.
+
+Les informations publiques peuvent apparaître dans le RÉPERTOIRE.
+
+Les informations privées doivent rester privées.
+
+Ne jamais exposer :
+
+* mots de passe ;
+* tokens ;
+* clés secrètes ;
+* données financières privées ;
+* données personnelles non destinées au public ;
+* informations internes de modération.
+
+Les permissions doivent être vérifiées côté serveur.
+
+Un bouton caché n’est pas une sécurité.
+
+⸻
+
+16. INTÉGRATION AVEC LE RESTE DE LA PLATEFORME
+
+Le RÉPERTOIRE doit être connecté au reste d’INDAMORA PLAY sans casser :
+
+* Accueil ;
+* Musique ;
+* Albums ;
+* EP ;
+* Singles ;
+* Vidéos ;
+* Podcasts ;
+* Radios ;
+* Playlists ;
+* Recherche ;
+* Premium ;
+* Soutenir INDAMORA ;
+* comptes utilisateurs ;
+* espace artiste ;
+* administration ;
+* statistiques ;
+* système de validation.
+
+Exemples :
+
+RÉPERTOIRE → ARTISTE → MUSIQUE → ALBUM → TITRES
+
+RÉPERTOIRE → PODCAST → ÉPISODES
+
+RÉPERTOIRE → VIDÉASTE → PORTFOLIO / VIDÉOS
+
+RÉPERTOIRE → PARTENAIRE → FICHE PROFESSIONNELLE
+
+⸻
+
+17. OBJECTIF COMMUNAUTAIRE
+
+Le RÉPERTOIRE doit refléter l’ambition d’INDAMORA PLAY :
+
+Réunir les talents, créateurs, professionnels, médias, acteurs culturels et partenaires autour d’un même écosystème.
+
+Il doit progressivement devenir un point de rencontre entre :
+
+👥 artistes
+🎧 auditeurs
+🎙️ producteurs
+🎬 créateurs
+🤝 partenaires
+📻 médias
+🌍 acteurs culturels
+
+avec une attention particulière portée à la communauté musicale et culturelle d’Afrique centrale.
+
+⸻
+
+18. MOBILE-FIRST
+
+Sur téléphone, éviter les longues listes.
+
+Privilégier :
+
+* cartes ;
+* boutons ;
+* catégories repliables ;
+* onglets ;
+* filtres horizontaux ;
+* recherche ;
+* grilles responsives.
+
+L’utilisateur doit pouvoir atteindre une catégorie en 1 à 2 clics maximum depuis RÉPERTOIRE.
+
+L’expérience doit rester rapide, claire et agréable sur :
+
+* 📱 téléphone ;
+* 📱 tablette ;
+* 💻 ordinateur.
+
+⸻
+
+19. RECHERCHE GLOBALE DU RÉPERTOIRE
+
+Depuis RÉPERTOIRE, prévoir une recherche :
+
+« Rechercher un artiste, créateur, partenaire, média… »
+
+Les résultats peuvent être regroupés par :
+
+* Artistes ;
+* Créateurs ;
+* Professionnels ;
+* Partenaires ;
+* Médias.
+
+Ajouter les filtres nécessaires sans rendre l’interface complexe.
+
+⸻
+
+20. INTÉGRATION AVEC ARTISTES EXISTANTS
+
+Si une rubrique ARTISTES existe déjà et fonctionne :
+
+NE PAS LA SUPPRIMER.
+
+La conserver et l’intégrer naturellement dans :
+
+RÉPERTOIRE → ARTISTES
+
+L’objectif est de faire évoluer l’organisation sans casser les pages, profils ou fonctionnalités existantes.
+
+⸻
+
+21. PRIORITÉ TECHNIQUE
+
+Avant de développer :
+
+1. inspecter la structure actuelle ;
+2. inspecter les tables ;
+3. inspecter les relations ;
+4. inspecter les profils ;
+5. inspecter les routes ;
+6. inspecter les composants ;
+7. inspecter les permissions ;
+8. inspecter les données déjà présentes.
+
+Ensuite seulement :
+
+ÉTENDRE L’EXISTANT.
+
+Ne créer une nouvelle table, route, composant ou architecture que si cela est réellement nécessaire.
+
+⸻
+
+22. TESTS
+
+Après intégration, tester :
+
+VISITEUR
+
+* ouvrir RÉPERTOIRE ;
+* voir les quatre grandes catégories ;
+* ouvrir une catégorie ;
+* ouvrir une sous-catégorie ;
+* rechercher ;
+* filtrer ;
+* ouvrir un profil public ;
+* consulter un partenaire ;
+* consulter Presse & Médias.
+
+UTILISATEUR
+
+* créer / compléter son profil si autorisé ;
+* sélectionner une catégorie ;
+* modifier ses informations ;
+* vérifier les données publiques ;
+* vérifier les données privées.
+
+PROFIL PROFESSIONNEL
+
+* création ;
+* modification ;
+* soumission ;
+* validation ;
+* publication ;
+* affichage public.
+
+PARTENAIRE
+
+* création ;
+* validation ;
+* publication ;
+* affichage public.
+
+PRESSE
+
+* envoyer une demande ;
+* vérifier sa réception ;
+* vérifier sa gestion côté administration.
+
+ADMINISTRATION
+
+* gérer les catégories ;
+* gérer les sous-catégories ;
+* gérer les profils ;
+* gérer les partenaires ;
+* gérer les demandes presse ;
+* publier ;
+* dépublier ;
+* vérifier les permissions.
+
+Tester sur téléphone, tablette et ordinateur.
+
+⸻
+
+23. RÉSULTAT ATTENDU
+
+L’organisation finale doit être très simple :
+
+NAVIGATION PRINCIPALE
+
+RÉPERTOIRE
+
+⬇️
+
+🎤 ARTISTES
+
+Chanteurs • Gospel • Chantres • Serviteurs de Dieu • DJ • Animateurs • MC • Speakers
+
+🎬 CRÉATIONS
+
+Cinéma • Acteurs • Réalisateurs • Vidéastes • Humour • Podcasts • Créateurs • Influenceurs • Talents
+
+🤝 PARTENAIRES
+
+Associations • Labels • Producteurs • Organisateurs • Radios • Médias • Partenaires culturels
+
+📰 PRESSE & MÉDIAS
+
+Journalistes • Radios • Télévisions • Médias en ligne • Interviews • Visuels • Informations
+
+⬇️
+
+SOUS-CATÉGORIE
+
+⬇️
+
+PROFILS
+
+⸻
+
+24. RÈGLE FINALE
+
+NE PAS CHERCHER À REFAIRE INDAMORA PLAY.
+
+Le projet existe déjà.
+
+Faire évoluer proprement l’existant pour qu’INDAMORA PLAY devienne progressivement une plateforme réunissant :
+
+musique + artistes + créateurs + professionnels + médias + partenaires + communauté.
+
+Toute fonctionnalité déjà opérationnelle doit être conservée.
+
+Toute fonctionnalité incomplète doit être finalisée.
+
+Toute fonctionnalité cassée doit être corrigée uniquement si nécessaire.
+
+Ne pas multiplier les menus.
+
+RÉPERTOIRE doit être le point central de cet écosystème.
+
+Après chaque modification importante :
+
+TESTER → VÉRIFIER → CORRIGER → RETESTER.
+
+Ne considérer cette tâche comme terminée que lorsque le RÉPERTOIRE fonctionne réellement avec les données existantes, les profils, les catégories, les filtres, la recherche, les permissions et l’affichage public.

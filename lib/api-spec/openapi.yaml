@@ -16,6 +16,8 @@ tags:
     description: Artist profile operations
   - name: submissions
     description: INDAMORA RECORDS moderation operations
+  - name: press
+    description: Public press contact operations
   - name: Storage
     description: Object storage upload and serving endpoints.
 paths:
@@ -70,7 +72,26 @@ paths:
     get:
       operationId: getArtists
       tags: [artists]
-      summary: List featured artists
+      summary: List public directory profiles
+      parameters:
+        - name: group
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [artists, creations, partners, press]
+        - name: subcategory
+          in: query
+          required: false
+          schema: { type: string }
+        - name: country
+          in: query
+          required: false
+          schema: { type: string }
+        - name: search
+          in: query
+          required: false
+          schema: { type: string }
       responses:
         "200":
           description: Artist profiles
@@ -119,6 +140,24 @@ paths:
                 $ref: "#/components/schemas/Artist"
         "404":
           description: Artist not found
+  /press-requests:
+    post:
+      operationId: createPressRequest
+      tags: [press]
+      summary: Send a press or media request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PressRequestInput"
+      responses:
+        "201":
+          description: Press request received
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PressRequest"
   /submissions:
     get:
       operationId: getSubmissions
@@ -275,15 +314,28 @@ components:
         - status
     Artist:
       type: object
-      required: [id, name, category, bio, location, worksCount]
+      required: [id, name, category, bio, location, worksCount, profileGroup, specialties, socialLinks]
       properties:
         id: { type: integer }
         name: { type: string }
         category: { type: string }
         bio: { type: string }
         location: { type: string }
-        avatar: { type: string }
+        avatar: { type: ["string", "null"] }
         worksCount: { type: integer }
+        profileGroup:
+          type: string
+          enum: [artists, creations, partners, press]
+        subcategory: { type: ["string", "null"] }
+        country: { type: ["string", "null"] }
+        specialties:
+          type: array
+          items: { type: string }
+        website: { type: ["string", "null"], format: uri }
+        socialLinks:
+          type: array
+          items: { type: string, format: uri }
+        professionalContact: { type: ["string", "null"] }
     ArtistInput:
       type: object
       required: [name, category, bio, location]
@@ -293,6 +345,48 @@ components:
         bio: { type: string, minLength: 10 }
         location: { type: string, minLength: 2 }
         avatar: { type: string }
+        profileGroup:
+          type: string
+          enum: [artists, creations, partners, press]
+        subcategory: { type: string }
+        country: { type: string }
+        specialties:
+          type: array
+          items: { type: string }
+        website: { type: string, format: uri }
+        socialLinks:
+          type: array
+          items: { type: string, format: uri }
+        professionalContact: { type: string }
+    PressRequest:
+      type: object
+      required: [id, name, organization, role, email, requestType, subject, message, status, createdAt]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        organization: { type: string }
+        role: { type: string }
+        email: { type: string, format: email }
+        phone: { type: ["string", "null"] }
+        requestType: { type: string }
+        subject: { type: string }
+        message: { type: string }
+        requestedDate: { type: ["string", "null"] }
+        status: { type: string, enum: [pending, handled, archived] }
+        createdAt: { type: string }
+    PressRequestInput:
+      type: object
+      required: [name, organization, role, email, requestType, subject, message]
+      properties:
+        name: { type: string, minLength: 2 }
+        organization: { type: string, minLength: 2 }
+        role: { type: string, minLength: 2 }
+        email: { type: string, format: email }
+        phone: { type: string }
+        requestType: { type: string, minLength: 2 }
+        subject: { type: string, minLength: 2 }
+        message: { type: string, minLength: 10 }
+        requestedDate: { type: string }
     Work:
       type: object
       required: [id, title, artist, category, description, duration, image, featured, access, mediaType, mediaObjectPath, coverObjectPath]

@@ -11,6 +11,15 @@ export const artistsTable = pgTable("artists", {
   avatar: text("avatar"),
   worksCount: integer("works_count").notNull().default(0),
   ownerId: text("owner_id"),
+  profileGroup: text("profile_group").notNull().default("artists"),
+  subcategory: text("subcategory"),
+  country: text("country"),
+  specialties: text("specialties").array().notNull().default([]),
+  website: text("website"),
+  socialLinks: text("social_links").array().notNull().default([]),
+  professionalContact: text("professional_contact"),
+  profileStatus: text("profile_status").notNull().default("approved"),
+  isPublished: text("is_published").notNull().default("true"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -46,6 +55,21 @@ export const submissionsTable = pgTable("submissions", {
   publishedWorkId: integer("published_work_id"),
 });
 
+export const pressRequestsTable = pgTable("press_requests", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  organization: text("organization").notNull(),
+  role: text("role").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone"),
+  requestType: text("request_type").notNull(),
+  subject: text("subject").notNull(),
+  message: text("message").notNull(),
+  requestedDate: text("requested_date"),
+  status: text("status").notNull().default("pending"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const insertArtistSchema = createInsertSchema(artistsTable).omit({
   id: true,
   createdAt: true,
@@ -67,3 +91,10 @@ export const insertSubmissionSchema = createInsertSchema(submissionsTable).omit(
 });
 export type InsertSubmission = z.infer<typeof insertSubmissionSchema>;
 export type Submission = typeof submissionsTable.$inferSelect;
+export const insertPressRequestSchema = createInsertSchema(pressRequestsTable).omit({
+  id: true,
+  status: true,
+  createdAt: true,
+});
+export type InsertPressRequest = z.infer<typeof insertPressRequestSchema>;
+export type PressRequest = typeof pressRequestsTable.$inferSelect;
