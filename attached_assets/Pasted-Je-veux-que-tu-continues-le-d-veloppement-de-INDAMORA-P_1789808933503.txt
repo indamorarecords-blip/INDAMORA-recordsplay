@@ -1,0 +1,172 @@
+Je veux que tu continues le développement de INDAMORA PLAY et que tu actives maintenant les PAIEMENTS RÉELS sur le site.
+
+⚠️ IMPORTANT : j’ai déjà un compte Stripe fonctionnel.
+Je ne veux PAS créer un nouveau compte Stripe et je ne veux PAS remplacer mon système de paiement existant.
+
+COMPTE STRIPE À UTILISER
+
+Utilise mon compte Stripe existant :
+
+INDAMORA records — compte LIVE
+
+Les paiements doivent être effectués en mode réel / LIVE, pas en mode test.
+
+Ne mets JAMAIS une clé secrète Stripe directement dans le code source, HTML, JavaScript public ou GitHub.
+
+Utilise les Secrets / Environment Variables de Replit pour les informations Stripe sensibles.
+
+CE QUE JE VEUX
+
+Relie correctement le site INDAMORA PLAY à mon compte Stripe existant afin que les paiements réels fonctionnent.
+
+Le site possède déjà des boutons et liens de paiement Stripe.
+
+NE SUPPRIME PAS ET NE REMPLACE PAS CES BOUTONS.
+
+Conserve notamment les paiements existants :
+
+* abonnement Afrique : 500 FCFA / mois
+* abonnement hors Afrique : 5 € / mois
+* dons : montant libre
+
+Si les Payment Links Stripe existants sont déjà utilisés dans le projet, conserve-les et rends-les fonctionnels en LIVE.
+
+RÈGLE ABSOLUE
+
+Avant de modifier quoi que ce soit :
+
+1. inspecte tout le code Stripe déjà présent dans le projet ;
+2. recherche les Payment Links existants ;
+3. recherche les pages :
+    * payment.html
+    * subscription.html
+    * subscription-test.html
+    * payment-success.html
+    * support.html
+    * support-payments.html
+    * stripe-webhook-info.html
+4. recherche toute fonction serveur / API / webhook Stripe existante ;
+5. réutilise ce qui fonctionne déjà.
+
+Ne recrée pas inutilement une nouvelle architecture Stripe.
+
+MODE LIVE
+
+Le site doit utiliser le compte Stripe LIVE pour les vrais paiements.
+
+Le mode TEST doit rester disponible uniquement pour les tests et ne doit pas être utilisé par défaut sur le site public.
+
+SÉCURITÉ
+
+Toutes les clés secrètes Stripe doivent être stockées dans les Secrets Replit.
+
+Exemples de variables possibles :
+
+STRIPE_SECRET_KEY
+
+STRIPE_WEBHOOK_SECRET
+
+Ne jamais afficher ces valeurs dans :
+
+* HTML
+* JavaScript côté navigateur
+* GitHub
+* logs publics
+* réponses API publiques
+
+La clé publique Stripe peut être utilisée côté client uniquement si nécessaire.
+
+CHECKOUT
+
+Si un checkout personnalisé existe déjà et fonctionne, conserve-le.
+
+S’il faut créer un nouveau checkout pour une fonctionnalité qui n’existe pas encore, utilise Stripe Checkout avec une architecture serveur sécurisée.
+
+Ne demande jamais la clé secrète au visiteur.
+
+WEBHOOK
+
+Vérifie si le projet possède déjà un webhook Stripe.
+
+S’il existe, conserve-le et corrige-le uniquement si nécessaire.
+
+Le webhook doit permettre de synchroniser correctement les paiements avec INDAMORA PLAY, notamment pour :
+
+* paiement réussi
+* abonnement créé
+* abonnement renouvelé
+* abonnement annulé
+* paiement échoué
+
+Utilise la vérification de signature Stripe.
+
+APRÈS PAIEMENT
+
+Après un paiement réussi, le client doit être redirigé vers la page de succès déjà prévue dans le projet, sans casser les pages existantes.
+
+Si une page payment-success.html existe déjà, réutilise-la.
+
+ABONNEMENTS
+
+Pour les abonnements :
+
+* Afrique : 500 FCFA / mois
+* Hors Afrique : 5 € / mois
+
+Ne crée pas de nouveaux prix Stripe si des prix/Payment Links existants correspondent déjà à ces offres.
+
+Réutilise les ressources Stripe existantes lorsque c’est possible.
+
+DONS
+
+Le bouton de don existant doit rester tel quel.
+
+Le don doit continuer à utiliser le système Stripe existant et fonctionner en LIVE.
+
+IMPORTANT — NE PAS CASSER LE SITE
+
+Ne modifie pas inutilement :
+
+* les pages publiques
+* les dashboards
+* l’inscription artiste
+* les catégories
+* les boutons existants
+* les liens existants
+* les fonctions Supabase
+* les règles RLS
+* le design existant
+* les pages qui fonctionnent déjà
+
+Fais uniquement les corrections nécessaires pour activer et sécuriser les paiements réels.
+
+TEST FINAL
+
+Après modification, vérifie :
+
+1. Le site public utilise bien Stripe LIVE.
+2. Le bouton abonnement Afrique fonctionne.
+3. Le bouton abonnement 5 € fonctionne.
+4. Le bouton Don fonctionne.
+5. Le checkout Stripe s’ouvre correctement.
+6. Le paiement revient correctement sur INDAMORA PLAY.
+7. Le webhook fonctionne si le projet en possède un.
+8. Aucun secret Stripe n’est exposé côté client.
+9. Le mode TEST n’est pas utilisé par erreur sur le site public.
+10. Les boutons et pages existants n’ont pas été supprimés.
+
+TRÈS IMPORTANT
+
+Ne me demande pas de créer un nouveau compte Stripe.
+
+J’ai déjà un compte Stripe fonctionnel avec les paiements configurés.
+
+Ton travail est de relier correctement INDAMORA PLAY à ce compte Stripe existant et d’activer les paiements LIVE.
+
+À la fin, indique clairement :
+
+* les fichiers modifiés ;
+* les variables Replit à configurer ;
+* les éléments Stripe réutilisés ;
+* les tests effectués ;
+* si une action manuelle reste nécessaire dans Stripe Dashboard.
