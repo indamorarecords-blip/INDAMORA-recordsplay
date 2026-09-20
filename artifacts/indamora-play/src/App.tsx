@@ -8,7 +8,7 @@ import {
   ArrowRight, AudioLines, BarChart3, Check, ChevronLeft, CirclePlay, Crown, Disc3,
   FileMusic, Headphones, HeartHandshake, History, LayoutDashboard, LoaderCircle, LockKeyhole, Menu, Mic2,
   Pause, Play, Plus, Search, Send, ShieldCheck, Sparkles, Star, Ticket, UserRound,
-  UsersRound, Video, X, Zap, Globe, Mail, Newspaper, Briefcase, ExternalLink, MapPin, Trash2
+  UsersRound, Video, X, Zap, Globe, Mail, Newspaper, Briefcase, ExternalLink, MapPin, Trash2, Radio, Palette, Award, Camera, Megaphone, HandHeart
 } from 'lucide-react';
 import { Link, Redirect, Route, Router as WouterRouter, Switch, useLocation, useParams } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
@@ -305,7 +305,7 @@ function Shell({ children }: { children: ReactNode }) {
       <footer className="mt-24 border-t border-border bg-secondary px-5 py-10 text-secondary-foreground lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
           <div><Link href="/" className="mb-3 block w-36 rounded-xl bg-white p-1" data-testid="link-footer-logo" aria-label="Retour à l’accueil"><Logo variant="full" /></Link><p className="max-w-xs text-sm leading-6 text-secondary-foreground/70">Le foyer chaleureux des sons, des histoires et des écrans d’Afrique centrale.</p></div>
-          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-secondary-foreground/80"><Link href="/explorer" data-testid="link-footer-explorer">Explorer</Link><Link href="/repertoire" data-testid="link-footer-repertoire">Répertoire</Link><Link href="/presse" data-testid="link-footer-presse">Presse</Link><Link href="/pricing" data-testid="link-footer-pricing">Premium</Link><Link href="/soutenir" data-testid="link-footer-support">Soutenir INDAMORA</Link><Link href="/profil" data-testid="link-footer-profile">Mon profil</Link><Link href="/espace-artiste" data-testid="link-footer-artist-space">Espace artiste</Link>{isAdmin && <Link href="/administration" data-testid="link-footer-admin">Administration</Link>}<Link href="/submit" data-testid="link-footer-submit">Proposer une œuvre</Link></div>
+           <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-secondary-foreground/80"><Link href="/indamora-records" data-testid="link-footer-records">INDAMORA RECORDS</Link><Link href="/explorer" data-testid="link-footer-explorer">Explorer</Link><Link href="/repertoire" data-testid="link-footer-repertoire">Répertoire</Link><Link href="/presse" data-testid="link-footer-presse">Presse</Link><Link href="/pricing" data-testid="link-footer-pricing">Premium</Link><Link href="/soutenir" data-testid="link-footer-support">Soutenir INDAMORA</Link><Link href="/profil" data-testid="link-footer-profile">Mon profil</Link><Link href="/espace-artiste" data-testid="link-footer-artist-space">Espace artiste</Link>{isAdmin && <Link href="/administration" data-testid="link-footer-admin">Administration</Link>}<Link href="/submit" data-testid="link-footer-submit">Proposer une œuvre</Link></div>
         </div>
         <div className="mx-auto mt-8 max-w-7xl border-t border-secondary-foreground/15 pt-4 font-mono text-[10px] uppercase tracking-[.2em] text-secondary-foreground/50">Bangui · République centrafricaine · La diaspora</div>
       </footer>
@@ -781,6 +781,130 @@ function Support() {
   </div>;
 }
 
+function RecordsPage() {
+  useEffect(() => {
+    const previousTitle = document.title;
+    const description = document.querySelector('meta[name="description"]');
+    const previousDescription = description?.getAttribute('content') ?? null;
+    document.title = 'INDAMORA RECORDS — Créer. Produire. Développer. Faire rayonner les talents.';
+    if (description) {
+      description.setAttribute('content', 'INDAMORA RECORDS, un écosystème créatif dédié à la production, au développement, à la promotion et à la diffusion de projets artistiques et musicaux entre la France, l’Afrique et les diasporas.');
+    }
+    return () => {
+      document.title = previousTitle;
+      if (description && previousDescription !== null) description.setAttribute('content', previousDescription);
+    };
+  }, []);
+
+  const poles = [
+    { name: 'INDAMORA TV', description: 'Plateforme audiovisuelle consacrée aux freestyles, clips, interviews, sessions live et contenus originaux.', icon: Video },
+    { name: 'INDAMORA MEDIA.FM', description: 'Un espace dédié à la diffusion, à la promotion et à la mise en avant des artistes et des projets musicaux.', icon: Radio },
+    { name: 'LES STRATÈGES VISUELS', description: 'Direction artistique, identité visuelle, image de marque et communication créative.', icon: Palette },
+    { name: 'GOSPEL FRANCOPHONE AWARDS', description: 'Une initiative destinée à mettre en lumière et valoriser les acteurs et talents du gospel francophone.', icon: Award },
+    { name: 'RCA TALENTS CHANNEL', description: 'Une plateforme consacrée à la découverte et à la promotion des artistes émergents.', icon: Sparkles },
+    { name: 'MEDIA.GOSPEL · UNIVERS GOSPEL', description: 'Des plateformes dédiées à la culture gospel, à son actualité, ses artistes et ses initiatives.', icon: Mic2 },
+    { name: 'SHOWBIZZ AWARDS FRANCE', description: 'Des événements et initiatives consacrés à la mise en valeur des talents et des acteurs de l’industrie artistique et culturelle.', icon: Award },
+    { name: 'LE MONDE DU GOSSIP', description: 'Un média consacré aux actualités, tendances et personnalités de la culture et du divertissement.', icon: Newspaper },
+    { name: 'ROSE AFRICA MAGAZINE', description: 'Un média culturel mettant en avant l’Afrique, ses talents, ses cultures et ses diasporas.', icon: Camera },
+    { name: 'RADIO INDAMORA', description: 'Un espace de diffusion dédié à la musique, aux artistes et aux contenus de l’univers INDAMORA.', icon: Radio },
+    { name: 'ASSOCIATION VOIX DE L’AVENIR', description: 'Une initiative tournée vers l’accompagnement, la valorisation et la mise en lumière des talents et des initiatives porteuses d’avenir.', icon: HandHeart },
+    { name: 'INDAMORA PLAY', description: 'Une plateforme musicale pensée pour offrir un espace de découverte, d’écoute et de valorisation des artistes et de leurs projets.', icon: Headphones, featured: true },
+  ];
+  const services = [
+    ['Production & enregistrement', 'Accompagnement de vos projets musicaux, de la prise de voix à la production.', AudioLines],
+    ['Composition & arrangement', 'Création, écriture, composition et arrangements adaptés à votre identité artistique.', FileMusic],
+    ['Mixage & mastering', 'Finalisation technique de vos titres pour une qualité adaptée aux standards de diffusion.', Zap],
+    ['Production & exploitation musicale', 'Accompagnement dans la structuration, la production et la valorisation de vos œuvres musicales.', Disc3],
+    ['Communication & promotion', 'Développement de stratégies de communication et de visibilité autour de vos sorties et projets.', Megaphone],
+    ['Création de contenus', 'Conception de contenus photo, vidéo et digitaux pour développer votre image et votre présence en ligne.', Camera],
+    ['Audiovisuel', 'Production de contenus audiovisuels : clips, interviews, freestyles, sessions live et formats éditoriaux.', Video],
+    ['Développement de carrière', 'Accompagnement dans la structuration de votre projet artistique et le développement de votre visibilité.', Briefcase],
+  ] as const;
+
+  return <div>
+    <section className="relative overflow-hidden bg-secondary text-secondary-foreground">
+      <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full border-[38px] border-accent/70 opacity-80 md:h-[30rem] md:w-[30rem]" />
+      <div className="absolute bottom-[-5rem] left-[44%] h-48 w-48 rotate-12 border-[18px] border-primary/70 md:h-72 md:w-72" />
+      <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-12 lg:px-8 lg:pb-24 lg:pt-20">
+        <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-secondary-foreground/70 transition-colors hover:text-accent" data-testid="link-records-back-home"><ChevronLeft className="h-4 w-4" /> Retour à INDAMORA PLAY</Link>
+        <div className="mt-14 grid items-end gap-12 lg:grid-cols-[1.15fr_.85fr]">
+          <div className="animate-rise-in">
+            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-secondary-foreground/20 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[.18em] text-accent"><span className="h-1.5 w-1.5 rounded-full bg-accent" /> L’écosystème INDAMORA</div>
+            <h1 className="display max-w-4xl text-5xl font-bold leading-[.94] md:text-7xl"><span className="mb-5 block font-mono text-sm font-medium uppercase tracking-[.2em] text-accent md:text-base">INDAMORA RECORDS</span>Créer. Produire.<br /><span className="text-accent">Développer.</span></h1>
+            <p className="mt-7 max-w-2xl text-xl font-semibold leading-8 text-secondary-foreground/90">Faire rayonner les talents.</p>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-secondary-foreground/75 md:text-lg">Bien plus qu’un label : un écosystème créatif au service des talents.</p>
+            <p className="mt-5 max-w-2xl leading-7 text-secondary-foreground/70">INDAMORA RECORDS est une structure indépendante dédiée à la production, au développement, à la promotion et à la diffusion de projets artistiques et musicaux, avec une ambition forte : créer des passerelles entre la France, l’Afrique et les diasporas.</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <a href="#poles" className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-1" data-testid="link-records-poles">Découvrir l’écosystème <ArrowRight className="h-4 w-4" /></a>
+              <Link href="/submit" className="inline-flex items-center gap-2 rounded-full border border-secondary-foreground/25 px-5 py-3 text-sm font-bold transition-colors hover:border-accent hover:text-accent" data-testid="link-records-submit">Présenter un projet <Send className="h-4 w-4" /></Link>
+            </div>
+          </div>
+          <div className="relative rounded-[2rem] border border-secondary-foreground/15 bg-secondary-foreground/5 p-6 backdrop-blur-sm md:p-8">
+            <div className="font-mono text-[10px] uppercase tracking-[.2em] text-accent">Notre relation</div>
+            <div className="mt-7 space-y-3">
+              <div className="rounded-2xl bg-accent px-5 py-4 text-center font-bold text-accent-foreground">INDAMORA RECORDS<span className="mt-1 block text-xs font-medium opacity-75">L’écosystème créatif</span></div>
+              <div className="text-center text-2xl text-accent" aria-hidden="true">↓</div>
+              <Link href="/" className="block rounded-2xl border border-secondary-foreground/20 bg-background/10 px-5 py-4 text-center font-bold transition-colors hover:border-accent"><span>INDAMORA PLAY</span><span className="mt-1 block text-xs font-medium text-secondary-foreground/70">Une plateforme de INDAMORA RECORDS</span></Link>
+            </div>
+            <p className="mt-7 text-center text-xs leading-5 text-secondary-foreground/60">Musique · artistes · RÉPERTOIRE · découverte · écoute · contenus</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-24">
+      <div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:items-start">
+        <div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Notre vision</div><h2 className="display mt-3 text-4xl font-bold leading-tight md:text-5xl">Révéler, structurer<br /><span className="text-primary">et faire rayonner.</span></h2></div>
+        <div className="space-y-5 text-lg leading-8 text-muted-foreground"><p>Nous croyons que chaque talent mérite les moyens, l’accompagnement et la visibilité nécessaires pour transformer son potentiel en véritable projet.</p><p>Notre ambition est de créer des ponts entre les talents, les cultures et les opportunités, tout en contribuant à faire émerger une nouvelle génération d’artistes et de créateurs issus de France, d’Afrique et des diasporas.</p><p>INDAMORA RECORDS évolue comme un écosystème créatif en mouvement, pensé pour révéler, structurer et faire rayonner les talents.</p></div>
+      </div>
+    </section>
+
+    <section id="poles" className="bg-muted">
+      <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-24">
+        <div className="max-w-2xl"><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Nos pôles & médias</div><h2 className="display mt-3 text-4xl font-bold leading-tight md:text-5xl">Un écosystème pour<br /><span className="text-primary">aller plus loin.</span></h2><p className="mt-5 leading-7 text-muted-foreground">Des médias, activités, initiatives et projets qui se complètent sans perdre leur identité.</p></div>
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {poles.map(({ name, description, icon: Icon, featured }) => <div key={name} className={cx('rounded-[1.5rem] border p-5 transition-all hover:-translate-y-1 hover:border-primary/60', featured ? 'border-primary/50 bg-secondary text-secondary-foreground shadow-lg' : 'border-border bg-card')} data-testid={`card-records-pole-${name.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-')}`}>
+            <div className={cx('grid h-11 w-11 place-items-center rounded-2xl', featured ? 'bg-accent text-accent-foreground' : 'bg-primary/10 text-primary')}><Icon className="h-5 w-5" /></div>
+            <h3 className="mt-5 font-bold">{name}</h3><p className={cx('mt-2 text-sm leading-6', featured ? 'text-secondary-foreground/75' : 'text-muted-foreground')}>{description}</p>
+            {featured && <Link href="/" className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-accent hover:underline" data-testid="link-records-play">Accéder à INDAMORA PLAY <ArrowRight className="h-3 w-3" /></Link>}
+          </div>)}
+        </div>
+      </div>
+    </section>
+
+    <section className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-24">
+      <div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:items-start">
+        <div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Pour les artistes & créateurs</div><h2 className="display mt-3 text-4xl font-bold leading-tight md:text-5xl">Donnez une dimension nouvelle<br /><span className="text-primary">à votre talent.</span></h2></div>
+        <div><p className="max-w-2xl text-lg leading-8 text-muted-foreground">Vous êtes artiste, auteur, compositeur, interprète ou porteur d’un projet musical ? INDAMORA RECORDS vous accompagne dans la transformation de votre idée en un projet structuré, professionnel et visible.</p><p className="mt-5 max-w-2xl leading-7 text-muted-foreground">De la création à la diffusion, nous mettons notre savoir-faire et notre écosystème au service du développement de votre projet.</p><Link href="/submit" className="mt-7 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5" data-testid="link-records-artist-cta">Proposer une œuvre à INDAMORA PLAY <ArrowRight className="h-4 w-4" /></Link></div>
+      </div>
+      <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {services.map(([title, description, Icon]) => <div key={title} className="rounded-2xl border border-border bg-card p-5"><Icon className="h-5 w-5 text-primary" /><h3 className="mt-5 font-bold">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p></div>)}
+      </div>
+    </section>
+
+    <section className="bg-secondary text-secondary-foreground">
+      <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-24">
+        <div className="max-w-2xl"><div className="font-mono text-[10px] uppercase tracking-[.22em] text-accent">De la première note à la réalisation du projet</div><h2 className="display mt-3 text-4xl font-bold leading-tight md:text-5xl">Vous avez le talent.<br /><span className="text-accent">Nous lui donnons une direction.</span></h2><p className="mt-5 leading-7 text-secondary-foreground/70">Chez INDAMORA RECORDS, nous souhaitons construire des collaborations durables avec les artistes et créateurs que nous accompagnons.</p></div>
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          {[['CRÉER', 'Donner vie aux idées et aux projets.', Sparkles], ['PRODUIRE', 'Mettre en place les ressources et les compétences nécessaires à leur réalisation.', Briefcase], ['DÉVELOPPER', 'Construire leur visibilité et créer des opportunités de rayonnement.', ArrowRight]].map(([title, text, Icon]) => <div key={title as string} className="rounded-[1.5rem] border border-secondary-foreground/15 bg-secondary-foreground/5 p-6"><Icon className="h-6 w-6 text-accent" /><div className="mt-8 font-mono text-xs tracking-[.2em] text-accent">{title as string}</div><p className="mt-3 font-semibold leading-6">{text as string}</p></div>)}
+        </div>
+      </div>
+    </section>
+
+    <section className="mx-auto max-w-5xl px-5 py-16 text-center lg:px-8 lg:py-24">
+      <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary"><Mail className="h-6 w-6" /></div>
+      <div className="mt-6 font-mono text-[10px] uppercase tracking-[.22em] text-primary">Vous avez un projet ?</div>
+      <h2 className="display mt-3 text-4xl font-bold md:text-6xl">Parlons de votre projet.</h2>
+      <p className="mx-auto mt-5 max-w-xl leading-7 text-muted-foreground">Vous souhaitez présenter un morceau, développer votre carrière, produire un contenu ou collaborer avec notre écosystème ?</p>
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <a href="mailto:indamorarecords@gmail.com" className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground hover:-translate-y-0.5" data-testid="link-records-email"><Mail className="h-4 w-4" /> indamorarecords@gmail.com</a>
+        <a href="tel:+33780118869" className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-3 text-sm font-bold hover:border-primary hover:text-primary" data-testid="link-records-phone"><ExternalLink className="h-4 w-4" /> 07 80 11 88 69</a>
+      </div>
+      <div className="mx-auto mt-16 max-w-2xl border-t border-border pt-8"><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">INDAMORA RECORDS</div><p className="display mt-3 text-2xl font-bold">Créer. Produire. Développer. Faire rayonner les talents.</p><Link href="/" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline" data-testid="link-records-final-home">Retourner à INDAMORA PLAY <ArrowRight className="h-4 w-4" /></Link></div>
+    </section>
+  </div>;
+}
+
 function AuthPage({ children }: { children: ReactNode }) {
   return <div className="min-h-[calc(100dvh-4.5rem)] bg-secondary px-4 py-10 text-foreground md:grid md:place-items-center"><div className="w-full max-w-2xl rounded-[2rem] bg-background p-3 shadow-2xl md:p-6"><div className="mb-4 flex justify-center"><Link href="/" data-testid="link-auth-logo" aria-label="Retour à l’accueil"><Logo variant="full" className="max-w-[11rem]" /></Link></div>{children}</div></div>;
 }
@@ -904,7 +1028,7 @@ function NotFound() {
 
 function Router() {
   const [location] = useLocation();
-  return <ErrorBoundary resetKey={location}><Shell><Switch><Route path="/" component={Home} /><Route path="/explorer" component={Explorer} /><Route path="/recherche" component={SearchPage} /><Route path="/categorie/:slug" component={CategoryPage} /><Route path="/oeuvres/:id" component={WorkPage} /><Route path="/repertoire" component={() => <Directory />} /><Route path="/artists" component={() => <Directory />} /><Route path="/artists/:id" component={ArtistProfile} /><Route path="/presse" component={Presse} /><Route path="/submit" component={Submit} /><Route path="/espace-artiste" component={ArtistSpace} /><Route path="/moderation" component={Moderation} /><Route path="/administration" component={AdminDashboard} /><Route path="/admin" component={AdminDashboard} /><Route path="/pricing" component={Pricing} /><Route path="/soutenir" component={Support} /><Route path="/inscription" component={() => <Redirect to="/sign-up" />} /><Route path="/login" component={() => <Redirect to="/sign-in" />} /><Route path="/profil" component={Profile} /><Route component={NotFound} /></Switch></Shell></ErrorBoundary>;
+  return <ErrorBoundary resetKey={location}><Shell><Switch><Route path="/" component={Home} /><Route path="/indamora-records" component={RecordsPage} /><Route path="/explorer" component={Explorer} /><Route path="/recherche" component={SearchPage} /><Route path="/categorie/:slug" component={CategoryPage} /><Route path="/oeuvres/:id" component={WorkPage} /><Route path="/repertoire" component={() => <Directory />} /><Route path="/artists" component={() => <Directory />} /><Route path="/artists/:id" component={ArtistProfile} /><Route path="/presse" component={Presse} /><Route path="/submit" component={Submit} /><Route path="/espace-artiste" component={ArtistSpace} /><Route path="/moderation" component={Moderation} /><Route path="/administration" component={AdminDashboard} /><Route path="/admin" component={AdminDashboard} /><Route path="/pricing" component={Pricing} /><Route path="/soutenir" component={Support} /><Route path="/inscription" component={() => <Redirect to="/sign-up" />} /><Route path="/login" component={() => <Redirect to="/sign-in" />} /><Route path="/profil" component={Profile} /><Route component={NotFound} /></Switch></Shell></ErrorBoundary>;
 }
 
 function ClerkQueryClientCacheInvalidator() {

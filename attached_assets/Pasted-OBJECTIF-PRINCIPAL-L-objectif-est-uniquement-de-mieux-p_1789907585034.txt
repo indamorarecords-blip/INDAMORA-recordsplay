@@ -1,0 +1,435 @@
+OBJECTIF PRINCIPAL
+
+L’objectif est uniquement de mieux présenter la relation entre INDAMORA RECORDS et INDAMORA PLAY, ainsi que les différentes activités de l’écosystème INDAMORA.
+
+Il ne s’agit PAS de transformer INDAMORA PLAY en INDAMORA RECORDS.
+
+Il ne s’agit PAS de renommer le site.
+
+Il ne s’agit PAS de reconstruire INDAMORA PLAY.
+
+Il s’agit simplement d’ajouter une présentation claire et professionnelle d’INDAMORA RECORDS au sein de l’expérience existante d’INDAMORA PLAY.
+
+⸻
+
+1. IDENTITÉ PRINCIPALE
+
+Le nom de la plateforme reste :
+
+INDAMORA PLAY
+
+La présentation officielle est :
+
+INDAMORA PLAY
+Une plateforme de INDAMORA RECORDS
+Notre musique. Notre culture. Notre scène.
+
+⚠️ NE PAS remplacer le nom INDAMORA PLAY par INDAMORA RECORDS.
+
+INDAMORA PLAY reste le nom de la plateforme musicale existante.
+
+INDAMORA RECORDS est la structure / l’écosystème auquel INDAMORA PLAY est rattaché.
+
+La relation à présenter est donc :
+
+INDAMORA RECORDS
+↓
+INDAMORA PLAY
+Une plateforme de INDAMORA RECORDS
+
+⸻
+
+2. PAGE DE PRÉSENTATION INDAMORA RECORDS
+
+Créer une page dédiée à la présentation d’INDAMORA RECORDS dans le site existant INDAMORA PLAY.
+
+Cette page doit permettre à un visiteur de comprendre :
+
+* ce qu’est INDAMORA RECORDS ;
+* ce qu’est INDAMORA PLAY ;
+* la relation entre les deux ;
+* les différents pôles, médias, activités et initiatives de l’écosystème INDAMORA ;
+* les services proposés aux artistes et créateurs.
+
+La page doit être une présentation institutionnelle / vitrine, et non une nouvelle application.
+
+⸻
+
+3. TEXTE PRINCIPAL
+
+HERO
+
+INDAMORA RECORDS
+
+Créer. Produire. Développer. Faire rayonner les talents.
+
+Bien plus qu’un label : un écosystème créatif au service des talents.
+
+INDAMORA RECORDS est une structure indépendante dédiée à la production, au développement, à la promotion et à la diffusion de projets artistiques et musicaux, avec une ambition forte : créer des passerelles entre la France, l’Afrique et les diasporas.
+
+À travers ses différentes activités, INDAMORA accompagne les artistes et les créateurs de la conception de leur projet jusqu’à sa diffusion et son développement, en réunissant au sein d’un même écosystème musique, médias, audiovisuel, communication, événementiel et création artistique.
+
+⸻
+
+4. NOTRE VISION
+
+NOTRE VISION
+
+Nous croyons que chaque talent mérite les moyens, l’accompagnement et la visibilité nécessaires pour transformer son potentiel en véritable projet.
+
+Notre ambition est de créer des ponts entre les talents, les cultures et les opportunités, tout en contribuant à faire émerger une nouvelle génération d’artistes et de créateurs issus de France, d’Afrique et des diasporas.
+
+INDAMORA RECORDS évolue comme un écosystème créatif en mouvement, pensé pour révéler, structurer et faire rayonner les talents.
+
+⸻
+
+5. NOS PÔLES & MÉDIAS
+
+Présenter les différentes activités sous forme de cartes ou de blocs visuels cohérents avec le design actuel.
+
+🎬 INDAMORA TV
+
+Plateforme audiovisuelle consacrée aux freestyles, clips, interviews, sessions live et contenus originaux.
+
+📻 INDAMORA MEDIA.FM
+
+Un espace dédié à la diffusion, à la promotion et à la mise en avant des artistes et des projets musicaux.
+
+🎨 LES STRATÈGES VISUELS
+
+Pôle dédié à la direction artistique, à l’identité visuelle, à l’image de marque et à la communication créative.
+
+🏆 GOSPEL FRANCOPHONE AWARDS
+
+Une initiative destinée à mettre en lumière et valoriser les acteurs et talents du gospel francophone.
+
+📺 RCA TALENTS CHANNEL
+
+Une plateforme consacrée à la découverte et à la promotion des artistes émergents.
+
+🌐 MEDIA.GOSPEL | UNIVERS GOSPEL
+
+Des plateformes dédiées à la culture gospel, à son actualité, ses artistes et ses initiatives.
+
+🎤 SHOWBIZZ AWARDS FRANCE
+
+Des événements et initiatives consacrés à la mise en valeur des talents et des acteurs de l’industrie artistique et culturelle.
+
+📰 LE MONDE DU GOSSIP
+
+Un média consacré aux actualités, tendances et personnalités de la culture et du divertissement.
+
+🌍 ROSE AFRICA MAGAZINE
+
+Un média culturel mettant en avant l’Afrique, ses talents, ses cultures et ses diasporas.
+
+📻 RADIO INDAMORA
+
+Un espace de diffusion dédié à la musique, aux artistes et aux contenus de l’univers INDAMORA.
+
+🤝 ASSOCIATION VOIX DE L’AVENIR
+
+Une initiative tournée vers l’accompagnement, la valorisation et la mise en lumière des talents et des initiatives porteuses d’avenir.
+
+📲 INDAMORA PLAY
+
+Une plateforme musicale pensée pour offrir un espace de découverte, d’écoute et de valorisation des artistes et de leurs projets.
+
+Pour INDAMORA PLAY, rappeler clairement :
+
+INDAMORA PLAY
+Une plateforme de INDAMORA RECORDS
+
+Si une page ou fonctionnalité existante permet d’y accéder, utiliser le lien existant.
+
+Ne pas créer de lien fictif.
+
+⸻
+
+6. ARTISTES, DONNEZ UNE DIMENSION NOUVELLE À VOTRE TALENT
+
+ARTISTES, DONNEZ UNE DIMENSION NOUVELLE À VOTRE TALENT
+
+Vous êtes artiste, auteur, compositeur, interprète ou porteur d’un projet musical ?
+
+INDAMORA RECORDS vous accompagne dans la transformation de votre idée en un projet structuré, professionnel et visible.
+
+De la création à la diffusion, nous mettons notre savoir-faire et notre écosystème au service du développement de votre projet.
+
+Si cela est pertinent, utiliser un CTA vers les fonctionnalités existantes d’INDAMORA PLAY, notamment l’espace artiste ou la proposition d’une œuvre.
+
+Ne pas créer un nouveau formulaire si une fonctionnalité existante peut être réutilisée.
+
+⸻
+
+7. NOS SERVICES
+
+🎙️ Production & enregistrement
+
+Accompagnement de vos projets musicaux, de la prise de voix à la production.
+
+🎼 Composition & arrangement
+
+Création, écriture, composition et arrangements adaptés à votre identité artistique.
+
+🎚️ Mixage & mastering
+
+Finalisation technique de vos titres pour une qualité adaptée aux standards de diffusion.
+
+📀 Production & exploitation musicale
+
+Accompagnement dans la structuration, la production et la valorisation de vos œuvres musicales.
+
+📱 Communication & promotion
+
+Développement de stratégies de communication et de visibilité autour de vos sorties et projets.
+
+📸 Création de contenus
+
+Conception de contenus photo, vidéo et digitaux pour développer votre image et votre présence en ligne.
+
+🎬 Audiovisuel
+
+Production de contenus audiovisuels : clips, interviews, freestyles, sessions live et formats éditoriaux.
+
+📈 Développement de carrière
+
+Accompagnement dans la structuration de votre projet artistique et le développement de votre visibilité.
+
+🤝 Accompagnement personnalisé
+
+Une approche adaptée à votre identité, à vos objectifs et à l’évolution de votre carrière.
+
+⸻
+
+8. DE LA PREMIÈRE NOTE À LA RÉALISATION DU PROJET
+
+DE LA PREMIÈRE NOTE À LA RÉALISATION DU PROJET
+
+Chez INDAMORA RECORDS, nous souhaitons construire des collaborations durables avec les artistes et créateurs que nous accompagnons.
+
+Vous avez le talent. Nous vous aidons à lui donner une direction, une identité et une visibilité.
+
+Présenter ensuite les trois principes :
+
+CRÉER.
+
+Donner vie aux idées et aux projets.
+
+PRODUIRE.
+
+Mettre en place les ressources et les compétences nécessaires à leur réalisation.
+
+DÉVELOPPER.
+
+Construire leur visibilité et créer des opportunités de rayonnement.
+
+⸻
+
+9. VOUS AVEZ UN PROJET ?
+
+VOUS AVEZ UN PROJET ?
+
+Vous souhaitez présenter un morceau, développer votre carrière, produire un contenu ou collaborer avec notre écosystème ?
+
+Parlons de votre projet.
+
+📩 indamorarecords@gmail.com
+☎️ 07 80 11 88 69
+
+Puis :
+
+INDAMORA RECORDS
+
+Créer. Produire. Développer. Faire rayonner les talents.
+
+⸻
+
+10. INTÉGRATION DANS INDAMORA PLAY
+
+La page doit renforcer la compréhension suivante :
+
+INDAMORA RECORDS
+L’écosystème
+
+↓
+
+INDAMORA PLAY
+Une plateforme de INDAMORA RECORDS
+
+↓
+
+Musique • artistes • RÉPERTOIRE • découverte • écoute • contenus
+
+Et présenter parallèlement les autres activités de l’écosystème :
+
+* INDAMORA TV
+* INDAMORA MEDIA.FM
+* LES STRATÈGES VISUELS
+* GOSPEL FRANCOPHONE AWARDS
+* RCA TALENTS CHANNEL
+* MEDIA.GOSPEL / UNIVERS GOSPEL
+* SHOWBIZZ AWARDS FRANCE
+* LE MONDE DU GOSSIP
+* ROSE AFRICA MAGAZINE
+* RADIO INDAMORA
+* ASSOCIATION VOIX DE L’AVENIR
+* INDAMORA PLAY
+
+⚠️ Utiliser les termes « pôles », « médias », « activités », « initiatives », « projets » ou « écosystème » selon le contexte.
+
+Ne pas inventer de statut juridique ou de relation capitalistique entre ces différentes activités.
+
+⸻
+
+11. NAVIGATION
+
+Ajouter un accès à la présentation INDAMORA RECORDS uniquement si cela peut être intégré naturellement dans la navigation existante.
+
+Par exemple :
+
+INDAMORA RECORDS
+
+ou
+
+Notre écosystème
+
+Ne pas multiplier les nouveaux éléments de navigation.
+
+Le visiteur doit pouvoir comprendre facilement :
+
+INDAMORA PLAY = plateforme
+
+INDAMORA RECORDS = écosystème / structure
+
+⸻
+
+12. DESIGN
+
+Conserver l’identité actuelle d’INDAMORA PLAY :
+
+* logo existant ;
+* couleurs ;
+* typographies ;
+* boutons ;
+* header ;
+* footer ;
+* composants ;
+* navigation ;
+* responsive design.
+
+Ne pas créer une deuxième identité graphique qui donnerait l’impression qu’INDAMORA RECORDS est un site totalement différent.
+
+La page doit sembler faire naturellement partie d’INDAMORA PLAY.
+
+⸻
+
+13. NE PAS TOUCHER AUX FONCTIONNALITÉS EXISTANTES
+
+Cette tâche ne doit entraîner aucune modification inutile de :
+
+* RÉPERTOIRE ;
+* catalogue ;
+* lecteur audio/vidéo ;
+* profils artistes ;
+* authentification Clerk ;
+* espace artiste ;
+* soumissions ;
+* modération ;
+* stockage média ;
+* paiements ;
+* dons ;
+* abonnements Premium ;
+* administration ;
+* système de permissions ;
+* logo ;
+* domaine.
+
+Si une fonctionnalité fonctionne déjà, la conserver telle quelle.
+
+⸻
+
+14. LIENS
+
+Ne créer aucun lien fictif.
+
+Si une activité possède déjà une page ou une URL existante dans le projet, réutiliser cette destination.
+
+Si aucune destination n’existe actuellement, afficher simplement la présentation de l’activité sans inventer de page.
+
+⸻
+
+15. SEO
+
+Si le système SEO existant le permet proprement :
+
+Title :
+
+INDAMORA RECORDS — Créer. Produire. Développer. Faire rayonner les talents.
+
+Description :
+
+INDAMORA RECORDS, un écosystème créatif dédié à la production, au développement, à la promotion et à la diffusion de projets artistiques et musicaux entre la France, l’Afrique et les diasporas.
+
+Ne pas modifier inutilement le SEO des autres pages.
+
+⸻
+
+16. MÉTHODE OBLIGATOIRE
+
+Avant toute modification :
+
+1. Auditer le routing existant.
+2. Vérifier les composants Header/Footer.
+3. Vérifier les composants de page réutilisables.
+4. Vérifier s’il existe déjà une page ou section pouvant être utilisée.
+5. Identifier l’emplacement le plus naturel pour cette présentation.
+6. Ne créer que ce qui manque.
+
+Après modification :
+
+1. Tester la nouvelle page.
+2. Tester son accès depuis la navigation.
+3. Tester tous les liens.
+4. Tester le retour vers INDAMORA PLAY.
+5. Vérifier desktop.
+6. Vérifier mobile.
+7. Vérifier le header et le footer.
+8. Vérifier que RÉPERTOIRE fonctionne toujours.
+9. Vérifier catalogue et lecteur.
+10. Vérifier connexion/inscription.
+11. Vérifier espace artiste.
+12. Vérifier que paiements, dons et abonnements existants n’ont pas été modifiés.
+
+RÈGLE ABSOLUE
+
+NE PAS RECONSTRUIRE INDAMORA PLAY.
+
+NE PAS RENOMMER INDAMORA PLAY.
+
+NE PAS REMPLACER INDAMORA PLAY PAR INDAMORA RECORDS.
+
+NE PAS MODIFIER LES FONCTIONNALITÉS QUI FONCTIONNENT.
+
+L’objectif est uniquement de rendre beaucoup plus claire la relation :
+
+INDAMORA RECORDS
+
+↓
+
+INDAMORA PLAY — Une plateforme de INDAMORA RECORDS
+
+et de présenter les différentes activités de l’écosystème INDAMORA.
+
+Faire le minimum de modifications nécessaires.
+
+Après chaque modification importante :
+
+TESTER → VÉRIFIER → CORRIGER SI NÉCESSAIRE → RETESTER
+
+À la fin, fournir un rapport clair :
+
+🟢 Fonctionnel
+🟠 À vérifier
+🔴 Problème rencontré
+⚪ Aucun changement nécessaire
