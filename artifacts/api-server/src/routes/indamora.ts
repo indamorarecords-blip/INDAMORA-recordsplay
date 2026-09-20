@@ -10,6 +10,7 @@ import {
   GetArtistResponse,
   GetArtistsQueryParams,
   GetArtistsResponse,
+  GetMyArtistResponse,
   GetCatalogResponse,
   GetSubmissionsQueryParams,
   GetSubmissionsResponse,
@@ -22,6 +23,8 @@ import {
   UpdateSubmissionStatusBody,
   UpdateSubmissionStatusParams,
   UpdateSubmissionStatusResponse,
+  UpdateArtistBody,
+  UpdateArtistResponse,
 } from "@workspace/api-zod";
 import { logger } from "../lib/logger";
 import { isAdminUser, requireAdmin, requireAuth } from "../middlewares/auth";
@@ -302,6 +305,17 @@ router.post("/artists", requireAuth, async (req, res): Promise<void> => {
   res.status(201).json(CreateArtistResponse.parse(directoryProfilesForClient([artist])[0]));
 });
 
+router.get("/artists/me", requireAuth, async (req, res): Promise<void> => {
+  const [artist] = await db
+    .select()
+    .from(artistsTable)
+    .where(eq(artistsTable.ownerId, req.clerkUserId!))
+    .orderBy(artistsTable.createdAt)
+    .limit(1);
+
+  res.json(GetMyArtistResponse.parse(artist ? directoryProfilesForClient([artist])[0] : null));
+});
+
 router.get("/artists/:id", async (req, res): Promise<void> => {
   const params = GetArtistParams.safeParse(req.params);
   if (!params.success) {
@@ -323,6 +337,74 @@ router.get("/artists/:id", async (req, res): Promise<void> => {
     return;
   }
   res.json(GetArtistResponse.parse(directoryProfilesForClient([artist])[0]));
+});
+
+router.patch("/artists/:id", requireAuth, async (req, res): Promise<void> => {
+  const params = GetArtistParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  const parsed = UpdateArtistBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.message });
+    return;
+  }
+
+  const [existing] = await db
+    .select()
+    .from(artistsTable)
+    .where(eq(artistsTable.id, params.data.id))
+    .limit(1);
+  if (!existing) {
+    res.status(404).json({ error: "Artist not found" });
+    return;
+  }
+
+  const admin = await isAdminUser(req.clerkUserId!);
+  if (!admin && existing.ownerId !== req.clerkUserId) {
+    res.status(403).json({ error: "Vous ne pouvez modifier que votre propre profil." });
+    return;
+  }
+
+  if (parsed.data.avatar && parsed.data.avatar !== existing.avatar) {
+    try {
+      const avatar = await objectStorage.getObjectEntityFile(parsed.data.avatar);
+      const [metadata] = await avatar.getMetadata();
+      const contentType = String(metadata.contentType ?? "");
+      const size = Number(metadata.size ?? 0);
+      const owned = await objectStorage.canAccessObjectEntity({
+        userId: req.clerkUserId,
+        objectFile: avatar,
+        requestedPermission: ObjectPermission.WRITE,
+      });
+      if (!allowedImageTypes.has(contentType) || size <= 0 || size > maxImageBytes || !owned) {
+        res.status(400).json({ error: "L’avatar doit être une image téléversée par votre compte." });
+        return;
+      }
+      await objectStorage.setAcl(parsed.data.avatar, {
+        owner: existing.ownerId ?? req.clerkUserId!,
+        visibility: "public",
+      });
+    } catch {
+      res.status(400).json({ error: "L’avatar téléversé est introuvable." });
+      return;
+    }
+  }
+
+  const [updated] = await db
+    .update(artistsTable)
+    .set({
+      ...parsed.data,
+      ...(admin ? {} : { profileStatus: "pending", isPublished: "false" }),
+    })
+    .where(eq(artistsTable.id, existing.id))
+    .returning();
+  if (!updated) {
+    res.status(500).json({ error: "Impossible de mettre à jour le profil." });
+    return;
+  }
+  res.json(UpdateArtistResponse.parse(directoryProfilesForClient([updated])[0]));
 });
 
 router.post("/press-requests", async (req, res): Promise<void> => {

@@ -64,6 +64,37 @@ export interface ArtistInput {
   profileGroup?: ArtistInputProfileGroup;
   subcategory?: string;
   country?: string;
+  /** @maxItems 2 */
+  specialties?: string[];
+  website?: string;
+  socialLinks?: string[];
+  professionalContact?: string;
+}
+
+export type ArtistUpdateInputProfileGroup = typeof ArtistUpdateInputProfileGroup[keyof typeof ArtistUpdateInputProfileGroup];
+
+
+export const ArtistUpdateInputProfileGroup = {
+  artists: 'artists',
+  creations: 'creations',
+  partners: 'partners',
+  press: 'press',
+} as const;
+
+export interface ArtistUpdateInput {
+  /** @minLength 2 */
+  name?: string;
+  /** @minLength 2 */
+  category?: string;
+  /** @minLength 10 */
+  bio?: string;
+  /** @minLength 2 */
+  location?: string;
+  avatar?: string;
+  profileGroup?: ArtistUpdateInputProfileGroup;
+  subcategory?: string;
+  country?: string;
+  /** @maxItems 2 */
   specialties?: string[];
   website?: string;
   socialLinks?: string[];

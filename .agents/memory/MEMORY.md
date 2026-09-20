@@ -3,3 +3,4 @@
 - [Admin authorization and analytics](admin-authorization-and-analytics.md) — Clerk role metadata with verified-email fallback; visit metrics use hashed sessions and no raw IPs.
 - [Clerk provider settings](clerk-provider-settings.md) — Replit-managed social providers are configured outside the app code.
 - [Media visibility lifecycle](media-visibility-lifecycle.md) — submission files stay private until publication; profile avatars are public assets after validated upload.
+- [Artist activity limits](artist-activity-limits.md) — enforce two activities on new writes without rejecting legacy profile data on reads.

@@ -120,6 +120,22 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Artist"
+  /artists/me:
+    get:
+      operationId: getMyArtist
+      tags: [artists]
+      summary: Get the signed-in user's artist profile
+      security:
+        - clerkSession: []
+      responses:
+        "200":
+          description: Artist profile, or null when profile setup is incomplete
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: "#/components/schemas/Artist"
+                  - type: "null"
   /artists/{id}:
     get:
       operationId: getArtist
@@ -138,6 +154,35 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Artist"
+        "404":
+          description: Artist not found
+    patch:
+      operationId: updateArtist
+      tags: [artists]
+      summary: Update an artist profile owned by the signed-in user
+      security:
+        - clerkSession: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ArtistUpdateInput"
+      responses:
+        "200":
+          description: Updated artist profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Artist"
+        "403":
+          description: Profile is not owned by the signed-in user
         "404":
           description: Artist not found
   /press-requests:
@@ -390,6 +435,30 @@ components:
         country: { type: string }
         specialties:
           type: array
+          maxItems: 2
+          items: { type: string }
+        website: { type: string, format: uri }
+        socialLinks:
+          type: array
+          items: { type: string, format: uri }
+        professionalContact: { type: string }
+    ArtistUpdateInput:
+      type: object
+      minProperties: 1
+      properties:
+        name: { type: string, minLength: 2 }
+        category: { type: string, minLength: 2 }
+        bio: { type: string, minLength: 10 }
+        location: { type: string, minLength: 2 }
+        avatar: { type: string }
+        profileGroup:
+          type: string
+          enum: [artists, creations, partners, press]
+        subcategory: { type: string }
+        country: { type: string }
+        specialties:
+          type: array
+          maxItems: 2
           items: { type: string }
         website: { type: string, format: uri }
         socialLinks:

@@ -22,6 +22,7 @@ import type {
 import type {
   Artist,
   ArtistInput,
+  ArtistUpdateInput,
   CompleteUploadRequest,
   CompleteUploadResult,
   GetArtistsParams,
@@ -451,6 +452,83 @@ export const useCreateArtist = <TError = ErrorType<unknown>,
       return useMutation(getCreateArtistMutationOptions(options));
     }
 
+export const getGetMyArtistUrl = () => {
+
+
+
+
+  return `/api/artists/me`
+}
+
+/**
+ * @summary Get the signed-in user's artist profile
+ */
+export const getMyArtist = async ( options?: Parameters<typeof customFetch>[1]): Promise<Artist | null> => {
+
+  return customFetch<Artist | null>(getGetMyArtistUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMyArtistQueryKey = () => {
+    return [
+    `/api/artists/me`
+    ] as const;
+    }
+
+
+export const getGetMyArtistQueryOptions = <TData = Awaited<ReturnType<typeof getMyArtist>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyArtist>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyArtistQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyArtist>>> = ({ signal }) => getMyArtist({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyArtist>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMyArtistQueryResult = NonNullable<Awaited<ReturnType<typeof getMyArtist>>>
+export type GetMyArtistQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get the signed-in user's artist profile
+ */
+
+export function useGetMyArtist<TData = Awaited<ReturnType<typeof getMyArtist>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyArtist>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMyArtistQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export const getGetArtistUrl = (id: number,) => {
 
 
@@ -527,6 +605,78 @@ export function useGetArtist<TData = Awaited<ReturnType<typeof getArtist>>, TErr
 
 
 
+
+export const getUpdateArtistUrl = (id: number,) => {
+
+
+
+
+  return `/api/artists/${id}`
+}
+
+/**
+ * @summary Update an artist profile owned by the signed-in user
+ */
+export const updateArtist = async (id: number,
+    artistUpdateInput: ArtistUpdateInput, options?: Parameters<typeof customFetch>[1]): Promise<Artist> => {
+
+  return customFetch<Artist>(getUpdateArtistUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(artistUpdateInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateArtistMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateArtist>>, TError,{id: number;data: BodyType<ArtistUpdateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateArtist>>, TError,{id: number;data: BodyType<ArtistUpdateInput>}, TContext> => {
+
+const mutationKey = ['updateArtist'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateArtist>>, {id: number;data: BodyType<ArtistUpdateInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateArtist(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateArtistMutationResult = NonNullable<Awaited<ReturnType<typeof updateArtist>>>
+    export type UpdateArtistMutationBody = BodyType<ArtistUpdateInput>
+    export type UpdateArtistMutationError = ErrorType<void>
+
+    /**
+ * @summary Update an artist profile owned by the signed-in user
+ */
+export const useUpdateArtist = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateArtist>>, TError,{id: number;data: BodyType<ArtistUpdateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateArtist>>,
+        TError,
+        {id: number;data: BodyType<ArtistUpdateInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateArtistMutationOptions(options));
+    }
 
 export const getCreatePressRequestUrl = () => {
 

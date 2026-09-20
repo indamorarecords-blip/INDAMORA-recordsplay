@@ -20,6 +20,7 @@ export interface ArtistInput {
   profileGroup?: ArtistInputProfileGroup;
   subcategory?: string;
   country?: string;
+  /** @maxItems 2 */
   specialties?: string[];
   website?: string;
   socialLinks?: string[];

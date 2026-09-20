@@ -100,6 +100,8 @@ export const createArtistBodyBioMin = 10;
 
 export const createArtistBodyLocationMin = 2;
 
+export const createArtistBodySpecialtiesMax = 2;
+
 
 
 export const CreateArtistBody = zod.object({
@@ -111,7 +113,7 @@ export const CreateArtistBody = zod.object({
   "profileGroup": zod.enum(['artists', 'creations', 'partners', 'press']).optional(),
   "subcategory": zod.string().optional(),
   "country": zod.string().optional(),
-  "specialties": zod.array(zod.string()).optional(),
+  "specialties": zod.array(zod.string()).max(createArtistBodySpecialtiesMax).optional(),
   "website": zod.string().url().optional(),
   "socialLinks": zod.array(zod.string().url()).optional(),
   "professionalContact": zod.string().optional()
@@ -136,6 +138,27 @@ export const CreateArtistResponse = zod.object({
 
 
 /**
+ * @summary Get the signed-in user's artist profile
+ */
+export const GetMyArtistResponse = zod.union([zod.object({
+  "id": zod.number().int(),
+  "name": zod.string(),
+  "category": zod.string(),
+  "bio": zod.string(),
+  "location": zod.string(),
+  "avatar": zod.string().nullish(),
+  "worksCount": zod.number().int(),
+  "profileGroup": zod.enum(['artists', 'creations', 'partners', 'press']),
+  "subcategory": zod.string().nullish(),
+  "country": zod.string().nullish(),
+  "specialties": zod.array(zod.string()),
+  "website": zod.string().url().nullish(),
+  "socialLinks": zod.array(zod.string().url()),
+  "professionalContact": zod.string().nullish()
+}),zod.null()])
+
+
+/**
  * @summary Get an artist profile
  */
 export const GetArtistParams = zod.object({
@@ -143,6 +166,58 @@ export const GetArtistParams = zod.object({
 })
 
 export const GetArtistResponse = zod.object({
+  "id": zod.number().int(),
+  "name": zod.string(),
+  "category": zod.string(),
+  "bio": zod.string(),
+  "location": zod.string(),
+  "avatar": zod.string().nullish(),
+  "worksCount": zod.number().int(),
+  "profileGroup": zod.enum(['artists', 'creations', 'partners', 'press']),
+  "subcategory": zod.string().nullish(),
+  "country": zod.string().nullish(),
+  "specialties": zod.array(zod.string()),
+  "website": zod.string().url().nullish(),
+  "socialLinks": zod.array(zod.string().url()),
+  "professionalContact": zod.string().nullish()
+})
+
+
+/**
+ * @summary Update an artist profile owned by the signed-in user
+ */
+export const UpdateArtistParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+export const updateArtistBodyNameMin = 2;
+
+export const updateArtistBodyCategoryMin = 2;
+
+export const updateArtistBodyBioMin = 10;
+
+export const updateArtistBodyLocationMin = 2;
+
+export const updateArtistBodySpecialtiesMax = 2;
+
+
+
+export const UpdateArtistBody = zod.object({
+  "name": zod.string().min(updateArtistBodyNameMin).optional(),
+  "category": zod.string().min(updateArtistBodyCategoryMin).optional(),
+  "bio": zod.string().min(updateArtistBodyBioMin).optional(),
+  "location": zod.string().min(updateArtistBodyLocationMin).optional(),
+  "avatar": zod.string().optional(),
+  "profileGroup": zod.enum(['artists', 'creations', 'partners', 'press']).optional(),
+  "subcategory": zod.string().optional(),
+  "country": zod.string().optional(),
+  "specialties": zod.array(zod.string()).max(updateArtistBodySpecialtiesMax).optional(),
+  "website": zod.string().url().optional(),
+  "socialLinks": zod.array(zod.string().url()).optional(),
+  "professionalContact": zod.string().optional()
+})
+
+export const UpdateArtistResponse = zod.object({
   "id": zod.number().int(),
   "name": zod.string(),
   "category": zod.string(),

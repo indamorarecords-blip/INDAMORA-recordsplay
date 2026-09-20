@@ -17,9 +17,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import {
   getGetArtistQueryKey, getGetArtistsQueryKey, getGetCatalogQueryKey, getGetSubmissionsQueryKey,
-  getGetWorkQueryKey, useCreateArtist, useCreateSubmission, useGetArtist, useGetArtists,
+  getGetMyArtistQueryKey, getGetWorkQueryKey, useCreateArtist, useCreateSubmission, useGetArtist, useGetArtists,
   useGetCatalog, useGetSubmissions, useGetWork, useUpdateSubmissionStatus, useCreatePressRequest,
-  useDeleteSubmissionFiles
+  useDeleteSubmissionFiles, useGetMyArtist, useUpdateArtist
 } from '@workspace/api-client-react';
 import type { Artist, Submission, Work } from '@workspace/api-client-react';
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -29,6 +29,16 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 const queryClient = new QueryClient();
 const ADMIN_EMAIL = 'indamorarecords@gmail.com';
 const categories = ['Musique', 'Humour', 'Cinéma et vidéos', 'Podcasts', 'Autres créations'];
+const creationActivities = [
+  ['Artiste / chanteur', '🎤'],
+  ['Producteur', '🎚️'],
+  ['Vidéaste', '🎥'],
+  ['Créateur de contenu', '📱'],
+  ['Auteur / compositeur', '✍️'],
+  ['Photographe', '📷'],
+  ['Humoriste', '🎭'],
+  ['Podcasteur', '🎙️'],
+] as const;
 const categoryIcons = { Musique: AudioLines, Humour: Sparkles, 'Cinéma et vidéos': Disc3, Podcasts: Mic2, 'Autres créations': Sparkles };
 const categoryLabels: Record<string, string> = {
   Music: 'Musique',
@@ -357,6 +367,7 @@ function WorkSheet({ id, onClose }: { id: number | null; onClose: () => void }) 
 }
 
 function Home() {
+  const { isSignedIn } = useUser();
   const catalog = useGetCatalog({ query: { queryKey: getGetCatalogQueryKey() } });
   const artists = useGetArtists(undefined, { query: { queryKey: getGetArtistsQueryKey() } });
   const [category, setCategory] = useState('Toutes');
@@ -368,7 +379,7 @@ function Home() {
       <div className="absolute -right-24 -top-32 h-80 w-80 rounded-full border-[42px] border-accent/80 opacity-80 md:h-[34rem] md:w-[34rem]" />
       <div className="absolute bottom-[-5rem] left-[42%] h-40 w-40 rotate-12 border-[20px] border-primary/70 md:h-64 md:w-64" />
       <div className="relative mx-auto grid max-w-7xl items-end gap-12 px-5 pb-16 pt-16 lg:grid-cols-[1.1fr_.9fr] lg:px-8 lg:pb-24 lg:pt-24">
-         <div className="animate-rise-in"><Link href="/" className="mb-6 block w-44 rounded-2xl bg-white p-2 shadow-xl" data-testid="link-hero-logo" aria-label="Retour à l’accueil"><Logo variant="full" /></Link><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-secondary-foreground/20 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[.18em] text-accent"><span className="h-1.5 w-1.5 rounded-full bg-accent" /> Depuis Bangui, avec émotion</div><h1 className="display max-w-3xl text-5xl font-bold leading-[.98] md:text-7xl">Écoutez les voix<br /><span className="text-accent">qui ont le goût du pays.</span></h1><p className="mt-6 max-w-lg text-base leading-7 text-secondary-foreground/75 md:text-lg">Musique, humour, cinéma et podcasts d’Afrique centrale — pour celles et ceux d’ici, et pour partout où nous emportons notre chez-nous.</p><div className="mt-8 flex flex-wrap gap-3"><a href="#discover" className="flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-1" data-testid="link-start-discover">Commencer à découvrir <ArrowRight className="h-4 w-4" /></a><Link href="/submit" className="rounded-full border border-secondary-foreground/25 px-5 py-3 text-sm font-bold transition-colors hover:border-accent hover:text-accent" data-testid="link-share-hero">Je crée</Link></div></div>
+         <div className="animate-rise-in"><Link href="/" className="mb-6 block w-44 rounded-2xl bg-white p-2 shadow-xl" data-testid="link-hero-logo" aria-label="Retour à l’accueil"><Logo variant="full" /></Link><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-secondary-foreground/20 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[.18em] text-accent"><span className="h-1.5 w-1.5 rounded-full bg-accent" /> Depuis Bangui, avec émotion</div><h1 className="display max-w-3xl text-5xl font-bold leading-[.98] md:text-7xl">Écoutez les voix<br /><span className="text-accent">qui ont le goût du pays.</span></h1><p className="mt-6 max-w-lg text-base leading-7 text-secondary-foreground/75 md:text-lg">Musique, humour, cinéma et podcasts d’Afrique centrale — pour celles et ceux d’ici, et pour partout où nous emportons notre chez-nous.</p><div className="mt-8 flex flex-wrap gap-3"><a href="#discover" className="flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-1" data-testid="link-start-discover">Commencer à découvrir <ArrowRight className="h-4 w-4" /></a><Link href={isSignedIn ? '/profil' : '/sign-up'} className="rounded-full border border-secondary-foreground/25 px-5 py-3 text-sm font-bold transition-colors hover:border-accent hover:text-accent" data-testid="link-share-hero">Je crée</Link></div></div>
         <div className="relative hidden min-h-[20rem] lg:block"><div className="absolute left-8 top-2 h-64 w-64 rotate-[-8deg] overflow-hidden rounded-[2rem] border-8 border-background/10 bg-primary shadow-2xl animate-drift">{featured[0]?.image && <img src={featured[0].image} alt="" className="h-full w-full object-cover mix-blend-luminosity opacity-90" />}<div className="absolute inset-0 bg-primary/25" /></div><div className="absolute bottom-2 right-3 w-56 rotate-[7deg] rounded-2xl bg-accent p-5 text-accent-foreground shadow-2xl"><Star className="mb-8 h-6 w-6 fill-current" /><p className="display text-xl font-bold leading-tight">Votre prochain coup de cœur est déjà ici.</p><div className="mt-5 font-mono text-[9px] uppercase tracking-[.18em]">Sélection Indamora / 001</div></div></div>
       </div>
     </section>
@@ -909,12 +920,152 @@ function AuthPage({ children }: { children: ReactNode }) {
   return <div className="min-h-[calc(100dvh-4.5rem)] bg-secondary px-4 py-10 text-foreground md:grid md:place-items-center"><div className="w-full max-w-2xl rounded-[2rem] bg-background p-3 shadow-2xl md:p-6"><div className="mb-4 flex justify-center"><Link href="/" data-testid="link-auth-logo" aria-label="Retour à l’accueil"><Logo variant="full" className="max-w-[11rem]" /></Link></div>{children}</div></div>;
 }
 
+type ArtistProfileFormValues = {
+  name: string;
+  category: string;
+  bio: string;
+  location: string;
+  specialties: string[];
+};
+
+function ArtistProfileForm({
+  artist,
+  defaultName,
+  onSaved,
+}: {
+  artist: Artist | null;
+  defaultName: string;
+  onSaved: () => void;
+}) {
+  const { toast } = useToast();
+  const createArtist = useCreateArtist();
+  const updateArtist = useUpdateArtist();
+  const [values, setValues] = useState<ArtistProfileFormValues>(() => ({
+    name: artist?.name ?? defaultName,
+    category: artist?.category ?? 'Musique',
+    bio: artist?.bio ?? '',
+    location: artist?.location ?? '',
+    specialties: artist?.specialties ?? [],
+  }));
+  const [activityError, setActivityError] = useState('');
+
+  useEffect(() => {
+    setValues({
+      name: artist?.name ?? defaultName,
+      category: artist?.category ?? 'Musique',
+      bio: artist?.bio ?? '',
+      location: artist?.location ?? '',
+      specialties: artist?.specialties ?? [],
+    });
+  }, [artist, defaultName]);
+
+  const toggleActivity = (activity: string) => {
+    setValues((current) => {
+      if (current.specialties.includes(activity)) {
+        setActivityError('');
+        return { ...current, specialties: current.specialties.filter((item) => item !== activity) };
+      }
+      if (current.specialties.length >= 2) {
+        setActivityError('Deux activités maximum peuvent être sélectionnées.');
+        return current;
+      }
+      setActivityError('');
+      return { ...current, specialties: [...current.specialties, activity] };
+    });
+  };
+
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const name = values.name.trim();
+    const bio = values.bio.trim();
+    const location = values.location.trim();
+    if (name.length < 2 || bio.length < 10 || location.length < 2) {
+      toast({ title: 'Profil incomplet', description: 'Renseignez un nom, une localisation et une bio valide.', variant: 'destructive' });
+      return;
+    }
+    if (values.specialties.length < 1 || values.specialties.length > 2) {
+      setActivityError('Sélectionnez une ou deux activités.');
+      return;
+    }
+
+    const data = {
+      name,
+      category: values.category,
+      bio,
+      location,
+      specialties: values.specialties,
+      profileGroup: 'artists' as const,
+    };
+    const options = {
+      onSuccess: () => {
+        onSaved();
+        toast({
+          title: artist ? 'Profil mis à jour' : 'Profil créé',
+          description: artist
+            ? 'Votre modification sera visible après validation.'
+            : 'Votre profil sera visible dans le RÉPERTOIRE après validation.',
+        });
+      },
+      onError: () => {
+        toast({ title: 'Impossible d’enregistrer', description: 'Vérifiez les champs puis réessayez.', variant: 'destructive' });
+      },
+    };
+    if (artist) {
+      updateArtist.mutate({ id: artist.id, data }, options);
+    } else {
+      createArtist.mutate({ data }, options);
+    }
+  };
+
+  const pending = createArtist.isPending || updateArtist.isPending;
+  return <section className="mt-12 rounded-[2rem] border border-border bg-card p-6 md:p-8">
+    <div className="max-w-2xl">
+      <div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary">Je crée</div>
+      <h2 className="display mt-2 text-3xl font-bold">{artist ? 'Modifier mon profil créatif' : 'Présentez votre univers'}</h2>
+      <p className="mt-3 leading-7 text-muted-foreground">Choisissez une ou deux activités structurées. Votre bio reste libre pour raconter votre parcours et vos autres compétences.</p>
+    </div>
+    <form onSubmit={submit} className="mt-8 grid gap-5 md:grid-cols-2">
+      <label className="grid gap-2 text-sm font-bold">Nom affiché
+        <input value={values.name} onChange={(event) => setValues((current) => ({ ...current, name: event.target.value }))} minLength={2} maxLength={120} required className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="input-artist-profile-name" />
+      </label>
+      <label className="grid gap-2 text-sm font-bold">Catégorie principale
+        <select value={values.category} onChange={(event) => setValues((current) => ({ ...current, category: event.target.value }))} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="select-artist-profile-category">
+          {categories.map((category) => <option key={category} value={category}>{category}</option>)}
+        </select>
+      </label>
+      <label className="grid gap-2 text-sm font-bold md:col-span-2">Localisation
+        <input value={values.location} onChange={(event) => setValues((current) => ({ ...current, location: event.target.value }))} minLength={2} maxLength={120} required placeholder="Ville, pays ou diaspora" className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="input-artist-profile-location" />
+      </label>
+      <div className="grid gap-2 md:col-span-2">
+        <div className="text-sm font-bold">Activités <span className="font-normal text-muted-foreground">(1 ou 2 maximum)</span></div>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {creationActivities.map(([activity, icon]) => {
+            const selected = values.specialties.includes(activity);
+            return <button key={activity} type="button" onClick={() => toggleActivity(activity)} className={cx('rounded-xl border px-3 py-3 text-left text-sm font-semibold transition-colors', selected ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-background hover:border-primary/60')} aria-pressed={selected} data-testid={`button-artist-activity-${activity.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-')}`}><span className="mr-2" aria-hidden="true">{icon}</span>{activity}</button>;
+          })}
+        </div>
+        {activityError && <p className="text-xs text-destructive">{activityError}</p>}
+        {values.specialties.length > 2 && <p className="text-xs text-destructive">Ce profil existant contient plus de deux activités. Retirez-en avant d’enregistrer une modification.</p>}
+      </div>
+      <label className="grid gap-2 text-sm font-bold md:col-span-2">Bio / présentation
+        <textarea value={values.bio} onChange={(event) => setValues((current) => ({ ...current, bio: event.target.value }))} minLength={10} maxLength={2000} required rows={6} placeholder="Parlez de votre parcours, de vos compétences et de vos autres activités." className="resize-y rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="textarea-artist-profile-bio" />
+      </label>
+      <div className="flex flex-wrap items-center gap-3 md:col-span-2">
+        <button type="submit" disabled={pending} className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50" data-testid="button-save-artist-profile">{pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}{artist ? 'Enregistrer la modification' : 'Créer mon profil'}</button>
+        {artist && artist.profileGroup === 'artists' && <span className="text-xs text-muted-foreground">Les modifications repassent par la validation du profil.</span>}
+      </div>
+    </form>
+  </section>;
+}
+
 function Profile() {
   const { isSignedIn, user } = useUser();
   const { signOut } = useClerk();
+  const queryClient = useQueryClient();
+  const myArtist = useGetMyArtist({ query: { enabled: Boolean(isSignedIn), queryKey: getGetMyArtistQueryKey() } });
   if (!isSignedIn) return <Redirect to="/sign-in" />;
   const name = user?.fullName ?? user?.firstName ?? 'Membre INDAMORA';
-  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-6 rounded-[2rem] bg-secondary p-7 text-secondary-foreground md:flex-row md:items-center md:justify-between md:p-10"><div className="flex items-center gap-5"><Avatar name={name} src={user?.imageUrl} size="lg" /><div><div className="font-mono text-[10px] uppercase tracking-[.2em] text-accent">Mon profil</div><h1 className="display mt-2 text-4xl font-bold">{name}</h1><p className="mt-1 text-secondary-foreground/70">{user?.primaryEmailAddress?.emailAddress}</p></div></div><button onClick={() => void signOut({ redirectUrl: basePath || '/' })} className="inline-flex items-center justify-center gap-2 rounded-full border border-secondary-foreground/25 px-4 py-2 text-sm font-bold hover:border-accent hover:text-accent" data-testid="button-profile-logout">Se déconnecter</button></div><div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{isAdminUser(user) && <Link href="/administration" className="rounded-2xl border border-primary/40 bg-primary/5 p-6 hover:border-primary"><LayoutDashboard className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Administration</h2></Link>}<Link href="/explorer" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><History className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Mes découvertes</h2></Link><Link href="/espace-artiste" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><FileMusic className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Espace artiste</h2></Link><Link href="/pricing" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><Crown className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Offres Premium</h2></Link><Link href="/soutenir" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><HeartHandshake className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Soutenir INDAMORA</h2></Link></div></div>;
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-6 rounded-[2rem] bg-secondary p-7 text-secondary-foreground md:flex-row md:items-center md:justify-between md:p-10"><div className="flex items-center gap-5"><Avatar name={name} src={user?.imageUrl} size="lg" /><div><div className="font-mono text-[10px] uppercase tracking-[.2em] text-accent">Mon profil</div><h1 className="display mt-2 text-4xl font-bold">{name}</h1><p className="mt-1 text-secondary-foreground/70">{user?.primaryEmailAddress?.emailAddress}</p></div></div><button onClick={() => void signOut({ redirectUrl: basePath || '/' })} className="inline-flex items-center justify-center gap-2 rounded-full border border-secondary-foreground/25 px-4 py-2 text-sm font-bold hover:border-accent hover:text-accent" data-testid="button-profile-logout">Se déconnecter</button></div><div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{isAdminUser(user) && <Link href="/administration" className="rounded-2xl border border-primary/40 bg-primary/5 p-6 hover:border-primary"><LayoutDashboard className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Administration</h2></Link>}<Link href="/explorer" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><History className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Mes découvertes</h2></Link><Link href="/espace-artiste" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><FileMusic className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Espace artiste</h2></Link><Link href="/pricing" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><Crown className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Offres Premium</h2></Link><Link href="/soutenir" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><HeartHandshake className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Soutenir INDAMORA</h2></Link></div>{myArtist.isLoading ? <div className="mt-12 skeleton h-64 rounded-[2rem]" /> : myArtist.error ? <QueryState error={myArtist.error} onRetry={() => void myArtist.refetch()} label="profil-artiste" /> : <ArtistProfileForm artist={myArtist.data ?? null} defaultName={name} onSaved={() => { void queryClient.invalidateQueries({ queryKey: getGetMyArtistQueryKey() }); void queryClient.invalidateQueries({ queryKey: getGetArtistsQueryKey() }); }} />}</div>;
 }
 
 function ArtistSpace() {
