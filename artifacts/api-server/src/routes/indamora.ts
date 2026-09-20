@@ -193,9 +193,8 @@ const seedCatalog = async (): Promise<void> => {
   logger.info("Seeded initial INDAMORA PLAY catalog");
 }
 
-void seedCatalog().catch((error) => {
-  logger.error({ error }, "Unable to seed INDAMORA PLAY catalog");
-});
+// The production catalog is managed through the administrator workflow.
+// No automatic demo data is inserted at server startup.
 
 router.get("/catalog", async (_req, res): Promise<void> => {
   const works = await db.select().from(worksTable).orderBy(worksTable.createdAt);

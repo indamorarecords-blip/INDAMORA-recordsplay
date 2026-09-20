@@ -56,7 +56,33 @@ app.post(
     }
   },
 );
-app.use(cors({ credentials: true, origin: true }));
+const configuredOrigins = [
+  process.env.PUBLIC_APP_URL,
+  process.env.REPLIT_DEV_DOMAIN && `https://${process.env.REPLIT_DEV_DOMAIN}`,
+  ...(process.env.REPLIT_DOMAINS ?? "")
+    .split(",")
+    .map((domain) => domain.trim())
+    .filter(Boolean)
+    .map((domain) => (domain.startsWith("http") ? domain : `https://${domain}`)),
+].filter((origin): origin is string => Boolean(origin)).map((origin) => origin.replace(/\/+$/, ""));
+
+app.use(
+  cors({
+    credentials: true,
+    origin: (origin, callback) => {
+      const normalizedOrigin = origin?.replace(/\/+$/, "");
+      const isLocalPreview = Boolean(
+        normalizedOrigin &&
+          /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(normalizedOrigin),
+      );
+      if (!origin || isLocalPreview || configuredOrigins.includes(normalizedOrigin ?? "")) {
+        callback(null, true);
+        return;
+      }
+      callback(null, false);
+    },
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(

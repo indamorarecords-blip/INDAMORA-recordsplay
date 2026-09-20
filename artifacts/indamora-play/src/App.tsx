@@ -61,6 +61,11 @@ function stripBase(path: string) {
 function isAdminEmail(email?: string | null) {
   return email?.toLowerCase() === ADMIN_EMAIL;
 }
+type ClerkUser = ReturnType<typeof useUser>['user'];
+function isAdminUser(user: ClerkUser) {
+  const emailVerified = user?.primaryEmailAddress?.verification?.status === 'verified';
+  return Boolean(emailVerified && (isAdminEmail(user?.primaryEmailAddress?.emailAddress) || user?.publicMetadata?.role === 'admin'));
+}
 const storageUrl = (path?: string | null) => path ? `/api/storage${path}` : undefined;
 type BillingStatus = {
   status: string;
@@ -71,6 +76,27 @@ type BillingStatus = {
     cancelAtPeriodEnd: boolean;
     priceId: string | null;
   } | null;
+};
+type AdminOverview = {
+  periodDays: number;
+  visits: { count: number; uniqueVisitors: number; topPages: Array<{ path: string; visits: number }> };
+  counts: {
+    users: number | null;
+    artists: number;
+    publishedArtists: number;
+    works: number;
+    submissions: number;
+    pendingSubmissions: number;
+    pendingPressRequests: number;
+    linkedBillingAccounts: number;
+  };
+  stripe: {
+    connected: boolean;
+    activeSubscriptions: number | null;
+    canceledSubscriptions: number | null;
+    donations: { count: number | null; totalEur: number | null };
+  };
+  activity: Array<{ type: string; label: string; createdAt: string }>;
 };
 async function billingRequest<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, { ...init, credentials: 'include', headers: { 'Content-Type': 'application/json', ...init?.headers } });
@@ -177,14 +203,33 @@ function Shell({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { isSignedIn, user } = useUser();
   const { signOut } = useClerk();
-  const isAdmin = isAdminEmail(user?.primaryEmailAddress?.emailAddress);
+  const isAdmin = isAdminUser(user);
   const nav = [
     { href: '/', label: 'Accueil', icon: Sparkles },
     { href: '/explorer', label: 'Explorer', icon: CirclePlay },
     { href: '/repertoire', label: 'Répertoire', icon: UsersRound },
     { href: '/pricing', label: 'Premium', icon: Crown },
     { href: '/soutenir', label: 'Soutenir', icon: HeartHandshake },
+    ...(isAdmin ? [{ href: '/administration', label: 'Administration', icon: LayoutDashboard }] : []),
   ];
+  useEffect(() => {
+    let sessionId = '';
+    try {
+      sessionId = window.localStorage.getItem('indamora-analytics-session') ?? '';
+      if (!sessionId) {
+        sessionId = window.crypto.randomUUID();
+        window.localStorage.setItem('indamora-analytics-session', sessionId);
+      }
+    } catch {
+      sessionId = window.crypto.randomUUID();
+    }
+    void fetch('/api/analytics/visit', {
+      method: 'POST',
+      keepalive: true,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId, path: location, referrer: document.referrer || undefined }),
+    }).catch(() => undefined);
+  }, [location]);
   return (
     <div className="grain min-h-[100dvh] bg-background">
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-xl">
@@ -225,8 +270,8 @@ function Shell({ children }: { children: ReactNode }) {
         </div>
         <div className="mx-auto mt-8 max-w-7xl border-t border-secondary-foreground/15 pt-4 font-mono text-[10px] uppercase tracking-[.2em] text-secondary-foreground/50">Bangui · République centrafricaine · La diaspora</div>
       </footer>
-      <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-border bg-card/95 px-2 pt-2 backdrop-blur-xl md:hidden">
-        {[{ href: '/', label: 'Accueil', icon: Sparkles }, { href: '/explorer', label: 'Explorer', icon: CirclePlay }, { href: '/repertoire', label: 'Répertoire', icon: UsersRound }, { href: '/submit', label: 'Créer', icon: Plus }, { href: '/profil', label: 'Profil', icon: UserRound }].map(({ href, label, icon: Icon }) => <Link href={href} key={href} className={cx('flex flex-col items-center gap-1 px-4 py-1 text-[10px] font-bold', location === href ? 'text-primary' : 'text-muted-foreground')} data-testid={`link-bottom-${label.toLowerCase()}`}><Icon className="h-5 w-5" />{label}</Link>)}
+       <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-border bg-card/95 px-2 pt-2 backdrop-blur-xl md:hidden">
+         {[{ href: '/', label: 'Accueil', icon: Sparkles }, { href: '/explorer', label: 'Explorer', icon: CirclePlay }, { href: '/repertoire', label: 'Répertoire', icon: UsersRound }, { href: '/submit', label: 'Créer', icon: Plus }, { href: '/profil', label: 'Profil', icon: UserRound }, ...(isAdmin ? [{ href: '/administration', label: 'Admin', icon: LayoutDashboard }] : [])].map(({ href, label, icon: Icon }) => <Link href={href} key={href} className={cx('flex flex-col items-center gap-1 px-4 py-1 text-[10px] font-bold', location === href ? 'text-primary' : 'text-muted-foreground')} data-testid={`link-bottom-${label.toLowerCase()}`}><Icon className="h-5 w-5" />{label}</Link>)}
       </div>
     </div>
   );
@@ -557,7 +602,7 @@ function SubmissionPreview({ submission }: { submission: Submission }) {
 
 function Moderation() {
   const { isSignedIn, user } = useUser();
-  const isAdmin = isAdminEmail(user?.primaryEmailAddress?.emailAddress);
+  const isAdmin = isAdminUser(user);
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<'pending' | 'approved' | 'rejected'>('pending');
   const submissions = useGetSubmissions({ status: filter }, { query: { enabled: Boolean(isSignedIn && isAdmin), queryKey: getGetSubmissionsQueryKey({ status: filter }) } });
@@ -684,7 +729,7 @@ function Profile() {
   const { signOut } = useClerk();
   if (!isSignedIn) return <Redirect to="/sign-in" />;
   const name = user?.fullName ?? user?.firstName ?? 'Membre INDAMORA';
-  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-6 rounded-[2rem] bg-secondary p-7 text-secondary-foreground md:flex-row md:items-center md:justify-between md:p-10"><div className="flex items-center gap-5"><Avatar name={name} src={user?.imageUrl} size="lg" /><div><div className="font-mono text-[10px] uppercase tracking-[.2em] text-accent">Mon profil</div><h1 className="display mt-2 text-4xl font-bold">{name}</h1><p className="mt-1 text-secondary-foreground/70">{user?.primaryEmailAddress?.emailAddress}</p></div></div><button onClick={() => void signOut({ redirectUrl: basePath || '/' })} className="inline-flex items-center justify-center gap-2 rounded-full border border-secondary-foreground/25 px-4 py-2 text-sm font-bold hover:border-accent hover:text-accent" data-testid="button-profile-logout">Se déconnecter</button></div><div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"><Link href="/explorer" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><History className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Mes découvertes</h2></Link><Link href="/espace-artiste" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><FileMusic className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Espace artiste</h2></Link><Link href="/pricing" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><Crown className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Offres Premium</h2></Link><Link href="/soutenir" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><HeartHandshake className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Soutenir INDAMORA</h2></Link></div></div>;
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-6 rounded-[2rem] bg-secondary p-7 text-secondary-foreground md:flex-row md:items-center md:justify-between md:p-10"><div className="flex items-center gap-5"><Avatar name={name} src={user?.imageUrl} size="lg" /><div><div className="font-mono text-[10px] uppercase tracking-[.2em] text-accent">Mon profil</div><h1 className="display mt-2 text-4xl font-bold">{name}</h1><p className="mt-1 text-secondary-foreground/70">{user?.primaryEmailAddress?.emailAddress}</p></div></div><button onClick={() => void signOut({ redirectUrl: basePath || '/' })} className="inline-flex items-center justify-center gap-2 rounded-full border border-secondary-foreground/25 px-4 py-2 text-sm font-bold hover:border-accent hover:text-accent" data-testid="button-profile-logout">Se déconnecter</button></div><div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{isAdminUser(user) && <Link href="/administration" className="rounded-2xl border border-primary/40 bg-primary/5 p-6 hover:border-primary"><LayoutDashboard className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Administration</h2></Link>}<Link href="/explorer" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><History className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Mes découvertes</h2></Link><Link href="/espace-artiste" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><FileMusic className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Espace artiste</h2></Link><Link href="/pricing" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><Crown className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Offres Premium</h2></Link><Link href="/soutenir" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><HeartHandshake className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Soutenir INDAMORA</h2></Link></div></div>;
 }
 
 function ArtistSpace() {
@@ -697,14 +742,26 @@ function ArtistSpace() {
 
 function AdminDashboard() {
   const { isSignedIn, user } = useUser();
-  const isAdmin = isAdminEmail(user?.primaryEmailAddress?.emailAddress);
-   const submissions = useGetSubmissions(undefined, { query: { enabled: Boolean(isSignedIn && isAdmin), queryKey: getGetSubmissionsQueryKey() } });
-  const catalog = useGetCatalog({ query: { queryKey: getGetCatalogQueryKey() } });
+  const isAdmin = isAdminUser(user);
+  const [days, setDays] = useState<1 | 7 | 30>(7);
+  const overview = useQuery({
+    queryKey: ['admin-overview', days],
+    queryFn: () => billingRequest<AdminOverview>(`/api/admin/overview?days=${days}`),
+    enabled: Boolean(isSignedIn && isAdmin),
+  });
   if (!isSignedIn) return <Redirect to="/sign-in" />;
-   if (!isAdmin) return <Redirect to="/" />;
-  const all = submissions.data ?? [];
-  const counts = { pending: all.filter((item) => item.status === 'pending').length, approved: all.filter((item) => item.status === 'approved').length, rejected: all.filter((item) => item.status === 'rejected').length };
-  return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Tableau de bord</div><h1 className="display mt-3 text-5xl font-bold">Piloter INDAMORA<br /><span className="text-primary">RECORDS.</span></h1><p className="mt-4 text-muted-foreground">Une vue simple sur le catalogue et la file de validation.</p></div><Link href="/moderation" className="inline-flex items-center justify-center gap-2 rounded-full bg-secondary px-5 py-3 text-sm font-bold text-secondary-foreground" data-testid="link-dashboard-moderation"><ShieldCheck className="h-4 w-4" /> Ouvrir la modération</Link></div><div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><div className="rounded-2xl border border-border bg-card p-5"><BarChart3 className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{catalog.data?.length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">Œuvres publiées</p></div><div className="rounded-2xl border border-border bg-card p-5"><LoaderCircle className="h-5 w-5 text-accent-foreground" /><div className="mt-5 text-3xl font-bold">{counts.pending}</div><p className="mt-1 text-sm text-muted-foreground">En attente</p></div><div className="rounded-2xl border border-border bg-card p-5"><Check className="h-5 w-5 text-secondary" /><div className="mt-5 text-3xl font-bold">{counts.approved}</div><p className="mt-1 text-sm text-muted-foreground">Validées</p></div><div className="rounded-2xl border border-border bg-card p-5"><ShieldCheck className="h-5 w-5 text-destructive" /><div className="mt-5 text-3xl font-bold">{counts.rejected}</div><p className="mt-1 text-sm text-muted-foreground">Refusées</p></div></div><div className="mt-12 rounded-[2rem] bg-muted p-6 md:p-8"><div className="flex items-center gap-3"><LayoutDashboard className="h-5 w-5 text-primary" /><h2 className="display text-2xl font-bold">Prochaine action</h2></div><p className="mt-3 max-w-2xl leading-7 text-muted-foreground">{counts.pending > 0 ? `Il reste ${counts.pending} œuvre${counts.pending > 1 ? 's' : ''} à examiner par INDAMORA RECORDS.` : 'La file de validation est à jour pour le moment.'}</p><Link href="/moderation" className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground" data-testid="link-dashboard-review">Examiner la file <ArrowRight className="h-4 w-4" /></Link></div></div>;
+  if (!isAdmin) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><ShieldCheck className="mx-auto h-10 w-10 text-destructive" /><h1 className="display mt-5 text-4xl font-bold">Accès réservé</h1><p className="mt-3 text-muted-foreground">L’administration est réservée à l’équipe INDAMORA RECORDS.</p></div>;
+  if (overview.isLoading) return <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8"><LoadingCards count={8} /></div>;
+  if (overview.error || !overview.data) return <div className="mx-auto max-w-2xl px-5 py-20"><QueryState error={overview.error ?? new Error('Données indisponibles')} onRetry={() => void overview.refetch()} label="admin-overview" /></div>;
+  const data = overview.data;
+  const display = (value: number | null) => value === null ? '—' : value;
+  return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16">
+    <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Tableau de bord privé</div><h1 className="display mt-3 text-5xl font-bold">Piloter INDAMORA<br /><span className="text-primary">RECORDS.</span></h1><p className="mt-4 text-muted-foreground">Données réelles du site, de Clerk, de la base et de Stripe.</p></div><div className="flex flex-wrap gap-2"><Link href="/moderation" className="inline-flex items-center justify-center gap-2 rounded-full bg-secondary px-5 py-3 text-sm font-bold text-secondary-foreground" data-testid="link-dashboard-moderation"><ShieldCheck className="h-4 w-4" /> Modération</Link><Link href="/repertoire" className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-5 py-3 text-sm font-bold hover:border-primary hover:text-primary" data-testid="link-dashboard-directory"><UsersRound className="h-4 w-4" /> Répertoire</Link></div></div>
+    <div className="mt-10 flex flex-wrap items-center justify-between gap-3"><h2 className="display text-2xl font-bold">Activité sur {data.periodDays === 1 ? '24 heures' : `${data.periodDays} jours`}</h2><div className="flex gap-2">{([1, 7, 30] as const).map((period) => <button key={period} type="button" onClick={() => setDays(period)} className={cx('rounded-full border px-3 py-1.5 text-xs font-bold', days === period ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:border-primary')} data-testid={`button-admin-period-${period}`}>{period === 1 ? 'Aujourd’hui' : `${period} jours`}</button>)}</div></div>
+    <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><div className="rounded-2xl border border-border bg-card p-5"><BarChart3 className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{data.visits.count}</div><p className="mt-1 text-sm text-muted-foreground">Visites</p><p className="mt-2 text-xs text-muted-foreground">{data.visits.uniqueVisitors} visiteurs uniques estimés</p></div><div className="rounded-2xl border border-border bg-card p-5"><UserRound className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{display(data.counts.users)}</div><p className="mt-1 text-sm text-muted-foreground">Utilisateurs inscrits</p></div><div className="rounded-2xl border border-border bg-card p-5"><UsersRound className="h-5 w-5 text-secondary" /><div className="mt-5 text-3xl font-bold">{data.counts.artists}</div><p className="mt-1 text-sm text-muted-foreground">Profils artistes</p><p className="mt-2 text-xs text-muted-foreground">{data.counts.publishedArtists} publiés</p></div><div className="rounded-2xl border border-border bg-card p-5"><FileMusic className="h-5 w-5 text-accent-foreground" /><div className="mt-5 text-3xl font-bold">{data.counts.works}</div><p className="mt-1 text-sm text-muted-foreground">Œuvres publiées</p></div></div>
+    <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><div className="rounded-2xl border border-accent/40 bg-accent/10 p-5"><LoaderCircle className="h-5 w-5 text-accent-foreground" /><div className="mt-5 text-3xl font-bold">{data.counts.pendingSubmissions}</div><p className="mt-1 text-sm text-muted-foreground">Soumissions en attente</p></div><div className="rounded-2xl border border-border bg-card p-5"><Newspaper className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{data.counts.pendingPressRequests}</div><p className="mt-1 text-sm text-muted-foreground">Demandes presse en attente</p></div><div className="rounded-2xl border border-border bg-card p-5"><Crown className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{display(data.stripe.activeSubscriptions)}</div><p className="mt-1 text-sm text-muted-foreground">Abonnements actifs</p></div><div className="rounded-2xl border border-border bg-card p-5"><HeartHandshake className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{data.stripe.donations.totalEur === null ? '—' : `${data.stripe.donations.totalEur.toFixed(2)} €`}</div><p className="mt-1 text-sm text-muted-foreground">{data.stripe.donations.count === null ? 'Dons indisponibles' : `${data.stripe.donations.count} don(s) confirmé(s)`}</p></div></div>
+    <div className="mt-8 grid gap-5 lg:grid-cols-[1.1fr_.9fr]"><section className="rounded-[2rem] border border-border bg-card p-6 md:p-8"><div className="flex items-center justify-between gap-4"><div><div className="font-mono text-[10px] uppercase tracking-[.18em] text-primary">Activité récente</div><h2 className="display mt-2 text-2xl font-bold">Ce qui se passe</h2></div><LayoutDashboard className="h-6 w-6 text-primary" /></div>{data.activity.length === 0 ? <p className="mt-6 rounded-2xl bg-muted px-4 py-8 text-center text-sm text-muted-foreground">Aucune activité disponible.</p> : <div className="mt-6 divide-y divide-border">{data.activity.map((item, index) => <div key={`${item.type}-${item.createdAt}-${index}`} className="flex items-start gap-3 py-3"><span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" /><div><p className="text-sm font-semibold">{item.label}</p><p className="mt-1 text-xs text-muted-foreground">{new Date(item.createdAt).toLocaleString('fr-FR')}</p></div></div>)}</div>}</section><section className="rounded-[2rem] bg-secondary p-6 text-secondary-foreground md:p-8"><div className="font-mono text-[10px] uppercase tracking-[.18em] text-accent">Pages les plus visitées</div><h2 className="display mt-2 text-2xl font-bold">Flux du site</h2>{data.visits.topPages.length === 0 ? <p className="mt-6 rounded-2xl border border-secondary-foreground/15 px-4 py-8 text-center text-sm text-secondary-foreground/70">Aucune visite enregistrée sur cette période.</p> : <div className="mt-6 space-y-3">{data.visits.topPages.map((page) => <div key={page.path} className="flex items-center justify-between gap-3 rounded-xl bg-secondary-foreground/10 px-4 py-3 text-sm"><span className="truncate">{page.path}</span><strong>{page.visits}</strong></div>)}</div>}<Link href="/moderation" className="mt-7 inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-bold text-accent-foreground" data-testid="link-dashboard-review">Examiner la file <ArrowRight className="h-4 w-4" /></Link></section></div>
+  </div>;
 }
 
 const pressSchema = z.object({
@@ -780,7 +837,7 @@ function NotFound() {
 
 function Router() {
   const [location] = useLocation();
-  return <ErrorBoundary resetKey={location}><Shell><Switch><Route path="/" component={Home} /><Route path="/explorer" component={Explorer} /><Route path="/recherche" component={SearchPage} /><Route path="/categorie/:slug" component={CategoryPage} /><Route path="/oeuvres/:id" component={WorkPage} /><Route path="/repertoire" component={() => <Directory />} /><Route path="/artists" component={() => <Directory />} /><Route path="/artists/:id" component={ArtistProfile} /><Route path="/presse" component={Presse} /><Route path="/submit" component={Submit} /><Route path="/espace-artiste" component={ArtistSpace} /><Route path="/moderation" component={Moderation} /><Route path="/administration" component={AdminDashboard} /><Route path="/pricing" component={Pricing} /><Route path="/soutenir" component={Support} /><Route path="/inscription" component={() => <Redirect to="/sign-up" />} /><Route path="/login" component={() => <Redirect to="/sign-in" />} /><Route path="/profil" component={Profile} /><Route component={NotFound} /></Switch></Shell></ErrorBoundary>;
+  return <ErrorBoundary resetKey={location}><Shell><Switch><Route path="/" component={Home} /><Route path="/explorer" component={Explorer} /><Route path="/recherche" component={SearchPage} /><Route path="/categorie/:slug" component={CategoryPage} /><Route path="/oeuvres/:id" component={WorkPage} /><Route path="/repertoire" component={() => <Directory />} /><Route path="/artists" component={() => <Directory />} /><Route path="/artists/:id" component={ArtistProfile} /><Route path="/presse" component={Presse} /><Route path="/submit" component={Submit} /><Route path="/espace-artiste" component={ArtistSpace} /><Route path="/moderation" component={Moderation} /><Route path="/administration" component={AdminDashboard} /><Route path="/admin" component={AdminDashboard} /><Route path="/pricing" component={Pricing} /><Route path="/soutenir" component={Support} /><Route path="/inscription" component={() => <Redirect to="/sign-up" />} /><Route path="/login" component={() => <Redirect to="/sign-in" />} /><Route path="/profil" component={Profile} /><Route component={NotFound} /></Switch></Shell></ErrorBoundary>;
 }
 
 function ClerkQueryClientCacheInvalidator() {

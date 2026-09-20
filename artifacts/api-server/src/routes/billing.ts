@@ -2,7 +2,7 @@ import { clerkClient } from "@clerk/express";
 import { and, eq } from "drizzle-orm";
 import { Router, type IRouter, type Request } from "express";
 import { billingAccountsTable, db } from "@workspace/db";
-import { requireAuth } from "../middlewares/auth";
+import { optionalAuth, requireAuth } from "../middlewares/auth";
 import { formData, stripeApi, type StripePrice } from "../stripeClient";
 
 const router: IRouter = Router();
@@ -180,7 +180,7 @@ router.get("/billing/status", requireAuth, async (req: BillingRequest, res) => {
   }
 });
 
-router.post("/billing/checkout", async (req: BillingRequest, res) => {
+router.post("/billing/checkout", optionalAuth, async (req: BillingRequest, res) => {
   const kind = req.body?.kind;
   const plan = req.body?.plan;
   const amountEur = Number(req.body?.amountEur);

@@ -22,6 +22,12 @@ export const requireAuth: RequestHandler = (req, res, next) => {
   next();
 };
 
+export const optionalAuth: RequestHandler = (req, _res, next) => {
+  const { userId } = getAuth(req);
+  if (userId) req.clerkUserId = userId;
+  next();
+};
+
 export const requireAdmin = async (
   req: Request,
   res: Response,
@@ -48,9 +54,9 @@ export const isAdminUser = async (userId: string): Promise<boolean> => {
   const primaryEmail = user.emailAddresses.find(
     (email) => email.id === user.primaryEmailAddressId,
   );
-  return Boolean(
-    primaryEmail &&
-      primaryEmail.emailAddress.toLowerCase() === ADMIN_EMAIL &&
-      primaryEmail.verification?.status === "verified",
-  );
+  const hasAdminRole = user.publicMetadata?.role === "admin";
+  const isVerifiedOwner =
+    primaryEmail?.emailAddress.toLowerCase() === ADMIN_EMAIL &&
+    primaryEmail.verification?.status === "verified";
+  return hasAdminRole || Boolean(isVerifiedOwner);
 };
