@@ -137,6 +137,11 @@ export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, 
 }
 
 
+
+
+
+
+
 export const getGetCatalogUrl = () => {
 
 
@@ -207,6 +212,13 @@ export function useGetCatalog<TData = Awaited<ReturnType<typeof getCatalog>>, TE
 
   return withQueryKey(query, queryOptions.queryKey);
 }
+
+
+
+
+
+
+
 export const getGetWorkUrl = (id: number,) => {
 
 
@@ -814,6 +826,77 @@ export const useUpdateSubmissionStatus = <TError = ErrorType<unknown>,
       return useMutation(getUpdateSubmissionStatusMutationOptions(options));
     }
 
+export const getDeleteSubmissionFilesUrl = (id: number,) => {
+
+
+
+
+  return `/api/submissions/${id}/files`
+}
+
+/**
+ * @summary Delete files from a rejected, unpublished submission
+ */
+export const deleteSubmissionFiles = async (id: number, options?: Parameters<typeof customFetch>[1]): Promise<Submission> => {
+
+  return customFetch<Submission>(getDeleteSubmissionFilesUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteSubmissionFilesMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSubmissionFiles>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteSubmissionFiles>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['deleteSubmissionFiles'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteSubmissionFiles>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteSubmissionFiles(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteSubmissionFilesMutationResult = NonNullable<Awaited<ReturnType<typeof deleteSubmissionFiles>>>
+
+    export type DeleteSubmissionFilesMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Delete files from a rejected, unpublished submission
+ */
+export const useDeleteSubmissionFiles = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteSubmissionFiles>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteSubmissionFiles>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getDeleteSubmissionFilesMutationOptions(options));
+    }
+
 export const getRequestUploadUrlUrl = () => {
 
 
@@ -1103,3 +1186,81 @@ export function useGetStorageObject<TData = Awaited<ReturnType<typeof getStorage
 
   return withQueryKey(query, queryOptions.queryKey);
 }
+
+
+
+
+
+
+
+export const getDeleteStorageObjectUrl = (objectPath: string,) => {
+
+
+
+
+  return `/api/storage/objects/${objectPath}`
+}
+
+/**
+ * @summary Delete an owned, unreferenced uploaded object
+ */
+export const deleteStorageObject = async (objectPath: string, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteStorageObjectUrl(objectPath),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteStorageObjectMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteStorageObject>>, TError,{objectPath: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteStorageObject>>, TError,{objectPath: string}, TContext> => {
+
+const mutationKey = ['deleteStorageObject'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteStorageObject>>, {objectPath: string}> = (props) => {
+          const {objectPath} = props ?? {};
+
+          return  deleteStorageObject(objectPath,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteStorageObjectMutationResult = NonNullable<Awaited<ReturnType<typeof deleteStorageObject>>>
+
+    export type DeleteStorageObjectMutationError = ErrorType<void>
+
+    /**
+ * @summary Delete an owned, unreferenced uploaded object
+ */
+export const useDeleteStorageObject = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteStorageObject>>, TError,{objectPath: string}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteStorageObject>>,
+        TError,
+        {objectPath: string},
+        TContext
+      > => {
+      return useMutation(getDeleteStorageObjectMutationOptions(options));
+    }
+

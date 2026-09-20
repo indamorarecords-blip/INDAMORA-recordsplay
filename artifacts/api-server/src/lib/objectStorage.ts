@@ -65,6 +65,11 @@ export class ObjectStorageService {
     await setObjectAclPolicy(await this.getObjectEntityFile(normalized), policy);
     return normalized;
   }
+  async deleteObjectEntity(path: string): Promise<void> {
+    const normalized = this.normalizeObjectEntityPath(path);
+    const file = await this.getObjectEntityFile(normalized);
+    await file.delete();
+  }
   async canAccessObjectEntity(args: { userId?: string; objectFile: File; requestedPermission?: ObjectPermission }) {
     return canAccessObject({ ...args, requestedPermission: args.requestedPermission ?? ObjectPermission.READ });
   }

@@ -226,6 +226,26 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Submission"
+  /submissions/{id}/files:
+    delete:
+      operationId: deleteSubmissionFiles
+      tags: [submissions]
+      summary: Delete files from a rejected, unpublished submission
+      security:
+        - clerkSession: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Submission with file references cleared
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Submission"
   /storage/uploads/request-url:
     post:
       operationId: requestUploadUrl
@@ -298,6 +318,24 @@ paths:
           content:
             "*/*":
               schema: { type: string, format: binary }
+    delete:
+      operationId: deleteStorageObject
+      tags: [Storage]
+      summary: Delete an owned, unreferenced uploaded object
+      security:
+        - clerkSession: []
+      parameters:
+        - name: objectPath
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "204":
+          description: Object deleted
+        "403":
+          description: Not allowed to delete this object
+        "409":
+          description: Object is still referenced
 components:
   securitySchemes:
     clerkSession:

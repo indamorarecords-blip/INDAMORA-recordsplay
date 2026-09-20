@@ -1,7 +1,9 @@
 import { Readable } from "stream";
 import { getAuth } from "@clerk/express";
 import { Router, type IRouter, type Request, type Response } from "express";
+import { eq, or } from "drizzle-orm";
 import { CompleteUploadBody, CompleteUploadResponse, RequestUploadUrlBody, RequestUploadUrlResponse } from "@workspace/api-zod";
+import { db, submissionsTable, worksTable } from "@workspace/db";
 import { requireAuth, isAdminUser } from "../middlewares/auth";
 import { ObjectNotFoundError, ObjectStorageService } from "../lib/objectStorage";
 import { getObjectAclPolicy, ObjectPermission } from "../lib/objectAcl";
@@ -64,6 +66,43 @@ router.get("/storage/objects/*path", async (req, res) => {
   } catch (error) {
     if (error instanceof ObjectNotFoundError) { res.status(404).json({ error: "Object not found" }); return; }
     req.log.error({ error }, "Unable to serve object"); res.status(500).json({ error: "Failed to serve object" });
+  }
+});
+
+router.delete("/storage/objects/*path", requireAuth, async (req, res) => {
+  try {
+    const raw = req.params.path;
+    const objectPath = `/objects/${Array.isArray(raw) ? raw.join("/") : raw}`;
+    const file = await storage.getObjectEntityFile(objectPath);
+    const policy = await getObjectAclPolicy(file);
+    const admin = await isAdminUser(req.clerkUserId!);
+    if (!admin && policy?.owner !== req.clerkUserId) {
+      res.status(403).json({ error: "Vous ne pouvez pas supprimer ce fichier." });
+      return;
+    }
+    const [submissionReference, workReference] = await Promise.all([
+      db.select({ id: submissionsTable.id }).from(submissionsTable).where(or(
+        eq(submissionsTable.mediaObjectPath, objectPath),
+        eq(submissionsTable.coverObjectPath, objectPath),
+      )).limit(1),
+      db.select({ id: worksTable.id }).from(worksTable).where(or(
+        eq(worksTable.mediaObjectPath, objectPath),
+        eq(worksTable.coverObjectPath, objectPath),
+      )).limit(1),
+    ]);
+    if (submissionReference.length || workReference.length) {
+      res.status(409).json({ error: "Ce fichier est encore utilisé et ne peut pas être supprimé." });
+      return;
+    }
+    await storage.deleteObjectEntity(objectPath);
+    res.status(204).end();
+  } catch (error) {
+    if (error instanceof ObjectNotFoundError) {
+      res.status(404).json({ error: "Object not found" });
+      return;
+    }
+    req.log.error({ error }, "Unable to delete object");
+    res.status(500).json({ error: "Impossible de supprimer ce fichier." });
   }
 });
 

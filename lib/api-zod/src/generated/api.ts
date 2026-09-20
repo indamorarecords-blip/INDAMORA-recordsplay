@@ -294,6 +294,28 @@ export const UpdateSubmissionStatusResponse = zod.object({
 
 
 /**
+ * @summary Delete files from a rejected, unpublished submission
+ */
+export const DeleteSubmissionFilesParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+export const DeleteSubmissionFilesResponse = zod.object({
+  "id": zod.number().int(),
+  "title": zod.string(),
+  "artist": zod.string(),
+  "category": zod.string(),
+  "submittedAt": zod.string(),
+  "status": zod.enum(['pending', 'approved', 'rejected']),
+  "note": zod.string().nullish(),
+  "mediaType": zod.string().nullish(),
+  "mediaObjectPath": zod.string().nullish(),
+  "coverObjectPath": zod.string().nullish(),
+  "duration": zod.string().nullish()
+})
+
+
+/**
  * @summary Request a presigned URL for direct upload
  */
 
@@ -356,5 +378,15 @@ export const GetStorageObjectParams = zod.object({
 })
 
 export const GetStorageObjectResponse = zod.unknown()
+
+
+/**
+ * @summary Delete an owned, unreferenced uploaded object
+ */
+export const DeleteStorageObjectParams = zod.object({
+  "objectPath": zod.coerce.string()
+})
+
+export const DeleteStorageObjectResponse = zod.void()
 
 

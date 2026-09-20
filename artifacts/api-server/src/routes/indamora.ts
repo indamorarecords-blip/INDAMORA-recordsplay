@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { and, eq, ilike, or } from "drizzle-orm";
+import { and, eq, ilike, ne, or } from "drizzle-orm";
 import { db, artistsTable, pressRequestsTable, submissionsTable, worksTable } from "@workspace/db";
 import {
   CreateArtistBody,
@@ -17,6 +17,8 @@ import {
   GetWorkResponse,
   CreateSubmissionBody,
   CreateSubmissionResponse,
+  DeleteSubmissionFilesParams,
+  DeleteSubmissionFilesResponse,
   UpdateSubmissionStatusBody,
   UpdateSubmissionStatusParams,
   UpdateSubmissionStatusResponse,
@@ -264,6 +266,30 @@ router.post("/artists", requireAuth, async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
+  if (parsed.data.avatar) {
+    try {
+      const avatar = await objectStorage.getObjectEntityFile(parsed.data.avatar);
+      const [metadata] = await avatar.getMetadata();
+      const contentType = String(metadata.contentType ?? "");
+      const size = Number(metadata.size ?? 0);
+      const owned = await objectStorage.canAccessObjectEntity({
+        userId: req.clerkUserId,
+        objectFile: avatar,
+        requestedPermission: ObjectPermission.WRITE,
+      });
+      if (!allowedImageTypes.has(contentType) || size <= 0 || size > maxImageBytes || !owned) {
+        res.status(400).json({ error: "L’avatar doit être une image téléversée par votre compte." });
+        return;
+      }
+      await objectStorage.setAcl(parsed.data.avatar, {
+        owner: req.clerkUserId!,
+        visibility: "public",
+      });
+    } catch {
+      res.status(400).json({ error: "L’avatar téléversé est introuvable." });
+      return;
+    }
+  }
   const [artist] = await db
     .insert(artistsTable)
     .values({
@@ -434,6 +460,76 @@ router.patch("/submissions/:id/status", requireAdmin, async (req, res): Promise<
   if (!submission) { res.status(404).json({ error: "Submission not found" }); return; }
   if ("conflict" in submission) { res.status(409).json({ error: "Une œuvre publiée ne peut pas être refusée sans procédure de retrait." }); return; }
   res.json(UpdateSubmissionStatusResponse.parse(submissionsForClient([submission.updated])[0]));
+});
+
+router.delete("/submissions/:id/files", requireAuth, async (req, res): Promise<void> => {
+  const params = DeleteSubmissionFilesParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  const admin = await isAdminUser(req.clerkUserId!);
+  try {
+    const result = await db.transaction(async (tx) => {
+      const [submission] = await tx
+        .select()
+        .from(submissionsTable)
+        .where(eq(submissionsTable.id, params.data.id))
+        .for("update");
+      if (!submission) return { status: 404, error: "Submission not found" } as const;
+      if (!admin && submission.ownerId !== req.clerkUserId) {
+        return { status: 403, error: "Vous ne pouvez pas supprimer les fichiers de cette soumission." } as const;
+      }
+      if (submission.status !== "rejected" || submission.publishedWorkId) {
+        return { status: 409, error: "Seuls les fichiers d’une soumission refusée et non publiée peuvent être supprimés." } as const;
+      }
+      const paths = [...new Set([submission.mediaObjectPath, submission.coverObjectPath].filter((path): path is string => Boolean(path)))];
+      for (const objectPath of paths) {
+        const [otherSubmission, workReference] = await Promise.all([
+          tx.select({ id: submissionsTable.id }).from(submissionsTable).where(and(
+            ne(submissionsTable.id, submission.id),
+            or(
+              eq(submissionsTable.mediaObjectPath, objectPath),
+              eq(submissionsTable.coverObjectPath, objectPath),
+            ),
+          )).limit(1),
+          tx.select({ id: worksTable.id }).from(worksTable).where(or(
+            eq(worksTable.mediaObjectPath, objectPath),
+            eq(worksTable.coverObjectPath, objectPath),
+          )).limit(1),
+        ]);
+        if (otherSubmission.length || workReference.length) {
+          return { status: 409, error: "Un de ces fichiers est encore utilisé ailleurs." } as const;
+        }
+        const file = await objectStorage.getObjectEntityFile(objectPath);
+        if (!admin && !(await objectStorage.canAccessObjectEntity({
+          userId: req.clerkUserId,
+          objectFile: file,
+          requestedPermission: ObjectPermission.WRITE,
+        }))) {
+          return { status: 403, error: "Vous ne pouvez pas supprimer un fichier appartenant à un autre compte." } as const;
+        }
+      }
+      await Promise.all(paths.map((path) => objectStorage.deleteObjectEntity(path)));
+      const [updated] = await tx
+        .update(submissionsTable)
+        .set({ mediaObjectPath: null, coverObjectPath: null })
+        .where(eq(submissionsTable.id, submission.id))
+        .returning();
+      if (!updated) throw new Error("Submission update failed after file deletion");
+      return { updated } as const;
+    });
+    if ("updated" in result) {
+      const updatedSubmission = result.updated;
+      if (!updatedSubmission) throw new Error("Submission update result missing");
+      res.json(DeleteSubmissionFilesResponse.parse(submissionsForClient([updatedSubmission])[0]));
+      return;
+    }
+    res.status(result.status).json({ error: result.error });
+  } catch (error) {
+    req.log.error({ error }, "Unable to delete rejected submission files");
+    res.status(500).json({ error: "Impossible de supprimer les fichiers de cette soumission." });
+  }
 });
 
 export default router;
