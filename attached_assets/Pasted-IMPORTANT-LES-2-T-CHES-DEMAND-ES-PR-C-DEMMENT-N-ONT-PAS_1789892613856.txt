@@ -1,0 +1,147 @@
+IMPORTANT — LES 2 TÂCHES DEMANDÉES PRÉCÉDEMMENT N’ONT PAS ÉTÉ EXÉCUTÉES.
+
+Je constate que les modifications demandées ne sont toujours pas présentes correctement sur INDAMORA PLAY.
+
+Je veux que tu reprennes UNIQUEMENT ces deux tâches et que tu les exécutes réellement sur le site existant.
+
+NE PAS RECONSTRUIRE LE SITE.
+NE PAS MODIFIER LES FONCTIONNALITÉS QUI FONCTIONNENT.
+NE PAS TOUCHER AUX PAIEMENTS, DONS, PREMIUM, RÉPERTOIRE, ARTISTES, ŒUVRES OU AUTRES FONCTIONNALITÉS EXISTANTES.
+
+==================================================
+TÂCHE 1 — CONNEXION / INSCRIPTION
+
+Sur les interfaces publiques de connexion et d’inscription, supprimer complètement :
+
+« Continuer avec GITHUB »
+
+Je veux conserver :
+
+* Continuer avec Google
+* Adresse e-mail
+* inscription
+* connexion Clerk
+* vérification de l’adresse e-mail
+
+Supprimer également complètement de l’interface publique :
+
+« Development mode »
+
+Ce texte ne doit plus être visible sur :
+
+* Connexion
+* Inscription
+* CREER
+* PROFIL
+* ni sur les autres pages publiques.
+
+IMPORTANT :
+
+Ne pas simplement cacher ces éléments avec du CSS.
+
+Identifier leur véritable origine et corriger proprement leur affichage/configuration.
+
+Après modification, vérifier réellement en ouvrant les pages concernées.
+
+==================================================
+TÂCHE 2 — MENU ET LOGO
+
+Je veux que le bouton menu ☰ / 3 traits soit disponible sur TOUTES les pages publiques du site.
+
+Il doit notamment être présent sur :
+
+* Accueil
+* Explorer
+* RÉPERTOIRE
+* CREER
+* PROFIL
+* Premium
+* Soutenir INDAMORA
+* Presse
+* profils artistes
+* pages œuvres
+* pages de détail
+* Connexion
+* Inscription
+* et les autres pages publiques.
+
+Utiliser le système de navigation/header existant.
+
+NE PAS créer un deuxième système de navigation inutile.
+
+Ensuite :
+
+QUAND L’UTILISATEUR CLIQUE SUR LE LOGO INDAMORA PLAY :
+
+→ il doit revenir directement à la PAGE D’ACCUEIL.
+
+Cela doit fonctionner depuis toutes les pages où le logo apparaît.
+
+NE PAS MODIFIER LE FICHIER OU LE DESIGN DU LOGO.
+
+==================================================
+VÉRIFICATION OBLIGATOIRE
+
+Cette fois, ne considère pas la tâche comme terminée uniquement parce que le code a été modifié.
+
+Tu dois réellement vérifier le résultat.
+
+TESTER :
+
+* Connexion
+* Inscription
+* CREER
+* PROFIL
+* Accueil
+* Explorer
+* RÉPERTOIRE
+* Premium
+* Soutenir INDAMORA
+* Presse
+* profil artiste
+* page œuvre
+
+Vérifier sur desktop et mobile si possible.
+
+Pour chaque page :
+
+✓ menu ☰ présent et fonctionnel
+✓ logo cliquable
+✓ clic logo → Accueil
+✓ GitHub absent
+✓ « Development mode » absent
+✓ Google toujours disponible
+✓ connexion email toujours disponible
+✓ inscription toujours fonctionnelle
+✓ aucune fonctionnalité existante cassée
+
+==================================================
+RÈGLE DE TRAVAIL
+
+Si une modification précédente existe déjà partiellement, ne pas la refaire inutilement.
+
+Corriger uniquement ce qui manque.
+
+Après chaque changement :
+
+TEST
+→ VÉRIFIER
+→ CORRIGER SI NÉCESSAIRE
+→ RETESTER
+
+Ne me réponds pas simplement « c’est fait ».
+
+Je veux que tu vérifies réellement le résultat dans l’application.
+
+À la fin, indique clairement :
+
+🟢 FAIT ET VÉRIFIÉ
+🟠 PARTIEL / À VÉRIFIER
+🔴 NON FAIT
+
+Et pour chaque élément, précise exactement ce qui a été testé.
+
+RAPPEL :
+MINIMUM ABSOLU DE MODIFICATIONS.
+NE PAS RECONSTRUIRE INDAMORA PLAY.
+NE PAS TOUCHER À CE QUI FONCTIONNE.
