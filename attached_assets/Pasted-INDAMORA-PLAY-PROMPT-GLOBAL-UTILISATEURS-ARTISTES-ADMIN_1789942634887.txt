@@ -1,0 +1,702 @@
+INDAMORA PLAY — PROMPT GLOBAL
+
+UTILISATEURS • ARTISTES • ADMINISTRATEUR • DONS • ABONNEMENTS • MÉDIAS • PERMISSIONS
+
+⚠️ RÈGLE ABSOLUE : NE PAS RECONSTRUIRE
+
+INDAMORA PLAY existe déjà et fonctionne.
+
+Ce travail consiste uniquement à auditer, sécuriser et compléter ce qui existe déjà.
+
+Ne pas :
+
+* reconstruire l’application ;
+* remplacer les fonctionnalités existantes ;
+* créer un deuxième système d’authentification ;
+* créer un deuxième système de paiement ;
+* créer un deuxième système de stockage ;
+* modifier inutilement le design ;
+* modifier le logo ;
+* changer le domaine ;
+* supprimer les données existantes ;
+* créer de fausses données ;
+* créer de faux utilisateurs ;
+* créer de faux dons ;
+* créer de fausses vues ou écoutes ;
+* créer un système fictif de rémunération.
+
+PRIORITÉ : préserver tout ce qui fonctionne déjà en production.
+
+Avant toute modification :
+
+AUDITER → IDENTIFIER → MODIFIER UNIQUEMENT SI NÉCESSAIRE → TESTER → VÉRIFIER → CORRIGER → RETESTER.
+
+⸻
+
+1. IDENTITÉ DE LA PLATEFORME
+
+Le nom public reste :
+
+INDAMORA PLAY
+
+Présentation officielle :
+
+INDAMORA PLAY
+Une plateforme de INDAMORA RECORDS
+Notre musique. Notre culture. Notre scène.
+
+INDAMORA PLAY reste la plateforme principale.
+
+Le RÉPERTOIRE reste un élément central de la plateforme.
+
+⸻
+
+2. LES TROIS NIVEAUX D’ACCÈS
+
+Mettre en place ou vérifier une séparation claire entre :
+
+VISITEUR / UTILISATEUR
+
+Il peut :
+
+* découvrir INDAMORA PLAY ;
+* consulter le RÉPERTOIRE ;
+* découvrir les artistes ;
+* consulter les œuvres publiques ;
+* écouter/regarder les contenus accessibles ;
+* créer son compte ;
+* s’abonner lorsque l’offre existe ;
+* effectuer un don ;
+* gérer uniquement son propre espace.
+
+ARTISTE
+
+L’artiste peut :
+
+* gérer son propre profil ;
+* consulter ses propres statistiques réellement disponibles ;
+* déposer ses œuvres ;
+* envoyer ses sons ;
+* envoyer ses clips ;
+* envoyer ses pochettes ;
+* envoyer ses autres médias prévus ;
+* suivre ses soumissions ;
+* consulter les informations qui concernent uniquement son compte.
+
+ADMINISTRATEUR
+
+L’ADMINISTRATEUR dispose d’un espace privé de contrôle global.
+
+Il doit pouvoir accéder, selon les permissions administratives, à l’ensemble des fonctionnalités nécessaires à la gestion de la plateforme, notamment :
+
+* utilisateurs ;
+* artistes ;
+* profils ;
+* œuvres ;
+* médias ;
+* soumissions ;
+* RÉPERTOIRE ;
+* catégories ;
+* modération ;
+* statistiques ;
+* vues ;
+* écoutes réellement enregistrées ;
+* visites ;
+* activité ;
+* abonnements ;
+* paiements ;
+* dons ;
+* demandes presse ;
+* sécurité ;
+* journaux d’administration ;
+* gestion globale de la plateforme.
+
+⸻
+
+3. ACCÈS ADMINISTRATEUR AUX ESPACES ARTISTES
+
+L’ADMINISTRATEUR doit pouvoir consulter et gérer les éléments qu’un artiste peut utiliser lorsque cela est nécessaire à l’administration.
+
+Par exemple :
+
+ARTISTE
+→ profil
+→ œuvres
+→ médias
+→ soumissions
+→ statistiques personnelles
+
+ADMINISTRATEUR
+→ peut consulter les profils artistes
+→ peut consulter les œuvres
+→ peut consulter les médias
+→ peut consulter les soumissions
+→ peut consulter les statistiques
+→ peut modérer
+→ peut gérer les contenus selon ses droits
+→ peut administrer l’ensemble de la plateforme.
+
+IMPORTANT
+
+Les fonctionnalités d’administration doivent être invisibles dans l’interface normale des visiteurs et artistes.
+
+Ne pas afficher :
+
+* bouton ADMIN ;
+* tableau de bord ADMIN ;
+* liens d’administration ;
+* outils de gestion globale.
+
+Mais cette protection visuelle ne doit jamais remplacer la sécurité serveur.
+
+Toutes les permissions ADMIN doivent être vérifiées côté serveur.
+
+Un artiste ou un visiteur ne doit jamais pouvoir obtenir les droits ADMIN en :
+
+* modifiant une URL ;
+* modifiant le frontend ;
+* appelant directement une API ;
+* modifiant une requête ;
+* manipulant le navigateur.
+
+⸻
+
+4. INSCRIPTION
+
+Lorsqu’un nouvel utilisateur crée son compte, demander les informations suivantes.
+
+OBLIGATOIRES
+
+* Nom
+* Prénom
+* Pseudo / nom d’artiste
+* Présentation
+* Adresse e-mail
+* Numéro de téléphone
+
+Le téléphone est obligatoire.
+
+Aucun compte/profil ne doit être considéré comme complètement renseigné tant que les informations obligatoires ne sont pas fournies.
+
+Prévoir une validation correcte :
+
+* e-mail valide ;
+* téléphone valide ;
+* champs obligatoires non vides ;
+* longueur raisonnable ;
+* protection contre les entrées malveillantes.
+
+⸻
+
+5. PSEUDO / NOM D’ARTISTE
+
+Le pseudo d’artiste doit être stocké séparément du nom et du prénom.
+
+Exemple :
+
+Nom : DUPONT
+Prénom : Jean
+Pseudo d’artiste : DJ Exemple
+
+Pour un artiste, le pseudo peut être utilisé dans la présentation publique du RÉPERTOIRE après validation selon le système existant.
+
+Ne pas casser les profils déjà existants.
+
+Si des comptes existants ne possèdent pas encore certaines nouvelles informations, prévoir une complétion progressive sans supprimer leurs données.
+
+⸻
+
+6. PRÉSENTATION / BIOGRAPHIE
+
+Chaque artiste doit pouvoir renseigner une présentation.
+
+Cette présentation pourra être utilisée pour son profil public après validation/modération lorsque cela correspond au fonctionnement existant.
+
+Les informations privées ne doivent pas être rendues publiques automatiquement.
+
+⸻
+
+7. DONNÉES PERSONNELLES
+
+Protéger les données personnelles :
+
+* nom ;
+* prénom ;
+* e-mail ;
+* téléphone ;
+* données privées du compte.
+
+Le téléphone et l’e-mail ne doivent pas être affichés publiquement par défaut.
+
+Ne rendre publiques que les informations prévues pour le profil public.
+
+⸻
+
+8. DONS
+
+Les visiteurs et artistes peuvent utiliser le système de dons existant.
+
+IMPORTANT : les dons fonctionnent déjà en production.
+
+Ne pas reconstruire Stripe ou le système de dons.
+
+Auditer uniquement :
+
+* fonctionnement ;
+* permissions ;
+* confirmation ;
+* historique disponible ;
+* synchronisation serveur ;
+* sécurité.
+
+VISITEUR / ARTISTE
+
+Ils peuvent :
+
+* effectuer un don.
+
+Ils ne doivent PAS pouvoir :
+
+* voir le montant global des dons reçus par INDAMORA PLAY ;
+* voir les revenus globaux ;
+* consulter les données financières globales ;
+* modifier les paramètres financiers ;
+* accéder au compte Stripe ;
+* effectuer un virement depuis INDAMORA PLAY ;
+* retirer de l’argent ;
+* transférer les fonds de la plateforme.
+
+ADMINISTRATEUR
+
+L’ADMINISTRATEUR doit pouvoir consulter les informations financières nécessaires à la gestion, notamment :
+
+* dons ;
+* paiements ;
+* abonnements ;
+* statuts ;
+* historiques disponibles ;
+* événements Stripe ;
+* statistiques financières.
+
+Ne jamais exposer ces informations globales aux artistes ou visiteurs.
+
+⸻
+
+9. AUCUN SYSTÈME DE VIREMENT ARTISTE
+
+INDAMORA PLAY ne doit pas créer de système permettant à un artiste de :
+
+* retirer de l’argent ;
+* demander un paiement ;
+* effectuer un virement ;
+* transférer les fonds de la plateforme ;
+* accéder au compte bancaire de la plateforme.
+
+Ne pas créer de système de rémunération artiste non prévu.
+
+⸻
+
+10. ABONNEMENTS
+
+Conserver le système d’abonnement existant.
+
+Ne pas le reconstruire.
+
+Vérifier que :
+
+ABONNEMENT → PAIEMENT → WEBHOOK → STATUT SERVEUR → ACCÈS AUTORISÉ
+
+Le statut Premium/abonnement doit être déterminé côté serveur.
+
+Un utilisateur ne doit pas pouvoir obtenir un accès payant simplement en modifiant le frontend.
+
+⸻
+
+11. ARTISTES ET MÉDIAS
+
+Conserver le système de médias existant.
+
+Les artistes doivent pouvoir, lorsque les fonctionnalités sont disponibles :
+
+* envoyer des sons ;
+* envoyer des clips ;
+* envoyer des pochettes ;
+* envoyer des avatars ;
+* déposer leurs œuvres.
+
+Les fichiers doivent rester stockés dans le système de stockage prévu, pas dans PostgreSQL.
+
+Conserver les contrôles existants :
+
+* types de fichiers ;
+* tailles ;
+* authentification ;
+* propriétaire ;
+* ACL ;
+* fichiers publics/privés ;
+* suppression sécurisée.
+
+Ne pas créer un deuxième système de stockage.
+
+⸻
+
+12. RÉPERTOIRE
+
+Le RÉPERTOIRE est le cœur de l’écosystème INDAMORA PLAY.
+
+Ne pas casser :
+
+* profils artistes ;
+* catégories ;
+* sous-catégories ;
+* pays ;
+* groupes ;
+* recherche ;
+* filtres ;
+* œuvres ;
+* relation artiste → œuvres ;
+* affichage public.
+
+Tout nouvel utilisateur/artiste doit s’intégrer correctement au système existant.
+
+⸻
+
+13. STATISTIQUES ARTISTE
+
+Un artiste peut voir uniquement les statistiques qui concernent réellement ses propres contenus.
+
+Par exemple :
+
+* vues ;
+* consultations ;
+* écoutes réellement enregistrées ;
+* statistiques de ses œuvres.
+
+Aucun chiffre fictif.
+
+Si une statistique n’est pas encore réellement collectée, ne pas afficher de fausse valeur.
+
+⸻
+
+14. STATISTIQUES ADMINISTRATEUR
+
+L’ADMINISTRATEUR doit pouvoir disposer d’une vision globale lorsque les données existent réellement :
+
+* visiteurs ;
+* visites ;
+* utilisateurs ;
+* artistes ;
+* œuvres ;
+* vues ;
+* écoutes ;
+* recherches ;
+* pages consultées ;
+* parcours utilisateur ;
+* abonnements ;
+* dons ;
+* paiements ;
+* activité récente.
+
+Ne jamais fabriquer de données pour remplir un graphique.
+
+Si une donnée n’est pas encore collectée :
+
+indiquer clairement qu’elle n’est pas disponible.
+
+⸻
+
+15. ESPACE ADMINISTRATEUR
+
+Créer ou compléter uniquement l’espace ADMIN existant.
+
+Il doit devenir le centre de pilotage privé d’INDAMORA PLAY.
+
+Sections possibles selon ce qui existe déjà :
+
+VUE GÉNÉRALE
+
+* utilisateurs ;
+* artistes ;
+* œuvres ;
+* visites ;
+* vues ;
+* écoutes ;
+* activité.
+
+RÉPERTOIRE
+
+* artistes ;
+* profils ;
+* catégories ;
+* œuvres.
+
+MODÉRATION
+
+* soumissions ;
+* validation ;
+* rejet ;
+* publication.
+
+UTILISATEURS
+
+* comptes ;
+* profils ;
+* statut ;
+* activité nécessaire à l’administration.
+
+MONÉTISATION
+
+* abonnements ;
+* paiements ;
+* dons ;
+* statuts Stripe.
+
+ACTIVITÉ
+
+* événements ;
+* actions ADMIN ;
+* historique des modifications.
+
+⸻
+
+16. CONFIDENTIALITÉ DE L’ESPACE ADMIN
+
+L’espace ADMIN ne doit pas être visible dans les menus standards des visiteurs et artistes.
+
+Les utilisateurs ne doivent pas voir les outils d’administration.
+
+Cependant, les données personnelles doivent rester traitées conformément aux obligations de confidentialité applicables.
+
+Ne pas créer de mécanisme de surveillance cachée ou de collecte secrète.
+
+Si des statistiques ou événements sont collectés, leur finalité et leur traitement doivent être cohérents avec la politique de confidentialité applicable.
+
+⸻
+
+17. AUTHENTIFICATION
+
+Conserver le système d’authentification existant, notamment Clerk s’il est toujours utilisé en production.
+
+NE PAS créer une nouvelle authentification.
+
+Vérifier :
+
+* connexion ;
+* inscription ;
+* vérification e-mail ;
+* récupération ;
+* session ;
+* protection des routes ;
+* rôles ;
+* protection serveur.
+
+⸻
+
+18. PROTECTION ADMIN
+
+La protection ADMIN doit être faite côté serveur.
+
+Le frontend ne doit jamais être la seule protection.
+
+Tester explicitement qu’un compte artiste ne peut pas accéder aux routes API ADMIN.
+
+Tester également qu’un utilisateur non ADMIN ne peut pas :
+
+* consulter les données financières globales ;
+* consulter les statistiques globales privées ;
+* modifier des œuvres appartenant à un autre utilisateur ;
+* accéder aux données privées d’un autre compte ;
+* accéder au tableau de bord ADMIN.
+
+⸻
+
+19. ADMINISTRATEUR : ACCÈS GLOBAL
+
+Le principe à respecter est :
+
+VISITEUR
+→ accès public + son propre compte.
+
+ARTISTE
+→ son profil + ses œuvres + ses médias + ses statistiques personnelles.
+
+ADMINISTRATEUR
+→ contrôle global de la plateforme et accès administratif aux informations nécessaires à la gestion.
+
+L’ADMINISTRATEUR doit pouvoir superviser le fonctionnement global sans donner ces droits aux utilisateurs.
+
+⸻
+
+20. TESTS OBLIGATOIRES
+
+Ne pas créer de faux comptes de production.
+
+Utiliser des comptes de test autorisés lorsque nécessaire.
+
+TEST INSCRIPTION
+
+Vérifier :
+
+* nom obligatoire ;
+* prénom obligatoire ;
+* pseudo d’artiste obligatoire ;
+* présentation obligatoire ;
+* e-mail obligatoire ;
+* téléphone obligatoire ;
+* validation ;
+* connexion.
+
+TEST ARTISTE
+
+Vérifier :
+
+* connexion ;
+* profil ;
+* dépôt d’œuvre ;
+* upload son ;
+* upload clip ;
+* upload pochette ;
+* upload avatar ;
+* soumission ;
+* consultation de ses statistiques ;
+* accès uniquement à ses propres données.
+
+TEST VISITEUR
+
+Vérifier :
+
+* inscription ;
+* consultation ;
+* RÉPERTOIRE ;
+* œuvres ;
+* don ;
+* abonnement si disponible ;
+* impossibilité d’accéder aux données ADMIN.
+
+TEST ADMIN
+
+Vérifier :
+
+* connexion ADMIN ;
+* tableau de bord ;
+* utilisateurs ;
+* artistes ;
+* œuvres ;
+* médias ;
+* modération ;
+* RÉPERTOIRE ;
+* statistiques ;
+* dons ;
+* paiements ;
+* abonnements ;
+* activité.
+
+TEST DE SÉCURITÉ
+
+Tester qu’un artiste ou visiteur ne peut pas :
+
+* accéder à une route ADMIN ;
+* modifier une requête pour devenir ADMIN ;
+* voir les dons globaux ;
+* voir les revenus globaux ;
+* effectuer un virement ;
+* accéder aux données privées d’un autre utilisateur ;
+* modifier les œuvres d’un autre artiste.
+
+⸻
+
+21. NE PAS TOUCHER AUX FONCTIONNALITÉS QUI FONCTIONNENT
+
+Avant chaque modification :
+
+AUDIT.
+
+Si une fonctionnalité est déjà correcte :
+
+NE RIEN MODIFIER.
+
+Cela concerne notamment :
+
+* RÉPERTOIRE ;
+* authentification ;
+* médias ;
+* stockage ;
+* paiements ;
+* dons ;
+* abonnements ;
+* modération ;
+* design ;
+* logo ;
+* domaine.
+
+⸻
+
+22. TEST FINAL
+
+Après les modifications éventuelles :
+
+TESTER → VÉRIFIER → CORRIGER → RETESTER.
+
+Tester :
+
+* desktop ;
+* mobile ;
+* inscription ;
+* connexion ;
+* espace artiste ;
+* espace visiteur ;
+* espace ADMIN ;
+* RÉPERTOIRE ;
+* dépôt média ;
+* dons ;
+* abonnement ;
+* permissions ;
+* sécurité.
+
+⸻
+
+23. RAPPORT FINAL OBLIGATOIRE
+
+À la fin, fournir un rapport précis avec :
+
+🟢 FONCTIONNEL
+
+Ce qui a réellement été vérifié.
+
+🟠 À VÉRIFIER
+
+Ce qui nécessite encore une vérification réelle ou une configuration externe.
+
+🔴 MANQUANT
+
+Ce qui n’existe réellement pas.
+
+🔧 MODIFICATIONS
+
+Fichiers et fonctionnalités réellement modifiés.
+
+🧪 TESTS
+
+Tests effectués et résultats.
+
+🔐 SÉCURITÉ
+
+Résultats des tests de permissions et accès ADMIN.
+
+Ne jamais déclarer une fonctionnalité fonctionnelle sans test réel.
+
+RÈGLE FINALE
+
+INDAMORA PLAY reste l’application existante.
+
+Ne pas reconstruire.
+
+Ne pas remplacer.
+
+Ne pas inventer.
+
+Préserver ce qui fonctionne.
+
+Compléter uniquement ce qui manque.
+
+L’ADMINISTRATEUR doit disposer du contrôle global privé de la plateforme, tandis que les visiteurs et artistes restent limités à leurs propres fonctionnalités et données.
