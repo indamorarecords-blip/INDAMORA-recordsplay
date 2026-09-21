@@ -1,0 +1,392 @@
+OBJECTIF — TRANSFORMER INDAMORA PLAY EN PWA INSTALLABLE GRATUITEMENT
+
+Nous allons maintenant finaliser la version PWA (Progressive Web App) de INDAMORA PLAY.
+
+⚠️ RÈGLE ABSOLUE :
+NE PAS RECONSTRUIRE INDAMORA PLAY.
+NE PAS REFAIRE LE SITE.
+NE PAS MODIFIER CE QUI FONCTIONNE DÉJÀ.
+
+Le site officiel reste :
+
+https://indamoraplay.com
+
+Il doit rester la plateforme principale.
+
+La PWA est uniquement un complément permettant aux utilisateurs d’installer INDAMORA PLAY sur leur téléphone.
+
+⸻
+
+1. AUDIT OBLIGATOIRE AVANT TOUTE MODIFICATION
+
+Commence par analyser l’application existante et déterminer ce qui est déjà présent concernant :
+
+* manifest.webmanifest / manifest.json ;
+* service worker ;
+* icônes ;
+* favicon ;
+* meta viewport ;
+* thème mobile ;
+* mode standalone ;
+* installation PWA ;
+* cache ;
+* fonctionnement hors connexion ;
+* splash screen ;
+* responsive mobile ;
+* navigation mobile ;
+* authentification ;
+* lecture audio ;
+* lecture vidéo.
+
+Ne modifie rien avant cet audit.
+
+Si une fonctionnalité PWA existe déjà et fonctionne correctement :
+NE LA REFAIS PAS.
+
+⸻
+
+2. PWA INDAMORA PLAY
+
+La PWA doit être installable sous le nom :
+
+INDAMORA PLAY
+
+Identité :
+
+INDAMORA PLAY
+Une plateforme de INDAMORA RECORDS
+Notre musique. Notre culture. Notre scène.
+
+Utiliser l’identité visuelle existante.
+
+⚠️ NE PAS MODIFIER LE LOGO EXISTANT.
+
+⸻
+
+3. INSTALLATION SUR IPHONE
+
+La PWA doit être correctement préparée pour l’installation depuis Safari.
+
+Parcours attendu :
+
+Safari
+→ Partager
+→ Ajouter à l’écran d’accueil
+
+Après installation :
+
+* icône INDAMORA PLAY visible ;
+* ouverture de l’application en mode adapté ;
+* pas de barre d’adresse lorsqu’iOS permet le mode standalone ;
+* navigation correcte ;
+* conservation de la session lorsque techniquement possible ;
+* accès au catalogue ;
+* RÉPERTOIRE ;
+* profils ;
+* recherche ;
+* audio ;
+* vidéo ;
+* espaces utilisateur.
+
+Ne pas créer une fausse fonctionnalité native.
+
+⸻
+
+4. INSTALLATION SUR ANDROID
+
+La PWA doit être correctement détectée par Chrome et les navigateurs compatibles.
+
+Le navigateur doit pouvoir proposer :
+
+Installer l’application
+
+ou :
+
+Ajouter à l’écran d’accueil
+
+L’application installée doit afficher :
+
+INDAMORA PLAY
+
+et utiliser les icônes existantes adaptées aux différentes tailles nécessaires.
+
+⸻
+
+5. MANIFEST
+
+Vérifier ou créer uniquement si nécessaire :
+
+* name ;
+* short_name ;
+* start_url ;
+* display ;
+* theme_color ;
+* background_color ;
+* icons ;
+* orientation si nécessaire.
+
+Le manifest doit utiliser le domaine officiel :
+
+https://indamoraplay.com
+
+Ne pas créer de nouveau domaine.
+
+Ne pas créer de deuxième application web.
+
+⸻
+
+6. SERVICE WORKER
+
+Vérifier le service worker existant.
+
+S’il existe déjà et fonctionne :
+le conserver.
+
+S’il manque :
+mettre en place uniquement le minimum nécessaire pour une PWA fiable.
+
+⚠️ NE PAS mettre en cache agressivement :
+
+* données privées ;
+* données utilisateur sensibles ;
+* sessions ;
+* paiements ;
+* informations Premium ;
+* données administrateur.
+
+Ne jamais mettre en cache des informations confidentielles.
+
+La priorité est la fiabilité, pas un faux fonctionnement hors ligne.
+
+⸻
+
+7. MÉDIAS
+
+La PWA doit continuer à utiliser le système média existant.
+
+Conserver :
+
+* stockage actuel ;
+* API actuelle ;
+* authentification actuelle ;
+* lecture audio ;
+* lecture vidéo ;
+* RÉPERTOIRE ;
+* catalogue.
+
+⚠️ NE PAS créer un deuxième stockage.
+
+⚠️ NE PAS déplacer les fichiers existants.
+
+⚠️ NE PAS modifier le fonctionnement Stripe/paiements/dons.
+
+⸻
+
+8. AUTHENTIFICATION
+
+Conserver exactement le système d’authentification actuel.
+
+La PWA doit fonctionner avec :
+
+* connexion ;
+* inscription ;
+* profil ;
+* activités ;
+* espaces utilisateurs ;
+* espace artiste/professionnel ;
+* administration.
+
+Ne jamais exposer de secrets côté client.
+
+⸻
+
+9. RÉPERTOIRE
+
+Le RÉPERTOIRE reste le cœur d’INDAMORA PLAY.
+
+Tester spécialement sur mobile :
+
+* affichage ;
+* recherche ;
+* filtres ;
+* catégories ;
+* profils artistes ;
+* ouverture d’une fiche artiste ;
+* œuvres associées ;
+* navigation retour.
+
+Utiliser les vraies données existantes.
+
+⚠️ AUCUNE donnée fictive.
+
+⸻
+
+10. PREMIUM / PAIEMENTS / DONS
+
+Conserver intégralement le fonctionnement existant.
+
+Ne pas :
+
+* remplacer Stripe ;
+* recréer Stripe ;
+* supprimer les paiements ;
+* désactiver les dons ;
+* simuler un paiement ;
+* créer de faux abonnements.
+
+Tester simplement que les pages et parcours existants restent accessibles correctement sur mobile.
+
+⸻
+
+11. ADMINISTRATION
+
+L’espace administrateur doit rester privé.
+
+Ne pas rendre les données administratives accessibles via la PWA publique.
+
+Conserver les protections existantes.
+
+⸻
+
+12. PERFORMANCE MOBILE
+
+Optimiser uniquement ce qui est nécessaire pour une bonne expérience mobile :
+
+* chargement ;
+* images ;
+* navigation ;
+* affichage ;
+* boutons ;
+* lecteur audio ;
+* lecteur vidéo.
+
+⚠️ Ne pas changer le design fonctionnel sans nécessité.
+
+⚠️ Ne pas refaire l’interface.
+
+⸻
+
+13. SÉCURITÉ
+
+Vérifier que :
+
+* les données privées ne sont pas exposées ;
+* les routes administrateur restent protégées ;
+* les fichiers privés restent privés ;
+* les sessions restent sécurisées ;
+* aucune clé secrète n’est intégrée au frontend ;
+* aucun paiement n’est manipulable côté client.
+
+⸻
+
+14. TESTS RÉELS OBLIGATOIRES
+
+Après chaque modification :
+
+TESTER → VÉRIFIER → CORRIGER SI NÉCESSAIRE → RETESTER
+
+Tester au minimum :
+
+Mobile
+
+* iPhone / Safari ;
+* Android / Chrome ;
+* écran d’accueil ;
+* installation ;
+* ouverture ;
+* navigation ;
+* connexion ;
+* RÉPERTOIRE ;
+* recherche ;
+* profil artiste ;
+* lecture audio ;
+* lecture vidéo ;
+* espace utilisateur ;
+* Premium ;
+* dons.
+
+Desktop
+
+Vérifier également que le site existant fonctionne toujours normalement.
+
+⸻
+
+15. NON-RÉGRESSION
+
+Vérifier qu’après l’activation de la PWA :
+
+* le site https://indamoraplay.com fonctionne toujours ;
+* le RÉPERTOIRE fonctionne ;
+* les profils fonctionnent ;
+* les œuvres fonctionnent ;
+* l’authentification fonctionne ;
+* les médias fonctionnent ;
+* les paiements existants fonctionnent ;
+* les dons fonctionnent ;
+* l’administration fonctionne ;
+* le référencement n’est pas cassé ;
+* le sitemap n’est pas cassé ;
+* les URLs publiques restent identiques.
+
+⸻
+
+16. PRÉPARER L’ÉTAPE SUIVANTE
+
+Ne publie aucune application sur l’App Store ou Google Play maintenant.
+
+Prépare simplement l’architecture afin qu’elle puisse ensuite être emballée dans une application iOS/Android si nécessaire.
+
+Objectif :
+
+INDAMORA PLAY
+
+→ Site web
+→ PWA
+→ future application iOS
+→ future application Android
+
+Tout doit continuer à utiliser :
+
+* le même backend ;
+* la même base de données ;
+* les mêmes comptes ;
+* le même catalogue ;
+* le même RÉPERTOIRE ;
+* les mêmes médias ;
+* les mêmes profils.
+
+⸻
+
+17. RAPPORT FINAL OBLIGATOIRE
+
+À la fin, donne un rapport précis indiquant :
+
+1. ce qui existait déjà ;
+2. ce qui a réellement été modifié ;
+3. ce qui n’a pas été modifié ;
+4. si la PWA est installable sur Android ;
+5. si la PWA est installable sur iPhone ;
+6. les tests réellement effectués ;
+7. les éventuels problèmes restants ;
+8. les corrections effectuées ;
+9. confirmation que https://indamoraplay.com reste le site principal ;
+10. confirmation qu’aucune donnée fictive n’a été créée.
+
+Si tout fonctionne déjà :
+
+NE CHANGE RIEN.
+Fais uniquement les tests et donne le rapport.
+
+RÈGLE FINALE
+
+INDAMORA PLAY EXISTE DÉJÀ.
+
+Nous ne construisons pas une nouvelle plateforme.
+
+Nous finalisons uniquement sa capacité à fonctionner comme une PWA installable gratuitement, tout en préparant proprement la future publication iOS et Android.
+
+MINIMUM DE MODIFICATIONS.
+ZÉRO RECONSTRUCTION.
+ZÉRO DONNÉE FICTIVE.
+ZÉRO DESTRUCTION.
+PRÉSERVATION DE L’EXISTANT.

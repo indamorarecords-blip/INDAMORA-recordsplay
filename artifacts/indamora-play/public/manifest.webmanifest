@@ -1,0 +1,28 @@
+{
+  "id": "/",
+  "name": "INDAMORA PLAY",
+  "short_name": "INDAMORA PLAY",
+  "description": "Notre musique. Notre culture. Notre scène. Une plateforme de INDAMORA RECORDS.",
+  "lang": "fr-FR",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F8F0E2",
+  "theme_color": "#D9573F",
+  "categories": ["music", "entertainment"],
+  "icons": [
+    {
+      "src": "/assets/indamora-play-logo.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
