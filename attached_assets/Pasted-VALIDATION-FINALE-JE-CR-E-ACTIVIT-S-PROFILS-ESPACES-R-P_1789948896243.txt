@@ -1,0 +1,620 @@
+VALIDATION FINALE — JE CRÉE / ACTIVITÉS / PROFILS / ESPACES / RÉPERTOIRE
+
+La fonctionnalité est annoncée comme implémentée.
+
+À partir de maintenant :
+
+⚠️ NE MODIFIE PAS LE CODE SANS NÉCESSITÉ
+
+Ne pas :
+
+* refaire l’inscription ;
+* modifier Clerk ;
+* remplacer le composant Clerk ;
+* modifier l’architecture existante inutilement ;
+* modifier le design sans nécessité ;
+* créer un nouveau système d’authentification ;
+* créer de faux comptes ;
+* créer de fausses données ;
+* modifier le RÉPERTOIRE inutilement ;
+* casser les fonctionnalités déjà opérationnelles.
+
+L’objectif est de TESTER, VÉRIFIER ET COMPLÉTER UNIQUEMENT CE QUI MANQUE.
+
+⸻
+
+1. PRINCIPE CENTRAL — CHAQUE PROFIL DOIT AVOIR SON ESPACE ADAPTÉ
+
+Une personne qui crée un espace sur INDAMORA PLAY ne doit pas avoir automatiquement la même interface que tous les autres utilisateurs.
+
+L’interface doit être adaptée au profil et aux activités choisies.
+
+👤 VISITEUR / AUDITEUR
+
+Une personne qui crée un espace en tant que :
+
+🎧 Auditeur / visiteur
+
+doit avoir son propre espace visiteur/auditeur.
+
+Elle ne doit pas voir l’interface réservée aux artistes.
+
+Elle ne doit pas voir l’interface ADMIN.
+
+Elle ne doit pas voir :
+
+* gestion des œuvres ;
+* dépôt d’œuvres ;
+* gestion des médias artistes ;
+* modération ;
+* gestion des artistes ;
+* statistiques globales ;
+* données financières globales ;
+* outils ADMIN.
+
+Elle doit pouvoir utiliser uniquement les fonctionnalités correspondant à son espace.
+
+⸻
+
+2. ESPACE ARTISTE / TALENT
+
+Une personne qui crée un espace en tant que :
+
+🎤 Artiste
+💃 Danseur / danseuse
+🎬 Acteur / réalisateur
+🎥 Vidéaste
+😂 Humoriste
+🎧 Podcasteur
+📱 Créateur de contenu
+⭐ Influenceur
+🎙️ Chanteur / chantre
+🎚️ Producteur
+ou toute autre activité disponible
+
+doit avoir un espace artiste / créateur / professionnel adapté à ses activités.
+
+Cet espace doit être différent de celui d’un simple visiteur/auditeur.
+
+Il peut notamment contenir, selon les activités :
+
+* mon profil ;
+* mes activités ;
+* ma bio ;
+* mes œuvres ;
+* mes médias ;
+* déposer une œuvre ;
+* mes soumissions ;
+* statut de mes soumissions ;
+* mes statistiques ;
+* mes notifications ;
+* mes informations professionnelles.
+
+IMPORTANT
+
+Un artiste ne doit pas voir les outils réservés à l’ADMINISTRATEUR.
+
+Il ne doit notamment pas voir :
+
+* utilisateurs globaux ;
+* dons globaux ;
+* revenus globaux ;
+* paiements globaux ;
+* événements Stripe ;
+* statistiques globales ;
+* journal ADMIN ;
+* modération globale ;
+* gestion globale des artistes ;
+* gestion globale du RÉPERTOIRE.
+
+⸻
+
+3. ESPACE ADAPTÉ AUX ACTIVITÉS
+
+Les deux activités choisies doivent pouvoir déterminer les fonctionnalités disponibles dans l’espace.
+
+Exemple :
+
+🎤 Artiste + 🎚️ Producteur
+
+L’espace peut proposer :
+
+* profil artiste ;
+* œuvres ;
+* dépôt musical ;
+* production ;
+* médias ;
+* statistiques personnelles.
+
+🎥 Vidéaste + 📱 Créateur de contenu
+
+L’espace peut proposer :
+
+* profil ;
+* présentation ;
+* médias ;
+* contenus ;
+* portfolio ;
+* statistiques personnelles.
+
+💃 Danseur + 🎬 Créateur
+
+L’espace peut proposer :
+
+* profil ;
+* présentation ;
+* médias ;
+* contenus ;
+* visibilité dans le RÉPERTOIRE.
+
+📰 Journaliste + 📺 Média
+
+L’espace peut proposer les fonctionnalités correspondant aux activités sélectionnées.
+
+Ne pas créer artificiellement des fonctionnalités qui n’existent pas.
+
+Adapter l’affichage aux fonctionnalités réellement disponibles dans INDAMORA PLAY.
+
+⸻
+
+4. ADMINISTRATEUR
+
+L’ADMINISTRATEUR possède un espace totalement différent.
+
+Il s’agit du CENTRE DE PILOTAGE INDAMORA PLAY.
+
+L’ADMIN ne doit pas avoir la même interface qu’un visiteur.
+
+L’ADMIN ne doit pas avoir la même interface qu’un artiste.
+
+Il doit pouvoir accéder aux outils nécessaires à l’administration globale :
+
+* utilisateurs ;
+* artistes ;
+* profils ;
+* activités ;
+* œuvres ;
+* médias ;
+* RÉPERTOIRE ;
+* catégories ;
+* modération ;
+* presse ;
+* statistiques ;
+* visites ;
+* écoutes ;
+* recherches ;
+* abonnements ;
+* paiements ;
+* dons ;
+* événements Stripe ;
+* journal ADMIN.
+
+⸻
+
+5. MATRICE DES ESPACES
+
+Mettre en place et vérifier une séparation claire :
+
+Type de compte / profil	Espace	Peut voir l’espace visiteur	Peut voir l’espace artiste	Peut voir ADMIN
+🎧 Visiteur / Auditeur	Espace visiteur	🟢	🔴	🔴
+🎤 Artiste	Espace artiste	🟢 fonctionnalités publiques seulement	🟢	🔴
+💃 Danseur / danseuse	Espace artiste/créateur	🟢 fonctionnalités publiques seulement	🟢	🔴
+🎥 Vidéaste	Espace créateur	🟢 fonctionnalités publiques seulement	🟢	🔴
+🎚️ Producteur	Espace professionnel	🟢 fonctionnalités publiques seulement	🟢	🔴
+🤝 Partenaire / structure	Espace professionnel	🟢 fonctionnalités publiques seulement	🟠 selon activité	🔴
+📰 Presse / média	Espace professionnel/média	🟢 fonctionnalités publiques seulement	🟠 selon activité	🔴
+🔐 Administrateur	Centre de pilotage	🟢 accès public si nécessaire	🟢 supervision nécessaire	🟢
+
+IMPORTANT
+
+Cette matrice concerne les droits et interfaces, pas la création de plusieurs comptes.
+
+Une même personne conserve son compte.
+
+⸻
+
+6. SÉCURITÉ — L’INTERFACE NE SUFFIT PAS
+
+Cacher un bouton ne suffit pas.
+
+Les permissions doivent être contrôlées côté serveur/API.
+
+Un visiteur ne doit pas pouvoir devenir artiste simplement en modifiant une URL.
+
+Un artiste ne doit pas pouvoir devenir ADMIN en modifiant le frontend.
+
+Un utilisateur ne doit pas pouvoir appeler directement une route réservée à un autre rôle.
+
+Tester notamment :
+
+* accès direct aux URLs ;
+* accès API ;
+* modification de paramètres ;
+* requêtes manuelles ;
+* changement de rôle côté client.
+
+⸻
+
+7. JE CRÉE
+
+Le bouton :
+
+🎨 JE CRÉE
+
+doit permettre à une personne de rejoindre l’écosystème INDAMORA PLAY.
+
+Lorsqu’elle clique sur JE CRÉE, elle choisit son ou ses activités.
+
+⸻
+
+8. MAXIMUM 2 ACTIVITÉS
+
+UNE PERSONNE PEUT CHOISIR MAXIMUM 2 ACTIVITÉS.
+
+Exemples :
+
+✅ Artiste + Producteur
+
+✅ Danseur + Créateur de contenu
+
+✅ Vidéaste + Influenceur
+
+❌ Artiste + Producteur + Vidéaste
+
+Le frontend doit empêcher la troisième sélection.
+
+Le serveur/API doit également refuser une requête contenant trois activités.
+
+⸻
+
+9. BIO
+
+La bio reste libre.
+
+Les activités sélectionnées servent à structurer le profil.
+
+La bio permet de détailler d’autres compétences.
+
+Exemple :
+
+Activités :
+
+🎤 Artiste
+🎚️ Producteur
+
+Bio :
+
+« Artiste, producteur, vidéaste et créateur de contenu. »
+
+Cela ne doit pas créer automatiquement une troisième activité structurée.
+
+⸻
+
+10. LISTE DES ACTIVITÉS
+
+Conserver les catégories définies précédemment :
+
+👥 COMMUNAUTÉ
+
+* 🎧 Auditeurs
+* 🎙️ Producteurs
+* 🎬 Créateurs
+* 🤝 Partenaires
+
+🎤 ARTISTES & TALENTS
+
+* 🎤 Artistes / chanteurs
+* 🙏 Gospel / chantres
+* ⛪ Serviteurs de Dieu
+* 🎙️ Animateurs
+* 🎧 DJ
+* 🎤 Maîtres de cérémonie
+* 🎙️ Speakers
+* 💃 Danseurs / danseuses
+* 🎬 Cinéma / acteurs / réalisateurs
+* 🎥 Vidéastes
+* 😂 Humour
+* 🎧 Podcasts
+* 📱 Créateurs de contenu
+* ⭐ Influenceurs
+* 🎨 Créateurs / talents
+
+🤝 STRUCTURES & PROFESSIONNELS
+
+* 🤝 Associations
+* 🎵 Labels
+* 🎚️ Producteurs
+* 🎤 Organisateurs
+* 🎪 Événementiel
+* 📻 Radios
+* 🎬 Médias
+* 🌍 Partenaires culturels
+
+📰 PRESSE & MÉDIAS
+
+* 📰 Journalistes
+* 📻 Radios
+* 📺 Télévisions
+* 🌐 Médias en ligne
+* 🎙️ Demandes d’interviews
+* 📸 Demandes de visuels
+* 📩 Demandes d’informations
+
+⸻
+
+11. PROFIL
+
+Informations obligatoires :
+
+* Nom ;
+* Prénom ;
+* Pseudo / nom d’artiste ;
+* Bio ;
+* Adresse e-mail ;
+* Téléphone ;
+* activité 1 ;
+* éventuellement activité 2.
+
+Conserver Clerk comme système d’authentification.
+
+Les activités sont complétées dans le profil INDAMORA PLAY après l’inscription.
+
+⸻
+
+12. RÉPERTOIRE
+
+Le RÉPERTOIRE reste le cœur d’INDAMORA PLAY.
+
+Les activités doivent permettre de classer et retrouver les profils.
+
+Le RÉPERTOIRE doit pouvoir distinguer notamment :
+
+* artistes ;
+* danseurs ;
+* producteurs ;
+* créateurs ;
+* vidéastes ;
+* médias ;
+* journalistes ;
+* structures ;
+* partenaires ;
+* autres profils disponibles.
+
+Conserver :
+
+* recherche ;
+* filtres ;
+* catégories ;
+* sous-catégories ;
+* pays ;
+* profils ;
+* œuvres.
+
+⸻
+
+13. DONATIONS
+
+Conserver le système de dons existant en production.
+
+Visiteurs et artistes peuvent faire un don.
+
+Ils ne peuvent pas :
+
+* voir le montant global reçu ;
+* voir les revenus globaux ;
+* accéder au compte Stripe ;
+* effectuer un virement ;
+* retirer les fonds ;
+* gérer les finances de la plateforme.
+
+L’ADMIN dispose des informations nécessaires à la gestion.
+
+⸻
+
+14. ABONNEMENTS
+
+Conserver le système d’abonnement existant.
+
+Les droits doivent être vérifiés côté serveur.
+
+Ne pas refaire Stripe si le système fonctionne déjà.
+
+⸻
+
+15. STATISTIQUES
+
+Les artistes/professionnels voient uniquement leurs propres statistiques lorsque disponibles.
+
+L’ADMIN peut consulter les statistiques globales nécessaires au pilotage.
+
+Ne jamais créer de statistiques fictives.
+
+⸻
+
+16. JOURNAL ADMIN
+
+Les actions administratives importantes doivent être enregistrées :
+
+* validation ;
+* rejet ;
+* publication ;
+* modification ;
+* dépublication ;
+* suppression ;
+* gestion d’un profil ;
+* gestion d’une œuvre ;
+* gestion d’un média.
+
+Accessible uniquement à l’ADMIN autorisé.
+
+⸻
+
+17. TESTS OBLIGATOIRES DES ESPACES
+
+Tester au minimum :
+
+TEST A — VISITEUR
+
+Créer/ouvrir un espace visiteur.
+
+Vérifier que l’interface visiteur s’affiche.
+
+Vérifier que les outils artiste et ADMIN sont absents.
+
+TEST B — ARTISTE
+
+Créer/ouvrir un espace artiste.
+
+Vérifier que l’interface artiste s’affiche.
+
+Vérifier que les outils ADMIN sont absents.
+
+TEST C — DANSEUR
+
+Créer/ouvrir un espace danseur.
+
+Vérifier que l’espace adapté au profil apparaît.
+
+Vérifier que les outils ADMIN sont absents.
+
+TEST D — AUTRE ACTIVITÉ
+
+Tester au moins une autre activité, par exemple :
+
+🎥 Vidéaste
+
+ou
+
+🎚️ Producteur.
+
+Vérifier que l’espace reste adapté au profil.
+
+TEST E — ADMIN
+
+Se connecter avec le compte ADMIN autorisé.
+
+Vérifier que le Centre de pilotage ADMIN est accessible.
+
+TEST F — SÉCURITÉ
+
+Avec un compte non ADMIN :
+
+tenter d’accéder directement à une URL ADMIN.
+
+Résultat attendu :
+
+🔐 accès refusé.
+
+Avec un compte visiteur :
+
+tenter d’accéder à une fonction artiste protégée.
+
+Résultat attendu :
+
+🔐 accès refusé.
+
+⸻
+
+18. TABLEAU DE VALIDATION OBLIGATOIRE
+
+Compléter ce tableau avec les résultats réellement observés.
+
+#	Test	Résultat attendu	Résultat réel	Statut
+1	Connexion Clerk artiste	Connexion réussie	À renseigner	🟢/🟠/🔴
+2	1 activité	Activité enregistrée	À renseigner	🟢/🟠/🔴
+3	2 activités	Deux activités enregistrées	À renseigner	🟢/🟠/🔴
+4	3e activité	Bloquée visuellement	À renseigner	🟢/🟠/🔴
+5	API avec 3 activités	Requête refusée	À renseigner	🟢/🟠/🔴
+6	Création profil	Profil enregistré	À renseigner	🟢/🟠/🔴
+7	Modification profil	Modification persistante	À renseigner	🟢/🟠/🔴
+8	Bio	Autres compétences possibles	À renseigner	🟢/🟠/🔴
+9	RÉPERTOIRE	Profil correctement affiché	À renseigner	🟢/🟠/🔴
+10	Espace visiteur	Interface visiteur uniquement	À renseigner	🟢/🟠/🔴
+11	Espace artiste	Interface artiste uniquement	À renseigner	🟢/🟠/🔴
+12	Espace danseur	Interface adaptée	À renseigner	🟢/🟠/🔴
+13	Espace autre activité	Interface adaptée	À renseigner	🟢/🟠/🔴
+14	Espace ADMIN	Centre de pilotage accessible	À renseigner	🟢/🟠/🔴
+15	Visiteur → ADMIN	Accès refusé	À renseigner	🟢/🟠/🔴
+16	Artiste → ADMIN	Accès refusé	À renseigner	🟢/🟠/🔴
+17	Visiteur → fonctions artiste protégées	Accès refusé	À renseigner	🟢/🟠/🔴
+18	Don utilisateur	Fonction disponible sans données globales	À renseigner	🟢/🟠/🔴
+19	Statistiques artiste	Seulement ses données	À renseigner	🟢/🟠/🔴
+20	Journal ADMIN	Accessible uniquement ADMIN	À renseigner	🟢/🟠/🔴
+21	Clerk	Système conservé	À renseigner	🟢/🟠/🔴
+22	Non-régression	Fonctions existantes intactes	À renseigner	🟢/🟠/🔴
+
+Légende
+
+🟢 = testé réellement et validé
+🟠 = non testable actuellement / action externe nécessaire
+🔴 = testé et échec constaté
+
+Ne jamais mettre 🟢 simplement parce que le code semble correct.
+
+⸻
+
+19. SI UN PROBLÈME EST TROUVÉ
+
+Ne pas modifier immédiatement le code.
+
+Documenter :
+
+* test concerné ;
+* résultat attendu ;
+* résultat obtenu ;
+* erreur ;
+* rôle utilisé ;
+* URL concernée ;
+* API concernée si applicable ;
+* impact ;
+* fichier potentiellement concerné.
+
+Puis attendre avant toute modification.
+
+⸻
+
+20. RAPPORT FINAL
+
+Retourner :
+
+🟢 VALIDÉ
+
+Ce qui a réellement fonctionné.
+
+🟠 À VÉRIFIER
+
+Ce qui nécessite une action ou un test supplémentaire.
+
+🔴 ÉCHEC
+
+Ce qui a réellement échoué.
+
+👤 PROFILS
+
+Résultat des profils et activités.
+
+🧩 ESPACES
+
+Résultat de la séparation visiteur / artiste / professionnel / ADMIN.
+
+🔐 SÉCURITÉ
+
+Résultat des tests de permissions côté serveur.
+
+📚 RÉPERTOIRE
+
+Résultat de l’affichage réel.
+
+🔑 CLERK
+
+Confirmation que Clerk reste intact.
+
+🧪 NON-RÉGRESSION
+
+Confirmation des fonctionnalités existantes.
+
+📊 TABLEAU DE VALIDATION
+
+Fournir le tableau complet avec les résultats réels.
+
+Ne déclarer la fonctionnalité comme totalement validée que lorsque les tests réels nécessaires ont été effectués.
