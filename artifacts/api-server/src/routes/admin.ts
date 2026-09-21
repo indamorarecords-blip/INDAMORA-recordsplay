@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { and, desc, gte, sql } from "drizzle-orm";
 import {
   artistsTable,
+  adminAuditLogsTable,
   billingAccountsTable,
   db,
   pressRequestsTable,
@@ -88,6 +89,7 @@ router.get("/admin/overview", requireAdmin, async (req, res): Promise<void> => {
     recentWorks,
     recentPressRequests,
     stripe,
+    auditLog,
   ] = await Promise.all([
     db.select({ value: sql<number>`count(*)` }).from(artistsTable),
     db
@@ -141,6 +143,11 @@ router.get("/admin/overview", requireAdmin, async (req, res): Promise<void> => {
       .orderBy(desc(pressRequestsTable.createdAt))
       .limit(5),
     stripeOverview(),
+    db
+      .select()
+      .from(adminAuditLogsTable)
+      .orderBy(desc(adminAuditLogsTable.createdAt))
+      .limit(50),
   ]);
 
   let userCount: number | null = null;
@@ -195,6 +202,16 @@ router.get("/admin/overview", requireAdmin, async (req, res): Promise<void> => {
       linkedBillingAccounts: Number(linkedBillingAccountCount[0]?.value ?? 0),
     },
     stripe,
+    auditLog: auditLog.map((entry) => ({
+      id: entry.id,
+      administratorId: entry.administratorId,
+      action: entry.action,
+      entityType: entry.entityType,
+      entityId: entry.entityId,
+      targetLabel: entry.targetLabel,
+      result: entry.result,
+      createdAt: entry.createdAt.toISOString(),
+    })),
   });
 });
 

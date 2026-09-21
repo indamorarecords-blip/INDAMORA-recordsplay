@@ -31,13 +31,30 @@ const ADMIN_EMAIL = 'indamorarecords@gmail.com';
 const categories = ['Musique', 'Humour', 'Cinéma et vidéos', 'Podcasts', 'Autres créations'];
 const creationActivities = [
   ['Artiste / chanteur', '🎤'],
+  ['Gospel / chantre', '🙏'],
   ['Producteur', '🎚️'],
+  ['DJ', '🎧'],
+  ['Animateur', '🎙️'],
+  ['Maître de cérémonie', '🎤'],
+  ['Speaker', '🎙️'],
+  ['Danseur / danseuse', '💃'],
+  ['Cinéma / acteur / réalisateur', '🎬'],
   ['Vidéaste', '🎥'],
   ['Créateur de contenu', '📱'],
+  ['Influenceur', '⭐'],
   ['Auteur / compositeur', '✍️'],
   ['Photographe', '📷'],
   ['Humoriste', '🎭'],
   ['Podcasteur', '🎙️'],
+  ['Journaliste', '📰'],
+  ['Radio', '📻'],
+  ['Télévision', '📺'],
+  ['Média en ligne', '🌐'],
+  ['Association', '🤝'],
+  ['Label', '🎵'],
+  ['Organisateur', '🎤'],
+  ['Événementiel', '🎪'],
+  ['Partenaire culturel', '🌍'],
 ] as const;
 const categoryIcons = { Musique: AudioLines, Humour: Sparkles, 'Cinéma et vidéos': Disc3, Podcasts: Mic2, 'Autres créations': Sparkles };
 const categoryLabels: Record<string, string> = {
@@ -62,6 +79,61 @@ const categorySlug: Record<string, string> = {
 };
 const categoryFromSlug: Record<string, string> = Object.fromEntries(Object.entries(categorySlug).map(([label, slug]) => [slug, label]));
 const isCategory = (value: string, selected: string) => categoryLabel(value) === categoryLabel(selected);
+
+function profileGroupForActivities(activities: string[]): Artist['profileGroup'] {
+  const text = activities.join(' ').toLowerCase();
+  if (['journaliste', 'radio', 'télévision', 'média'].some((term) => text.includes(term))) return 'press';
+  if (['association', 'label', 'organisateur', 'événementiel', 'partenaire culturel'].some((term) => text.includes(term))) return 'partners';
+  if (['danseur', 'cinéma', 'acteur', 'réalisateur', 'vidéaste', 'humoriste', 'podcast', 'créateur de contenu', 'influenceur', 'photographe'].some((term) => text.includes(term))) return 'creations';
+  return 'artists';
+}
+
+function professionalSpaceCopy(profile: Artist) {
+  const text = profile.specialties.join(' ').toLowerCase();
+  if (profile.profileGroup === 'press') {
+    return {
+      eyebrow: 'Espace professionnel / média',
+      title: 'Mon espace professionnel / média',
+      description: 'Gérez votre présentation professionnelle et votre visibilité dans le RÉPERTOIRE.',
+    };
+  }
+  if (['vidéaste', 'créateur de contenu', 'photographe', 'cinéma'].some((term) => text.includes(term))) {
+    return {
+      eyebrow: 'Espace créateur / média',
+      title: 'Mon espace créateur / média',
+      description: 'Présentez vos contenus, suivez vos propositions et développez votre visibilité.',
+    };
+  }
+  if (profile.profileGroup === 'creations') {
+    return {
+      eyebrow: 'Espace créateur',
+      title: 'Mon espace créateur',
+      description: 'Présentez votre parcours, vos créations et les propositions envoyées à INDAMORA RECORDS.',
+    };
+  }
+  if (profile.profileGroup === 'partners') {
+    return {
+      eyebrow: 'Espace professionnel',
+      title: 'Mon espace professionnel',
+      description: 'Gérez votre présentation et votre présence professionnelle dans l’écosystème INDAMORA.',
+    };
+  }
+  return {
+    eyebrow: 'Espace artiste',
+    title: 'Mon espace artiste',
+    description: 'Envoyez vos œuvres à INDAMORA RECORDS et suivez chaque étape de leur examen.',
+  };
+}
+
+function canSubmitWorks(profile?: Artist | null) {
+  if (!profile?.specialties.length) return false;
+  if (profile.profileGroup === 'artists' || profile.profileGroup === 'creations') return true;
+  return profile.specialties.some((activity) =>
+    ['producteur', 'danseur', 'créateur', 'vidéaste', 'humoriste', 'podcast'].some((term) =>
+      activity.toLowerCase().includes(term),
+    ),
+  );
+}
 
 const clerkPubKey = publishableKeyFromHost(window.location.hostname, import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
@@ -108,6 +180,16 @@ type AdminOverview = {
     donations: { count: number | null; totalEur: number | null };
   };
   activity: Array<{ type: string; label: string; createdAt: string }>;
+  auditLog: Array<{
+    id: number;
+    administratorId: string;
+    action: string;
+    entityType: string;
+    entityId: string | null;
+    targetLabel: string | null;
+    result: string;
+    createdAt: string;
+  }>;
 };
 async function billingRequest<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, { ...init, credentials: 'include', headers: { 'Content-Type': 'application/json', ...init?.headers } });
@@ -250,6 +332,9 @@ function Shell({ children }: { children: ReactNode }) {
   const { isSignedIn, user } = useUser();
   const { signOut } = useClerk();
   const isAdmin = isAdminUser(user);
+  const myArtist = useGetMyArtist({ query: { enabled: Boolean(isSignedIn), queryKey: getGetMyArtistQueryKey() } });
+  const professionalProfile = myArtist.data?.specialties.length ? myArtist.data : null;
+  const canSubmit = canSubmitWorks(professionalProfile);
   const nav = [
     { href: '/', label: 'Accueil', icon: Sparkles },
     { href: '/explorer', label: 'Explorer', icon: CirclePlay },
@@ -294,7 +379,8 @@ function Shell({ children }: { children: ReactNode }) {
             ))}
           </nav>
           <div className="hidden items-center gap-2 sm:flex">
-            <Link href="/submit" className="rounded-full border border-border px-4 py-2 text-sm font-bold transition-all hover:-translate-y-0.5 hover:border-primary hover:text-primary" data-testid="link-submit-header">Partager votre œuvre</Link>
+             {canSubmit && <Link href="/submit" className="rounded-full border border-border px-4 py-2 text-sm font-bold transition-all hover:-translate-y-0.5 hover:border-primary hover:text-primary" data-testid="link-submit-header">Partager votre œuvre</Link>}
+             {isSignedIn && !professionalProfile && !myArtist.isLoading && <Link href="/profil" className="rounded-full border border-primary/40 px-4 py-2 text-sm font-bold text-primary hover:bg-primary/5" data-testid="link-create-space-header">Je crée mon espace</Link>}
              {isSignedIn ? <><Link href="/profil" className="rounded-full border border-border px-4 py-2 text-sm font-bold hover:border-primary hover:text-primary" data-testid="link-profile-header">{user?.firstName ?? 'Mon compte'}</Link><button onClick={() => void signOut({ redirectUrl: basePath || '/' })} className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground" data-testid="button-logout-header">Déconnexion</button></> : <><Link href="/sign-up" className="rounded-full border border-border px-4 py-2 text-sm font-bold hover:border-primary hover:text-primary" data-testid="link-register-header">Créer un compte</Link><Link href="/sign-in" className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground transition-all hover:-translate-y-0.5 hover:shadow-lg" data-testid="link-login-header">Se connecter</Link></>}
           </div>
           <button className="rounded-full p-2" onClick={() => setMenuOpen(!menuOpen)} data-testid="button-open-menu" aria-label={menuOpen ? 'Fermer la navigation' : 'Ouvrir la navigation'} aria-expanded={menuOpen}>
@@ -305,7 +391,8 @@ function Shell({ children }: { children: ReactNode }) {
           <div className="border-t border-border bg-card px-5 py-4">
             <div className="grid gap-2">
               {nav.map(({ href, label, icon: Icon }) => <Link key={href} href={href} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 font-semibold hover:bg-muted" data-testid={`link-mobile-${label.toLowerCase()}`}><Icon className="h-4 w-4 text-primary" />{label}</Link>)}
-              <Link href="/submit" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 font-semibold hover:bg-muted" data-testid="link-mobile-submit"><Send className="h-4 w-4 text-primary" />Partager votre œuvre</Link>
+              {canSubmit && <Link href="/submit" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 font-semibold hover:bg-muted" data-testid="link-mobile-submit"><Send className="h-4 w-4 text-primary" />Partager votre œuvre</Link>}
+              {isSignedIn && !professionalProfile && !myArtist.isLoading && <Link href="/profil" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 font-semibold hover:bg-muted" data-testid="link-mobile-create-space"><Sparkles className="h-4 w-4 text-primary" />Je crée mon espace</Link>}
                {isSignedIn ? <><Link href="/profil" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 font-semibold hover:bg-muted" data-testid="link-mobile-profile"><UserRound className="h-4 w-4 text-primary" />Mon compte</Link><button onClick={() => void signOut({ redirectUrl: basePath || '/' })} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left font-semibold hover:bg-muted" data-testid="button-mobile-logout"><UserRound className="h-4 w-4 text-primary" />Déconnexion</button></> : <Link href="/sign-in" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 font-semibold hover:bg-muted" data-testid="link-mobile-login"><UserRound className="h-4 w-4 text-primary" />Se connecter</Link>}
             </div>
           </div>
@@ -315,12 +402,12 @@ function Shell({ children }: { children: ReactNode }) {
       <footer className="mt-24 border-t border-border bg-secondary px-5 py-10 text-secondary-foreground lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
           <div><Link href="/" className="mb-3 block w-36 rounded-xl bg-white p-1" data-testid="link-footer-logo" aria-label="Retour à l’accueil"><Logo variant="full" /></Link><p className="max-w-xs text-sm leading-6 text-secondary-foreground/70">Le foyer chaleureux des sons, des histoires et des écrans d’Afrique centrale.</p></div>
-           <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-secondary-foreground/80"><Link href="/indamora-records" data-testid="link-footer-records">INDAMORA RECORDS</Link><Link href="/explorer" data-testid="link-footer-explorer">Explorer</Link><Link href="/repertoire" data-testid="link-footer-repertoire">Répertoire</Link><Link href="/presse" data-testid="link-footer-presse">Presse</Link><Link href="/pricing" data-testid="link-footer-pricing">Premium</Link><Link href="/soutenir" data-testid="link-footer-support">Soutenir INDAMORA</Link><Link href="/profil" data-testid="link-footer-profile">Mon profil</Link><Link href="/espace-artiste" data-testid="link-footer-artist-space">Espace artiste</Link>{isAdmin && <Link href="/administration" data-testid="link-footer-admin">Administration</Link>}<Link href="/submit" data-testid="link-footer-submit">Proposer une œuvre</Link></div>
+            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-secondary-foreground/80"><Link href="/indamora-records" data-testid="link-footer-records">INDAMORA RECORDS</Link><Link href="/explorer" data-testid="link-footer-explorer">Explorer</Link><Link href="/repertoire" data-testid="link-footer-repertoire">Répertoire</Link><Link href="/presse" data-testid="link-footer-presse">Presse</Link><Link href="/pricing" data-testid="link-footer-pricing">Premium</Link><Link href="/soutenir" data-testid="link-footer-support">Soutenir INDAMORA</Link><Link href="/profil" data-testid="link-footer-profile">Mon profil</Link>{professionalProfile && <Link href="/espace-artiste" data-testid="link-footer-artist-space">Espace professionnel</Link>}{isAdmin && <Link href="/administration" data-testid="link-footer-admin">Administration</Link>}{canSubmit && <Link href="/submit" data-testid="link-footer-submit">Proposer une œuvre</Link>}</div>
         </div>
         <div className="mx-auto mt-8 max-w-7xl border-t border-secondary-foreground/15 pt-4 font-mono text-[10px] uppercase tracking-[.2em] text-secondary-foreground/50">Bangui · République centrafricaine · La diaspora</div>
       </footer>
        <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-border bg-card/95 px-2 pt-2 backdrop-blur-xl md:hidden">
-         {[{ href: '/', label: 'Accueil', icon: Sparkles }, { href: '/explorer', label: 'Explorer', icon: CirclePlay }, { href: '/repertoire', label: 'Répertoire', icon: UsersRound }, { href: '/submit', label: 'Créer', icon: Plus }, { href: '/profil', label: 'Profil', icon: UserRound }, ...(isAdmin ? [{ href: '/administration', label: 'Admin', icon: LayoutDashboard }] : [])].map(({ href, label, icon: Icon }) => <Link href={href} key={href} className={cx('flex flex-col items-center gap-1 px-4 py-1 text-[10px] font-bold', location === href ? 'text-primary' : 'text-muted-foreground')} data-testid={`link-bottom-${label.toLowerCase()}`}><Icon className="h-5 w-5" />{label}</Link>)}
+         {[{ href: '/', label: 'Accueil', icon: Sparkles }, { href: '/explorer', label: 'Explorer', icon: CirclePlay }, { href: '/repertoire', label: 'Répertoire', icon: UsersRound }, ...(canSubmit ? [{ href: '/submit', label: 'Créer', icon: Plus }] : []), { href: '/profil', label: 'Profil', icon: UserRound }, ...(isAdmin ? [{ href: '/administration', label: 'Admin', icon: LayoutDashboard }] : [])].map(({ href, label, icon: Icon }) => <Link href={href} key={href} className={cx('flex flex-col items-center gap-1 px-4 py-1 text-[10px] font-bold', location === href ? 'text-primary' : 'text-muted-foreground')} data-testid={`link-bottom-${label.toLowerCase()}`}><Icon className="h-5 w-5" />{label}</Link>)}
       </div>
     </div>
   );
@@ -610,49 +697,59 @@ function SearchPage() {
 
 function Submit() {
   const { isSignedIn } = useUser();
+  const myArtist = useGetMyArtist({ query: { enabled: Boolean(isSignedIn), queryKey: getGetMyArtistQueryKey() } });
   const createSubmission = useCreateSubmission();
-  const createArtist = useCreateArtist();
   const queryClient = useQueryClient();
-   const [form, setForm] = useState({ title: '', artist: '', category: 'Musique', note: '', location: '', bio: '', addProfile: false });
-   const [mediaFile, setMediaFile] = useState<File | null>(null);
-   const [coverFile, setCoverFile] = useState<File | null>(null);
-    const [avatarFile, setAvatarFile] = useState<File | null>(null);
-   const [uploading, setUploading] = useState(false);
-   const [uploadProgress, setUploadProgress] = useState(0);
+  const [form, setForm] = useState({ title: '', artist: '', category: 'Musique', note: '' });
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [done, setDone] = useState<Submission | null>(null);
   const [error, setError] = useState('');
-  const update = (key: keyof typeof form, value: string | boolean) => setForm((current) => ({ ...current, [key]: value }));
-   const submit = async (event: FormEvent) => {
+  const professionalProfile = myArtist.data?.specialties.length ? myArtist.data : null;
+  const canSubmit = canSubmitWorks(professionalProfile);
+  const update = (key: keyof typeof form, value: string) => setForm((current) => ({ ...current, [key]: value }));
+  useEffect(() => {
+    if (!professionalProfile?.name) return;
+    setForm((current) => current.artist ? current : { ...current, artist: professionalProfile.name });
+  }, [professionalProfile?.name]);
+  const submit = async (event: FormEvent) => {
     event.preventDefault(); setError('');
     if (form.title.trim().length < 2 || form.artist.trim().length < 2) { setError('Ajoutez un titre et un nom d’artiste pour que l’équipe retrouve votre œuvre.'); return; }
-     if (!mediaFile) { setError('Ajoutez le fichier audio ou vidéo de votre œuvre.'); return; }
-     const uploadedPaths: string[] = [];
-     try {
-       setUploading(true);
-       const fileCount = 1 + (coverFile ? 1 : 0) + (form.addProfile && avatarFile ? 1 : 0);
-       let completedFiles = 0;
-       const trackedUpload = async (file: File) => {
-         const path = await uploadAsset(file, (value) => setUploadProgress(Math.round(((completedFiles + value / 100) / fileCount) * 100)));
-         uploadedPaths.push(path);
-         completedFiles += 1;
-         return path;
-       };
-       const duration = await extractMediaDuration(mediaFile);
-       const mediaObjectPath = await trackedUpload(mediaFile);
-       const coverObjectPath = coverFile ? await trackedUpload(coverFile) : undefined;
-       const avatar = form.addProfile && avatarFile ? await trackedUpload(avatarFile) : undefined;
-       if (form.addProfile) await createArtist.mutateAsync({ data: { name: form.artist, category: form.category, bio: form.bio, location: form.location, avatar } });
-       const created = await createSubmission.mutateAsync({ data: { title: form.title, artist: form.artist, category: form.category, note: form.note || undefined, mediaType: mediaFile.type.startsWith('video/') ? 'video' : 'audio', mediaObjectPath, coverObjectPath, duration } });
-       setDone(created); void queryClient.invalidateQueries({ queryKey: getGetSubmissionsQueryKey() });
-     } catch (submissionError) {
-       await cleanupUploadedAssets(uploadedPaths);
-       setError(submissionError instanceof Error ? submissionError.message : 'Votre proposition n’a pas pu être envoyée.');
-     } finally { setUploading(false); }
+    if (!mediaFile) { setError('Ajoutez le fichier audio ou vidéo de votre œuvre.'); return; }
+    const uploadedPaths: string[] = [];
+    try {
+      setUploading(true);
+      const fileCount = 1 + (coverFile ? 1 : 0);
+      let completedFiles = 0;
+      const trackedUpload = async (file: File) => {
+        const path = await uploadAsset(file, (value) => setUploadProgress(Math.round(((completedFiles + value / 100) / fileCount) * 100)));
+        uploadedPaths.push(path);
+        completedFiles += 1;
+        return path;
+      };
+      const duration = await extractMediaDuration(mediaFile);
+      const mediaObjectPath = await trackedUpload(mediaFile);
+      const coverObjectPath = coverFile ? await trackedUpload(coverFile) : undefined;
+      const created = await createSubmission.mutateAsync({ data: { title: form.title, artist: form.artist, category: form.category, note: form.note || undefined, mediaType: mediaFile.type.startsWith('video/') ? 'video' : 'audio', mediaObjectPath, coverObjectPath, duration } });
+      setDone(created);
+      void queryClient.invalidateQueries({ queryKey: getGetSubmissionsQueryKey() });
+    } catch (submissionError) {
+      await cleanupUploadedAssets(uploadedPaths);
+      setError(submissionError instanceof Error ? submissionError.message : 'Votre proposition n’a pas pu être envoyée.');
+    } finally {
+      setUploading(false);
+    }
   };
   if (!isSignedIn) return <Redirect to="/sign-in" />;
+  if (myArtist.isLoading) return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8"><div className="skeleton h-72 rounded-[2rem]" /></div>;
+  if (myArtist.error) return <div className="mx-auto max-w-2xl px-5 py-20"><QueryState error={myArtist.error} onRetry={() => void myArtist.refetch()} label="profil de dépôt" /></div>;
+  if (!professionalProfile) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><ShieldCheck className="mx-auto h-10 w-10 text-primary" /><h1 className="display mt-5 text-4xl font-bold">Profil professionnel requis</h1><p className="mt-3 text-muted-foreground">Créez votre profil INDAMORA et choisissez une ou deux activités avant de proposer une œuvre.</p><Link href="/profil" className="mt-7 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">Créer mon espace professionnel</Link></div>;
+  if (!canSubmit) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><LockKeyhole className="mx-auto h-10 w-10 text-primary" /><h1 className="display mt-5 text-4xl font-bold">Dépôt non disponible pour ces activités</h1><p className="mt-3 text-muted-foreground">Votre espace professionnel reste accessible, mais le dépôt d’œuvres est réservé aux activités de création compatibles.</p><Link href="/espace-artiste" className="mt-7 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">Retour à mon espace</Link></div>;
   if (done) return <div className="mx-auto max-w-2xl px-5 py-20 text-center lg:py-28"><div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-accent text-accent-foreground"><Check className="h-9 w-9" /></div><div className="mt-8 font-mono text-[10px] uppercase tracking-[.2em] text-primary">Reçu par Indamora Records</div><h1 className="display mt-3 text-5xl font-bold">Votre œuvre est bien arrivée.</h1><p className="mx-auto mt-5 max-w-md leading-7 text-muted-foreground">Nous avons reçu <strong className="text-foreground">{done.title}</strong> dans notre espace d’écoute. Notre équipe va l’examiner avec attention et vous répondre.</p><Link href="/" className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground" data-testid="link-submission-home">Retour à la découverte <ArrowRight className="h-4 w-4" /></Link></div>;
-   const pending = uploading || createSubmission.isPending || createArtist.isPending;
-   return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr]"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Indamora Records</div><h1 className="display mt-3 text-5xl font-bold leading-[.95] md:text-6xl">Mettez votre œuvre<br /><span className="text-primary">dans la lumière.</span></h1><p className="mt-6 max-w-sm leading-7 text-muted-foreground">Une façon simple de présenter votre musique, votre humour, votre cinéma ou votre podcast à un public qui cherche quelque chose de vrai.</p><div className="mt-10 space-y-4 border-l-2 border-accent pl-5 text-sm font-semibold"><p>01 · Parlez-nous de votre création</p><p>02 · Notre équipe l’écoute avec attention</p><p>03 · Si elle trouve sa place, elle rencontre son public</p></div></div><form onSubmit={submit} className="rounded-[2rem] border border-border bg-card p-6 shadow-[var(--shadow-card)] md:p-9"><div className="mb-8 flex items-center justify-between"><div><h2 className="display text-2xl font-bold">Détails de l’œuvre</h2><p className="mt-1 text-sm text-muted-foreground">Les champs marqués d’un astérisque sont essentiels.</p></div><FileMusic className="h-7 w-7 text-primary" /></div><div className="grid gap-5 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold sm:col-span-2">Titre <input required value={form.title} onChange={(e) => update('title', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15" placeholder="Comment s’appelle-t-elle&nbsp;?" data-testid="input-submission-title" /></label><label className="grid gap-2 text-sm font-bold">Artiste ou collectif <input required value={form.artist} onChange={(e) => update('artist', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Votre nom public" data-testid="input-submission-artist" /></label><label className="grid gap-2 text-sm font-bold">Catégorie <select value={form.category} onChange={(e) => update('category', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="select-submission-category">{categories.map((item) => <option key={item} value={item}>{categoryLabel(item)}</option>)}</select></label><label className="grid gap-2 text-sm font-bold sm:col-span-2">Un mot pour l’équipe d’écoute <textarea value={form.note} onChange={(e) => update('note', e.target.value)} className="min-h-28 resize-y rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Dites-nous ce que cette œuvre représente pour vous…" data-testid="textarea-submission-note" /></label></div><div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Audio ou vidéo <input required type="file" accept="audio/mpeg,audio/mp4,audio/wav,audio/ogg,video/mp4,video/webm,video/quicktime" onChange={(e) => setMediaFile(e.target.files?.[0] ?? null)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal" data-testid="input-submission-media" />{mediaFile && <span className="text-xs text-muted-foreground">{mediaFile.name}</span>}</label><label className="grid gap-2 text-sm font-bold">Couverture (optionnelle) <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal" data-testid="input-submission-cover" />{coverFile && <span className="text-xs text-muted-foreground">{coverFile.name}</span>}</label></div><label className="mt-6 flex cursor-pointer items-start gap-3 rounded-2xl bg-muted p-4 text-sm"><input type="checkbox" checked={form.addProfile} onChange={(e) => update('addProfile', e.target.checked)} className="mt-1 h-4 w-4 accent-[hsl(var(--primary))]" data-testid="checkbox-create-profile" /><span><strong>Ajouter mon profil au répertoire</strong><span className="mt-1 block text-xs leading-5 text-muted-foreground">Partagez votre biographie, votre lieu et votre vraie photo de profil.</span></span></label>{form.addProfile && <div className="mt-4 grid gap-5 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Où êtes-vous basé&nbsp;? <input required value={form.location} onChange={(e) => update('location', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Bangui, République centrafricaine" data-testid="input-artist-location" /></label><label className="grid gap-2 text-sm font-bold">Courte biographie <textarea required value={form.bio} onChange={(e) => update('bio', e.target.value)} className="min-h-12 rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Que créez-vous&nbsp;?" data-testid="textarea-artist-bio" /></label><label className="grid gap-2 text-sm font-bold sm:col-span-2">Photo de profil (optionnelle) <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setAvatarFile(e.target.files?.[0] ?? null)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal" data-testid="input-artist-avatar" />{avatarFile && <span className="text-xs text-muted-foreground">{avatarFile.name}</span>}</label></div>}{error && <p className="mt-5 rounded-xl bg-destructive/10 px-4 py-3 text-sm font-semibold text-destructive" data-testid="status-submission-error">{error}</p>}<button disabled={pending} className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground transition-all hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-60" data-testid="button-submit-work">{pending ? <><LoaderCircle className="h-4 w-4 animate-spin" /> Envoi en cours… {uploadProgress > 0 && `${uploadProgress}%`}</> : <><Send className="h-4 w-4" /> Envoyer pour examen</>}</button></form></div></div>;
+  const pending = uploading || createSubmission.isPending;
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr]"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Indamora Records</div><h1 className="display mt-3 text-5xl font-bold leading-[.95] md:text-6xl">Mettez votre œuvre<br /><span className="text-primary">dans la lumière.</span></h1><p className="mt-6 max-w-sm leading-7 text-muted-foreground">Cette proposition sera rattachée à votre profil professionnel existant : <strong className="text-foreground">{professionalProfile.name}</strong>.</p><div className="mt-10 space-y-4 border-l-2 border-accent pl-5 text-sm font-semibold"><p>01 · Parlez-nous de votre création</p><p>02 · Notre équipe l’écoute avec attention</p><p>03 · Si elle trouve sa place, elle rencontre son public</p></div></div><form onSubmit={submit} className="rounded-[2rem] border border-border bg-card p-6 shadow-[var(--shadow-card)] md:p-9"><div className="mb-8 flex items-center justify-between"><div><h2 className="display text-2xl font-bold">Détails de l’œuvre</h2><p className="mt-1 text-sm text-muted-foreground">Les champs marqués d’un astérisque sont essentiels.</p></div><FileMusic className="h-7 w-7 text-primary" /></div><div className="grid gap-5 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold sm:col-span-2">Titre <input required value={form.title} onChange={(e) => update('title', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15" placeholder="Comment s’appelle-t-elle&nbsp;?" data-testid="input-submission-title" /></label><label className="grid gap-2 text-sm font-bold">Artiste ou collectif <input required value={form.artist} onChange={(e) => update('artist', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Votre nom public" data-testid="input-submission-artist" /></label><label className="grid gap-2 text-sm font-bold">Catégorie <select value={form.category} onChange={(e) => update('category', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="select-submission-category">{categories.map((item) => <option key={item} value={item}>{categoryLabel(item)}</option>)}</select></label><label className="grid gap-2 text-sm font-bold sm:col-span-2">Un mot pour l’équipe d’écoute <textarea value={form.note} onChange={(e) => update('note', e.target.value)} className="min-h-28 resize-y rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Dites-nous ce que cette œuvre représente pour vous…" data-testid="textarea-submission-note" /></label></div><div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Audio ou vidéo <input required type="file" accept="audio/mpeg,audio/mp4,audio/wav,audio/ogg,video/mp4,video/webm,video/quicktime" onChange={(e) => setMediaFile(e.target.files?.[0] ?? null)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal" data-testid="input-submission-media" />{mediaFile && <span className="text-xs text-muted-foreground">{mediaFile.name}</span>}</label><label className="grid gap-2 text-sm font-bold">Couverture (optionnelle) <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal" data-testid="input-submission-cover" />{coverFile && <span className="text-xs text-muted-foreground">{coverFile.name}</span>}</label></div>{error && <p className="mt-5 rounded-xl bg-destructive/10 px-4 py-3 text-sm font-semibold text-destructive" data-testid="status-submission-error">{error}</p>}<button disabled={pending} className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground transition-all hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-60" data-testid="button-submit-work">{pending ? <><LoaderCircle className="h-4 w-4 animate-spin" /> Envoi en cours… {uploadProgress > 0 && `${uploadProgress}%`}</> : <><Send className="h-4 w-4" /> Envoyer pour examen</>}</button></form></div></div>;
 }
 
 function SubmissionPreview({ submission }: { submission: Submission }) {
@@ -994,7 +1091,8 @@ function ArtistProfileForm({
       bio,
       location,
       specialties: values.specialties,
-      profileGroup: 'artists' as const,
+      profileGroup: profileGroupForActivities(values.specialties),
+      subcategory: values.specialties[0],
     };
     const options = {
       onSuccess: () => {
@@ -1065,21 +1163,86 @@ function Profile() {
   const myArtist = useGetMyArtist({ query: { enabled: Boolean(isSignedIn), queryKey: getGetMyArtistQueryKey() } });
   if (!isSignedIn) return <Redirect to="/sign-in" />;
   const name = user?.fullName ?? user?.firstName ?? 'Membre INDAMORA';
-  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-6 rounded-[2rem] bg-secondary p-7 text-secondary-foreground md:flex-row md:items-center md:justify-between md:p-10"><div className="flex items-center gap-5"><Avatar name={name} src={user?.imageUrl} size="lg" /><div><div className="font-mono text-[10px] uppercase tracking-[.2em] text-accent">Mon profil</div><h1 className="display mt-2 text-4xl font-bold">{name}</h1><p className="mt-1 text-secondary-foreground/70">{user?.primaryEmailAddress?.emailAddress}</p></div></div><button onClick={() => void signOut({ redirectUrl: basePath || '/' })} className="inline-flex items-center justify-center gap-2 rounded-full border border-secondary-foreground/25 px-4 py-2 text-sm font-bold hover:border-accent hover:text-accent" data-testid="button-profile-logout">Se déconnecter</button></div><div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{isAdminUser(user) && <Link href="/administration" className="rounded-2xl border border-primary/40 bg-primary/5 p-6 hover:border-primary"><LayoutDashboard className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Administration</h2></Link>}<Link href="/explorer" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><History className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Mes découvertes</h2></Link><Link href="/espace-artiste" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><FileMusic className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Espace artiste</h2></Link><Link href="/pricing" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><Crown className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Offres Premium</h2></Link><Link href="/soutenir" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><HeartHandshake className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Soutenir INDAMORA</h2></Link></div>{myArtist.isLoading ? <div className="mt-12 skeleton h-64 rounded-[2rem]" /> : myArtist.error ? <QueryState error={myArtist.error} onRetry={() => void myArtist.refetch()} label="profil-artiste" /> : <ArtistProfileForm artist={myArtist.data ?? null} defaultName={name} onSaved={() => { void queryClient.invalidateQueries({ queryKey: getGetMyArtistQueryKey() }); void queryClient.invalidateQueries({ queryKey: getGetArtistsQueryKey() }); }} />}</div>;
+  if (myArtist.isLoading) return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8"><div className="skeleton h-72 rounded-[2rem]" /></div>;
+  if (myArtist.error) return <div className="mx-auto max-w-2xl px-5 py-20"><QueryState error={myArtist.error} onRetry={() => void myArtist.refetch()} label="profil INDAMORA" /></div>;
+
+  const professionalProfile = myArtist.data?.specialties.length ? myArtist.data : null;
+  const space = professionalProfile ? professionalSpaceCopy(professionalProfile) : null;
+  const canSubmit = canSubmitWorks(professionalProfile);
+  const refreshProfile = () => {
+    void queryClient.invalidateQueries({ queryKey: getGetMyArtistQueryKey() });
+    void queryClient.invalidateQueries({ queryKey: getGetArtistsQueryKey() });
+  };
+
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16">
+    <div className="flex flex-col gap-6 rounded-[2rem] bg-secondary p-7 text-secondary-foreground md:flex-row md:items-center md:justify-between md:p-10">
+      <div className="flex items-center gap-5">
+        <Avatar name={name} src={user?.imageUrl} size="lg" />
+        <div>
+          <div className="font-mono text-[10px] uppercase tracking-[.2em] text-accent">{space?.eyebrow ?? 'Mon espace visiteur'}</div>
+          <h1 className="display mt-2 text-4xl font-bold">{name}</h1>
+          <p className="mt-1 text-secondary-foreground/70">{user?.primaryEmailAddress?.emailAddress}</p>
+        </div>
+      </div>
+      <button onClick={() => void signOut({ redirectUrl: basePath || '/' })} className="inline-flex items-center justify-center gap-2 rounded-full border border-secondary-foreground/25 px-4 py-2 text-sm font-bold hover:border-accent hover:text-accent" data-testid="button-profile-logout">Se déconnecter</button>
+    </div>
+
+    <section className="mt-8 rounded-[2rem] border border-border bg-card p-6 md:p-8">
+      <div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary">{space?.eyebrow ?? 'Espace visiteur / auditeur'}</div>
+      <h2 className="display mt-2 text-3xl font-bold">{space?.title ?? 'Mon espace visiteur'}</h2>
+      <p className="mt-3 max-w-2xl leading-7 text-muted-foreground">{space?.description ?? 'Découvrez les artistes, consultez le RÉPERTOIRE, gérez votre abonnement et soutenez INDAMORA sans accès aux outils réservés aux professionnels.'}</p>
+      {professionalProfile && <div className="mt-5 flex flex-wrap gap-2">{professionalProfile.specialties.map((activity) => <span key={activity} className="rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-sm font-bold text-primary">{activity}</span>)}</div>}
+    </section>
+
+    <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      {isAdminUser(user) && <Link href="/administration" className="rounded-2xl border border-primary/40 bg-primary/5 p-6 hover:border-primary"><LayoutDashboard className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Centre de pilotage ADMIN</h2></Link>}
+      <Link href="/explorer" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><History className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Mes découvertes</h2></Link>
+      <Link href="/repertoire" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><UsersRound className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">RÉPERTOIRE</h2></Link>
+      {professionalProfile && <Link href="/espace-artiste" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><FileMusic className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">{space?.title}</h2></Link>}
+      {canSubmit && <Link href="/submit" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><Send className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Proposer une œuvre</h2></Link>}
+      <Link href="/pricing" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><Crown className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Mon abonnement</h2></Link>
+      <Link href="/soutenir" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><HeartHandshake className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Soutenir INDAMORA</h2></Link>
+    </div>
+
+    {!professionalProfile && <div className="mt-12 rounded-[2rem] bg-primary/5 p-6 md:p-8"><div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary">🎨 Je crée mon espace</div><h2 className="display mt-2 text-3xl font-bold">Créer mon espace professionnel</h2><p className="mt-3 max-w-2xl leading-7 text-muted-foreground">Choisissez une ou deux activités pour accéder aux outils correspondant à votre profil.</p></div>}
+    <ArtistProfileForm artist={professionalProfile} defaultName={name} onSaved={refreshProfile} />
+  </div>;
 }
 
 function ArtistSpace() {
   const { isSignedIn, user } = useUser();
   const queryClient = useQueryClient();
-  const submissions = useGetSubmissions(undefined, { query: { enabled: Boolean(isSignedIn), queryKey: getGetSubmissionsQueryKey() } });
+  const myArtist = useGetMyArtist({ query: { enabled: Boolean(isSignedIn), queryKey: getGetMyArtistQueryKey() } });
+  const professionalProfile = myArtist.data?.specialties.length ? myArtist.data : null;
+  const canSubmit = canSubmitWorks(professionalProfile);
+  const submissions = useGetSubmissions(undefined, { query: { enabled: Boolean(isSignedIn && canSubmit), queryKey: getGetSubmissionsQueryKey() } });
   const deleteFiles = useDeleteSubmissionFiles();
   if (!isSignedIn) return <Redirect to="/sign-in" />;
+  if (myArtist.isLoading) return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8"><div className="skeleton h-72 rounded-[2rem]" /></div>;
+  if (myArtist.error) return <div className="mx-auto max-w-2xl px-5 py-20"><QueryState error={myArtist.error} onRetry={() => void myArtist.refetch()} label="profil professionnel" /></div>;
+  if (!professionalProfile) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><ShieldCheck className="mx-auto h-10 w-10 text-primary" /><h1 className="display mt-5 text-4xl font-bold">Espace professionnel non activé</h1><p className="mt-3 text-muted-foreground">Créez d’abord votre profil INDAMORA et choisissez une ou deux activités.</p><Link href="/profil" className="mt-7 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">Créer mon espace professionnel</Link></div>;
+  const space = professionalSpaceCopy(professionalProfile);
   const statusLabel = (status: string) => status === 'approved' ? 'Validée' : status === 'rejected' ? 'Refusée' : 'En attente';
   const removeFiles = (submission: Submission) => {
     if (!window.confirm(`Supprimer définitivement les fichiers de « ${submission.title} » ? Cette action est irréversible.`)) return;
     deleteFiles.mutate({ id: submission.id }, { onSuccess: () => void queryClient.invalidateQueries({ queryKey: getGetSubmissionsQueryKey() }) });
   };
-  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-6 rounded-[2rem] bg-primary p-7 text-primary-foreground md:flex-row md:items-end md:justify-between md:p-10"><div><div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary-foreground/70">Espace artiste</div><h1 className="display mt-3 text-5xl font-bold">{user?.fullName ?? user?.firstName ?? 'Votre espace de création'}</h1><p className="mt-4 max-w-xl leading-7 text-primary-foreground/80">Envoyez vos œuvres à INDAMORA RECORDS et suivez chaque étape de leur examen.</p></div><Link href="/submit" className="inline-flex items-center justify-center gap-2 rounded-full bg-background px-5 py-3 text-sm font-bold text-foreground" data-testid="link-artist-submit"><Plus className="h-4 w-4" /> Envoyer une œuvre</Link></div><div className="mt-12 grid gap-4 sm:grid-cols-3"><div className="rounded-2xl border border-border bg-card p-5"><div className="text-3xl font-bold">{submissions.data?.length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">Œuvres envoyées</p></div><div className="rounded-2xl border border-border bg-card p-5"><div className="text-3xl font-bold text-accent-foreground">{submissions.data?.filter((item) => item.status === 'approved').length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">Validées</p></div><div className="rounded-2xl border border-border bg-card p-5"><div className="text-3xl font-bold">{submissions.data?.filter((item) => item.status === 'pending').length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">En attente</p></div></div><section className="mt-12"><SectionHeading eyebrow="Suivi des propositions" title="Le chemin de vos œuvres" />{submissions.isLoading ? <div className="space-y-3"><div className="skeleton h-24 rounded-2xl" /><div className="skeleton h-24 rounded-2xl" /></div> : submissions.error ? <QueryState error={submissions.error} onRetry={() => void submissions.refetch()} label="espace-artiste" /> : <div className="space-y-3">{(submissions.data ?? []).slice(0, 6).map((item) => <div key={item.id} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-muted text-primary"><FileMusic className="h-5 w-5" /></div><div className="min-w-0 flex-1"><h2 className="font-bold">{item.title}</h2><p className="mt-1 text-sm text-muted-foreground">{categoryLabel(item.category)} · Envoyée le {new Date(item.submittedAt).toLocaleDateString('fr-FR')}</p></div><div className="flex flex-col items-end gap-2"><span className={cx('rounded-full px-3 py-1 text-xs font-bold', item.status === 'approved' ? 'bg-secondary/10 text-secondary' : item.status === 'rejected' ? 'bg-destructive/10 text-destructive' : 'bg-accent/20 text-foreground')}>{statusLabel(item.status)}</span>{item.status === 'rejected' && (item.mediaObjectPath || item.coverObjectPath) && <button disabled={deleteFiles.isPending} onClick={() => removeFiles(item)} className="inline-flex items-center gap-2 rounded-full border border-destructive/30 px-3 py-1.5 text-xs font-bold text-destructive hover:border-destructive disabled:opacity-50" data-testid={`button-artist-delete-submission-files-${item.id}`}><Trash2 className="h-3.5 w-3.5" /> Supprimer les fichiers</button>}</div></div>)}</div>}</section></div>;
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16">
+    <div className="flex flex-col gap-6 rounded-[2rem] bg-primary p-7 text-primary-foreground md:flex-row md:items-end md:justify-between md:p-10">
+      <div>
+        <div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary-foreground/70">{space.eyebrow}</div>
+        <h1 className="display mt-3 text-5xl font-bold">{space.title}</h1>
+        <p className="mt-4 max-w-xl leading-7 text-primary-foreground/80">{space.description}</p>
+        <div className="mt-5 flex flex-wrap gap-2">{professionalProfile.specialties.map((activity) => <span key={activity} className="rounded-full bg-background/15 px-3 py-1 text-xs font-bold">{activity}</span>)}</div>
+      </div>
+      {canSubmit && <Link href="/submit" className="inline-flex items-center justify-center gap-2 rounded-full bg-background px-5 py-3 text-sm font-bold text-foreground" data-testid="link-artist-submit"><Plus className="h-4 w-4" /> Envoyer une œuvre</Link>}
+    </div>
+
+    {!canSubmit ? <div className="mt-12 grid gap-4 sm:grid-cols-2"><Link href="/profil" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><UserRound className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Mon profil professionnel</h2><p className="mt-2 text-sm text-muted-foreground">Mettez à jour votre présentation et vos activités.</p></Link><Link href="/repertoire" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><UsersRound className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Ma visibilité dans le RÉPERTOIRE</h2><p className="mt-2 text-sm text-muted-foreground">Consultez les profils professionnels publiés.</p></Link></div> : <>
+      <div className="mt-12 grid gap-4 sm:grid-cols-3"><div className="rounded-2xl border border-border bg-card p-5"><div className="text-3xl font-bold">{submissions.data?.length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">Œuvres envoyées</p></div><div className="rounded-2xl border border-border bg-card p-5"><div className="text-3xl font-bold text-accent-foreground">{submissions.data?.filter((item) => item.status === 'approved').length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">Validées</p></div><div className="rounded-2xl border border-border bg-card p-5"><div className="text-3xl font-bold">{submissions.data?.filter((item) => item.status === 'pending').length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">En attente</p></div></div>
+      <section className="mt-12"><SectionHeading eyebrow="Suivi des propositions" title="Le chemin de vos œuvres" />{submissions.isLoading ? <div className="space-y-3"><div className="skeleton h-24 rounded-2xl" /><div className="skeleton h-24 rounded-2xl" /></div> : submissions.error ? <QueryState error={submissions.error} onRetry={() => void submissions.refetch()} label="espace professionnel" /> : <div className="space-y-3">{(submissions.data ?? []).slice(0, 6).map((item) => <div key={item.id} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-muted text-primary"><FileMusic className="h-5 w-5" /></div><div className="min-w-0 flex-1"><h2 className="font-bold">{item.title}</h2><p className="mt-1 text-sm text-muted-foreground">{categoryLabel(item.category)} · Envoyée le {new Date(item.submittedAt).toLocaleDateString('fr-FR')}</p></div><div className="flex flex-col items-end gap-2"><span className={cx('rounded-full px-3 py-1 text-xs font-bold', item.status === 'approved' ? 'bg-secondary/10 text-secondary' : item.status === 'rejected' ? 'bg-destructive/10 text-destructive' : 'bg-accent/20 text-foreground')}>{statusLabel(item.status)}</span>{item.status === 'rejected' && (item.mediaObjectPath || item.coverObjectPath) && <button disabled={deleteFiles.isPending} onClick={() => removeFiles(item)} className="inline-flex items-center gap-2 rounded-full border border-destructive/30 px-3 py-1.5 text-xs font-bold text-destructive hover:border-destructive disabled:opacity-50" data-testid={`button-artist-delete-submission-files-${item.id}`}><Trash2 className="h-3.5 w-3.5" /> Supprimer les fichiers</button>}</div></div>)}</div>}</section>
+    </>}
+  </div>;
 }
 
 function AdminDashboard() {
@@ -1097,12 +1260,23 @@ function AdminDashboard() {
   if (overview.error || !overview.data) return <div className="mx-auto max-w-2xl px-5 py-20"><QueryState error={overview.error ?? new Error('Données indisponibles')} onRetry={() => void overview.refetch()} label="admin-overview" /></div>;
   const data = overview.data;
   const display = (value: number | null) => value === null ? '—' : value;
+  const auditActionLabel = (action: string) => ({
+    'profile.updated': 'Profil modifié',
+    'submission.approved_and_published': 'Soumission validée et publiée',
+    'submission.approved': 'Soumission validée',
+    'submission.rejected': 'Soumission refusée',
+    'submission.files_deleted': 'Fichiers de soumission supprimés',
+  }[action] ?? action);
   return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16">
     <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Tableau de bord privé</div><h1 className="display mt-3 text-5xl font-bold">Piloter INDAMORA<br /><span className="text-primary">RECORDS.</span></h1><p className="mt-4 text-muted-foreground">Données réelles du site, de Clerk, de la base et de Stripe.</p></div><div className="flex flex-wrap gap-2"><Link href="/moderation" className="inline-flex items-center justify-center gap-2 rounded-full bg-secondary px-5 py-3 text-sm font-bold text-secondary-foreground" data-testid="link-dashboard-moderation"><ShieldCheck className="h-4 w-4" /> Modération</Link><Link href="/repertoire" className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-5 py-3 text-sm font-bold hover:border-primary hover:text-primary" data-testid="link-dashboard-directory"><UsersRound className="h-4 w-4" /> Répertoire</Link></div></div>
     <div className="mt-10 flex flex-wrap items-center justify-between gap-3"><h2 className="display text-2xl font-bold">Activité sur {data.periodDays === 1 ? '24 heures' : `${data.periodDays} jours`}</h2><div className="flex gap-2">{([1, 7, 30] as const).map((period) => <button key={period} type="button" onClick={() => setDays(period)} className={cx('rounded-full border px-3 py-1.5 text-xs font-bold', days === period ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:border-primary')} data-testid={`button-admin-period-${period}`}>{period === 1 ? 'Aujourd’hui' : `${period} jours`}</button>)}</div></div>
     <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><div className="rounded-2xl border border-border bg-card p-5"><BarChart3 className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{data.visits.count}</div><p className="mt-1 text-sm text-muted-foreground">Visites</p><p className="mt-2 text-xs text-muted-foreground">{data.visits.uniqueVisitors} visiteurs uniques estimés</p></div><div className="rounded-2xl border border-border bg-card p-5"><UserRound className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{display(data.counts.users)}</div><p className="mt-1 text-sm text-muted-foreground">Utilisateurs inscrits</p></div><div className="rounded-2xl border border-border bg-card p-5"><UsersRound className="h-5 w-5 text-secondary" /><div className="mt-5 text-3xl font-bold">{data.counts.artists}</div><p className="mt-1 text-sm text-muted-foreground">Profils artistes</p><p className="mt-2 text-xs text-muted-foreground">{data.counts.publishedArtists} publiés</p></div><div className="rounded-2xl border border-border bg-card p-5"><FileMusic className="h-5 w-5 text-accent-foreground" /><div className="mt-5 text-3xl font-bold">{data.counts.works}</div><p className="mt-1 text-sm text-muted-foreground">Œuvres publiées</p></div></div>
     <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><div className="rounded-2xl border border-accent/40 bg-accent/10 p-5"><LoaderCircle className="h-5 w-5 text-accent-foreground" /><div className="mt-5 text-3xl font-bold">{data.counts.pendingSubmissions}</div><p className="mt-1 text-sm text-muted-foreground">Soumissions en attente</p></div><div className="rounded-2xl border border-border bg-card p-5"><Newspaper className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{data.counts.pendingPressRequests}</div><p className="mt-1 text-sm text-muted-foreground">Demandes presse en attente</p></div><div className="rounded-2xl border border-border bg-card p-5"><Crown className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{display(data.stripe.activeSubscriptions)}</div><p className="mt-1 text-sm text-muted-foreground">Abonnements actifs</p></div><div className="rounded-2xl border border-border bg-card p-5"><HeartHandshake className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{data.stripe.donations.totalEur === null ? '—' : `${data.stripe.donations.totalEur.toFixed(2)} €`}</div><p className="mt-1 text-sm text-muted-foreground">{data.stripe.donations.count === null ? 'Dons indisponibles' : `${data.stripe.donations.count} don(s) confirmé(s)`}</p></div></div>
     <div className="mt-8 grid gap-5 lg:grid-cols-[1.1fr_.9fr]"><section className="rounded-[2rem] border border-border bg-card p-6 md:p-8"><div className="flex items-center justify-between gap-4"><div><div className="font-mono text-[10px] uppercase tracking-[.18em] text-primary">Activité récente</div><h2 className="display mt-2 text-2xl font-bold">Ce qui se passe</h2></div><LayoutDashboard className="h-6 w-6 text-primary" /></div>{data.activity.length === 0 ? <p className="mt-6 rounded-2xl bg-muted px-4 py-8 text-center text-sm text-muted-foreground">Aucune activité disponible.</p> : <div className="mt-6 divide-y divide-border">{data.activity.map((item, index) => <div key={`${item.type}-${item.createdAt}-${index}`} className="flex items-start gap-3 py-3"><span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" /><div><p className="text-sm font-semibold">{item.label}</p><p className="mt-1 text-xs text-muted-foreground">{new Date(item.createdAt).toLocaleString('fr-FR')}</p></div></div>)}</div>}</section><section className="rounded-[2rem] bg-secondary p-6 text-secondary-foreground md:p-8"><div className="font-mono text-[10px] uppercase tracking-[.18em] text-accent">Pages les plus visitées</div><h2 className="display mt-2 text-2xl font-bold">Flux du site</h2>{data.visits.topPages.length === 0 ? <p className="mt-6 rounded-2xl border border-secondary-foreground/15 px-4 py-8 text-center text-sm text-secondary-foreground/70">Aucune visite enregistrée sur cette période.</p> : <div className="mt-6 space-y-3">{data.visits.topPages.map((page) => <div key={page.path} className="flex items-center justify-between gap-3 rounded-xl bg-secondary-foreground/10 px-4 py-3 text-sm"><span className="truncate">{page.path}</span><strong>{page.visits}</strong></div>)}</div>}<Link href="/moderation" className="mt-7 inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-bold text-accent-foreground" data-testid="link-dashboard-review">Examiner la file <ArrowRight className="h-4 w-4" /></Link></section></div>
+    <section className="mt-8 overflow-hidden rounded-[2rem] border border-border bg-card">
+      <div className="flex items-center justify-between gap-4 border-b border-border p-6 md:p-8"><div><div className="font-mono text-[10px] uppercase tracking-[.18em] text-primary">Journal ADMIN</div><h2 className="display mt-2 text-2xl font-bold">Actions d’administration</h2><p className="mt-2 text-sm text-muted-foreground">Journal privé des validations, refus, publications, modifications et suppressions effectuées depuis l’administration.</p></div><ShieldCheck className="h-6 w-6 shrink-0 text-primary" /></div>
+      {data.auditLog.length === 0 ? <p className="m-6 rounded-2xl bg-muted px-4 py-8 text-center text-sm text-muted-foreground">Aucune action administrateur enregistrée pour le moment.</p> : <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground"><tr><th className="px-6 py-3">Administrateur</th><th className="px-6 py-3">Action</th><th className="px-6 py-3">Élément</th><th className="px-6 py-3">Date et heure</th><th className="px-6 py-3">Résultat</th></tr></thead><tbody className="divide-y divide-border">{data.auditLog.map((entry) => <tr key={entry.id}><td className="px-6 py-4 font-mono text-xs">{entry.administratorId}</td><td className="px-6 py-4 font-semibold">{auditActionLabel(entry.action)}</td><td className="px-6 py-4">{entry.targetLabel ?? `${entry.entityType}${entry.entityId ? ` #${entry.entityId}` : ''}`}</td><td className="px-6 py-4 text-muted-foreground">{new Date(entry.createdAt).toLocaleString('fr-FR')}</td><td className="px-6 py-4"><span className="rounded-full bg-secondary/10 px-3 py-1 text-xs font-bold text-secondary">{entry.result === 'success' ? 'Succès' : entry.result}</span></td></tr>)}</tbody></table></div>}
+    </section>
   </div>;
 }
 

@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { and, eq, ilike, ne, or } from "drizzle-orm";
-import { db, artistsTable, pressRequestsTable, submissionsTable, worksTable } from "@workspace/db";
+import { adminAuditLogsTable, db, artistsTable, pressRequestsTable, submissionsTable, worksTable } from "@workspace/db";
 import {
   CreateArtistBody,
   CreateArtistResponse,
@@ -27,7 +27,7 @@ import {
   UpdateArtistResponse,
 } from "@workspace/api-zod";
 import { logger } from "../lib/logger";
-import { isAdminUser, requireAdmin, requireAuth } from "../middlewares/auth";
+import { isAdminUser, requireAdmin, requireAuth, requireProfessionalProfile } from "../middlewares/auth";
 import { ObjectPermission } from "../lib/objectAcl";
 import { ObjectStorageService } from "../lib/objectStorage";
 
@@ -269,6 +269,19 @@ router.post("/artists", requireAuth, async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
+  if (!parsed.data.specialties?.length) {
+    res.status(400).json({ error: "Sélectionnez au moins une activité." });
+    return;
+  }
+  const [ownedProfile] = await db
+    .select({ id: artistsTable.id })
+    .from(artistsTable)
+    .where(eq(artistsTable.ownerId, req.clerkUserId!))
+    .limit(1);
+  if (ownedProfile) {
+    res.status(409).json({ error: "Ce compte possède déjà un profil INDAMORA." });
+    return;
+  }
   if (parsed.data.avatar) {
     try {
       const avatar = await objectStorage.getObjectEntityFile(parsed.data.avatar);
@@ -404,6 +417,16 @@ router.patch("/artists/:id", requireAuth, async (req, res): Promise<void> => {
     res.status(500).json({ error: "Impossible de mettre à jour le profil." });
     return;
   }
+  if (admin) {
+    await db.insert(adminAuditLogsTable).values({
+      administratorId: req.clerkUserId!,
+      action: "profile.updated",
+      entityType: "artist",
+      entityId: String(updated.id),
+      targetLabel: updated.name,
+      result: "success",
+    });
+  }
   res.json(UpdateArtistResponse.parse(directoryProfilesForClient([updated])[0]));
 });
 
@@ -422,7 +445,7 @@ router.post("/press-requests", async (req, res): Promise<void> => {
     .json(CreatePressRequestResponse.parse(pressRequestForClient(request)));
 });
 
-router.get("/submissions", requireAuth, async (req, res): Promise<void> => {
+router.get("/submissions", requireProfessionalProfile, async (req, res): Promise<void> => {
   const params = GetSubmissionsQueryParams.safeParse(req.query);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -448,7 +471,7 @@ router.get("/submissions", requireAuth, async (req, res): Promise<void> => {
   res.json(GetSubmissionsResponse.parse(submissionsForClient(submissions)));
 });
 
-router.post("/submissions", requireAuth, async (req, res): Promise<void> => {
+router.post("/submissions", requireProfessionalProfile, async (req, res): Promise<void> => {
   const parsed = CreateSubmissionBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -534,9 +557,25 @@ router.patch("/submissions/:id/status", requireAdmin, async (req, res): Promise<
       if (existing.mediaObjectPath) await objectStorage.setAcl(existing.mediaObjectPath, { owner: existing.ownerId ?? req.clerkUserId!, visibility: "public" });
       if (existing.coverObjectPath) await objectStorage.setAcl(existing.coverObjectPath, { owner: existing.ownerId ?? req.clerkUserId!, visibility: "public" });
       const [updated] = await tx.update(submissionsTable).set({ status: "approved", publishedWorkId: work.id }).where(eq(submissionsTable.id, params.data.id)).returning();
+      await tx.insert(adminAuditLogsTable).values({
+        administratorId: req.clerkUserId!,
+        action: "submission.approved_and_published",
+        entityType: "submission",
+        entityId: String(existing.id),
+        targetLabel: existing.title,
+        result: "success",
+      });
       return { updated };
     }
     const [updated] = await tx.update(submissionsTable).set({ status: body.data.status }).where(eq(submissionsTable.id, params.data.id)).returning();
+    await tx.insert(adminAuditLogsTable).values({
+      administratorId: req.clerkUserId!,
+      action: `submission.${body.data.status}`,
+      entityType: "submission",
+      entityId: String(existing.id),
+      targetLabel: existing.title,
+      result: "success",
+    });
     return { updated };
   });
   if (!submission) { res.status(404).json({ error: "Submission not found" }); return; }
@@ -544,7 +583,7 @@ router.patch("/submissions/:id/status", requireAdmin, async (req, res): Promise<
   res.json(UpdateSubmissionStatusResponse.parse(submissionsForClient([submission.updated])[0]));
 });
 
-router.delete("/submissions/:id/files", requireAuth, async (req, res): Promise<void> => {
+router.delete("/submissions/:id/files", requireProfessionalProfile, async (req, res): Promise<void> => {
   const params = DeleteSubmissionFilesParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -599,6 +638,16 @@ router.delete("/submissions/:id/files", requireAuth, async (req, res): Promise<v
         .where(eq(submissionsTable.id, submission.id))
         .returning();
       if (!updated) throw new Error("Submission update failed after file deletion");
+      if (admin) {
+        await tx.insert(adminAuditLogsTable).values({
+          administratorId: req.clerkUserId!,
+          action: "submission.files_deleted",
+          entityType: "submission",
+          entityId: String(submission.id),
+          targetLabel: submission.title,
+          result: "success",
+        });
+      }
       return { updated } as const;
     });
     if ("updated" in result) {
