@@ -4,6 +4,9 @@ const PUBLIC_ASSETS = [
   '/favicon.svg',
   '/assets/indamora-play-logo.png',
   '/assets/indamora-play-mark.png',
+  '/assets/indamora-play-icon-192.png',
+  '/assets/indamora-play-icon-512.png',
+  '/assets/indamora-play-apple-touch-icon.png',
 ];
 
 self.addEventListener('install', (event) => {
