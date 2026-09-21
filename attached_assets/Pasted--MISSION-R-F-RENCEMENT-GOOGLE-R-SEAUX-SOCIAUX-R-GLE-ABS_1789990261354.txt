@@ -1,0 +1,712 @@
+🌍 MISSION — RÉFÉRENCEMENT GOOGLE + RÉSEAUX SOCIAUX
+
+⚠️ RÈGLE ABSOLUE
+
+NE PAS RECONSTRUIRE INDAMORA PLAY.
+
+Le site fonctionne déjà et la production est la référence fonctionnelle.
+
+Ne pas remplacer les fonctionnalités existantes.
+Ne pas modifier inutilement le design.
+Ne pas modifier le logo.
+Ne pas modifier le domaine.
+Ne pas modifier Clerk, Stripe, les dons, les abonnements, les médias, le stockage, le RÉPERTOIRE ou la modération s’ils fonctionnent déjà.
+
+Objectif : améliorer la visibilité de l’existant sur Google et les réseaux sociaux avec le minimum de modifications nécessaires.
+
+Après chaque modification :
+
+TESTER → VÉRIFIER → CORRIGER SI NÉCESSAIRE → RETESTER.
+
+⸻
+
+1. IDENTITÉ SEO OFFICIELLE
+
+Le nom principal de la plateforme reste :
+
+INDAMORA PLAY
+
+Présentation officielle :
+
+INDAMORA PLAY
+Une plateforme de INDAMORA RECORDS
+Notre musique. Notre culture. Notre scène.
+
+INDAMORA RECORDS est la structure/écosystème parent.
+
+INDAMORA PLAY est la plateforme musicale.
+
+Ne jamais remplacer INDAMORA PLAY par INDAMORA RECORDS.
+
+Le référencement doit permettre de comprendre clairement la relation :
+
+INDAMORA RECORDS → INDAMORA PLAY
+
+et, lorsque les informations sont réellement présentes sur le site :
+
+* INDAMORA RADIO
+* INDAMORA MÉDIA
+* VOIX DE L’AVENIR
+* artistes
+* talents
+* musique
+* culture
+* diaspora.
+
+Ne pas inventer d’informations ou de partenariats.
+
+⸻
+
+2. OBJECTIF GOOGLE
+
+Faire en sorte que Google puisse correctement :
+
+* découvrir le site ;
+* explorer les pages publiques ;
+* comprendre INDAMORA PLAY ;
+* comprendre INDAMORA RECORDS ;
+* comprendre le RÉPERTOIRE ;
+* comprendre les artistes ;
+* comprendre les œuvres publiques ;
+* comprendre les catégories ;
+* comprendre les contenus liés à la musique centrafricaine ;
+* afficher correctement les pages dans les résultats ;
+* afficher correctement les liens lorsqu’ils sont partagés.
+
+⚠️ Ne jamais promettre une première position Google.
+
+L’objectif est d’améliorer l’indexation, la compréhension du site et sa visibilité sur les recherches pertinentes.
+
+⸻
+
+3. AUDIT SEO AVANT MODIFICATION
+
+Avant de modifier quoi que ce soit, analyser l’existant :
+
+* index.html
+* routes publiques
+* titres <title>
+* meta descriptions
+* canonical
+* robots.txt
+* sitemap.xml
+* Open Graph
+* Twitter/X Cards
+* favicon
+* images
+* URLs publiques
+* rendu mobile
+* liens internes
+* pages du RÉPERTOIRE
+* pages artistes
+* pages œuvres
+* catégories
+* pages INDAMORA RECORDS
+* pages INDAMORA PLAY.
+
+Identifier ce qui existe déjà.
+
+Ne pas recréer une fonctionnalité déjà présente.
+
+⸻
+
+4. GOOGLE — TITLE ET DESCRIPTION
+
+Mettre en place des titres et descriptions pertinents pour les pages publiques.
+
+Exemple page d’accueil :
+
+Title :
+INDAMORA PLAY — Musique centrafricaine, artistes et talents
+
+Description :
+INDAMORA PLAY, une plateforme de INDAMORA RECORDS pour découvrir les artistes, les œuvres et les talents de Centrafrique, de la diaspora et du monde entier.
+
+Adapter les textes aux pages réelles.
+
+Ne pas utiliser le même title et la même description pour toutes les pages.
+
+⸻
+
+5. MOTS-CLÉS À TRAVAILLER NATURELLEMENT
+
+Le site doit pouvoir être compris sur des recherches telles que :
+
+* musique centrafricaine
+* musique Centrafrique
+* musique de Bangui
+* artistes centrafricains
+* artistes de Bangui
+* talents centrafricains
+* musique africaine
+* musique de la diaspora centrafricaine
+* label musical Centrafrique
+* artistes africains
+* chanteurs centrafricains
+* gospel centrafricain
+* producteurs centrafricains
+* créateurs centrafricains
+* INDAMORA RECORDS
+* INDAMORA PLAY.
+
+⚠️ Ne pas faire de keyword stuffing.
+
+Ces expressions doivent apparaître uniquement lorsqu’elles correspondent réellement au contenu de la page.
+
+⸻
+
+6. RÉPERTOIRE — PRIORITÉ SEO
+
+Le RÉPERTOIRE est le cœur de l’écosystème.
+
+Les profils publics doivent être compréhensibles par Google.
+
+Vérifier que les pages publiques d’artistes/talents disposent, lorsque les données existent réellement, de :
+
+* nom ;
+* pseudo / nom d’artiste ;
+* activité ;
+* bio ;
+* pays ;
+* ville ;
+* catégorie ;
+* image publique ;
+* œuvres publiques ;
+* liens publics ;
+* informations pertinentes.
+
+Créer des URLs publiques propres si le système actuel le permet déjà.
+
+Exemple :
+
+/artistes/nom-de-lartiste
+
+ou conserver le système d’URL existant s’il est déjà fonctionnel.
+
+Ne pas casser les anciennes URLs.
+
+⸻
+
+7. PROFILS PRIVÉS
+
+Important :
+
+Les espaces suivants ne doivent PAS être indexés publiquement :
+
+* profil personnel privé ;
+* espace visiteur ;
+* espace artiste privé ;
+* espace administrateur ;
+* pages de connexion ;
+* pages d’inscription ;
+* pages privées ;
+* données personnelles ;
+* tableaux de bord ;
+* données financières privées.
+
+Utiliser les mécanismes appropriés :
+
+* authentification ;
+* noindex lorsque nécessaire ;
+* protection serveur.
+
+Ne jamais exposer des informations privées dans Google.
+
+⸻
+
+8. ŒUVRES ET MÉDIAS PUBLICS
+
+Les œuvres réellement publiées peuvent être rendues compréhensibles par les moteurs de recherche.
+
+Vérifier les pages publiques des œuvres :
+
+* titre ;
+* artiste ;
+* description ;
+* catégorie ;
+* image ;
+* média lorsque public ;
+* liens vers l’artiste ;
+* liens vers le RÉPERTOIRE.
+
+Ne pas rendre indexables :
+
+* œuvres en attente ;
+* œuvres rejetées ;
+* médias privés ;
+* fichiers privés ;
+* contenus administratifs.
+
+⸻
+
+9. LIENS INTERNES
+
+Créer une structure logique entre les pages publiques :
+
+Accueil
+↓
+RÉPERTOIRE
+↓
+Artiste
+↓
+Œuvres
+↓
+Catégories / découverte
+
+Et lorsque pertinent :
+
+INDAMORA PLAY
+↔ INDAMORA RECORDS
+↔ artistes
+↔ RÉPERTOIRE
+↔ œuvres publiques.
+
+L’objectif est d’aider les utilisateurs et les moteurs de recherche à comprendre la structure du site.
+
+⸻
+
+10. SITEMAP
+
+Vérifier qu’un sitemap XML existe réellement.
+
+Exemple :
+
+https://indamoraplay.com/sitemap.xml
+
+Le sitemap doit contenir uniquement les URLs publiques pertinentes.
+
+Ne pas y mettre :
+
+* /admin
+* /profil privé
+* /sign-in
+* /sign-up
+* espaces privés
+* données privées
+* pages inexistantes.
+
+Si un sitemap existe déjà et fonctionne, le conserver et seulement le corriger si nécessaire.
+
+⸻
+
+11. ROBOTS.TXT
+
+Vérifier :
+
+https://indamoraplay.com/robots.txt
+
+Le fichier doit permettre aux moteurs de recherche d’explorer les pages publiques utiles et empêcher, lorsque nécessaire, l’exploration/indexation des espaces privés.
+
+Ne pas bloquer par erreur :
+
+* accueil ;
+* RÉPERTOIRE ;
+* artistes publics ;
+* œuvres publiques ;
+* pages publiques INDAMORA RECORDS ;
+* pages publiques INDAMORA PLAY.
+
+⸻
+
+12. CANONICAL
+
+Vérifier les URLs canoniques.
+
+Le domaine officiel à utiliser comme référence est :
+
+https://indamoraplay.com
+
+Éviter que plusieurs variantes techniques du site soient considérées comme des pages différentes lorsque ce n’est pas nécessaire.
+
+Ne pas modifier le domaine de production.
+
+⸻
+
+13. DONNÉES STRUCTURÉES
+
+Ajouter uniquement des données structurées correspondant réellement au contenu.
+
+Étudier notamment :
+
+* Organization
+* WebSite
+* Person
+* MusicGroup
+* BreadcrumbList
+
+Utiliser uniquement les types réellement appropriés à chaque page.
+
+Ne pas inventer :
+
+* nombre d’utilisateurs ;
+* nombre d’écoutes ;
+* récompenses ;
+* partenaires ;
+* chiffres ;
+* certifications ;
+* informations commerciales.
+
+Les données structurées doivent correspondre au contenu visible de la page.
+
+⸻
+
+14. RÉSEAUX SOCIAUX — PARTAGE DES LIENS
+
+Lorsqu’une personne partage :
+
+https://indamoraplay.com
+
+sur :
+
+* Facebook ;
+* WhatsApp ;
+* Messenger ;
+* Instagram lorsque le format le permet ;
+* LinkedIn ;
+* X/Twitter ;
+* autres plateformes compatibles ;
+
+le lien doit présenter correctement :
+
+* titre ;
+* description ;
+* image ;
+* URL canonique.
+
+Mettre en place ou corriger les balises :
+
+* Open Graph ;
+* Twitter/X Cards lorsque pertinent.
+
+Exemple :
+
+Titre :
+INDAMORA PLAY — Notre musique. Notre culture. Notre scène.
+
+Description :
+Une plateforme de INDAMORA RECORDS pour découvrir les artistes, les œuvres et les talents de Centrafrique, de la diaspora et du monde entier.
+
+Utiliser une image officielle existante.
+
+Ne pas créer un nouveau logo.
+
+⸻
+
+15. IMAGE DE PARTAGE
+
+Identifier l’image officielle actuellement disponible.
+
+Elle doit être :
+
+* correctement accessible ;
+* suffisamment grande ;
+* optimisée ;
+* cohérente avec l’identité INDAMORA PLAY.
+
+Ne pas modifier le logo existant.
+
+Si une image de partage existe déjà et fonctionne, la conserver.
+
+⸻
+
+16. GOOGLE SEARCH CONSOLE
+
+Préparer le site pour Google Search Console.
+
+Vérifier :
+
+* domaine ;
+* sitemap ;
+* robots.txt ;
+* canonical ;
+* pages publiques ;
+* indexabilité ;
+* erreurs éventuelles.
+
+Si Search Console n’est pas encore configuré, ne pas inventer une vérification de propriété.
+
+Indiquer précisément ce que le propriétaire devra faire manuellement.
+
+Après connexion à Search Console, le propriétaire pourra notamment :
+
+* soumettre le sitemap ;
+* inspecter les URLs ;
+* demander l’indexation de pages importantes ;
+* suivre les impressions ;
+* suivre les clics ;
+* voir les requêtes Google ;
+* identifier les pages indexées ou non.
+
+⸻
+
+17. CONTENU SEO
+
+Ne pas créer artificiellement des centaines de pages.
+
+Créer uniquement du contenu réellement utile.
+
+Priorité :
+
+INDAMORA PLAY
+
+Présentation de la plateforme.
+
+INDAMORA RECORDS
+
+Présentation de l’écosystème.
+
+RÉPERTOIRE
+
+Présentation des artistes et talents.
+
+Artistes
+
+Pages publiques individuelles.
+
+Catégories
+
+Pages utiles lorsque le contenu existe réellement.
+
+Exemples possibles :
+
+* Artistes centrafricains
+* Gospel
+* Producteurs
+* Créateurs
+* Musiciens
+* Médias
+* etc.
+
+Ne créer une page que si elle contient suffisamment de contenu réel.
+
+⸻
+
+18. SEO LOCAL ET CENTRAFRIQUE
+
+Lorsque cela correspond réellement au contenu, permettre à Google de comprendre le lien avec :
+
+Bangui — Centrafrique 🇨🇫
+
+et plus largement :
+
+Centrafrique → diaspora → monde entier 🌍
+
+Ne pas faire croire que l’entreprise possède des bureaux dans une ville si ce n’est pas indiqué.
+
+Ne pas inventer d’adresse physique.
+
+⸻
+
+19. INDAMORA RECORDS
+
+La présentation doit permettre de comprendre :
+
+INDAMORA RECORDS
+→ structure / écosystème
+
+INDAMORA PLAY
+→ plateforme musicale
+
+Le contenu public concernant INDAMORA RECORDS doit être suffisamment clair pour permettre une recherche comme :
+
+INDAMORA RECORDS
+
+sans créer de confusion avec :
+
+INDAMORA PLAY.
+
+⸻
+
+20. PERFORMANCE
+
+Pendant l’audit SEO, vérifier également :
+
+* vitesse de chargement ;
+* images ;
+* poids des ressources ;
+* mobile ;
+* erreurs JavaScript ;
+* rendu des pages publiques ;
+* accessibilité du contenu sans JavaScript lorsque nécessaire pour les crawlers.
+
+⚠️ Ne pas faire une refonte performance générale.
+
+Corriger uniquement les problèmes qui empêchent réellement l’exploration, l’affichage ou l’indexation.
+
+⸻
+
+21. MOBILE
+
+Tester les pages publiques sur mobile :
+
+* accueil ;
+* RÉPERTOIRE ;
+* artiste ;
+* œuvre ;
+* INDAMORA RECORDS ;
+* pages publiques importantes.
+
+Le SEO mobile doit rester compatible avec le design actuel.
+
+Ne pas modifier le design sans nécessité.
+
+⸻
+
+22. TESTS OBLIGATOIRES
+
+Tester réellement :
+
+Google
+
+* sitemap accessible ;
+* robots.txt accessible ;
+* pages publiques accessibles ;
+* pages privées protégées ;
+* canonical correct ;
+* title correct ;
+* description correcte ;
+* données structurées valides si ajoutées.
+
+RÉPERTOIRE
+
+* artiste public accessible ;
+* artiste public avec URL propre ;
+* œuvres publiques accessibles ;
+* liens artiste → œuvres fonctionnels ;
+* recherche fonctionnelle ;
+* filtres fonctionnels.
+
+Réseaux sociaux
+
+Vérifier les métadonnées Open Graph et Twitter/X.
+
+Mobile
+
+Tester les pages principales.
+
+Sécurité
+
+Vérifier qu’aucune donnée privée ou administrative n’est exposée aux moteurs de recherche.
+
+⸻
+
+23. NON-RÉGRESSION
+
+Après les modifications SEO, vérifier que rien n’est cassé :
+
+* connexion Clerk ;
+* inscription ;
+* JE CRÉE ;
+* profil visiteur ;
+* profil artiste ;
+* activités ;
+* limite de 2 activités ;
+* RÉPERTOIRE ;
+* recherche ;
+* filtres ;
+* œuvres ;
+* lecteur audio ;
+* lecteur vidéo ;
+* upload ;
+* stockage ;
+* soumissions ;
+* modération ;
+* ADMIN ;
+* paiements ;
+* abonnements ;
+* dons ;
+* notifications existantes.
+
+Si une fonctionnalité fonctionnait avant et ne fonctionne plus après une modification SEO :
+
+CORRIGER IMMÉDIATEMENT ET RETESTER.
+
+⸻
+
+24. RAPPORT FINAL OBLIGATOIRE
+
+À la fin, ne pas simplement dire « SEO terminé ».
+
+Fournir un rapport clair :
+
+🟢 FONCTIONNEL
+
+Ce qui est réellement testé.
+
+🟠 À FAIRE MANUELLEMENT
+
+Exemple :
+
+* validation Search Console ;
+* soumission du sitemap ;
+* vérification de propriété du domaine.
+
+🔴 PROBLÈMES
+
+Ce qui empêche actuellement l’indexation ou la bonne présentation.
+
+🔧 MODIFICATIONS EFFECTUÉES
+
+Liste exacte des fichiers modifiés et pourquoi.
+
+🧪 TESTS
+
+Tests réalisés et résultats.
+
+🔐 SÉCURITÉ
+
+Vérification que les espaces privés et données privées ne sont pas exposés.
+
+🌍 SEO
+
+Indiquer :
+
+* sitemap ;
+* robots.txt ;
+* canonical ;
+* titles ;
+* descriptions ;
+* Open Graph ;
+* données structurées ;
+* pages publiques indexables ;
+* RÉPERTOIRE ;
+* profils artistes ;
+* œuvres publiques.
+
+⸻
+
+🔒 RÈGLE FINALE
+
+MINIMUM ABSOLU DE MODIFICATIONS.
+
+Ne pas transformer INDAMORA PLAY en nouveau projet SEO.
+
+Le site existe déjà.
+
+Il faut simplement faire en sorte que Google et les réseaux sociaux comprennent correctement ce qui existe déjà.
+
+Priorité :
+
+INDAMORA PLAY
+Une plateforme de INDAMORA RECORDS
+Notre musique. Notre culture. Notre scène.
+
+Puis :
+
+RÉPERTOIRE → artistes → œuvres → Centrafrique → diaspora → monde entier.
+
+Ne créer aucune fausse donnée.
+
+Ne pas acheter de faux backlinks.
+
+Ne pas créer de faux utilisateurs.
+
+Ne pas créer de faux artistes.
+
+Ne pas créer de fausses écoutes.
+
+Ne pas créer de faux chiffres.
+
+Ne pas promettre de positionnement Google.
+
+AUDITER → MODIFIER LE MINIMUM → TESTER → VÉRIFIER → RETESTER.

@@ -1,2 +1,15 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /profil
+Disallow: /espace-artiste
+Disallow: /submit
+Disallow: /moderation
+Disallow: /administration
+Disallow: /admin
+Disallow: /sign-in
+Disallow: /sign-up
+Disallow: /login
+Disallow: /inscription
+Disallow: /recherche
+Sitemap: https://indamoraplay.com/sitemap.xml

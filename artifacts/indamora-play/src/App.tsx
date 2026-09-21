@@ -25,6 +25,7 @@ import type { Artist, Submission, Work } from '@workspace/api-client-react';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { SeoHead } from '@/seo';
 
 const queryClient = new QueryClient();
 const ADMIN_EMAIL = 'indamorarecords@gmail.com';
@@ -366,6 +367,7 @@ function Shell({ children }: { children: ReactNode }) {
   }, [location]);
   return (
     <div className="grain min-h-[100dvh] bg-background">
+      <SeoHead />
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between px-5 lg:px-8">
           <Link href="/" className="group flex items-center gap-3" data-testid="link-logo" aria-label="Retour à l’accueil">
