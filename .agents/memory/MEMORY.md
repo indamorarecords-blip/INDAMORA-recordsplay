@@ -4,3 +4,4 @@
 - [Clerk provider settings](clerk-provider-settings.md) — Replit-managed social providers are configured outside the app code.
 - [Media visibility lifecycle](media-visibility-lifecycle.md) — submission files stay private until publication; profile avatars are public assets after validated upload.
 - [Artist activity limits](artist-activity-limits.md) — enforce two activities on new writes without rejecting legacy profile data on reads.
+- [SEO sitemap generation](seo-sitemap-generation.md) — regenerate the static root sitemap at build time from approved public database rows.
