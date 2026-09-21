@@ -7,3 +7,4 @@
 - [SEO sitemap generation](seo-sitemap-generation.md) — regenerate the static root sitemap at build time from approved public database rows.
 - [Mobile preview CORS](mobile-preview-cors.md) — Expo web previews use a separate origin that must be allowed by the shared API.
 - [React Query context ownership](react-query-contexts.md) — shared hook packages must use the consuming app's single React Query context.
+- [Production domain behavior](deployment-domains.md) — verify the Replit technical host's live redirect instead of assuming custom-domain enforcement.
