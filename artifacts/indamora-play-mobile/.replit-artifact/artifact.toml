@@ -1,0 +1,24 @@
+kind = "mobile"
+previewPath = "/indamora-play-mobile/"
+title = "INDAMORA PLAY Mobile"
+description = "Application mobile iOS et Android compagnon d’INDAMORA PLAY. Elle réutilise les comptes, profils, artistes, œuvres et catalogue du site principal via l’API partagée."
+version = "1.0.0"
+id = "artifacts/indamora-play-mobile"
+router = "expo-domain"
+
+[[services]]
+name = "expo"
+ensurePreviewReachable = "/status"
+paths = [ "/indamora-play-mobile/" ]
+localPort = 24082
+
+[services.development]
+run = "pnpm --filter @workspace/indamora-play-mobile run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/indamora-play-mobile", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/indamora-play-mobile", "run", "serve" ]
+
+[services.env]
+PORT = "24082"
+BASE_PATH = "/indamora-play-mobile/"
