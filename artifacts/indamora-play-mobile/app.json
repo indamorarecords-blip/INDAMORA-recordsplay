@@ -5,6 +5,11 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
+    "splash": {
+      "backgroundColor": "#F8F0E2",
+      "image": "./assets/images/icon.png",
+      "resizeMode": "contain"
+    },
     "scheme": "indamora-play-mobile",
     "userInterfaceStyle": "automatic",
     "ios": {

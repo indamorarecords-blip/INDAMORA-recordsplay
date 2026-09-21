@@ -59,6 +59,7 @@ app.post(
 const configuredOrigins = [
   process.env.PUBLIC_APP_URL,
   process.env.REPLIT_DEV_DOMAIN && `https://${process.env.REPLIT_DEV_DOMAIN}`,
+  process.env.REPLIT_EXPO_DEV_DOMAIN && `https://${process.env.REPLIT_EXPO_DEV_DOMAIN}`,
   ...(process.env.REPLIT_DOMAINS ?? "")
     .split(",")
     .map((domain) => domain.trim())
