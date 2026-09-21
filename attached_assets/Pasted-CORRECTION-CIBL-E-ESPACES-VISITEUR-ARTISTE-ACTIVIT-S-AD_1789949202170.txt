@@ -1,0 +1,648 @@
+CORRECTION CIBLÉE — ESPACES VISITEUR / ARTISTE / ACTIVITÉS / ADMIN
+
+Le dernier audit a identifié plusieurs écarts fonctionnels.
+
+⚠️ RÈGLE ABSOLUE
+
+NE PAS RECONSTRUIRE INDAMORA PLAY.
+
+La partie suivante est déjà fonctionnelle et doit être conservée :
+
+* Clerk ;
+* compte utilisateur ;
+* profil INDAMORA séparé du compte Clerk ;
+* maximum 2 activités ;
+* validation serveur de la limite ;
+* bio libre ;
+* modification du profil ;
+* anciens profils ;
+* API existante ;
+* RÉPERTOIRE existant ;
+* stockage ;
+* œuvres ;
+* soumissions ;
+* modération ;
+* paiements ;
+* dons ;
+* abonnements.
+
+Ne refaire aucune de ces fonctionnalités.
+
+Corriger uniquement les écarts identifiés ci-dessous.
+
+⸻
+
+1. VRAIE SÉPARATION DES ESPACES
+
+Il faut maintenant mettre en place une véritable distinction entre :
+
+🎧 ESPACE VISITEUR / AUDITEUR
+
+🎤 ESPACE ARTISTE / CRÉATEUR / PROFESSIONNEL
+
+🔐 ESPACE ADMINISTRATEUR
+
+Ces espaces ne doivent pas présenter la même interface.
+
+⸻
+
+2. ESPACE VISITEUR / AUDITEUR
+
+Créer le concept d’un espace visiteur/auditeur à partir du système utilisateur existant.
+
+⚠️ Ne pas créer un deuxième système de compte.
+
+Une personne conserve son compte Clerk.
+
+Elle peut avoir un profil INDAMORA de type :
+
+🎧 Auditeur / Visiteur
+
+Cet espace doit permettre notamment :
+
+* gérer son profil personnel ;
+* consulter ses informations ;
+* découvrir les artistes ;
+* consulter le RÉPERTOIRE ;
+* écouter les contenus accessibles ;
+* gérer ses abonnements ;
+* effectuer un don ;
+* consulter uniquement ses propres informations.
+
+IMPORTANT
+
+Un visiteur/auditeur ne doit pas voir :
+
+* Espace artiste ;
+* Proposer une œuvre ;
+* outils de dépôt artiste ;
+* modération ;
+* gestion d’artistes ;
+* gestion des œuvres globales ;
+* statistiques globales ;
+* dons globaux ;
+* revenus ;
+* Stripe ;
+* outils ADMIN.
+
+⸻
+
+3. ESPACE ARTISTE / CRÉATEUR / PROFESSIONNEL
+
+L’accès à Espace artiste ne doit plus être accordé simplement parce qu’une personne est connectée.
+
+Il doit être conditionné à l’existence d’un profil INDAMORA approprié.
+
+Par exemple :
+
+* 🎤 Artiste ;
+* 💃 Danseur / danseuse ;
+* 🎚️ Producteur ;
+* 🎥 Vidéaste ;
+* 🎬 Acteur / réalisateur ;
+* 😂 Humoriste ;
+* 🎧 Podcasteur ;
+* 📱 Créateur de contenu ;
+* ⭐ Influenceur ;
+* 🎙️ Chantre ;
+* ou autre activité professionnelle/créative disponible.
+
+Un simple utilisateur connecté sans profil artiste/professionnel ne doit pas voir automatiquement les outils artistes.
+
+⸻
+
+4. CAS D’UN UTILISATEUR CONNECTÉ SANS ACTIVITÉ
+
+Un utilisateur peut être connecté à Clerk sans encore avoir complété son profil INDAMORA.
+
+Dans ce cas :
+
+ne pas lui afficher automatiquement l’espace artiste.
+
+Lui proposer clairement :
+
+🎨 JE CRÉE MON ESPACE
+
+Puis :
+
+Choisissez votre activité.
+
+Une ou deux activités maximum.
+
+⸻
+
+5. ESPACES ADAPTÉS AUX ACTIVITÉS
+
+Le système actuel utilise un espace artiste générique.
+
+Il faut maintenant commencer à adapter l’espace en fonction des activités choisies.
+
+⚠️ Ne pas inventer de nouvelles fonctionnalités complexes.
+
+Utiliser les fonctionnalités déjà disponibles dans INDAMORA PLAY et simplement adapter :
+
+* le titre de l’espace ;
+* les informations affichées ;
+* les actions disponibles ;
+* les contenus pertinents ;
+* les raccourcis.
+
+⸻
+
+Exemple 1
+
+🎤 Artiste + 🎚️ Producteur
+
+Afficher un espace adapté :
+
+Mon espace artiste
+
+avec notamment :
+
+* Mon profil ;
+* Mes œuvres ;
+* Déposer une œuvre ;
+* Mes soumissions ;
+* Mes médias ;
+* Mes statistiques ;
+* Mes notifications.
+
+⸻
+
+Exemple 2
+
+💃 Danseur + 📱 Créateur de contenu
+
+Afficher :
+
+Mon espace créateur
+
+avec les fonctionnalités réellement disponibles correspondant à ce profil.
+
+Ne pas afficher artificiellement une fonction musicale si elle n’est pas nécessaire.
+
+⸻
+
+Exemple 3
+
+🎥 Vidéaste + 📱 Créateur de contenu
+
+Afficher :
+
+Mon espace créateur / média
+
+avec les fonctions existantes pertinentes.
+
+⸻
+
+Exemple 4
+
+📰 Journaliste + 🎬 Média
+
+Afficher un espace professionnel/média adapté.
+
+⸻
+
+6. IMPORTANT — NE PAS CRÉER 15 APPLICATIONS DIFFÉRENTES
+
+Il ne faut pas créer une application différente pour chaque activité.
+
+Il faut conserver un seul INDAMORA PLAY et un seul compte utilisateur.
+
+L’espace est simplement configuré selon les activités du profil.
+
+Architecture souhaitée :
+
+Compte Clerk
+
+↓
+
+Profil INDAMORA
+
+↓
+
+1 ou 2 activités
+
+↓
+
+Espace adapté
+
+⸻
+
+7. ROUTE /PROFIL
+
+Actuellement :
+
+tout utilisateur connecté peut accéder à /profil et voit directement le parcours de création d’un profil artiste.
+
+Corriger ce comportement.
+
+Le profil doit être adapté à la situation :
+
+Aucun profil INDAMORA
+
+Afficher :
+
+Créer mon espace
+
+Profil visiteur/auditeur
+
+Afficher :
+
+Mon espace visiteur
+
+Profil artiste/créateur/professionnel
+
+Afficher :
+
+Mon espace professionnel adapté à mes activités
+
+ADMIN
+
+Afficher l’accès au :
+
+Centre de pilotage ADMIN
+
+selon les permissions existantes.
+
+⸻
+
+8. ROUTE /ESPACE-ARTISTE
+
+Actuellement, la route vérifie principalement que l’utilisateur est connecté.
+
+Corriger cela.
+
+L’accès doit vérifier côté serveur :
+
+1. utilisateur authentifié ;
+2. profil INDAMORA existant ;
+3. activité autorisée ;
+4. permissions correspondantes.
+
+Un simple visiteur connecté ne doit pas pouvoir utiliser l’espace artiste.
+
+⸻
+
+9. LIEN « PROPOSER UNE ŒUVRE »
+
+Actuellement tout utilisateur connecté peut voir ce lien.
+
+Corriger.
+
+Le lien doit être visible uniquement pour les profils disposant d’une activité permettant réellement de déposer une œuvre.
+
+Si un visiteur souhaite devenir artiste/créateur :
+
+lui proposer :
+
+Créer mon espace professionnel
+
+et l’orienter vers JE CRÉE.
+
+⸻
+
+10. PARCOURS /SUBMIT
+
+Le parcours :
+
+/submit → Ajouter mon profil au répertoire
+
+permet actuellement de créer potentiellement un profil sans activité.
+
+Corriger ce parcours.
+
+Il doit utiliser le même système de profil et d’activités.
+
+Avant de créer le profil :
+
+activité 1 obligatoire
+
+activité 2 facultative
+
+maximum 2
+
+Impossible de créer un profil public sans activité structurée si le profil est destiné au RÉPERTOIRE.
+
+Ne pas créer un deuxième formulaire parallèle.
+
+Réutiliser le système existant.
+
+⸻
+
+11. RÉPERTOIRE
+
+Le RÉPERTOIRE reste le centre du système.
+
+Conserver :
+
+* recherche ;
+* filtres ;
+* catégories ;
+* sous-catégories ;
+* profils ;
+* œuvres.
+
+Ajouter uniquement si nécessaire l’utilisation des activités déjà enregistrées.
+
+Exemple :
+
+Artistes
+
+Danseurs
+
+Producteurs
+
+Vidéastes
+
+Créateurs de contenu
+
+etc.
+
+Ne pas reconstruire le RÉPERTOIRE.
+
+⸻
+
+12. ADMINISTRATEUR
+
+Conserver le Centre ADMIN existant.
+
+L’ADMIN doit rester totalement séparé des espaces utilisateur.
+
+ADMIN
+
+Peut gérer :
+
+* utilisateurs ;
+* profils ;
+* activités ;
+* artistes ;
+* œuvres ;
+* médias ;
+* RÉPERTOIRE ;
+* catégories ;
+* modération ;
+* presse ;
+* statistiques ;
+* visites ;
+* écoutes ;
+* recherches ;
+* abonnements ;
+* paiements ;
+* dons ;
+* événements Stripe ;
+* journal ADMIN.
+
+⸻
+
+13. JOURNAL ADMIN — À COMPLÉTER
+
+L’audit indique qu’il existe une activité récente mais pas encore de véritable journal ADMIN complet.
+
+Mettre en place uniquement le nécessaire pour enregistrer les actions ADMIN importantes :
+
+* validation ;
+* rejet ;
+* publication ;
+* modification ;
+* dépublication ;
+* suppression ;
+* gestion d’un profil ;
+* gestion d’une œuvre ;
+* gestion d’un média.
+
+Chaque entrée doit idéalement contenir :
+
+* administrateur ;
+* action ;
+* élément concerné ;
+* date/heure ;
+* résultat.
+
+Le journal doit être accessible uniquement aux ADMIN autorisés.
+
+Ne pas créer de journal fictif.
+
+⸻
+
+14. SÉCURITÉ
+
+La séparation doit être réelle côté serveur.
+
+Tester :
+
+Visiteur → espace artiste
+
+🔴 accès refusé.
+
+Visiteur → ADMIN
+
+🔴 accès refusé.
+
+Artiste → ADMIN
+
+🔴 accès refusé.
+
+Artiste A → données privées de l’artiste B
+
+🔴 accès refusé.
+
+Utilisateur sans activité → dépôt d’œuvre protégé
+
+🔴 accès refusé.
+
+ADMIN → fonctions ADMIN
+
+🟢 autorisé.
+
+⸻
+
+15. TESTS RÉELS
+
+Après les corrections, utiliser les comptes autorisés disponibles.
+
+Ne pas créer de faux comptes de production.
+
+Tester au minimum :
+
+TEST 1
+
+Utilisateur connecté sans profil professionnel.
+
+Résultat attendu :
+
+Espace visiteur / création d’espace.
+
+TEST 2
+
+Profil 🎧 Auditeur.
+
+Résultat attendu :
+
+Espace visiteur/auditeur.
+
+TEST 3
+
+Profil 🎤 Artiste.
+
+Résultat attendu :
+
+Espace artiste.
+
+TEST 4
+
+Profil 💃 Danseur.
+
+Résultat attendu :
+
+Espace adapté au profil créatif.
+
+TEST 5
+
+Profil 🎥 Vidéaste.
+
+Résultat attendu :
+
+Espace adapté au profil créateur/média.
+
+TEST 6
+
+Profil avec deux activités.
+
+Résultat attendu :
+
+Espace tenant compte des deux activités.
+
+TEST 7
+
+ADMIN.
+
+Résultat attendu :
+
+Centre de pilotage ADMIN.
+
+⸻
+
+16. TABLEAU DE VALIDATION
+
+Compléter obligatoirement :
+
+#	Fonction	Attendu	Résultat réel	Statut
+1	Utilisateur connecté sans profil	Espace visiteur/création	À renseigner	🟢/🟠/🔴
+2	Profil auditeur	Espace visiteur	À renseigner	🟢/🟠/🔴
+3	Profil artiste	Espace artiste	À renseigner	🟢/🟠/🔴
+4	Profil danseur	Espace adapté	À renseigner	🟢/🟠/🔴
+5	Profil vidéaste	Espace adapté	À renseigner	🟢/🟠/🔴
+6	Profil producteur	Espace adapté	À renseigner	🟢/🟠/🔴
+7	Profil avec 2 activités	Espace tenant compte des 2 activités	À renseigner	🟢/🟠/🔴
+8	Visiteur → Espace artiste	Refusé	À renseigner	🟢/🟠/🔴
+9	Visiteur → ADMIN	Refusé	À renseigner	🟢/🟠/🔴
+10	Artiste → ADMIN	Refusé	À renseigner	🟢/🟠/🔴
+11	Utilisateur sans activité → dépôt œuvre	Refusé	À renseigner	🟢/🟠/🔴
+12	/submit → création profil	Activité obligatoire	À renseigner	🟢/🟠/🔴
+13	Maximum 2 activités	3e refusée	À renseigner	🟢/🟠/🔴
+14	RÉPERTOIRE	Profil correctement classé	À renseigner	🟢/🟠/🔴
+15	ADMIN	Centre de pilotage accessible	À renseigner	🟢/🟠/🔴
+16	Journal ADMIN	Actions importantes enregistrées	À renseigner	🟢/🟠/🔴
+17	Clerk	Aucun remplacement	À renseigner	🟢/🟠/🔴
+18	Non-régression	Fonctions existantes conservées	À renseigner	🟢/🟠/🔴
+
+LÉGENDE
+
+🟢 = testé réellement et validé
+🟠 = à vérifier / test impossible actuellement
+🔴 = échec constaté
+
+⸻
+
+17. ORDRE DE TRAVAIL
+
+Procéder dans cet ordre :
+
+PHASE 1
+
+Séparation visiteur / profil professionnel.
+
+PHASE 2
+
+Protection réelle de /espace-artiste et /submit.
+
+PHASE 3
+
+Adaptation de l’espace selon les activités.
+
+PHASE 4
+
+Correction du parcours /submit.
+
+PHASE 5
+
+Journal ADMIN complet.
+
+PHASE 6
+
+Tests de sécurité avec comptes authentifiés.
+
+PHASE 7
+
+Tests RÉPERTOIRE.
+
+PHASE 8
+
+Tests de non-régression.
+
+⸻
+
+18. APRÈS CHAQUE PHASE
+
+Fournir :
+
+🟢 TERMINÉ
+
+Ce qui fonctionne réellement.
+
+🟠 À VÉRIFIER
+
+Ce qui nécessite un test supplémentaire.
+
+🔴 ÉCHEC
+
+Ce qui ne fonctionne pas.
+
+🔧 MODIFICATIONS
+
+Fichiers réellement modifiés.
+
+🔐 SÉCURITÉ
+
+Tests de permissions effectués.
+
+🧪 TESTS
+
+Tests réels effectués.
+
+⸻
+
+RÈGLE FINALE
+
+UN SEUL COMPTE.
+
+UN SEUL INDAMORA PLAY.
+
+Mais :
+
+ESPACE VISITEUR ≠ ESPACE ARTISTE/CRÉATEUR ≠ ESPACE ADMINISTRATEUR.
+
+Et :
+
+ARTISTE ≠ DANSEUR ≠ VIDÉASTE ≠ PRODUCTEUR ≠ JOURNALISTE, même si plusieurs activités peuvent appartenir au même compte.
+
+Une personne peut choisir maximum 2 activités, et son espace doit tenir compte de ces activités.
+
+Le système doit rester simple, cohérent et évolutif.
+
+Ne pas reconstruire INDAMORA PLAY.
+
+Corriger uniquement les écarts identifiés.
+
+Tester réellement avant de déclarer terminé.
