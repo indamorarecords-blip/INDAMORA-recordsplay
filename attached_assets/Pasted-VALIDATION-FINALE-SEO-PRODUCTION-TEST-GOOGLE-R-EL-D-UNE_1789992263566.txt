@@ -1,0 +1,480 @@
+VALIDATION FINALE SEO PRODUCTION + TEST GOOGLE RÉEL D’UNE PAGE ARTISTE
+
+⚠️ RÈGLE ABSOLUE
+
+NE RECONSTRUIS PAS INDAMORA PLAY.
+
+Ne refais pas le site, ne change pas son architecture et ne remplace aucune fonctionnalité qui fonctionne déjà.
+
+La production actuelle est la référence fonctionnelle.
+
+Le dépôt GitHub peut être différent de la version actuellement publiée : ne considère donc pas une différence avec GitHub comme un problème à corriger automatiquement.
+
+Objectif : publier/valider les améliorations SEO déjà préparées et vérifier leur fonctionnement réel sur https://indamoraplay.com.
+
+Après chaque éventuelle correction :
+
+TEST → VÉRIFICATION → CORRECTION → RETEST
+
+Si tout fonctionne déjà, NE MODIFIE RIEN.
+
+⸻
+
+1. PUBLIER LES MODIFICATIONS SEO EXISTANTES
+
+Si les modifications SEO déjà préparées sont correctes et n’ont pas encore été publiées :
+
+* publier la version actuelle ;
+* ne modifier que ce qui est nécessaire à la publication ;
+* ne pas refaire le travail SEO déjà réalisé.
+
+Après publication, travailler uniquement avec :
+
+https://indamoraplay.com
+
+⸻
+
+2. VÉRIFIER LE SITEMAP RÉEL EN PRODUCTION
+
+Ouvrir réellement :
+
+https://indamoraplay.com/sitemap.xml
+
+Vérifier que le sitemap :
+
+* est accessible publiquement ;
+* répond correctement ;
+* contient la page d’accueil ;
+* contient RÉPERTOIRE ;
+* contient les pages publiques d’artistes ;
+* contient les pages publiques d’œuvres lorsque leur structure existe ;
+* n’inclut pas de pages privées ;
+* n’inclut pas les pages administrateur ;
+* n’inclut pas les pages nécessitant une connexion ;
+* n’inclut pas les profils en attente, rejetés ou non publiés ;
+* n’inclut pas d’URL invalides.
+
+Ne crée aucune fausse URL pour remplir le sitemap.
+
+⸻
+
+3. VÉRIFIER ROBOTS.TXT EN PRODUCTION
+
+Ouvrir :
+
+https://indamoraplay.com/robots.txt
+
+Vérifier qu’il n’empêche pas inutilement Google d’explorer les pages publiques.
+
+Les espaces privés, administratifs et contenus qui ne doivent pas être indexés doivent rester protégés selon leur fonctionnement prévu.
+
+⸻
+
+4. VÉRIFIER LA CANONICAL
+
+Sur les principales pages publiques, vérifier que la canonical utilise bien le domaine officiel :
+
+https://indamoraplay.com
+
+Vérifier notamment :
+
+* Accueil ;
+* RÉPERTOIRE ;
+* vraie page artiste ;
+* vraie page œuvre publique, lorsqu’elle existe.
+
+Éviter toute canonical accidentelle vers :
+
+* le domaine Replit ;
+* une URL de preview ;
+* une URL interne ;
+* une URL privée.
+
+⸻
+
+5. CHOISIR UN VRAI ARTISTE EXISTANT
+
+C’est une étape essentielle.
+
+Utilise un artiste réel déjà présent dans les données de production de INDAMORA PLAY, avec un profil public réellement publié.
+
+Ne crée :
+
+* aucun faux artiste ;
+* aucun faux compte ;
+* aucune fausse œuvre ;
+* aucune fausse écoute ;
+* aucune fausse statistique.
+
+Indique dans le rapport :
+
+Artiste réellement testé : [nom]
+
+⸻
+
+6. TESTER LA VRAIE PAGE ARTISTE
+
+Ouvrir la véritable page publique de cet artiste sur :
+
+https://indamoraplay.com
+
+Vérifier réellement :
+
+* accès sans connexion ;
+* nom de l’artiste ;
+* pseudo/nom d’artiste ;
+* catégorie ou activité ;
+* présentation/bio ;
+* localisation/pays lorsque ces informations sont publiques ;
+* image/avatar si disponible ;
+* œuvres publiques ;
+* liens vers les œuvres ;
+* liens internes ;
+* fonctionnement mobile ;
+* absence de redirection vers connexion ;
+* absence de noindex ;
+* canonical correcte ;
+* contenu essentiel réellement présent dans la page rendue ;
+* URL propre et stable.
+
+Le profil doit être une vraie page publique exploitable par un visiteur et par les moteurs de recherche.
+
+⸻
+
+7. TESTER LE PARCOURS RÉPERTOIRE → ARTISTE
+
+Vérifier également :
+
+https://indamoraplay.com → RÉPERTOIRE → artiste réel → profil → œuvres publiques
+
+Puis :
+
+profil artiste → œuvre publique → lecture/découverte
+
+RÉPERTOIRE doit rester le cœur de cet écosystème.
+
+Ne crée pas un deuxième système parallèle pour les artistes.
+
+⸻
+
+8. FAIRE UNE VRAIE RECHERCHE GOOGLE
+
+Je veux maintenant un test réel dans Google, pas uniquement une analyse du code.
+
+Avec le nom réel de l’artiste sélectionné, effectuer au minimum ces recherches :
+
+Recherche 1
+
+”[Nom réel de l’artiste]”
+
+Recherche 2
+
+”[Nom réel de l’artiste] INDAMORA PLAY”
+
+Recherche 3
+
+”[Nom réel de l’artiste] Centrafrique”
+
+Recherche 4
+
+”[Nom réel de l’artiste] Bangui”
+
+Puis, si cela correspond réellement à son activité :
+
+Recherche 5
+
+”[Nom réel de l’artiste] musique”
+
+Recherche 6
+
+”[Nom réel de l’artiste] artiste centrafricain”
+
+Ne force pas les mots-clés.
+
+Utilise uniquement les formulations pertinentes pour cet artiste réel.
+
+⸻
+
+9. DOCUMENTATION DU RÉSULTAT GOOGLE
+
+Pour chaque recherche, indique précisément ce qui est réellement observé.
+
+Par exemple :
+
+* page INDAMORA PLAY trouvée ;
+* page INDAMORA PLAY non trouvée ;
+* autre résultat trouvé ;
+* artiste connu de Google mais page INDAMORA PLAY non affichée ;
+* aucun résultat pertinent.
+
+Ne fabrique jamais un résultat.
+
+Ne dis pas qu’une page est indexée simplement parce qu’elle est présente dans le sitemap.
+
+Une demande d’indexation n’est pas une garantie d’indexation ou d’apparition dans les résultats.
+
+⸻
+
+10. GOOGLE SEARCH CONSOLE
+
+Si Search Console est accessible :
+
+Inspecter la véritable URL de l’artiste.
+
+Vérifier :
+
+* accessibilité par Google ;
+* statut d’indexation ;
+* dernière exploration connue ;
+* canonical déclarée ;
+* canonical sélectionnée par Google ;
+* éventuel noindex ;
+* éventuel blocage robots ;
+* possibilité de demander une indexation.
+
+Si Search Console n’est pas accessible depuis Replit :
+
+ne simule pas le résultat.
+
+Indique clairement :
+
+Vérification Search Console nécessitant l’intervention du propriétaire du domaine.
+
+⸻
+
+11. TESTER AUSSI LES PAGES PUBLIQUES PRINCIPALES
+
+Vérifier en production :
+
+Accueil
+
+https://indamoraplay.com
+
+RÉPERTOIRE
+
+https://indamoraplay.com/repertoire
+
+Sitemap
+
+https://indamoraplay.com/sitemap.xml
+
+Robots
+
+https://indamoraplay.com/robots.txt
+
+Artiste réel
+
+URL réelle du profil choisi.
+
+Œuvre publique
+
+Une œuvre réellement publiée appartenant à cet artiste, si une telle page publique existe.
+
+⸻
+
+12. VÉRIFIER LES MÉTADONNÉES SEO
+
+Sur l’accueil, RÉPERTOIRE et la page artiste réelle, vérifier :
+
+* <title> ;
+* meta description ;
+* canonical ;
+* Open Graph ;
+* image sociale lorsqu’elle existe ;
+* titre et description sociaux ;
+* données structurées si elles ont déjà été implémentées.
+
+Les informations doivent être réelles et cohérentes avec la page.
+
+Ne pas ajouter de données structurées fictives.
+
+⸻
+
+13. CONTENU ET REQUÊTES PERTINENTES
+
+Vérifier que le site permet naturellement à Google de comprendre son positionnement autour de :
+
+* INDAMORA PLAY ;
+* INDAMORA RECORDS ;
+* musique centrafricaine ;
+* musique de Bangui ;
+* artistes centrafricains ;
+* artistes de Bangui ;
+* talents centrafricains ;
+* musique Centrafrique ;
+* diaspora centrafricaine ;
+* musique africaine.
+
+Et, lorsque c’est réellement pertinent pour le contenu :
+
+* Spotify ;
+* Apple Music ;
+* iTunes ;
+* Deezer ;
+* YouTube Music.
+
+ATTENTION :
+
+Ne jamais laisser entendre qu’INDAMORA PLAY est affilié, partenaire ou officiellement lié à Spotify, Apple, iTunes, Deezer ou YouTube Music.
+
+Ne pas utiliser leurs logos.
+
+Ne pas fabriquer de comparaison ou de partenariat.
+
+Ces termes peuvent uniquement apparaître dans un contexte éditorial/SEO réellement pertinent et honnête.
+
+⸻
+
+14. NOUVEL ARTISTE / NOUVELLE ŒUVRE
+
+Vérifier également le fonctionnement prévu lorsqu’un artiste ou une œuvre publique est ajouté :
+
+nouveau profil validé → page publique → liens internes → sitemap → possibilité d’exploration Google
+
+Si le système actuel exige une nouvelle génération/publication pour mettre à jour le sitemap, documenter précisément ce fonctionnement.
+
+Ne transforme pas cela en refonte automatique.
+
+⸻
+
+15. PAGES QUI NE DOIVENT PAS ÊTRE INDEXÉES
+
+Vérifier que les espaces suivants ne sont pas exposés inutilement aux moteurs :
+
+* connexion ;
+* inscription ;
+* profil privé ;
+* espace artiste privé ;
+* administration ;
+* données personnelles ;
+* pages de gestion ;
+* contenus en attente ;
+* contenus rejetés ;
+* contenus non publiés.
+
+Ne rends jamais une page privée publique uniquement pour améliorer le référencement.
+
+⸻
+
+16. PERFORMANCE ET MOBILE
+
+Sur la vraie page artiste :
+
+* vérifier l’affichage mobile ;
+* vérifier les images ;
+* vérifier les temps de chargement évidents ;
+* vérifier qu’aucun élément essentiel ne disparaît ;
+* vérifier que la page reste utilisable sans connexion lorsque prévue comme publique.
+
+Ne refais pas le design.
+
+⸻
+
+17. SÉCURITÉ
+
+Ne sacrifie jamais la sécurité pour le SEO.
+
+Un moteur de recherche doit pouvoir accéder uniquement aux contenus réellement publics.
+
+Les données privées, administratives et personnelles doivent rester protégées.
+
+⸻
+
+18. SI UN PROBLÈME EST TROUVÉ
+
+Ne corrige que le problème réellement identifié.
+
+Ordre obligatoire :
+
+IDENTIFIER → CORRIGER LE MINIMUM → TESTER → VÉRIFIER → RETESTER
+
+Ne profite pas du test pour :
+
+* refaire l’architecture ;
+* changer le design ;
+* refaire RÉPERTOIRE ;
+* refaire les profils ;
+* refaire le système d’authentification ;
+* refaire les médias ;
+* refaire les paiements ;
+* refaire le catalogue.
+
+⸻
+
+19. RAPPORT FINAL OBLIGATOIRE
+
+Donne un rapport factuel et concret.
+
+PRODUCTION
+
+Domaine testé : https://indamoraplay.com
+Publication vérifiée : OUI/NON
+
+SITEMAP
+
+Sitemap production accessible : OUI/NON
+Pages publiques présentes : OUI/NON
+Pages privées présentes : OUI/NON
+
+ROBOTS
+
+robots.txt accessible : OUI/NON
+Blocage incorrect détecté : OUI/NON
+
+ARTISTE RÉEL
+
+Artiste testé :
+URL réelle :
+Page publique accessible sans connexion : OUI/NON
+Profil complet : OUI/NON
+Œuvres publiques accessibles : OUI/NON
+Canonical correcte : OUI/NON
+Noindex : OUI/NON
+Google peut récupérer la page : OUI/NON
+
+GOOGLE
+
+Recherche “[artiste]” : résultat réellement observé
+Recherche “[artiste] INDAMORA PLAY” : résultat réellement observé
+Recherche “[artiste] Centrafrique” : résultat réellement observé
+Recherche “[artiste] Bangui” : résultat réellement observé
+Autres recherches pertinentes : résultats réellement observés
+
+SEARCH CONSOLE
+
+Inspection réalisée : OUI/NON
+Statut réellement constaté :
+Demande d’indexation effectuée : OUI/NON/SANS ACCÈS
+
+CONCLUSION TECHNIQUE
+
+Indiquer séparément :
+
+1. ce qui fonctionne ;
+2. ce qui fonctionne en production ;
+3. ce qui est réellement visible dans Google ;
+4. ce qui nécessite encore du temps d’indexation ;
+5. les éventuels problèmes techniques ;
+6. les corrections réellement effectuées ;
+7. le résultat du retest.
+
+Ne transforme jamais une préparation SEO en affirmation que Google a déjà indexé le site.
+
+⸻
+
+OBJECTIF FINAL
+
+Je ne veux plus seulement entendre :
+
+« Le sitemap est correct. »
+
+Je veux une validation concrète du parcours :
+
+VRAI ARTISTE → VRAIE PAGE INDAMORA PLAY → PAGE PUBLIQUE → SITEMAP → GOOGLE → RECHERCHE RÉELLE → RÉSULTAT OBSERVÉ
+
+Et si Google ne fait pas encore apparaître l’artiste, explique exactement ce qui est constaté et ce qui reste à attendre ou à faire dans Search Console.
+
+Aucune donnée fictive.
+Aucun faux résultat Google.
+Aucune reconstruction.
+Aucune modification inutile.
