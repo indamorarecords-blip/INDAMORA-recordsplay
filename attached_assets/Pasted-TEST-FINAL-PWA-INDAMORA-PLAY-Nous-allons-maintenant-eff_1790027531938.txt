@@ -1,0 +1,417 @@
+TEST FINAL — PWA INDAMORA PLAY
+
+Nous allons maintenant effectuer uniquement le test final et la validation de la PWA d’INDAMORA PLAY.
+
+⚠️ RÈGLES ABSOLUES
+
+NE PAS RECONSTRUIRE INDAMORA PLAY.
+
+NE PAS REFAIRE LE SITE.
+
+NE PAS MODIFIER LE DESIGN EXISTANT.
+
+NE PAS SUPPRIMER DE FONCTIONNALITÉ.
+
+NE PAS TOUCHER À STRIPE OU AUX DONS.
+
+NE PAS TOUCHER AU RÉPERTOIRE sauf si un problème PWA réel l’affecte.
+
+NE PAS créer de données fictives.
+
+NE PAS créer de faux utilisateurs, artistes, œuvres, écoutes ou paiements.
+
+Le domaine officiel reste :
+
+https://indamoraplay.com/
+
+Le domaine indamora-play.replit.app reste uniquement le domaine technique Replit.
+
+⸻
+
+1. VÉRIFICATION DE PRODUCTION
+
+Tester en priorité :
+
+https://indamoraplay.com/
+
+Vérifier que la version de production se charge correctement.
+
+Contrôler :
+
+* HTTPS ;
+* chargement de la page ;
+* navigation ;
+* absence d’erreur JavaScript bloquante ;
+* absence d’erreur réseau critique ;
+* responsive mobile.
+
+⸻
+
+2. MANIFEST PWA
+
+Vérifier le manifest réellement servi en production.
+
+Contrôler :
+
+* name = INDAMORA PLAY ;
+* short_name cohérent ;
+* start_url correct ;
+* display adapté ;
+* icônes disponibles ;
+* icônes correctement accessibles ;
+* thème cohérent ;
+* domaine officiel utilisé.
+
+Vérifier qu’aucune URL PWA ne pointe inutilement vers un autre domaine.
+
+⸻
+
+3. SERVICE WORKER
+
+Vérifier en production :
+
+* présence du service worker si prévu ;
+* enregistrement correct ;
+* absence d’erreur ;
+* mise à jour correcte ;
+* absence de cache obsolète bloquant l’application.
+
+⚠️ Vérifier particulièrement qu’aucune donnée sensible n’est mise en cache :
+
+* sessions ;
+* données privées ;
+* données administrateur ;
+* informations Premium ;
+* paiements ;
+* données personnelles.
+
+Si le service worker provoque un problème, corriger uniquement ce problème.
+
+⸻
+
+4. TEST IPHONE
+
+Effectuer un vrai test sur iPhone/Safari si l’environnement de test le permet.
+
+Parcours :
+
+Safari → https://indamoraplay.com/ → Partager → Ajouter à l’écran d’accueil
+
+Vérifier :
+
+* installation ;
+* icône INDAMORA PLAY ;
+* nom affiché ;
+* ouverture depuis l’écran d’accueil ;
+* mode standalone si supporté ;
+* navigation ;
+* retour arrière ;
+* session ;
+* chargement des pages.
+
+Tester ensuite :
+
+* Accueil ;
+* Explorer ;
+* RÉPERTOIRE ;
+* recherche ;
+* profil artiste ;
+* lecture audio ;
+* lecture vidéo ;
+* profil utilisateur ;
+* Premium ;
+* dons.
+
+⸻
+
+5. TEST ANDROID
+
+Effectuer un vrai test sur Android/Chrome si l’environnement de test le permet.
+
+Ouvrir :
+
+https://indamoraplay.com/
+
+Vérifier que le navigateur reconnaît l’application comme installable.
+
+Tester :
+
+Installer l’application
+
+ou :
+
+Ajouter à l’écran d’accueil
+
+Vérifier :
+
+* installation ;
+* icône ;
+* nom INDAMORA PLAY ;
+* ouverture ;
+* navigation ;
+* session ;
+* audio ;
+* vidéo ;
+* RÉPERTOIRE ;
+* profils ;
+* recherche ;
+* Premium ;
+* dons.
+
+⸻
+
+6. RÉPERTOIRE — TEST PRIORITAIRE
+
+Le RÉPERTOIRE est central dans INDAMORA PLAY.
+
+Tester réellement sur mobile :
+
+* ouverture du RÉPERTOIRE ;
+* recherche ;
+* filtres ;
+* catégories ;
+* sélection d’un artiste réel existant ;
+* ouverture de sa fiche ;
+* affichage des informations ;
+* œuvres associées ;
+* navigation retour.
+
+Utiliser uniquement les données réelles déjà présentes en production.
+
+⸻
+
+7. MÉDIAS
+
+Tester une vraie œuvre existante :
+
+* ouverture ;
+* image ;
+* audio ;
+* vidéo si disponible ;
+* lecture ;
+* pause ;
+* reprise ;
+* progression ;
+* comportement lorsque l’écran mobile change d’orientation ou est verrouillé si pertinent.
+
+Ne déplacer aucun média.
+
+Ne créer aucun nouveau système de stockage.
+
+⸻
+
+8. AUTHENTIFICATION
+
+Tester avec un véritable compte de test autorisé si disponible.
+
+Vérifier :
+
+* connexion ;
+* déconnexion ;
+* maintien de session ;
+* profil ;
+* activités ;
+* espace utilisateur ;
+* espace artiste/professionnel si le compte y a droit.
+
+Vérifier également qu’un utilisateur non autorisé ne peut pas accéder aux fonctions administrateur.
+
+⸻
+
+9. PREMIUM / PAIEMENTS / DONS
+
+⚠️ NE PAS MODIFIER LE SYSTÈME EXISTANT.
+
+Vérifier uniquement que les pages et parcours fonctionnent correctement depuis la PWA.
+
+Ne pas :
+
+* recréer Stripe ;
+* supprimer Stripe ;
+* désactiver les paiements ;
+* simuler un paiement ;
+* créer un faux abonnement ;
+* créer une fausse transaction ;
+* modifier les dons.
+
+Si un vrai paiement de test est nécessaire, utiliser uniquement le mécanisme de test déjà prévu par l’environnement.
+
+⸻
+
+10. ADMINISTRATION
+
+Vérifier que :
+
+* l’administration reste privée ;
+* les utilisateurs normaux ne peuvent pas y accéder ;
+* les données administratives ne sont pas exposées par le cache PWA ;
+* aucune information sensible n’apparaît dans les ressources publiques.
+
+⸻
+
+11. TEST DU SITE APRÈS INSTALLATION
+
+Après les tests PWA, revenir sur :
+
+https://indamoraplay.com/
+
+Vérifier que le site normal fonctionne toujours.
+
+Tester au minimum :
+
+* Accueil ;
+* Explorer ;
+* RÉPERTOIRE ;
+* recherche ;
+* profil artiste ;
+* connexion ;
+* audio ;
+* vidéo ;
+* Premium ;
+* dons.
+
+⸻
+
+12. SEO / DOMAINE
+
+Vérifier que la PWA n’a pas cassé le référencement.
+
+Contrôler :
+
+* domaine canonique ;
+* sitemap ;
+* robots.txt ;
+* URLs publiques ;
+* métadonnées ;
+* Open Graph ;
+* absence de noindex accidentel sur les pages publiques.
+
+Le domaine public doit rester :
+
+https://indamoraplay.com/
+
+Ne pas remplacer ce domaine par :
+
+https://indamora-play.replit.app
+
+⸻
+
+13. PERFORMANCE
+
+Effectuer un contrôle mobile raisonnable :
+
+* temps de chargement ;
+* images ;
+* navigation ;
+* erreurs console ;
+* erreurs réseau ;
+* stabilité.
+
+Ne pas entreprendre une refonte de performance.
+
+Corriger uniquement un problème clairement identifié.
+
+⸻
+
+14. TEST DE NON-RÉGRESSION
+
+Comparer le fonctionnement avant/après la validation PWA.
+
+Confirmer que rien n’a été cassé concernant :
+
+* authentification ;
+* profils ;
+* activités ;
+* RÉPERTOIRE ;
+* catalogue ;
+* audio ;
+* vidéo ;
+* stockage ;
+* Premium ;
+* paiements ;
+* dons ;
+* administration ;
+* SEO ;
+* domaine officiel.
+
+⸻
+
+15. SI UN PROBLÈME EST TROUVÉ
+
+Ne pas appliquer de correction globale.
+
+Procédure obligatoire :
+
+IDENTIFIER → TESTER → CORRIGER LE MINIMUM → RETESTER
+
+Si le problème n’est pas lié à la PWA :
+
+NE PAS LE MODIFIER dans cette tâche.
+
+Si aucune correction n’est nécessaire :
+
+NE MODIFIER AUCUN CODE.
+
+⸻
+
+16. RAPPORT FINAL OBLIGATOIRE
+
+À la fin, fournir un rapport clair avec :
+
+PWA
+
+* Manifest : ✅ / ❌
+* Service worker : ✅ / ❌ / non nécessaire
+* Installation iPhone : ✅ / ❌ / non testable
+* Installation Android : ✅ / ❌ / non testable
+* Icône : ✅ / ❌
+* Mode application : ✅ / ❌
+
+Fonctionnalités
+
+* Accueil : ✅ / ❌
+* Explorer : ✅ / ❌
+* RÉPERTOIRE : ✅ / ❌
+* Recherche : ✅ / ❌
+* Profil artiste : ✅ / ❌
+* Audio : ✅ / ❌
+* Vidéo : ✅ / ❌
+* Authentification : ✅ / ❌
+* Premium : ✅ / ❌
+* Dons : ✅ / ❌
+* Administration : ✅ / ❌
+
+Production
+
+* https://indamoraplay.com/ : ✅ / ❌
+* domaine Replit technique : conservé
+* SEO : ✅ / ❌
+* aucune donnée fictive créée : ✅
+* aucune fonctionnalité supprimée : ✅
+* aucun rebuild effectué : ✅
+
+Pour chaque élément, préciser ce qui a réellement été testé.
+
+⚠️ Ne jamais écrire « testé » si le test n’a pas réellement été effectué.
+
+Si un test réel iPhone ou Android n’est pas possible depuis l’environnement Replit, écrire clairement :
+
+NON TESTABLE DANS L’ENVIRONNEMENT ACTUEL
+
+et donner la procédure exacte permettant de le tester sur un appareil réel.
+
+OBJECTIF FINAL
+
+Nous ne cherchons pas à refaire INDAMORA PLAY.
+
+Nous voulons simplement confirmer que :
+
+https://indamoraplay.com/
+
+fonctionne comme une PWA installable, sans casser le site existant.
+
+PRÉSERVER L’EXISTANT.
+
+MINIMUM DE MODIFICATIONS.
+
+TEST → VÉRIFICATION → CORRECTION → RETEST.
