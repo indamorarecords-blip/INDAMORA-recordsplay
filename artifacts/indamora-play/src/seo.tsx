@@ -90,6 +90,15 @@ function upsertCanonical(href: string) {
 }
 
 function genericMetadata(pathname: string): SeoMetadata {
+  const fixed = publicRouteMetadata[pathname];
+  if (fixed) {
+    return {
+      ...fixed,
+      canonicalPath: pathname,
+      robots: 'index,follow',
+    };
+  }
+
   const categoryMatch = pathname.match(/^\/categorie\/([^/]+)$/);
   if (categoryMatch) {
     const slug = decodeURIComponent(categoryMatch[1]);

@@ -903,20 +903,6 @@ function Support() {
 }
 
 function RecordsPage() {
-  useEffect(() => {
-    const previousTitle = document.title;
-    const description = document.querySelector('meta[name="description"]');
-    const previousDescription = description?.getAttribute('content') ?? null;
-    document.title = 'INDAMORA RECORDS — Créer. Produire. Développer. Faire rayonner les talents.';
-    if (description) {
-      description.setAttribute('content', 'INDAMORA RECORDS, un écosystème créatif dédié à la production, au développement, à la promotion et à la diffusion de projets artistiques et musicaux entre la France, l’Afrique et les diasporas.');
-    }
-    return () => {
-      document.title = previousTitle;
-      if (description && previousDescription !== null) description.setAttribute('content', previousDescription);
-    };
-  }, []);
-
   const poles = [
     { name: 'INDAMORA TV', description: 'Plateforme audiovisuelle consacrée aux freestyles, clips, interviews, sessions live et contenus originaux.', icon: Video },
     { name: 'INDAMORA MEDIA.FM', description: 'Un espace dédié à la diffusion, à la promotion et à la mise en avant des artistes et des projets musicaux.', icon: Radio },
