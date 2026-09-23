@@ -1,0 +1,325 @@
+DIAGNOSTIC URGENT — SUPABASE / INDAMORA PLAY
+
+J’ai reçu un email officiel de Supabase indiquant que le projet suivant risque d’être automatiquement mis en pause pour manque d’activité :
+
+Organisation : INDAMORA play
+Projet : indamorarecords-blip
+Project ID : hgnbpwhexbyvfylznfvt
+
+Le projet n’est pas encore en pause.
+
+⚠️ OBJECTIF
+
+Déterminer avec certitude si ce projet Supabase est actuellement utilisé par la production de :
+
+https://indamoraplay.com/
+
+ou par une fonctionnalité essentielle d’INDAMORA PLAY.
+
+🚨 RÈGLE ABSOLUE : DIAGNOSTIC UNIQUEMENT
+
+NE MODIFIE RIEN.
+
+NE REDÉPLOIE RIEN.
+
+NE CHANGE AUCUNE VARIABLE D’ENVIRONNEMENT.
+
+NE CHANGE AUCUNE BASE DE DONNÉES.
+
+NE CHANGE AUCUNE TABLE.
+
+NE CHANGE AUCUNE URL.
+
+NE CHANGE PAS LE BACKEND.
+
+NE CHANGE PAS LE FRONTEND.
+
+NE CHANGE PAS SUPABASE.
+
+NE SUPPRIME RIEN.
+
+NE DÉPLACE AUCUNE DONNÉE.
+
+NE MIGRE RIEN.
+
+NE PASSE PAS AU PLAN PRO.
+
+NE CRÉE PAS DE NOUVEAU PROJET.
+
+Cette tâche est exclusivement une vérification technique en lecture seule.
+
+⸻
+
+1. IDENTIFIER L’ARCHITECTURE ACTUELLE
+
+Analyse le projet INDAMORA PLAY actuellement déployé.
+
+Détermine quelles technologies sont réellement utilisées en production pour :
+
+* base de données ;
+* authentification ;
+* stockage ;
+* API ;
+* médias ;
+* paiements ;
+* dons ;
+* analytics ;
+* profils ;
+* RÉPERTOIRE.
+
+Ne te limite pas aux fichiers GitHub : la production actuelle est la référence fonctionnelle.
+
+⸻
+
+2. RECHERCHER LES RÉFÉRENCES SUPABASE
+
+Dans le code et la configuration, recherche uniquement en lecture :
+
+* supabase.co
+* SUPABASE_URL
+* SUPABASE_ANON_KEY
+* SUPABASE_SERVICE_ROLE_KEY
+* createClient
+* SDK Supabase ;
+* variables d’environnement Supabase ;
+* URLs de projet ;
+* références au Project ID :
+    hgnbpwhexbyvfylznfvt
+* références au projet :
+    indamorarecords-blip.
+
+Détermine où ces références apparaissent.
+
+⸻
+
+3. DÉTERMINER SI SUPABASE EST ACTUELLEMENT UTILISÉ
+
+Pour chaque référence trouvée, indique :
+
+* fichier ;
+* fonctionnalité ;
+* environnement ;
+* production ou développement ;
+* actif ou ancien ;
+* critique ou non critique.
+
+Exemples :
+
+Élément	Utilise Supabase ?	Production ?	Critique ?
+Base de données	Oui/Non	Oui/Non	Oui/Non
+Authentification	Oui/Non	Oui/Non	Oui/Non
+Stockage	Oui/Non	Oui/Non	Oui/Non
+API	Oui/Non	Oui/Non	Oui/Non
+RÉPERTOIRE	Oui/Non	Oui/Non	Oui/Non
+Profils	Oui/Non	Oui/Non	Oui/Non
+Médias	Oui/Non	Oui/Non	Oui/Non
+Paiements	Oui/Non	Oui/Non	Oui/Non
+Dons	Oui/Non	Oui/Non	Oui/Non
+
+⸻
+
+4. VÉRIFIER LA PRODUCTION
+
+Sans modifier quoi que ce soit, vérifie si les fonctionnalités actuellement accessibles sur :
+
+https://indamoraplay.com/
+
+dépendent directement ou indirectement de ce projet Supabase.
+
+Vérifier notamment :
+
+* Accueil ;
+* Explorer ;
+* RÉPERTOIRE ;
+* recherche ;
+* profils artistes ;
+* œuvres ;
+* authentification ;
+* audio ;
+* vidéo ;
+* espace artiste ;
+* Premium ;
+* dons ;
+* administration.
+
+Ne créer aucune donnée de test.
+
+Utiliser uniquement des données déjà présentes.
+
+⸻
+
+5. VÉRIFIER LA BASE DE DONNÉES RÉELLEMENT UTILISÉE
+
+Détermine quelle base de données est actuellement utilisée par la production.
+
+Nous devons savoir clairement si INDAMORA PLAY utilise :
+
+* Supabase PostgreSQL ;
+* PostgreSQL/Replit ;
+* une autre base ;
+* ou plusieurs systèmes.
+
+Si plusieurs systèmes existent, explique précisément leur rôle.
+
+⸻
+
+6. VÉRIFIER LE PROJET SUPABASE
+
+Si les outils disponibles permettent uniquement une consultation en lecture, vérifie :
+
+* état du projet ;
+* activité récente ;
+* services actifs ;
+* tables ;
+* éventuelles connexions ;
+* dernière activité observable.
+
+⚠️ NE MODIFIE RIEN DANS SUPABASE.
+
+Ne fais aucun :
+
+* SQL UPDATE ;
+* SQL DELETE ;
+* migration ;
+* changement de configuration ;
+* modification de sécurité ;
+* changement de plan.
+
+⸻
+
+7. VÉRIFIER LES VARIABLES D’ENVIRONNEMENT
+
+Inspecte uniquement l’existence et l’utilisation des variables.
+
+NE M’AFFICHE JAMAIS LES SECRETS OU LES VALEURS COMPLÈTES.
+
+Tu peux indiquer par exemple :
+
+* SUPABASE_URL : présente / absente / utilisée ;
+* clé Supabase : présente / absente / utilisée.
+
+Ne révèle aucune clé privée, token ou secret.
+
+⸻
+
+8. CAS POSSIBLES
+
+À la fin, classe la situation dans l’un de ces cas :
+
+CAS A — SUPABASE EST CRITIQUE
+
+Le projet Supabase est actuellement indispensable à INDAMORA PLAY.
+
+Dans ce cas, explique :
+
+* quelles fonctionnalités dépendent de lui ;
+* ce qui pourrait se passer s’il est mis en pause ;
+* quelles précautions prendre.
+
+Ne fais aucune modification.
+
+CAS B — SUPABASE EST UTILISÉ MAIS NON CRITIQUE
+
+Explique précisément son rôle et pourquoi il n’est pas critique pour la production.
+
+Ne fais aucune modification.
+
+CAS C — SUPABASE N’EST PAS UTILISÉ EN PRODUCTION
+
+Indique clairement que le projet semble être inutilisé par la production actuelle.
+
+Ne supprime rien.
+
+CAS D — IMPOSSIBLE DE DÉTERMINER
+
+Si les informations disponibles ne permettent pas de conclure, dis-le clairement.
+
+Ne fais aucune supposition.
+
+⸻
+
+9. NE PAS CONFONDRE AVEC REPLIT
+
+Le fait que Supabase envoie cet email ne signifie pas automatiquement qu’INDAMORA PLAY est en danger.
+
+Il faut établir techniquement :
+
+Supabase indamorarecords-blip
+↓
+INDAMORA PLAY production
+↓
+https://indamoraplay.com/
+
+ou démontrer qu’il n’existe pas de dépendance.
+
+⸻
+
+10. RAPPORT FINAL
+
+Donne-moi un rapport très clair avec :
+
+Projet Supabase
+
+* Nom :
+* Project ID :
+* actuellement actif :
+* actuellement utilisé par la production :
+* niveau de dépendance :
+
+Production INDAMORA PLAY
+
+* base de données :
+* authentification :
+* stockage :
+* API :
+* RÉPERTOIRE :
+* profils :
+* médias :
+* paiements :
+* dons :
+
+Verdict
+
+Choisir clairement :
+
+🔴 CRITIQUE — action nécessaire avant toute pause
+
+ou
+
+🟠 UTILISÉ — mais non critique
+
+ou
+
+🟢 NON UTILISÉ EN PRODUCTION
+
+ou
+
+⚪ IMPOSSIBLE À DÉTERMINER
+
+Important
+
+Ne recommande pas encore de :
+
+* passer en Pro ;
+* supprimer Supabase ;
+* migrer la base ;
+* changer l’architecture ;
+* modifier le code.
+
+Nous déciderons de l’action uniquement après ce diagnostic.
+
+RÈGLE FINALE
+
+Cette tâche est une AUDIT EN LECTURE SEULE.
+
+ZÉRO MODIFICATION.
+
+ZÉRO MIGRATION.
+
+ZÉRO SUPPRESSION.
+
+ZÉRO RECONFIGURATION.
+
+ZÉRO REDÉPLOIEMENT.
+
+Le seul objectif est de savoir si le projet Supabase indamorarecords-blip est réellement nécessaire au fonctionnement actuel d’INDAMORA PLAY.
