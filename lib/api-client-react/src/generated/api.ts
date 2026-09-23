@@ -20,11 +20,15 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AdminDirectory,
+  AdminProfileStatus,
+  AdminProfileStatusInput,
   Artist,
   ArtistInput,
   ArtistUpdateInput,
   CompleteUploadRequest,
   CompleteUploadResult,
+  GetAdminDirectoryParams,
   GetArtistsParams,
   GetSubmissionsParams,
   HealthStatus,
@@ -142,6 +146,162 @@ export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, 
 
 
 
+
+export const getGetAdminDirectoryUrl = (params?: GetAdminDirectoryParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/directory?${stringifiedParams}` : `/api/admin/directory`
+}
+
+/**
+ * @summary List protected accounts and INDAMORA profiles
+ */
+export const getAdminDirectory = async (params?: GetAdminDirectoryParams, options?: Parameters<typeof customFetch>[1]): Promise<AdminDirectory> => {
+
+  return customFetch<AdminDirectory>(getGetAdminDirectoryUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminDirectoryQueryKey = (params?: GetAdminDirectoryParams,) => {
+    return [
+    `/api/admin/directory`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAdminDirectoryQueryOptions = <TData = Awaited<ReturnType<typeof getAdminDirectory>>, TError = ErrorType<void>>(params?: GetAdminDirectoryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminDirectory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminDirectoryQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminDirectory>>> = ({ signal }) => getAdminDirectory(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminDirectory>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminDirectoryQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminDirectory>>>
+export type GetAdminDirectoryQueryError = ErrorType<void>
+
+
+/**
+ * @summary List protected accounts and INDAMORA profiles
+ */
+
+export function useGetAdminDirectory<TData = Awaited<ReturnType<typeof getAdminDirectory>>, TError = ErrorType<void>>(
+ params?: GetAdminDirectoryParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminDirectory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminDirectoryQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateAdminProfileStatusUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/profiles/${id}/status`
+}
+
+/**
+ * @summary Validate or publish an INDAMORA profile
+ */
+export const updateAdminProfileStatus = async (id: number,
+    adminProfileStatusInput: AdminProfileStatusInput, options?: Parameters<typeof customFetch>[1]): Promise<AdminProfileStatus> => {
+
+  return customFetch<AdminProfileStatus>(getUpdateAdminProfileStatusUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(adminProfileStatusInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateAdminProfileStatusMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAdminProfileStatus>>, TError,{id: number;data: BodyType<AdminProfileStatusInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateAdminProfileStatus>>, TError,{id: number;data: BodyType<AdminProfileStatusInput>}, TContext> => {
+
+const mutationKey = ['updateAdminProfileStatus'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAdminProfileStatus>>, {id: number;data: BodyType<AdminProfileStatusInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateAdminProfileStatus(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateAdminProfileStatusMutationResult = NonNullable<Awaited<ReturnType<typeof updateAdminProfileStatus>>>
+    export type UpdateAdminProfileStatusMutationBody = BodyType<AdminProfileStatusInput>
+    export type UpdateAdminProfileStatusMutationError = ErrorType<void>
+
+    /**
+ * @summary Validate or publish an INDAMORA profile
+ */
+export const useUpdateAdminProfileStatus = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAdminProfileStatus>>, TError,{id: number;data: BodyType<AdminProfileStatusInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateAdminProfileStatus>>,
+        TError,
+        {id: number;data: BodyType<AdminProfileStatusInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateAdminProfileStatusMutationOptions(options));
+    }
 
 export const getGetCatalogUrl = () => {
 

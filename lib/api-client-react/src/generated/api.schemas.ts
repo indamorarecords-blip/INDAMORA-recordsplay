@@ -9,6 +9,119 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface AdminUser {
+  id: string;
+  /** @nullable */
+  firstName: string | null;
+  /** @nullable */
+  lastName: string | null;
+  /** @nullable */
+  username?: string | null;
+  /** @nullable */
+  email: string | null;
+  createdAt: string;
+  /** @nullable */
+  lastSignInAt?: string | null;
+  emailVerified: boolean;
+  hasProfile: boolean;
+  /** @nullable */
+  profileId?: number | null;
+  activities: string[];
+  /** @nullable */
+  profileStatus: string | null;
+  isPublished: boolean;
+}
+
+export interface AdminWork {
+  id: number;
+  title: string;
+  artist: string;
+  category: string;
+  status: string;
+  createdAt: string;
+}
+
+export interface AdminSubmission {
+  id: number;
+  title: string;
+  category: string;
+  status: string;
+  submittedAt: string;
+}
+
+export interface AdminProfile {
+  id: number;
+  /** @nullable */
+  ownerId: string | null;
+  /** @nullable */
+  firstName?: string | null;
+  /** @nullable */
+  lastName?: string | null;
+  /** @nullable */
+  email?: string | null;
+  name: string;
+  category: string;
+  /** @nullable */
+  subcategory?: string | null;
+  bio: string;
+  location: string;
+  /** @nullable */
+  country?: string | null;
+  /** @nullable */
+  phone?: string | null;
+  /** @nullable */
+  avatar?: string | null;
+  /** @nullable */
+  website?: string | null;
+  socialLinks?: string[];
+  specialties: string[];
+  profileGroup: string;
+  profileStatus: string;
+  isPublished: boolean;
+  createdAt: string;
+  /** @nullable */
+  updatedAt: string | null;
+  /** @nullable */
+  publicPath?: string | null;
+  works: AdminWork[];
+  submissions: AdminSubmission[];
+}
+
+export interface AdminDirectorySummary {
+  users: number;
+  profiles: number;
+  publishedProfiles: number;
+  pendingProfiles: number;
+  works: number;
+}
+
+export interface AdminDirectory {
+  users: AdminUser[];
+  profiles: AdminProfile[];
+  summary: AdminDirectorySummary;
+}
+
+export type AdminProfileStatusInputProfileStatus = typeof AdminProfileStatusInputProfileStatus[keyof typeof AdminProfileStatusInputProfileStatus];
+
+
+export const AdminProfileStatusInputProfileStatus = {
+  pending: 'pending',
+  approved: 'approved',
+  rejected: 'rejected',
+} as const;
+
+export interface AdminProfileStatusInput {
+  profileStatus?: AdminProfileStatusInputProfileStatus;
+  isPublished?: boolean;
+}
+
+export interface AdminProfileStatus {
+  id: number;
+  profileStatus: string;
+  isPublished: boolean;
+  updatedAt: string;
+}
+
 export type ArtistProfileGroup = typeof ArtistProfileGroup[keyof typeof ArtistProfileGroup];
 
 
@@ -260,6 +373,36 @@ export interface CompleteUploadRequest {
 export interface CompleteUploadResult {
   objectPath: string;
 }
+
+export type GetAdminDirectoryParams = {
+search?: string;
+status?: GetAdminDirectoryStatus;
+scope?: GetAdminDirectoryScope;
+};
+
+export type GetAdminDirectoryStatus = typeof GetAdminDirectoryStatus[keyof typeof GetAdminDirectoryStatus];
+
+
+export const GetAdminDirectoryStatus = {
+  all: 'all',
+  'no-profile': 'no-profile',
+  pending: 'pending',
+  approved: 'approved',
+  rejected: 'rejected',
+  published: 'published',
+  unpublished: 'unpublished',
+} as const;
+
+export type GetAdminDirectoryScope = typeof GetAdminDirectoryScope[keyof typeof GetAdminDirectoryScope];
+
+
+export const GetAdminDirectoryScope = {
+  all: 'all',
+  users: 'users',
+  profiles: 'profiles',
+  artists: 'artists',
+  professionals: 'professionals',
+} as const;
 
 export type GetArtistsParams = {
 group?: GetArtistsGroup;

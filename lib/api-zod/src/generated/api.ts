@@ -18,6 +18,100 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
+ * @summary List protected accounts and INDAMORA profiles
+ */
+export const GetAdminDirectoryQueryParams = zod.object({
+  "search": zod.coerce.string().optional(),
+  "status": zod.enum(['all', 'no-profile', 'pending', 'approved', 'rejected', 'published', 'unpublished']).optional(),
+  "scope": zod.enum(['all', 'users', 'profiles', 'artists', 'professionals']).optional()
+})
+
+export const GetAdminDirectoryResponse = zod.object({
+  "users": zod.array(zod.object({
+  "id": zod.string(),
+  "firstName": zod.string().nullable(),
+  "lastName": zod.string().nullable(),
+  "username": zod.string().nullish(),
+  "email": zod.string().email().nullable(),
+  "createdAt": zod.coerce.date(),
+  "lastSignInAt": zod.coerce.date().nullish(),
+  "emailVerified": zod.boolean(),
+  "hasProfile": zod.boolean(),
+  "profileId": zod.number().int().nullish(),
+  "activities": zod.array(zod.string()),
+  "profileStatus": zod.string().nullable(),
+  "isPublished": zod.boolean()
+})),
+  "profiles": zod.array(zod.object({
+  "id": zod.number().int(),
+  "ownerId": zod.string().nullable(),
+  "firstName": zod.string().nullish(),
+  "lastName": zod.string().nullish(),
+  "email": zod.string().email().nullish(),
+  "name": zod.string(),
+  "category": zod.string(),
+  "subcategory": zod.string().nullish(),
+  "bio": zod.string(),
+  "location": zod.string(),
+  "country": zod.string().nullish(),
+  "phone": zod.string().nullish(),
+  "avatar": zod.string().nullish(),
+  "website": zod.string().url().nullish(),
+  "socialLinks": zod.array(zod.string()).optional(),
+  "specialties": zod.array(zod.string()),
+  "profileGroup": zod.string(),
+  "profileStatus": zod.string(),
+  "isPublished": zod.boolean(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date().nullable(),
+  "publicPath": zod.string().nullish(),
+  "works": zod.array(zod.object({
+  "id": zod.number().int(),
+  "title": zod.string(),
+  "artist": zod.string(),
+  "category": zod.string(),
+  "status": zod.string(),
+  "createdAt": zod.coerce.date()
+})),
+  "submissions": zod.array(zod.object({
+  "id": zod.number().int(),
+  "title": zod.string(),
+  "category": zod.string(),
+  "status": zod.string(),
+  "submittedAt": zod.coerce.date()
+}))
+})),
+  "summary": zod.object({
+  "users": zod.number().int(),
+  "profiles": zod.number().int(),
+  "publishedProfiles": zod.number().int(),
+  "pendingProfiles": zod.number().int(),
+  "works": zod.number().int()
+})
+})
+
+
+/**
+ * @summary Validate or publish an INDAMORA profile
+ */
+export const UpdateAdminProfileStatusParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+export const UpdateAdminProfileStatusBody = zod.object({
+  "profileStatus": zod.enum(['pending', 'approved', 'rejected']).optional(),
+  "isPublished": zod.boolean().optional()
+})
+
+export const UpdateAdminProfileStatusResponse = zod.object({
+  "id": zod.number().int(),
+  "profileStatus": zod.string(),
+  "isPublished": zod.boolean(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
  * @summary List featured content
  */
 export const GetCatalogResponseItem = zod.object({

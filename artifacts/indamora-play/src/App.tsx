@@ -23,6 +23,7 @@ import {
 } from '@workspace/api-client-react';
 import type { Artist, Submission, Work } from '@workspace/api-client-react';
 import { ErrorBoundary } from '@/components/error-boundary';
+import { AdminDirectory } from '@/components/admin-directory';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { SeoHead } from '@/seo';
@@ -1009,6 +1010,7 @@ function RecordsPage() {
       </div>
       <div className="mx-auto mt-16 max-w-2xl border-t border-border pt-8"><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">INDAMORA RECORDS</div><p className="display mt-3 text-2xl font-bold">Créer. Produire. Développer. Faire rayonner les talents.</p><Link href="/" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline" data-testid="link-records-final-home">Retourner à INDAMORA PLAY <ArrowRight className="h-4 w-4" /></Link></div>
     </section>
+     <AdminDirectory />
   </div>;
 }
 
