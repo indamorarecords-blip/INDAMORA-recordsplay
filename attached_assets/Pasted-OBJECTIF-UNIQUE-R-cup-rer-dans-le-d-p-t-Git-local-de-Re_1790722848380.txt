@@ -1,0 +1,109 @@
+OBJECTIF UNIQUE
+
+Récupérer dans le dépôt Git local de Replit le commit GitHub déjà validé :
+
+825eccb502c8a7a3078ceff5576c47a6e17eba81
+
+afin de pouvoir ensuite l’utiliser comme source exacte du déploiement.
+
+AUCUN DÉPLOIEMENT.
+AUCUN COMMIT.
+AUCUN PUSH.
+AUCUNE MODIFICATION DE CODE.
+
+ÉTAT ACTUEL
+
+HEAD local :
+00162586fb60617a4ba5b218f6de4138edb500b2
+
+Commit GitHub autorisé :
+825eccb502c8a7a3078ceff5576c47a6e17eba81
+
+Le commit GitHub est confirmé sur :
+
+indamorarecords-blip/INDAMORA-recordsplay
+branche main
+
+PROCÉDURE AUTORISÉE
+
+1. Vérifier que GitHub main pointe toujours sur :
+    825eccb502c8a7a3078ceff5576c47a6e17eba81
+2. Récupérer UNIQUEMENT cet objet/commit depuis le dépôt GitHub.
+3. Utiliser une opération Git équivalente à :
+    git fetch du dépôt distant afin de rendre disponible le commit exact localement.
+4. NE PAS faire de merge.
+5. NE PAS faire de rebase.
+6. NE PAS cherry-pick.
+7. NE PAS modifier les fichiers du projet.
+8. NE PAS créer de commit.
+9. NE PAS pousser vers GitHub.
+10. NE PAS déployer.
+11. NE PAS récupérer les 76 commits locaux comme ensemble de changements.
+12. NE PAS utiliser :
+    e301de0ba8623e207fd0fe158197d21dd8579417
+
+PIÈCE JOINTE NON SUIVIE
+
+Le fichier :
+
+attached_assets/Pasted-OBJECTIF-UNIQUE-Faire-du-commit-GitHub-valid-825eccb502_1790722706141.txt
+
+est une pièce jointe de cette demande.
+
+NE PAS l’ajouter au commit.
+NE PAS le supprimer.
+NE PAS le modifier.
+NE PAS le committer.
+
+Il doit simplement rester hors du périmètre du code.
+
+APRÈS LE FETCH
+
+Vérifier que le commit est maintenant disponible localement avec une commande équivalente à :
+
+git cat-file -t 825eccb502c8a7a3078ceff5576c47a6e17eba81
+
+Le résultat attendu est :
+
+commit
+
+Puis vérifier le contenu du commit sans le modifier.
+
+Vérifier notamment que le commit contient bien les douze fichiers précédemment audités.
+
+IMPORTANT
+
+Ne pas déplacer HEAD vers ce commit pendant cette étape.
+
+Ne pas modifier le working tree.
+
+Ne pas effectuer de checkout.
+
+Cette étape sert UNIQUEMENT à rendre le commit GitHub disponible localement pour une étape de déploiement ultérieure.
+
+RAPPORT FINAL
+
+Indiquer :
+
+* résultat du fetch ;
+* confirmation que 825eccb502c8a7a3078ceff5576c47a6e17eba81 est maintenant disponible localement ;
+* HEAD local actuel ;
+* état du working tree ;
+* confirmation qu’aucun fichier de code n’a été modifié ;
+* confirmation qu’aucun commit n’a été créé ;
+* confirmation qu’aucun push n’a été effectué ;
+* confirmation qu’aucun déploiement n’a été lancé ;
+* confirmation qu’aucune donnée, configuration, dépendance, Clerk, Supabase ou Stripe n’a été modifié.
+
+SI LE FETCH N’EST PAS POSSIBLE
+
+ARRÊT IMMÉDIAT.
+
+Ne pas essayer une autre méthode.
+Ne pas copier manuellement les fichiers.
+Ne pas modifier le code.
+Ne pas merger.
+Ne pas cherry-pick.
+Ne pas déployer.
+
+Fournir simplement l’erreur exacte.
