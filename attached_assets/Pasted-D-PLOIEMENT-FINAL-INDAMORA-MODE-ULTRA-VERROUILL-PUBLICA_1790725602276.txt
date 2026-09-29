@@ -1,0 +1,277 @@
+DÉPLOIEMENT FINAL — INDAMORA
+
+MODE ULTRA-VERROUILLÉ — PUBLICATION UNIQUEMENT
+
+OBJECTIF UNIQUE
+
+Publier la version actuellement présente dans le workspace Replit vers la production :
+
+https://indamoraplay.com
+
+La fonctionnalité « Utilisateurs enregistrés » est déjà présente dans le projet actuel.
+
+Je veux uniquement publier l’état actuel.
+
+⸻
+
+⚠️ INTERDICTIONS ABSOLUES
+
+AVANT, PENDANT ET APRÈS LE DÉPLOIEMENT :
+
+NE PAS :
+
+* modifier le code ;
+* corriger du code ;
+* refactoriser ;
+* nettoyer du code ;
+* optimiser ;
+* mettre à jour des dépendances ;
+* modifier package.json ;
+* modifier les versions ;
+* modifier .replit ;
+* modifier les workflows ;
+* modifier les secrets ;
+* modifier les variables d’environnement ;
+* modifier Clerk ;
+* modifier Supabase ;
+* modifier Stripe ;
+* modifier la base de données ;
+* effectuer une migration ;
+* créer/modifier/supprimer un compte utilisateur ;
+* modifier les permissions ADMIN ;
+* modifier les statistiques ;
+* modifier le mobile ;
+* supprimer ou modifier artifacts/indamora-play-mobile/ ;
+* supprimer ou modifier un autre artefact existant ;
+* synchroniser avec GitHub ;
+* pull depuis GitHub ;
+* merge ;
+* rebase ;
+* cherry-pick ;
+* checkout ;
+* reset ;
+* force push ;
+* créer un nouveau commit ;
+* modifier l’historique Git.
+
+NE CHERCHE PAS À UTILISER LE COMMIT 825eccb....
+
+NE REMPLACE PAS LE PROJET ACTUEL PAR UNE VERSION GITHUB.
+
+Le workspace actuel est la seule source à publier.
+
+⸻
+
+ÉTAPE 1 — CONTRÔLE AVANT PUBLICATION
+
+Avant de publier, effectue uniquement des vérifications en lecture seule.
+
+Vérifie :
+
+git status --short
+git diff --stat
+git diff
+git rev-parse HEAD
+
+Puis vérifie que :
+
+* aucun fichier applicatif n’a été modifié depuis le dernier contrôle ;
+* le code de /administration est présent ;
+* /api/admin/users est présent ;
+* artifacts/indamora-play-mobile/ n’est pas supprimé ;
+* aucun artefact existant n’est supprimé ;
+* aucune modification de données n’est en attente.
+
+RÈGLE
+
+Si tu détectes une modification inattendue du code :
+
+ARRÊTE-TOI.
+
+Ne la corrige pas.
+
+Ne la supprime pas.
+
+Ne fais pas de reset.
+
+Ne déploie pas.
+
+Explique-moi le fichier concerné.
+
+⸻
+
+ÉTAPE 2 — NE PAS MODIFIER LE WORKSPACE
+
+Une fois le contrôle effectué :
+
+NE MODIFIE PLUS AUCUN FICHIER.
+
+Le contenu actuel doit être publié exactement tel quel.
+
+Ne lance aucune commande ayant pour effet de modifier le dépôt ou les fichiers.
+
+⸻
+
+ÉTAPE 3 — PUBLICATION
+
+Si et seulement si le contrôle précédent est propre :
+
+publie l’application actuellement présente dans le workspace Replit vers :
+
+https://indamoraplay.com
+
+Utilise uniquement le mécanisme officiel de publication/déploiement Replit.
+
+Ne change aucune configuration avant la publication.
+
+Ne remplace aucun artefact.
+
+Ne sélectionne pas une ancienne version.
+
+Ne restaure aucun checkpoint.
+
+La publication doit utiliser l’état actuel du workspace.
+
+⸻
+
+ÉTAPE 4 — APRÈS PUBLICATION
+
+Une fois la publication terminée, vérifie uniquement que :
+
+Site
+
+https://indamoraplay.com
+
+répond correctement.
+
+Administration
+
+La route :
+
+/administration
+
+est accessible et demande une authentification.
+
+API
+
+Sans session :
+
+/api/admin/users
+
+doit continuer à être protégée et retourner :
+
+401
+
+ou le comportement d’authentification équivalent déjà observé.
+
+Fonctionnalité
+
+Vérifie que la fonctionnalité « Utilisateurs enregistrés » est bien présente dans la version publiée si cela peut être confirmé sans compte ADMIN.
+
+Ne crée aucun compte pour effectuer cette vérification.
+
+Ne modifie aucune permission pour effectuer cette vérification.
+
+⸻
+
+ÉTAPE 5 — NE PAS MODIFIER APRÈS PUBLICATION
+
+Après publication :
+
+NE PAS :
+
+* faire de hotfix ;
+* modifier le code ;
+* faire un second déploiement ;
+* restaurer une version ;
+* modifier Git ;
+* modifier Clerk ;
+* modifier Supabase ;
+* modifier Stripe ;
+* modifier les données.
+
+Si une anomalie est détectée :
+
+ARRÊTE-TOI ET SIGNALE-LA.
+
+Ne tente pas de la corriger automatiquement.
+
+⸻
+
+CONDITIONS DE BLOCAGE
+
+Tu dois REFUSER DE PUBLIER et t’arrêter immédiatement si :
+
+1. le workspace contient une modification inattendue ;
+2. Replit propose de remplacer/supprimer un artefact ;
+3. le déploiement nécessite une modification de configuration ;
+4. Replit veut synchroniser GitHub ;
+5. Replit veut effectuer un merge/rebase/reset/checkout ;
+6. le mobile risque d’être supprimé ou remplacé ;
+7. un fichier applicatif doit être modifié pour permettre la publication ;
+8. une migration de données est demandée ;
+9. une modification Clerk/Supabase/Stripe est demandée ;
+10. tu ne peux pas garantir que la publication correspond à l’état actuel du workspace.
+
+Dans tous ces cas :
+
+NE FORCE PAS.
+
+NE CONTOURNE PAS LE BLOCAGE.
+
+NE MODIFIE RIEN.
+
+⸻
+
+RAPPORT FINAL OBLIGATOIRE
+
+Après publication, donne exactement :
+
+AVANT PUBLICATION
+
+* HEAD :
+* git status :
+* fichiers applicatifs modifiés :
+* artefacts supprimés :
+* modifications de données :
+* modifications de configuration :
+
+PUBLICATION
+
+* publication réussie : OUI/NON
+* URL :
+* date/heure :
+* identifiant de déploiement si Replit le fournit :
+* build ID si Replit le fournit :
+
+VÉRIFICATIONS APRÈS PUBLICATION
+
+* site accessible : OUI/NON
+* /administration : résultat
+* /api/admin/users sans session : résultat
+* fonctionnalité « Utilisateurs enregistrés » détectée : OUI/NON/IMPOSSIBLE À VÉRIFIER SANS ADMIN
+* mobile modifié : OUI/NON
+
+GIT APRÈS PUBLICATION
+
+* fichiers modifiés :
+* commit créé : OUI/NON
+* push effectué : OUI/NON
+
+CONFIRMATION FINALE
+
+Tu dois terminer par cette phrase exacte si tout s’est déroulé correctement :
+
+« Publication effectuée sans modification du code, sans modification des données, sans modification des artefacts existants et sans synchronisation GitHub. »
+
+⸻
+
+RÈGLE SUPRÊME
+
+NE RIEN CHANGER. PUBLIER UNIQUEMENT L’ÉTAT ACTUEL.
+
+La priorité est de préserver intégralement le projet actuel.
+
+Si la publication ne peut pas être effectuée exactement dans ces conditions :
+
+NE PAS PUBLIER. S’ARRÊTER ET RAPPORTER LE BLOCAGE.

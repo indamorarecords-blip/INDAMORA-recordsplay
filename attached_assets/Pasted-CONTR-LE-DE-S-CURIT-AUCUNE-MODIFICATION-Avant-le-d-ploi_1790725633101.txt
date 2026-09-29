@@ -1,0 +1,110 @@
+CONTRÔLE DE SÉCURITÉ — AUCUNE MODIFICATION
+
+Avant le déploiement, vérifie uniquement en lecture que l’interface ADMIN et les données administratives sont strictement séparées des profils publics.
+
+RÈGLE FONDAMENTALE
+
+Seul un utilisateur disposant du rôle/contrôle ADMIN approprié peut accéder aux fonctionnalités d’administration.
+
+Les profils suivants ne doivent jamais avoir accès à l’interface ADMIN :
+
+* visiteur ;
+* artiste ;
+* professionnel ;
+* utilisateur authentifié standard ;
+* utilisateur non authentifié.
+
+DONNÉES ADMINISTRATIVES À PROTÉGER
+
+Les utilisateurs non-ADMIN ne doivent jamais pouvoir voir :
+
+* la liste des utilisateurs enregistrés ;
+* les utilisateurs actuellement connectés ;
+* les informations de connexion des utilisateurs ;
+* les données internes de fréquentation ;
+* le nombre de visiteurs d’un profil si cette donnée est réservée à l’administration ;
+* les statistiques internes ;
+* les données personnelles ou administratives d’autres utilisateurs ;
+* les informations réservées au dashboard /administration.
+
+IMPORTANT
+
+La sécurité doit être appliquée côté serveur/API.
+
+Il ne suffit PAS de simplement cacher un bouton ou une page dans le frontend.
+
+Pour chaque route API contenant des données ADMIN, vérifier que l’autorisation ADMIN est contrôlée côté serveur.
+
+ROUTES
+
+Inspecter notamment :
+
+/administration
+
+/api/admin/users
+
+ainsi que toute autre route API clairement réservée à l’administration.
+
+VÉRIFICATIONS
+
+Vérifier :
+
+1. Sans authentification :
+    * /administration ne donne pas accès au dashboard ;
+    * les API ADMIN sont protégées.
+2. Avec un utilisateur authentifié non-ADMIN :
+    * /administration ne donne pas accès au dashboard ADMIN ;
+    * les API ADMIN refusent l’accès ;
+    * aucune donnée administrative n’est retournée.
+3. Avec un profil artiste :
+    * aucune donnée ADMIN accessible ;
+    * aucune liste d’utilisateurs ;
+    * aucune information sur les utilisateurs connectés.
+4. Avec un profil professionnel :
+    * même comportement.
+5. Sur les pages publiques :
+    * aucun élément visuel ne doit révéler l’existence d’une liste d’utilisateurs ;
+    * aucun compteur interne de visiteurs ne doit être exposé s’il est réservé à l’administration ;
+    * aucune donnée d’administration ne doit être envoyée inutilement au navigateur.
+
+IMPORTANT — AUCUNE MODIFICATION
+
+Ne modifie aucun fichier.
+
+Ne modifie aucune permission.
+
+Ne crée aucun compte.
+
+Ne modifie aucun compte.
+
+Ne modifie ni Clerk, ni Supabase, ni Stripe.
+
+Ne fais aucun commit.
+
+Ne fais aucun push.
+
+Ne déploie pas.
+
+Si une vulnérabilité ou une route insuffisamment protégée est découverte, indique simplement :
+
+* route concernée ;
+* données potentiellement exposées ;
+* mécanisme d’autorisation actuel ;
+* correction nécessaire.
+
+Puis arrête-toi.
+
+RAPPORT
+
+Indique :
+
+* ADMIN séparé des utilisateurs standards : OUI/NON
+* /administration protégé : OUI/NON
+* /api/admin/users protégé côté serveur : OUI/NON
+* données utilisateurs protégées : OUI/NON
+* données de fréquentation protégées : OUI/NON
+* artistes protégés des données ADMIN : OUI/NON
+* professionnels protégés des données ADMIN : OUI/NON
+* pages publiques exemptes de données ADMIN : OUI/NON
+* fichiers modifiés : doit être AUCUN
+* déploiement : NON
