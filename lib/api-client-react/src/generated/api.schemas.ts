@@ -9,6 +9,29 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface AdminUser {
+  id: string;
+  /** @nullable */
+  firstName: string | null;
+  /** @nullable */
+  lastName: string | null;
+  /** @nullable */
+  username: string | null;
+  /** @nullable */
+  email: string | null;
+  createdAt: string;
+}
+
+export interface AdminUsersPage {
+  users: AdminUser[];
+  /** @minimum 0 */
+  totalCount: number;
+  /** @minimum 0 */
+  offset: number;
+  /** @minimum 1 */
+  limit: number;
+}
+
 export type ArtistProfileGroup = typeof ArtistProfileGroup[keyof typeof ArtistProfileGroup];
 
 
@@ -246,6 +269,13 @@ export const GetArtistsGroup = {
   partners: 'partners',
   press: 'press',
 } as const;
+
+export type GetAdminUsersParams = {
+/**
+ * @minimum 0
+ */
+offset?: number;
+};
 
 export type GetSubmissionsParams = {
 status?: GetSubmissionsStatus;

@@ -18,6 +18,8 @@ tags:
     description: INDAMORA RECORDS moderation operations
   - name: press
     description: Public press contact operations
+  - name: admin
+    description: Private administration operations
   - name: Storage
     description: Object storage upload and serving endpoints.
 paths:
@@ -158,6 +160,34 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PressRequest"
+  /admin/users:
+    get:
+      operationId: getAdminUsers
+      tags: [admin]
+      summary: List registered users for administrators
+      security:
+        - clerkSession: []
+      parameters:
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        "200":
+          description: A page of registered Clerk users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUsersPage"
+        "400":
+          description: Invalid pagination offset
+        "401":
+          description: Authentication required
+        "403":
+          description: Administrator access denied
   /submissions:
     get:
       operationId: getSubmissions
@@ -312,6 +342,27 @@ components:
           type: string
       required:
         - status
+    AdminUser:
+      type: object
+      required: [id, firstName, lastName, username, email, createdAt]
+      properties:
+        id: { type: string }
+        firstName: { type: ["string", "null"] }
+        lastName: { type: ["string", "null"] }
+        username: { type: ["string", "null"] }
+        email: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+    AdminUsersPage:
+      type: object
+      required: [users, totalCount, offset, limit]
+      properties:
+        users:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminUser"
+        totalCount: { type: integer, minimum: 0 }
+        offset: { type: integer, minimum: 0 }
+        limit: { type: integer, minimum: 1 }
     Artist:
       type: object
       required: [id, name, category, bio, location, worksCount, profileGroup, specialties, socialLinks]

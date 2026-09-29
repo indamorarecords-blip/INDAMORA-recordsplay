@@ -6,12 +6,15 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './adminUser';
+export * from './adminUsersPage';
 export * from './artist';
 export * from './artistInput';
 export * from './artistInputProfileGroup';
 export * from './artistProfileGroup';
 export * from './completeUploadRequest';
 export * from './completeUploadResult';
+export * from './getAdminUsersParams';
 export * from './getArtistsGroup';
 export * from './getArtistsParams';
 export * from './getSubmissionsParams';

@@ -206,6 +206,40 @@ export const CreatePressRequestResponse = zod.object({
 
 
 /**
+ * @summary List registered users for administrators
+ */
+export const getAdminUsersQueryOffsetDefault = 0;
+export const getAdminUsersQueryOffsetMin = 0;
+
+
+
+export const GetAdminUsersQueryParams = zod.object({
+  "offset": zod.coerce.number().int().min(getAdminUsersQueryOffsetMin).default(getAdminUsersQueryOffsetDefault)
+})
+
+export const getAdminUsersResponseTotalCountMin = 0;
+
+export const getAdminUsersResponseOffsetMin = 0;
+
+
+
+
+export const GetAdminUsersResponse = zod.object({
+  "users": zod.array(zod.object({
+  "id": zod.string(),
+  "firstName": zod.string().nullable(),
+  "lastName": zod.string().nullable(),
+  "username": zod.string().nullable(),
+  "email": zod.string().nullable(),
+  "createdAt": zod.coerce.date()
+})),
+  "totalCount": zod.number().int().min(getAdminUsersResponseTotalCountMin),
+  "offset": zod.number().int().min(getAdminUsersResponseOffsetMin),
+  "limit": zod.number().int().min(1)
+})
+
+
+/**
  * @summary List work submissions
  */
 export const GetSubmissionsQueryParams = zod.object({
