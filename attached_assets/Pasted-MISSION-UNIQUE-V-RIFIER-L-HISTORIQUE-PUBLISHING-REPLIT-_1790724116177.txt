@@ -1,0 +1,98 @@
+MISSION UNIQUE — VÉRIFIER L’HISTORIQUE PUBLISHING REPLIT
+
+Aucune modification du projet.
+
+Aucun checkout, reset, merge, rebase, cherry-pick, commit, push ou déploiement.
+
+OBJECTIF
+
+Nous savons maintenant que l’environnement de travail ne permet pas d’identifier automatiquement le snapshot correspondant à la production.
+
+Je veux donc une dernière vérification strictement en lecture seule de l’historique Publishing / Deployments / History disponible dans Replit.
+
+À FAIRE
+
+Vérifie s’il existe dans l’environnement accessible :
+
+* Publishing → History ;
+* Deployments → History ;
+* historique des publications ;
+* informations de la dernière publication ;
+* identifiant du deployment ;
+* identifiant du build ;
+* timestamp de publication ;
+* checkpoint ou snapshot associé ;
+* commit Git associé ;
+* informations permettant de voir les fichiers inclus dans cette publication.
+
+IMPORTANT
+
+Ne cherche plus à déduire le snapshot à partir du HEAD Git.
+
+Ne déduis pas la production à partir des commits nommés :
+
+Published your App
+
+Ne considère pas le HEAD :
+
+beb0063491692683b9b701cbf57b119eb3fa69c6
+
+comme production.
+
+Ne considère pas :
+
+825eccb502c8a7a3078ceff5576c47a6e17eba81
+
+comme production.
+
+SI L’HISTORIQUE N’EST PAS ACCESSIBLE
+
+Dis-le clairement.
+
+Dans ce cas, réponds simplement :
+
+« L’historique Publishing → History doit être consulté depuis l’interface Replit par le propriétaire du projet. L’environnement d’exécution ne permet pas d’en extraire l’identifiant du deployment/snapshot actuellement servi. »
+
+Puis indique exactement quelles informations je dois te fournir depuis cette interface.
+
+INFORMATIONS À ME DEMANDER SI NÉCESSAIRE
+
+Si je dois ouvrir l’interface Replit, demande-moi uniquement de copier les informations visibles concernant la publication actuellement active :
+
+* Deployment ID ;
+* Build ID ;
+* date/heure ;
+* source/checkpoint/snapshot affiché ;
+* commit SHA affiché, s’il existe ;
+* éventuellement le nom de la version.
+
+Ne me demande pas de modifier quoi que ce soit.
+
+RÈGLE ABSOLUE
+
+Si tu ne peux pas établir avec certitude :
+
+production actuelle → deployment → snapshot/checkpoint
+
+alors ne fais rien d’autre.
+
+Pas de tentative de restauration.
+
+Pas de checkout.
+
+Pas de modification.
+
+Pas de déploiement.
+
+RÉPONSE FINALE
+
+Donne-moi uniquement :
+
+1. Ce que tu as pu vérifier dans Publishing → History.
+2. L’identifiant exact de la publication actuelle, si disponible.
+3. Le build ID, si disponible.
+4. Le snapshot/checkpoint, si disponible.
+5. Le commit SHA, si disponible.
+6. Sinon, exactement les informations que je dois copier depuis mon interface Replit.
+
+Aucune modification ne doit être effectuée.
