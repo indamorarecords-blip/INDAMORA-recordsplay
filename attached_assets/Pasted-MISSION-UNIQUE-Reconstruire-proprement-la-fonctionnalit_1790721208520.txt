@@ -1,0 +1,315 @@
+MISSION UNIQUE
+
+Reconstruire proprement la fonctionnalité de répertoire des utilisateurs ADMIN à partir de la version actuellement présente sur GitHub main, puis la tester, la committer et la pousser sur GitHub.
+
+OBJECTIF FINAL
+
+Le dashboard ADMIN /administration doit afficher une liste réelle et détaillée des utilisateurs enregistrés, accessible uniquement aux ADMIN authentifiés.
+
+La fonctionnalité doit être reconstruite proprement depuis GitHub main.
+
+NE PAS récupérer ni fusionner les 76 commits locaux actuellement présents dans Replit.
+
+NE PAS utiliser l’ancien correctif local.
+
+NE PAS utiliser le commit local :
+e301de0ba8623e207fd0fe158197d21dd8579417
+
+BASE DE TRAVAIL
+
+La référence doit être exclusivement :
+
+indamorarecords-blip/INDAMORA-recordsplay
+branche :
+main
+
+Commencer par récupérer l’état actuel de GitHub main et travailler à partir de celui-ci.
+
+⸻
+
+PHASE 1 — AUDIT
+
+Avant toute modification :
+
+1. Inspecter GitHub main.
+2. Identifier le composant/page correspondant à /administration.
+3. Identifier le système d’authentification existant.
+4. Identifier précisément comment l’application détermine qu’un utilisateur est ADMIN.
+5. Identifier la source réelle des utilisateurs enregistrés.
+6. Identifier les routes API existantes pouvant être utilisées.
+7. Identifier les hooks/client API existants.
+8. Vérifier comment les statistiques actuelles sont calculées.
+9. Vérifier qu’il existe déjà un accès serveur sécurisé aux données nécessaires ou déterminer le minimum nécessaire pour le créer.
+
+IMPORTANT :
+
+Ne pas réutiliser automatiquement les fichiers locaux Replit qui sont absents de GitHub main.
+
+Ne pas copier le App.tsx local.
+
+Ne pas fusionner les changements locaux.
+
+⸻
+
+PHASE 2 — RECONSTRUCTION MINIMALE
+
+Construire uniquement la fonctionnalité suivante :
+
+Dans /administration, ajouter une section :
+
+“Utilisateurs enregistrés”
+
+Cette section doit afficher les utilisateurs réels déjà présents.
+
+Afficher, uniquement si ces informations sont disponibles dans les données existantes :
+
+* nom ou nom d’affichage ;
+* e-mail ;
+* identifiant utilisateur ;
+* date d’inscription ;
+* informations de profil pertinentes déjà disponibles.
+
+Ne jamais inventer de données.
+
+Si une information n’existe pas, ne pas la fabriquer.
+
+⸻
+
+PHASE 3 — SÉCURITÉ
+
+La liste doit être accessible uniquement à un ADMIN authentifié.
+
+Conserver le mécanisme d’authentification existant.
+
+Toute récupération de données administratives doit être protégée côté serveur.
+
+Garanties obligatoires :
+
+* non connecté → accès refusé ;
+* utilisateur connecté non ADMIN → accès refusé ;
+* ADMIN → accès autorisé.
+
+Ne jamais exposer les données administratives sur une route publique.
+
+Ne jamais ajouter de contournement d’authentification.
+
+Ne jamais créer de compte de test.
+
+Ne jamais utiliser de données fictives.
+
+Ne jamais exposer la liste sur :
+
+/
+/profil
+/repertoire
+/indamora-records
+
+ou toute autre page publique.
+
+⸻
+
+PHASE 4 — CONSERVATION DU SITE EXISTANT
+
+NE PAS modifier :
+
+* les statistiques existantes ;
+* les œuvres ;
+* les artistes ;
+* les profils ;
+* les comptes utilisateurs ;
+* les rôles ;
+* les statuts ;
+* les abonnements ;
+* les paiements ;
+* Stripe ;
+* Clerk ;
+* Supabase ;
+* la base de données ;
+* les données existantes ;
+* les pages publiques ;
+* le design global ;
+* la navigation ;
+* les fonctionnalités existantes ;
+* les variables d’environnement.
+
+Ne faire aucune migration de données.
+
+Ne créer aucune table si cela n’est pas absolument nécessaire.
+
+Si une modification de schéma ou une migration est nécessaire :
+ARRÊTER immédiatement et demander confirmation.
+
+⸻
+
+PHASE 5 — MINIMALITÉ DU CODE
+
+Modifier le minimum de fichiers possible.
+
+Ne pas faire de refactoring.
+
+Ne pas nettoyer du code existant.
+
+Ne pas corriger d’autres problèmes découverts.
+
+Ne pas mettre à jour les dépendances.
+
+Ne pas modifier des fichiers sans rapport avec la fonctionnalité.
+
+Si un fichier doit être modifié uniquement pour supporter le répertoire ADMIN, limiter les changements à cette fonctionnalité.
+
+⸻
+
+PHASE 6 — TESTS
+
+Effectuer les vérifications suivantes :
+
+1. /administration se charge correctement.
+2. Les statistiques existantes sont identiques.
+3. La section “Utilisateurs enregistrés” apparaît pour un ADMIN.
+4. Les utilisateurs affichés sont les utilisateurs réels.
+5. Aucun utilisateur fictif n’apparaît.
+6. Un utilisateur non connecté ne peut pas récupérer la liste.
+7. Un utilisateur connecté non ADMIN ne peut pas récupérer la liste.
+8. Les pages publiques ne montrent pas les utilisateurs ADMIN.
+9. Aucun compte n’a été créé.
+10. Aucun compte n’a été supprimé.
+11. Aucun profil n’a été modifié.
+12. Aucune œuvre n’a été modifiée.
+13. Aucun paiement ou abonnement n’a été modifié.
+14. Aucun changement Supabase n’a été effectué.
+15. Aucun changement Clerk n’a été effectué.
+16. Aucun changement Stripe n’a été effectué.
+17. Typecheck/build passent.
+
+Si aucun véritable compte ADMIN de test n’est disponible, ne créer aucun compte.
+Tester uniquement ce qui peut être vérifié sans contourner l’authentification et signaler clairement ce qui reste à vérifier manuellement.
+
+⸻
+
+PHASE 7 — CONTRÔLE DU DIFF
+
+Avant commit :
+
+Exécuter :
+
+git status --short
+
+git diff --stat
+
+git diff --name-only
+
+Le diff doit contenir uniquement les fichiers nécessaires à la nouvelle fonctionnalité.
+
+IMPORTANT :
+
+Si le diff contient des changements provenant des 76 commits locaux ou des fichiers sans rapport :
+
+STOP.
+
+Ne pas commit.
+
+Ne pas push.
+
+Ne pas déployer.
+
+Identifier les fichiers concernés et demander confirmation.
+
+⸻
+
+PHASE 8 — COMMIT PROPRE
+
+Si et seulement si le diff est propre :
+
+Créer un nouveau commit uniquement avec les modifications de cette fonctionnalité.
+
+Message :
+
+Add admin user directory
+
+NE JAMAIS pousser :
+
+e301de0ba8623e207fd0fe158197d21dd8579417
+
+NE JAMAIS pousser les 76 commits locaux.
+
+NE JAMAIS faire de force push.
+
+⸻
+
+PHASE 9 — PUSH GITHUB
+
+Pousser uniquement le nouveau commit vers :
+
+indamorarecords-blip/INDAMORA-recordsplay
+
+branche :
+
+main
+
+Avant le push, vérifier que main n’a pas changé depuis le début de l’opération.
+
+Si GitHub refuse le push ou si un conflit apparaît :
+
+STOP.
+
+Ne pas forcer.
+
+Ne pas faire de merge automatique.
+
+Ne pas écraser GitHub.
+
+Me demander confirmation.
+
+⸻
+
+PHASE 10 — DÉPLOIEMENT
+
+NE PAS déployer automatiquement.
+
+Après le push GitHub, attendre une confirmation explicite avant toute publication en production.
+
+⸻
+
+RÈGLE DE SÉCURITÉ ABSOLUE
+
+À TOUT MOMENT :
+
+Si tu n’es pas certain qu’une modification concerne exclusivement le répertoire utilisateurs ADMIN :
+
+STOP.
+
+Ne modifie rien.
+
+Ne committe rien.
+
+Ne pousse rien.
+
+Demande confirmation.
+
+⸻
+
+RAPPORT FINAL
+
+À la fin, fournir un rapport précis contenant :
+
+1. État initial de GitHub main.
+2. Fichiers créés.
+3. Fichiers modifiés.
+4. Fichiers supprimés, s’il y en a.
+5. Résumé exact des changements.
+6. Nombre de lignes ajoutées/supprimées.
+7. Résultat du build/typecheck.
+8. Résultat des tests de sécurité.
+9. Commit SHA.
+10. Confirmation que seul le nouveau commit a été poussé.
+11. Confirmation que les 76 commits locaux n’ont PAS été poussés.
+12. Confirmation que e301de0ba8623e207fd0fe158197d21dd8579417 n’a PAS été poussé.
+13. Confirmation qu’aucune donnée n’a été créée, supprimée ou modifiée.
+14. Confirmation que Clerk n’a pas été modifié.
+15. Confirmation que Supabase n’a pas été modifié.
+16. Confirmation que Stripe n’a pas été modifié.
+17. Confirmation qu’aucun déploiement n’a été effectué.
+
+OBJECTIF FINAL :
+
+Obtenir dans /administration un véritable répertoire des utilisateurs enregistrés, sécurisé par l’authentification ADMIN, construit proprement sur GitHub main, sans importer les autres changements locaux et sans modifier le reste du site.
