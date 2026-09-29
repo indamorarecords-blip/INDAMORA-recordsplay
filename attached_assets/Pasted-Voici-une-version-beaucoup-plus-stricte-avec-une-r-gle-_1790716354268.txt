@@ -1,0 +1,416 @@
+Voici une version beaucoup plus stricte, avec une règle essentielle : Replit doit d’abord diagnostiquer, puis seulement corriger si la cause est certaine. Il ne doit surtout pas profiter de la demande pour refactorer ou modifier d’autres parties du site.
+
+⚠️ MODE AUDIT STRICT — AUCUNE MODIFICATION NON AUTORISÉE
+
+Site de production :
+
+https://indamoraplay.com
+
+OBJECTIF UNIQUE
+
+Le tableau de bord ADMIN affiche actuellement les statistiques réelles :
+
+* 7 utilisateurs inscrits
+* 4 profils artistes
+* 2 profils artistes publiés
+* 6 œuvres publiées
+* 0 soumission en attente
+* 0 demande presse en attente
+* 0 abonnement actif
+* activité récente
+
+Mais je ne peux pas consulter le détail des utilisateurs inscrits.
+
+Je veux comprendre puis, si nécessaire, corriger uniquement ce problème.
+
+Je dois pouvoir consulter depuis l’espace ADMIN les utilisateurs réels et les informations auxquelles un administrateur a déjà accès selon l’architecture actuelle :
+
+* nom ;
+* prénom ;
+* email ;
+* profil ;
+* profil artiste associé ;
+* œuvres associées ;
+* statut ;
+* date d’inscription lorsque disponible.
+
+⸻
+
+🔴 RÈGLE N°1 : NE MODIFIE RIEN AU DÉBUT
+
+Pendant toute la phase de diagnostic :
+
+AUCUN fichier ne doit être modifié.
+
+Ne fais aucune modification de code.
+
+Ne fais aucune modification de base de données.
+
+Ne fais aucune migration.
+
+Ne modifies aucune configuration.
+
+Ne modifies aucune variable d’environnement.
+
+Ne modifies pas Clerk.
+
+Ne modifies pas Supabase.
+
+Ne modifies pas Stripe.
+
+Ne modifies pas les données utilisateurs.
+
+Ne crées aucun utilisateur.
+
+Ne supprimes rien.
+
+Ne publies rien.
+
+Ne dépublies rien.
+
+Ne modifies aucun statut.
+
+Ne fais aucun déploiement.
+
+Ne fais aucun commit.
+
+Ne fais aucun push.
+
+Ne reformates pas automatiquement les fichiers.
+
+Ne lances aucun outil qui pourrait écrire dans le projet.
+
+⸻
+
+PHASE 1 — DIAGNOSTIC UNIQUEMENT
+
+Avant toute modification, inspecte le projet en lecture seule.
+
+Détermine précisément :
+
+A. Dashboard ADMIN
+
+* Quel composant affiche les statistiques ?
+* Quelle source fournit le nombre « 7 utilisateurs inscrits » ?
+* Quelle requête/API fournit ce nombre ?
+* Le dashboard dispose-t-il déjà d’une liste détaillée des utilisateurs ?
+* Existe-t-il déjà une page, route ou composant de type directory/users ?
+
+B. API ADMIN
+
+Inspecte les endpoints ADMIN existants.
+
+En particulier, vérifie l’équivalent de :
+
+GET /api/admin/directory
+
+Détermine :
+
+* ce que retourne réellement l’endpoint ;
+* quelles données il récupère ;
+* comment il récupère les utilisateurs ;
+* si les données viennent de Clerk ;
+* si elles viennent de la base ;
+* comment les profils sont associés ;
+* si requireAdmin est appliqué ;
+* ce qui se passe sans session ;
+* ce qui se passe avec un utilisateur normal ;
+* ce qui se passe avec un ADMIN.
+
+C. Authentification
+
+Vérifie précisément la protection actuelle.
+
+Le comportement attendu est :
+
+Sans session :
+401 ou refus équivalent.
+
+Utilisateur normal :
+accès refusé.
+
+ADMIN :
+accès aux données ADMIN autorisées.
+
+Ne diminue surtout pas le niveau de sécurité actuel.
+
+D. Frontend ADMIN
+
+Vérifie si :
+
+* l’API est appelée ;
+* la réponse est correctement reçue ;
+* les données sont correctement parsées ;
+* les données sont simplement non affichées ;
+* un composant existe mais n’est jamais rendu ;
+* une route existe mais n’est pas reliée au dashboard ;
+* une erreur frontend empêche l’affichage ;
+* un problème de permissions ou de session empêche le chargement.
+
+E. Données
+
+Vérifie si les 7 utilisateurs déjà comptabilisés existent réellement dans la source de données utilisée par l’application.
+
+Ne crée surtout aucune donnée pour effectuer ce test.
+
+⸻
+
+🛑 ARRÊT OBLIGATOIRE APRÈS LE DIAGNOSTIC
+
+Une fois le diagnostic terminé :
+
+ARRÊTE-TOI avant de modifier quoi que ce soit.
+
+Présente :
+
+1. La cause exacte ou la cause la plus probable.
+2. Le ou les fichiers concernés.
+3. Le composant concerné.
+4. L’endpoint concerné.
+5. La source réelle des données.
+6. Pourquoi le compteur fonctionne alors que le détail n’est pas visible.
+7. La correction minimale qui serait nécessaire.
+
+Ne modifie aucun fichier à cette étape.
+
+⸻
+
+PHASE 2 — CORRECTION UNIQUEMENT SI NÉCESSAIRE
+
+Une correction n’est autorisée que si le diagnostic démontre clairement qu’elle est nécessaire pour résoudre le problème décrit.
+
+La correction doit être :
+
+* minimale ;
+* ciblée ;
+* réversible ;
+* limitée au répertoire détaillé ADMIN ;
+* sans refactorisation générale ;
+* sans changement d’architecture ;
+* sans modification des fonctionnalités existantes.
+
+INTERDICTION DE « PROFITER » DE LA CORRECTION
+
+Ne profite pas de cette tâche pour :
+
+* nettoyer le code ;
+* améliorer le design ;
+* refaire le dashboard ;
+* changer les composants ;
+* changer les couleurs ;
+* changer les textes ;
+* modifier la navigation ;
+* modifier les statistiques ;
+* modifier les profils publics ;
+* modifier le RÉPERTOIRE public ;
+* modifier les œuvres ;
+* modifier les paiements ;
+* modifier Stripe ;
+* modifier Premium ;
+* modifier les dons ;
+* modifier le SEO ;
+* modifier Clerk de manière générale ;
+* changer la structure de la base ;
+* ajouter de nouvelles fonctionnalités.
+
+Une seule mission : rendre visibles les utilisateurs réels dans l’ADMIN.
+
+⸻
+
+DONNÉES PERSONNELLES
+
+Les informations affichées doivent provenir exclusivement des données réelles déjà disponibles.
+
+Ne jamais :
+
+* inventer un nom ;
+* inventer un prénom ;
+* inventer un email ;
+* inventer un profil ;
+* inventer une œuvre ;
+* inventer un statut ;
+* créer des données de démonstration.
+
+Si une information n’existe pas, afficher par exemple :
+
+« Non renseigné »
+
+ou ne pas afficher la colonne.
+
+⸻
+
+SÉCURITÉ ABSOLUE
+
+Les données personnelles des utilisateurs ne doivent jamais être exposées publiquement.
+
+Vérifie impérativement :
+
+Non connecté
+
+L’API ADMIN doit continuer à refuser l’accès.
+
+Utilisateur normal
+
+Un utilisateur normal ne doit jamais pouvoir récupérer la liste ADMIN.
+
+ADMIN
+
+Seul un ADMIN authentifié doit pouvoir récupérer les informations administratives autorisées.
+
+Ne supprime jamais requireAdmin.
+
+Ne remplace pas une vérification serveur par une simple vérification frontend.
+
+Ne considère jamais qu’une route est sécurisée simplement parce qu’elle est cachée dans l’interface.
+
+⸻
+
+TESTS APRÈS CORRECTION
+
+Si une correction est effectuée, teste uniquement ce qui est nécessaire :
+
+Test 1
+
+ADMIN authentifié :
+
+* les utilisateurs réels sont visibles ;
+* les informations affichées correspondent aux données réelles.
+
+Test 2
+
+Sans authentification :
+
+* les données ADMIN restent protégées.
+
+Test 3
+
+Utilisateur normal :
+
+* les données ADMIN restent protégées.
+
+Test 4
+
+Dashboard :
+
+* les compteurs actuels continuent de fonctionner.
+
+Test 5
+
+Site public :
+
+* aucune régression évidente causée par la correction.
+
+⸻
+
+GIT — CONTRÔLE OBLIGATOIRE
+
+Avant toute modification :
+
+* relève l’état Git actuel ;
+* identifie les fichiers déjà modifiés ;
+* ne considère pas ces modifications comme venant de toi.
+
+Après la correction :
+
+* vérifie exactement les fichiers modifiés ;
+* aucun fichier supplémentaire ne doit avoir été modifié ;
+* aucun fichier existant ne doit avoir été supprimé ;
+* aucun nouveau fichier inutile ne doit avoir été créé.
+
+Ne fais aucun commit ni push.
+
+⸻
+
+DÉPLOIEMENT
+
+NE DÉPLOIE PAS automatiquement.
+
+Ne lance aucun déploiement de production sauf si cela est explicitement demandé séparément.
+
+La priorité est de modifier le minimum nécessaire et de laisser la décision de déploiement à l’utilisateur.
+
+⸻
+
+RAPPORT FINAL OBLIGATOIRE
+
+À la fin, donne un rapport très précis avec ces rubriques :
+
+1. Diagnostic
+
+Cause exacte du problème.
+
+2. Fichiers inspectés
+
+Liste des fichiers pertinents.
+
+3. Fichiers modifiés
+
+Liste exacte.
+
+Si aucun fichier n’a été modifié, indique clairement :
+
+« Aucun fichier modifié. »
+
+4. Correction
+
+Description exacte de la modification, sans modification supplémentaire.
+
+5. Données
+
+Indique si les utilisateurs affichés proviennent bien des données réelles.
+
+6. Sécurité
+
+Résultat des tests :
+
+* non connecté ;
+* utilisateur normal ;
+* ADMIN.
+
+7. Régression
+
+Indique ce qui a été vérifié.
+
+8. Git
+
+Confirme l’état final du dépôt.
+
+9. Déploiement
+
+Indique explicitement si aucun déploiement n’a été effectué.
+
+⸻
+
+🔴 RÈGLE FINALE
+
+Si tu n’es pas certain de la cause du problème :
+
+NE MODIFIE RIEN.
+
+Si la correction nécessite une modification importante de l’architecture :
+
+NE MODIFIE RIEN.
+
+Si tu dois modifier la base de données pour faire apparaître les utilisateurs :
+
+NE MODIFIE RIEN.
+
+Si tu dois modifier Clerk de manière globale :
+
+NE MODIFIE RIEN.
+
+Si tu ne peux pas vérifier avec une vraie session ADMIN :
+
+NE CRÉE PAS DE COMPTE ET N’INVENTE PAS DE DONNÉES.
+
+Dans tous ces cas, arrête-toi après le diagnostic et explique précisément ce qui bloque.
+
+PRIORITÉ ABSOLUE
+
+PRÉSERVER LE SITE TEL QU’IL EST.
+
+La seule modification autorisée est la correction minimale permettant à un ADMIN authentifié de consulter les utilisateurs réels déjà présents.
+
+AUCUNE AUTRE MODIFICATION N’EST AUTORISÉE.
+
+Je te conseille d’utiliser ce deuxième prompt avant toute demande de correction : il force Replit à faire d’abord le diagnostic et à s’arrêter s’il ne peut pas établir précisément la cause.
