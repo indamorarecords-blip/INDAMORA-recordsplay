@@ -1010,7 +1010,6 @@ function RecordsPage() {
       </div>
       <div className="mx-auto mt-16 max-w-2xl border-t border-border pt-8"><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">INDAMORA RECORDS</div><p className="display mt-3 text-2xl font-bold">Créer. Produire. Développer. Faire rayonner les talents.</p><Link href="/" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline" data-testid="link-records-final-home">Retourner à INDAMORA PLAY <ArrowRight className="h-4 w-4" /></Link></div>
     </section>
-     <AdminDirectory />
   </div>;
 }
 
@@ -1278,6 +1277,7 @@ function AdminDashboard() {
       <div className="flex items-center justify-between gap-4 border-b border-border p-6 md:p-8"><div><div className="font-mono text-[10px] uppercase tracking-[.18em] text-primary">Journal ADMIN</div><h2 className="display mt-2 text-2xl font-bold">Actions d’administration</h2><p className="mt-2 text-sm text-muted-foreground">Journal privé des validations, refus, publications, modifications et suppressions effectuées depuis l’administration.</p></div><ShieldCheck className="h-6 w-6 shrink-0 text-primary" /></div>
       {data.auditLog.length === 0 ? <p className="m-6 rounded-2xl bg-muted px-4 py-8 text-center text-sm text-muted-foreground">Aucune action administrateur enregistrée pour le moment.</p> : <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground"><tr><th className="px-6 py-3">Administrateur</th><th className="px-6 py-3">Action</th><th className="px-6 py-3">Élément</th><th className="px-6 py-3">Date et heure</th><th className="px-6 py-3">Résultat</th></tr></thead><tbody className="divide-y divide-border">{data.auditLog.map((entry) => <tr key={entry.id}><td className="px-6 py-4 font-mono text-xs">{entry.administratorId}</td><td className="px-6 py-4 font-semibold">{auditActionLabel(entry.action)}</td><td className="px-6 py-4">{entry.targetLabel ?? `${entry.entityType}${entry.entityId ? ` #${entry.entityId}` : ''}`}</td><td className="px-6 py-4 text-muted-foreground">{new Date(entry.createdAt).toLocaleString('fr-FR')}</td><td className="px-6 py-4"><span className="rounded-full bg-secondary/10 px-3 py-1 text-xs font-bold text-secondary">{entry.result === 'success' ? 'Succès' : entry.result}</span></td></tr>)}</tbody></table></div>}
     </section>
+    <AdminDirectory />
   </div>;
 }
 
