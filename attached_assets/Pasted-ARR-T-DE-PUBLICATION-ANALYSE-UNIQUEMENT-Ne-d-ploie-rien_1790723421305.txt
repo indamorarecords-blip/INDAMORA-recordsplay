@@ -1,0 +1,110 @@
+ARRÊT DE PUBLICATION — ANALYSE UNIQUEMENT
+
+Ne déploie rien.
+Ne crée aucun commit.
+Ne fais aucun push.
+Ne modifie aucun fichier manuellement.
+
+SITUATION
+
+Le checkout temporaire vers :
+
+825eccb502c8a7a3078ceff5576c47a6e17eba81
+
+a bien positionné HEAD sur le commit validé, mais a fait apparaître :
+
+?? artifacts/indamora-play-mobile/
+
+et a signalé le retrait d’artefacts/workflow mobile.
+
+Le déploiement n’a donc PAS été lancé.
+
+OBJECTIF
+
+Préserver intégralement l’environnement Replit existant et déterminer comment publier la nouvelle fonctionnalité ADMIN sans supprimer ou altérer les artefacts nécessaires au projet.
+
+ÉTAPE 1 — NE RIEN SUPPRIMER
+
+Ne supprime pas :
+
+artifacts/indamora-play-mobile/
+
+Ne supprime aucun workflow.
+Ne supprime aucun artefact.
+Ne modifie aucun fichier.
+
+La pièce jointe non suivie doit également rester intacte.
+
+ÉTAPE 2 — RESTAURER L’ÉTAT AVANT LE CHECKOUT
+
+Revenir à l’état exact du checkout qui était utilisé avant le checkout vers 825eccb....
+
+Le HEAD juste avant cette opération était :
+
+f1c8499269511c9b569d813d6ed0114a6c2d7e5b
+
+Restaurer cet état uniquement si cela peut être fait sans perte de données ou de modifications.
+
+Ne pas supprimer les fichiers non suivis.
+
+Après restauration, vérifier :
+
+git rev-parse HEAD
+
+et :
+
+git status --short
+
+Ne publier absolument rien.
+
+ÉTAPE 3 — ANALYSE EN LECTURE SEULE
+
+Déterminer précisément :
+
+1. Pourquoi le checkout de 825eccb... fait apparaître artifacts/indamora-play-mobile/.
+2. Quels fichiers/workflows sont présents dans f1c849... mais absents de 825eccb....
+3. Si ces éléments sont nécessaires au système de publication Replit.
+4. Si Replit permet de publier le code web du commit 825eccb... tout en conservant les éléments d’infrastructure nécessaires à la publication.
+5. Si le déploiement Replit publie l’ensemble du workspace ou uniquement l’application web concernée.
+6. Si un environnement de build/checkout séparé peut être utilisé pour publier le commit 825eccb... sans modifier le workspace principal.
+
+IMPORTANT
+
+Ne propose pas de supprimer le mobile pour rendre git status propre.
+
+Ne propose pas de committer le dossier mobile.
+
+Ne propose pas de merger les 76 commits.
+
+Ne propose pas de cherry-pick.
+
+Ne propose pas de force push.
+
+Ne propose pas de modification de code.
+
+Ne propose pas de nouveau commit.
+
+Ne propose pas de déploiement tant que l’analyse n’est pas terminée.
+
+ÉTAPE 4 — RAPPORT
+
+Fournir uniquement :
+
+* HEAD après restauration ;
+* état du working tree ;
+* fichiers/artefacts qui diffèrent ;
+* explication de la présence de artifacts/indamora-play-mobile/ ;
+* conclusion sur la possibilité ou non de publier 825eccb... sans perte d’éléments ;
+* méthode de déploiement sûre si elle existe.
+
+Si aucune méthode sûre n’existe dans l’environnement Replit actuel :
+
+indiquer clairement :
+
+DÉPLOIEMENT BLOQUÉ — NE PAS PUBLIER
+
+et ne rien modifier.
+
+RÈGLE ABSOLUE
+
+Aucune publication tant qu’il n’est pas démontré que le déploiement du répertoire utilisateurs ADMIN ne supprimera, n’écrasera ou ne modifiera aucun élément existant du projet.
