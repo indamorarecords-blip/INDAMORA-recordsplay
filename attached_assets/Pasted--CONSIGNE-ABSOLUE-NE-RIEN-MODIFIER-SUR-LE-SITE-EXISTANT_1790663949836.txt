@@ -1,0 +1,328 @@
+⚠️ CONSIGNE ABSOLUE — NE RIEN MODIFIER SUR LE SITE EXISTANT ⚠️
+
+INDAMORA PLAY fonctionne actuellement.
+
+Je ne veux PAS de refonte.
+Je ne veux PAS de nouveau design.
+Je ne veux PAS de modification du fonctionnement existant.
+
+OBJECTIF UNIQUE
+
+Ajouter uniquement dans le CENTRE ADMINISTRATEUR existant la possibilité de consulter les utilisateurs et profils réels qui se trouvent déjà derrière les compteurs du tableau de bord.
+
+C’est un AJOUT ADMINISTRATIF uniquement.
+
+⸻
+
+🚫 INTERDICTION DE MODIFICATION DU SITE
+
+NE PAS modifier :
+
+* l’accueil
+* le design
+* le logo
+* les couleurs
+* les menus
+* RÉPERTOIRE
+* les profils publics
+* les pages artistes
+* les œuvres
+* le lecteur audio
+* les vidéos
+* SIGN IN
+* SIGN UP
+* Clerk
+* JE CRÉE
+* les activités
+* la règle des 2 activités
+* Premium
+* Stripe
+* les paiements
+* les dons
+* le stockage
+* la PWA
+* le SEO
+* le domaine
+* les URLs existantes
+* le fonctionnement mobile
+* les données existantes
+
+NE PAS refaire une fonctionnalité qui fonctionne déjà.
+
+NE PAS déplacer des éléments existants.
+
+NE PAS changer le design existant.
+
+NE PAS supprimer de données.
+
+NE PAS modifier les données existantes pour faire fonctionner cette nouvelle vue.
+
+⸻
+
+🔒 RÈGLE ABSOLUE
+
+AVANT TOUT CHANGEMENT :
+
+1. AUDITER
+2. IDENTIFIER EXACTEMENT CE QUI MANQUE
+3. NE MODIFIER QUE CE QUI EST STRICTEMENT NÉCESSAIRE
+4. TESTER
+5. VÉRIFIER
+6. RETESTER
+
+Si la fonctionnalité existe déjà mais n’est simplement pas accessible depuis le dashboard, ajouter uniquement le lien / accès nécessaire.
+
+Si aucune modification technique n’est nécessaire ailleurs, NE RIEN MODIFIER ailleurs.
+
+⸻
+
+📊 CE QUI EXISTE ACTUELLEMENT
+
+Le dashboard ADMIN affiche notamment :
+
+* 863 visites
+* 189 visiteurs uniques estimés
+* 7 utilisateurs inscrits
+* 4 profils artistes
+* 2 profils publiés
+* 6 œuvres publiées
+
+Ces informations fonctionnent déjà.
+
+NE PAS MODIFIER CES CHIFFRES.
+
+Le problème est uniquement que :
+
+7 utilisateurs inscrits
+→ affiche seulement le chiffre
+
+4 profils artistes
+→ affiche seulement le chiffre
+
+Je veux pouvoir cliquer dessus et consulter les données réelles correspondantes.
+
+⸻
+
+👥 AJOUT 1 — UTILISATEURS INSCRITS
+
+Ajouter uniquement un accès depuis :
+
+7 UTILISATEURS INSCRITS
+
+vers une liste ADMIN :
+
+UTILISATEURS INSCRITS
+
+Afficher les comptes réellement existants.
+
+Lorsque les données sont disponibles :
+
+* prénom
+* nom
+* email
+* date d’inscription
+* vérification email
+* profil INDAMORA créé ou non
+* activité(s)
+* pseudo / nom d’artiste si disponible
+
+⚠️ Ces informations doivent rester strictement ADMIN.
+
+⸻
+
+🎤 AJOUT 2 — PROFILS ARTISTES
+
+Ajouter uniquement un accès depuis :
+
+4 PROFILS ARTISTES
+
+vers :
+
+PROFILS ARTISTES
+
+Afficher les profils artistes réels déjà présents.
+
+Pour chaque profil :
+
+* prénom
+* nom
+* pseudo / nom d’artiste
+* activité(s)
+* catégorie
+* bio
+* statut
+* publication
+* œuvres associées
+
+L’administrateur doit pouvoir ouvrir le profil.
+
+⸻
+
+👤 AJOUT 3 — FICHE D’UNE PERSONNE
+
+Lorsqu’un administrateur sélectionne une personne, afficher les informations déjà enregistrées dans le système.
+
+Ne créer aucune nouvelle donnée.
+
+Afficher uniquement ce qui existe déjà.
+
+Exemple :
+
+COMPTE
+
+Prénom
+Nom
+Email
+Date d’inscription
+Vérification
+
+PROFIL
+
+Pseudo
+Bio
+Activités
+Catégorie
+Statut
+
+RÉPERTOIRE
+
+Publié / non publié
+
+ŒUVRES
+
+Œuvres déjà associées
+
+⸻
+
+✅ AJOUT 4 — VALIDATION
+
+Si le système de validation existe déjà, donner à l’administrateur l’accès à l’action existante depuis cette nouvelle vue.
+
+NE PAS créer un nouveau système de validation.
+
+NE PAS modifier le fonctionnement actuel de validation.
+
+⸻
+
+🌐 SITE + 📱 APPLICATION
+
+La même information doit être accessible dans l’espace ADMINISTRATEUR du site et de l’application/PWA.
+
+Mais :
+
+⚠️ NE PAS modifier l’expérience utilisateur normale du site.
+
+⚠️ NE PAS modifier les pages publiques.
+
+⚠️ NE PAS modifier les profils publics.
+
+⚠️ NE PAS modifier RÉPERTOIRE.
+
+L’ajout doit rester limité à l’administration.
+
+⸻
+
+🔐 SÉCURITÉ
+
+Les informations utilisateurs doivent rester accessibles uniquement à l’administrateur autorisé.
+
+Ne pas exposer :
+
+* emails
+* téléphones
+* données privées
+* liste des utilisateurs
+
+aux visiteurs ou utilisateurs normaux.
+
+Vérifier les permissions côté serveur.
+
+⸻
+
+🧪 TEST OBLIGATOIRE
+
+Avant de considérer la tâche terminée :
+
+TEST 1
+
+Ouvrir le dashboard ADMIN.
+
+Vérifier que les statistiques existantes n’ont pas changé.
+
+TEST 2
+
+Cliquer sur :
+
+7 utilisateurs inscrits
+
+Vérifier que la liste réelle apparaît.
+
+TEST 3
+
+Cliquer sur :
+
+4 profils artistes
+
+Vérifier que les profils réels apparaissent.
+
+TEST 4
+
+Ouvrir une personne.
+
+Vérifier que les données existantes sont visibles.
+
+TEST 5
+
+Vérifier que le site public est STRICTEMENT IDENTIQUE.
+
+TEST 6
+
+Vérifier que RÉPERTOIRE est STRICTEMENT IDENTIQUE.
+
+TEST 7
+
+Vérifier SIGN IN / SIGN UP.
+
+TEST 8
+
+Vérifier l’application/PWA.
+
+TEST 9
+
+Vérifier qu’un utilisateur normal ne peut pas accéder aux données ADMIN.
+
+⸻
+
+🛑 SI UNE MODIFICATION RISQUE DE CASSER QUELQUE CHOSE
+
+NE PAS LA FAIRE.
+
+Si l’ajout demandé nécessite une modification importante du fonctionnement existant :
+
+→ STOP
+→ signaler exactement ce qui est nécessaire
+→ ne pas modifier le site sans validation.
+
+⸻
+
+🚨 CONSIGNE FINALE
+
+INDAMORA PLAY EST DÉJÀ EN PRODUCTION.
+
+JE NE DEMANDE PAS UNE AMÉLIORATION GÉNÉRALE.
+
+JE NE DEMANDE PAS UNE REFONTE.
+
+JE NE DEMANDE PAS UNE OPTIMISATION DU SITE.
+
+JE DEMANDE UNE SEULE CHOSE :
+
+DONNER À L’ADMINISTRATEUR L’ACCÈS AUX PERSONNES ET PROFILS RÉELS QUI SONT DÉJÀ COMPTABILISÉS DANS LE DASHBOARD.
+
+Tout le reste doit rester exactement comme actuellement.
+
+NE RIEN MODIFIER AILLEURS.
+
+Après intervention, fournir la liste exacte des fichiers modifiés et expliquer pourquoi chacun était strictement nécessaire.
+
+Si aucun fichier n’a besoin d’être modifié en dehors du module/interface ADMINISTRATEUR, ne rien modifier ailleurs.
