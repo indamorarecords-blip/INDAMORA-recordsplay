@@ -1,0 +1,558 @@
+MISSION UNIQUE — AJOUTER LA LISTE DES UTILISATEURS DANS /ADMINISTRATION SANS RIEN CASSER
+
+Tu dois résoudre définitivement le problème suivant sur le projet INDAMORA / INDAMORA RECORDS :
+
+OBJECTIF
+
+Ajouter dans le dashboard ADMIN /administration une section :
+
+« Utilisateurs enregistrés »
+
+Cette section doit afficher les vrais utilisateurs enregistrés sur la plateforme, via Clerk, avec une API sécurisée réservée aux administrateurs.
+
+La fonctionnalité existe déjà sous forme de commit GitHub :
+
+825eccb502c8a7a3078ceff5576c47a6e17eba81
+
+Commit :
+
+Add admin user directory
+
+MAIS CE COMMIT NE DOIT JAMAIS ÊTRE DÉPLOYÉ TEL QUEL SI CELA RISQUE DE REMPLACER OU SUPPRIMER DES PARTIES DE LA VERSION ACTUELLEMENT EN PRODUCTION.
+
+⸻
+
+RÈGLE ABSOLUE N°1 — PRÉSERVER LA PRODUCTION ACTUELLE
+
+La priorité absolue est :
+
+NE PAS CASSER LA VERSION ACTUELLEMENT PUBLIÉE SUR https://indamoraplay.com
+
+Avant toute modification :
+
+1. Identifier précisément le commit/checkpoint/état correspondant à la version actuellement publiée en production.
+2. Ne pas supposer que le HEAD actuel est la production.
+3. Ne pas supposer que 825eccb... est la production.
+4. Ne pas remplacer le projet actuel par le contenu complet de 825eccb....
+5. Ne pas supprimer ou remplacer des artefacts existants.
+6. Ne pas modifier la configuration de déploiement sauf si c’est strictement nécessaire pour publier la correction.
+7. Ne pas modifier la version mobile existante.
+8. Ne pas modifier les fonctions existantes qui ne concernent pas directement cette fonctionnalité.
+
+Si tu ne peux pas identifier avec certitude la version actuellement en production, ARRÊTE-TOI ET EXPLIQUE EXACTEMENT CE QUI MANQUE. Ne fais aucune modification.
+
+⸻
+
+RÈGLE ABSOLUE N°2 — LE COMMIT 825ECCB EST UNE SOURCE DE FONCTIONNALITÉ, PAS UN SNAPSHOT À DÉPLOYER
+
+Le commit :
+
+825eccb502c8a7a3078ceff5576c47a6e17eba81
+
+contient la fonctionnalité recherchée.
+
+Tu dois récupérer uniquement les modifications nécessaires à :
+
+« Utilisateurs enregistrés » dans /administration
+
+et les intégrer à la version actuellement en production.
+
+Tu ne dois PAS faire :
+
+* reset vers 825eccb
+* checkout global vers 825eccb
+* remplacement complet du projet par 825eccb
+* suppression d’artefacts
+* remplacement du projet mobile
+* remplacement de .replit
+* remplacement de la configuration de production
+* remplacement des routes API existantes non concernées
+* remplacement de fichiers simplement parce qu’ils sont différents entre les deux versions
+
+Le fait que deux versions aient beaucoup de différences ne signifie PAS que ces différences doivent être intégrées.
+
+⸻
+
+RÈGLE ABSOLUE N°3 — MODIFICATION MINIMALE
+
+La modification finale doit être la plus petite possible.
+
+La fonctionnalité attendue est :
+
+Frontend
+
+Dans :
+
+/administration
+
+ajouter :
+
+Utilisateurs enregistrés
+
+avec une liste des utilisateurs réels.
+
+Backend
+
+Une route admin sécurisée permettant de récupérer les utilisateurs Clerk.
+
+La route doit être accessible uniquement à un ADMIN autorisé.
+
+Un utilisateur normal, non-admin ou non-authentifié ne doit pas pouvoir obtenir la liste.
+
+Données
+
+Utiliser les comptes réels Clerk.
+
+NE PAS :
+
+* créer de faux utilisateurs ;
+* modifier les utilisateurs ;
+* supprimer des utilisateurs ;
+* modifier les comptes Clerk ;
+* modifier Supabase ;
+* modifier Stripe ;
+* modifier les œuvres ;
+* modifier les artistes ;
+* modifier les statistiques existantes.
+
+⸻
+
+ÉTAPE 1 — AUDIT EN LECTURE SEULE
+
+Avant toute modification, inspecte :
+
+1. Le commit actuellement déployé.
+2. Le HEAD actuel.
+3. L’état Git du workspace.
+4. Les artefacts présents.
+5. La configuration de déploiement.
+6. Le commit 825eccb....
+7. Le parent direct de 825eccb....
+8. Le diff EXACT :
+
+parent(825eccb) -> 825eccb
+
+Ne compare pas seulement deux snapshots globaux.
+
+Je veux savoir exactement quels fichiers et quelles lignes constituent la fonctionnalité « Utilisateurs enregistrés ».
+
+⸻
+
+ÉTAPE 2 — IDENTIFIER LES MODIFICATIONS EXACTEMENT NÉCESSAIRES
+
+À partir du diff du commit 825eccb, identifie :
+
+* fichiers frontend nécessaires ;
+* fichiers backend nécessaires ;
+* hooks/API clients nécessaires ;
+* types nécessaires ;
+* éventuelles dépendances réellement nécessaires.
+
+Pour chaque fichier, indique :
+
+1. pourquoi il est nécessaire ;
+2. quelles lignes/fonctions concernent réellement la fonctionnalité ;
+3. s’il contient également des modifications sans rapport.
+
+Si un fichier contient à la fois des changements utiles et des changements sans rapport, n’intègre que les changements utiles.
+
+⸻
+
+ÉTAPE 3 — VÉRIFIER LA COMPATIBILITÉ AVEC LA PRODUCTION
+
+Avant d’appliquer quoi que ce soit, compare les fichiers concernés avec ceux de la production actuelle.
+
+Attention particulière à :
+
+* App.tsx
+* routes frontend
+* routes /api
+* authentification ADMIN
+* Clerk
+* Supabase
+* Stripe
+* hooks
+* configuration API
+* .replit
+* artifact.toml
+* configuration web
+* configuration mobile
+
+Si un fichier de production a évolué depuis le commit 825eccb, NE LE REMPLACE PAS.
+
+Adapte uniquement le code nécessaire pour ajouter la fonctionnalité.
+
+⸻
+
+ÉTAPE 4 — PRÉSERVER TOUS LES ARTEFACTS
+
+Le projet contient potentiellement plusieurs artefacts.
+
+Tu dois préserver intégralement :
+
+* application web ;
+* application mobile ;
+* API ;
+* configuration Replit ;
+* workflows ;
+* PWA ;
+* SEO ;
+* authentification ;
+* intégrations existantes ;
+* tout autre artefact actuellement utilisé en production.
+
+En particulier :
+
+NE SUPPRIME PAS artifacts/indamora-play-mobile/.
+
+Ne considère jamais son absence dans 825eccb comme une raison de la supprimer.
+
+⸻
+
+ÉTAPE 5 — NE PAS MODIFIER LES DONNÉES
+
+Interdiction absolue de :
+
+* migration SQL ;
+* modification de schéma ;
+* suppression de données ;
+* modification de comptes ;
+* modification d’œuvres ;
+* modification d’artistes ;
+* modification Stripe ;
+* modification Clerk ;
+* modification des paramètres d’authentification ;
+* modification des secrets ;
+* modification des variables d’environnement existantes.
+
+La fonctionnalité doit fonctionner avec les données existantes.
+
+⸻
+
+ÉTAPE 6 — SÉCURITÉ ADMIN
+
+La route utilisateur doit respecter exactement le système d’autorisation ADMIN déjà présent dans le projet.
+
+Ne crée pas un deuxième système d’autorisation si un système existant est déjà disponible.
+
+Comportement attendu :
+
+ADMIN autorisé
+
+→ peut appeler l’API
+→ reçoit les utilisateurs
+→ voit la section dans /administration
+
+Utilisateur non-admin
+
+→ accès refusé à l’API
+
+Utilisateur non authentifié
+
+→ accès refusé à l’API
+
+Ne jamais exposer la clé secrète Clerk au frontend.
+
+Les données Clerk doivent être récupérées côté serveur.
+
+⸻
+
+ÉTAPE 7 — NE PAS MODIFIER LES STATISTIQUES EXISTANTES
+
+Les statistiques actuelles du dashboard /administration doivent rester strictement inchangées.
+
+Ne change pas :
+
+* nombre d’utilisateurs affiché actuellement ;
+* nombre d’artistes ;
+* nombre d’œuvres ;
+* statistiques de publication ;
+* logique existante des compteurs.
+
+La nouvelle section est un ajout indépendant.
+
+⸻
+
+ÉTAPE 8 — NE PAS RÉINTRODUIRE LA LISTE SUR UNE PAGE PUBLIQUE
+
+La liste des utilisateurs doit apparaître dans :
+
+/administration
+
+uniquement.
+
+Elle ne doit PAS être affichée sur :
+
+* /indamora-records
+* page publique ;
+* page artiste ;
+* page œuvre ;
+* autre route publique.
+
+La liste doit rester strictement réservée à l’administration.
+
+⸻
+
+ÉTAPE 9 — TESTS OBLIGATOIRES
+
+Avant tout déploiement :
+
+Tests frontend
+
+Vérifier que :
+
+* /administration compile ;
+* la section « Utilisateurs enregistrés » apparaît ;
+* chargement ;
+* état vide ;
+* état erreur ;
+* affichage des utilisateurs ;
+* aucun autre composant du dashboard n’est cassé.
+
+Tests backend
+
+Vérifier :
+
+* API accessible par ADMIN ;
+* API refusée par non-admin ;
+* API refusée sans authentification ;
+* pagination si elle existe ;
+* erreurs correctement gérées.
+
+Tests généraux
+
+Exécuter les tests/builds disponibles.
+
+Au minimum :
+
+* typecheck ;
+* build web ;
+* build API ;
+* tests existants si disponibles.
+
+⸻
+
+ÉTAPE 10 — VÉRIFICATION GIT AVANT COMMIT
+
+Avant de créer un commit :
+
+Exécuter :
+
+git status
+
+et inspecter chaque fichier modifié.
+
+Il ne doit y avoir que les fichiers nécessaires à cette fonctionnalité.
+
+Si un fichier est modifié sans rapport avec :
+
+« Utilisateurs enregistrés dans /administration »
+
+→ ne pas l’inclure.
+
+Si des modifications existantes de l’utilisateur sont détectées :
+
+→ ne pas les écraser ;
+→ ne pas les réinitialiser ;
+→ ne pas les supprimer.
+
+⸻
+
+ÉTAPE 11 — COMMIT
+
+Créer un commit dédié et propre.
+
+Message recommandé :
+
+Add admin registered users directory
+
+Le commit doit contenir uniquement la fonctionnalité demandée.
+
+NE PAS faire de commit mélangeant :
+
+* mobile ;
+* SEO ;
+* PWA ;
+* Stripe ;
+* Supabase ;
+* refactor ;
+* nettoyage ;
+* autres fonctionnalités.
+
+⸻
+
+ÉTAPE 12 — PUSH GITHUB
+
+Avant le push :
+
+1. vérifier le diff ;
+2. vérifier le commit parent ;
+3. vérifier les fichiers inclus ;
+4. vérifier que la branche cible est correcte ;
+5. ne jamais utiliser git push --force.
+
+Si tout est conforme :
+
+→ pousser sur la branche GitHub prévue pour la production.
+
+Si le push risque d’écraser du travail existant :
+
+ARRÊTER.
+
+Ne jamais forcer.
+
+⸻
+
+ÉTAPE 13 — DÉPLOIEMENT
+
+NE DÉPLOIE PAS automatiquement.
+
+Avant le déploiement, afficher :
+
+1. SHA Git actuellement déployé ;
+2. SHA du nouveau commit ;
+3. fichiers modifiés ;
+4. confirmation que les artefacts existants sont conservés ;
+5. résultat des tests ;
+6. résultat du build ;
+7. confirmation qu’aucune donnée/configuration n’a été modifiée.
+
+Le déploiement ne doit être effectué que si la version préparée est bien basée sur la version actuellement en production + la correction minimale.
+
+⸻
+
+RÈGLE DE BLOCAGE
+
+À n’importe quel moment, si tu rencontres :
+
+* conflit Git ;
+* divergence importante ;
+* production impossible à identifier ;
+* artefact qui risque d’être supprimé ;
+* fichier qui contient des modifications étrangères ;
+* changement de configuration inattendu ;
+* risque de perte de données ;
+* risque de remplacer la version mobile ;
+* risque de remplacer la production actuelle ;
+* impossibilité de garantir que seule cette fonctionnalité sera publiée ;
+
+TU DOIS T’ARRÊTER.
+
+Ne tente pas de résoudre le problème par :
+
+* reset ;
+* force push ;
+* suppression ;
+* checkout destructif ;
+* merge aveugle ;
+* rebase aveugle ;
+* remplacement complet des fichiers ;
+* suppression d’artefacts.
+
+Explique précisément le blocage et attends une décision.
+
+⸻
+
+RÉSULTAT FINAL ATTENDU
+
+À la fin, je veux exactement ceci :
+
+/administration
+
+Une nouvelle section :
+
+Utilisateurs enregistrés
+
+qui affiche les vrais comptes utilisateurs Clerk.
+
+La section est accessible uniquement aux ADMIN.
+
+Tout le reste du site doit rester identique.
+
+⸻
+
+RAPPORT FINAL OBLIGATOIRE
+
+À la fin, donne-moi :
+
+1. Production avant modification
+
+* SHA :
+* comment il a été identifié :
+
+2. Fonctionnalité intégrée
+
+* fichiers modifiés :
+* résumé de chaque modification :
+
+3. Sécurité
+
+* protection ADMIN :
+* comportement non-admin :
+* comportement non-authentifié :
+
+4. Données
+
+* Clerk modifié ? OUI/NON
+* Supabase modifié ? OUI/NON
+* Stripe modifié ? OUI/NON
+* données supprimées ? OUI/NON
+* migration effectuée ? OUI/NON
+
+5. Artefacts
+
+* web préservé ? OUI/NON
+* mobile préservé ? OUI/NON
+* API préservée ? OUI/NON
+* configuration de production préservée ? OUI/NON
+
+6. Tests
+
+* typecheck :
+* build web :
+* build API :
+* autres tests :
+
+7. Git
+
+* commit final :
+* fichiers du commit :
+* force push utilisé ? OUI/NON
+
+8. Déploiement
+
+* déployé ? OUI/NON
+* URL :
+* version déployée :
+
+⸻
+
+CONSIGNE FINALE
+
+La conservation de la production actuelle est prioritaire sur la rapidité.
+
+Si tu dois choisir entre :
+
+A. intégrer la fonctionnalité immédiatement mais prendre le moindre risque de modifier autre chose ;
+
+ou
+
+B. arrêter et demander confirmation parce que la situation Git/production n’est pas suffisamment sûre ;
+
+choisis B.
+
+Aucune autre fonctionnalité ne doit être ajoutée.
+
+Aucun nettoyage de code ne doit être fait.
+
+Aucune refactorisation ne doit être faite.
+
+Aucune optimisation non liée ne doit être faite.
+
+Aucune modification de données ne doit être faite.
+
+Aucun changement mobile ne doit être fait.
+
+Aucun changement Stripe/Supabase/Clerk non nécessaire ne doit être fait.
+
+UNE SEULE MISSION : ajouter « Utilisateurs enregistrés » dans /administration, de manière sécurisée, minimale et compatible avec la production actuelle.
