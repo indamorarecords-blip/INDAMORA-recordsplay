@@ -1,0 +1,57 @@
+AUDIT FINAL DU MÉCANISME DE PUBLICATION — LECTURE SEULE
+
+Le projet est actuellement propre et prêt à être contrôlé :
+HEAD = e715b5de73cefb7c0562dbfe5c691916847658e9
+
+NE MODIFIE ABSOLUMENT RIEN.
+
+Je veux uniquement déterminer si Replit peut publier la version Web actuelle vers https://indamoraplay.com SANS toucher au Mobile ni aux autres composants.
+
+Vérifie uniquement, en lecture seule :
+
+1. Quel mécanisme exact de publication est disponible dans ce projet Replit.
+2. Si la publication du Web peut être effectuée indépendamment du Mobile.
+3. Si une publication Web peut :
+    * supprimer le Mobile ;
+    * remplacer ou désenregistrer le Mobile ;
+    * modifier sa configuration ;
+    * modifier ses fichiers ;
+    * modifier API, base de données, Clerk, Supabase, Stripe ou autres services ;
+    * créer un nouvel artefact à la place d’un artefact existant.
+4. Vérifie également si le dossier / artefact Mobile est actuellement enregistré comme service/artefact publiable, et si une publication du projet complet republierait obligatoirement tous les artefacts.
+5. Identifie précisément ce que Replit publierait si je lançais maintenant « Publish ».
+
+RÈGLE ABSOLUE :
+
+NE LANCE PAS « Publish ».
+NE DÉPLOIE RIEN.
+NE MODIFIE AUCUN FICHIER.
+NE FAIS AUCUN COMMIT.
+NE FAIS AUCUN PUSH.
+NE CHANGE PAS DE BRANCHE.
+NE FAIS AUCUN RESET, MERGE, REBASE OU CHECKOUT.
+NE MODIFIE AUCUNE DONNÉE.
+NE MODIFIE AUCUNE CONFIGURATION.
+
+Réponse obligatoire sous cette forme :
+
+STATUT : OUI / NON / INCERTAIN
+
+PUBLICATION WEB INDÉPENDANTE DU MOBILE : OUI / NON / INCERTAIN
+
+RISQUE POUR LE MOBILE : AUCUN / IDENTIFIÉ / INCERTAIN
+
+MÉCANISME DE PUBLICATION IDENTIFIÉ :
+[description précise]
+
+CE QUI SERAIT PUBLIÉ :
+[description précise]
+
+CE QUI POURRAIT ÊTRE MODIFIÉ :
+[description précise]
+
+CONCLUSION :
+[une conclusion factuelle indiquant si une publication peut être lancée en toute sécurité ou si elle doit être bloquée]
+
+IMPORTANT :
+Si tu ne peux pas garantir que le Mobile restera strictement intact et enregistré après publication, réponds INCERTAIN et recommande de NE PAS publier.
