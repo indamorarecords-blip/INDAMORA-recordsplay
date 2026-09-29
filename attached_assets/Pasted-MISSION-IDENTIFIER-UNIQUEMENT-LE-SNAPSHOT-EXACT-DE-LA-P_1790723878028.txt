@@ -1,0 +1,160 @@
+MISSION — IDENTIFIER UNIQUEMENT LE SNAPSHOT EXACT DE LA PRODUCTION
+
+Ne modifie absolument rien dans le projet.
+
+Ne fais aucun :
+
+* checkout ;
+* reset ;
+* merge ;
+* rebase ;
+* cherry-pick ;
+* commit ;
+* push ;
+* déploiement ;
+* suppression de fichier ;
+* modification de fichier ;
+* modification de configuration ;
+* migration ;
+* modification Clerk/Supabase/Stripe.
+
+OBJECTIF UNIQUE
+
+Identifier avec certitude le snapshot / checkpoint / version Replit exacte qui a produit la version actuellement publiée sur :
+
+https://indamoraplay.com
+
+Le résultat précédent indique :
+
+* site actuellement accessible ;
+* déploiement actif ;
+* build réussi ;
+* HEAD local actuel : beb0063491692683b9b701cbf57b119eb3fa69c6
+* mais aucun élément ne prouve que ce HEAD correspond à la production.
+
+Je veux maintenant que tu recherches cette information directement dans les mécanismes disponibles de Replit.
+
+À INSPECTER EN LECTURE SEULE
+
+Inspecte uniquement les informations disponibles concernant :
+
+1. l’historique des Deployments / Publications Replit ;
+2. les snapshots associés aux deployments ;
+3. les checkpoints Replit ;
+4. les métadonnées de la dernière publication réussie ;
+5. les logs de build et de publication ;
+6. les informations de version/build éventuellement associées au deployment ;
+7. les références Git éventuellement enregistrées par Replit ;
+8. les fichiers ou métadonnées locales permettant de relier un snapshot à un commit Git ;
+9. l’historique des checkpoints du workspace ;
+10. toute information permettant de relier :
+    production actuelle → snapshot/checkpoint → état du projet → commit Git éventuel.
+
+IMPORTANT
+
+Ne considère PAS :
+
+beb0063491692683b9b701cbf57b119eb3fa69c6
+
+comme le commit de production simplement parce qu’il est le HEAD local.
+
+Ne considère PAS :
+
+825eccb502c8a7a3078ceff5576c47a6e17eba81
+
+comme le snapshot de production.
+
+Ne fais aucune supposition.
+
+OBJECTIF DU RAPPORT
+
+Je veux déterminer, si possible :
+
+Production actuelle
+↓
+Deployment Replit
+↓
+Snapshot / checkpoint exact
+↓
+Commit Git correspondant, s’il existe
+
+SI UN SNAPSHOT EST IDENTIFIÉ
+
+Donne :
+
+* identifiant exact du snapshot/checkpoint ;
+* date/heure ;
+* deployment associé ;
+* build associé ;
+* commit Git associé, si disponible ;
+* SHA Git associé, si disponible ;
+* méthode utilisée pour établir le lien ;
+* niveau de certitude.
+
+Explique clairement pourquoi ce snapshot correspond bien à :
+
+https://indamoraplay.com
+
+SI LE SNAPSHOT N’A PAS DE SHA GIT
+
+Ce n’est PAS un problème.
+
+Dans ce cas, identifie précisément :
+
+* l’identifiant du snapshot ;
+* la date ;
+* le deployment ;
+* le build ;
+* les fichiers/état associés ;
+* et explique comment cet état peut être restauré ou utilisé comme base de travail sans toucher à la production.
+
+MOBILE
+
+Vérifie également, toujours en lecture seule, si le snapshot de production contient :
+
+artifacts/indamora-play-mobile/
+
+ou un autre artefact mobile.
+
+Ne supprime rien.
+
+Ne restaure rien.
+
+Ne modifie rien.
+
+Je veux simplement savoir si le mobile fait partie du snapshot actuellement publié.
+
+RÈGLE DE BLOCAGE
+
+Si Replit ne permet toujours pas d’établir avec suffisamment de certitude le lien :
+
+production actuelle → snapshot/checkpoint
+
+alors ARRÊTE-TOI.
+
+Ne tente pas de reconstruire la production à partir de HEAD.
+
+Ne tente pas de la reconstruire à partir de GitHub.
+
+Ne tente pas de la reconstruire à partir de 825eccb.
+
+Ne déploie rien.
+
+RAPPORT FINAL
+
+Réponds uniquement avec :
+
+1. Deployment production identifié :
+2. Snapshot/checkpoint identifié :
+3. Build identifié :
+4. Commit Git identifié :
+5. SHA Git identifié :
+6. Présence de l’artefact mobile :
+7. Preuves permettant de relier ce snapshot à indamoraplay.com :
+8. Niveau de certitude : CERTAIN / INCERTAIN
+9. Peut-on utiliser cet état comme base sûre pour intégrer la fonctionnalité admin ? OUI/NON
+10. Si NON, explique exactement ce qui manque.
+
+Encore une fois :
+
+LECTURE SEULE UNIQUEMENT. AUCUNE MODIFICATION.
