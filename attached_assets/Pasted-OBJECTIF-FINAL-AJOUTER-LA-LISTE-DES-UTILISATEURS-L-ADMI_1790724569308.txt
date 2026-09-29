@@ -1,0 +1,411 @@
+OBJECTIF FINAL — AJOUTER LA LISTE DES UTILISATEURS À L’ADMIN
+
+Nous n’avons pas accès au snapshot exact de la publication actuellement servie par Replit.
+
+Par conséquent, INTERDICTION de tenter de reconstruire ou remplacer la production à partir de GitHub.
+
+Le projet actuellement ouvert dans Replit doit être considéré comme la base de travail.
+
+OBJECTIF UNIQUE
+
+Ajouter dans :
+
+/administration
+
+une section :
+
+« Utilisateurs enregistrés »
+
+qui affiche les vrais utilisateurs enregistrés sur la plateforme via Clerk.
+
+La fonctionnalité doit être accessible uniquement aux ADMIN.
+
+⸻
+
+RÈGLE ABSOLUE
+
+Le projet actuellement ouvert est la source de vérité.
+
+NE PAS :
+
+* checkout vers 825eccb502c8a7a3078ceff5576c47a6e17eba81
+* reset Git
+* merge GitHub
+* rebase
+* cherry-pick
+* remplacer le projet par GitHub
+* restaurer un ancien checkpoint
+* supprimer un artefact
+* supprimer artifacts/indamora-play-mobile/
+* modifier la configuration mobile
+* modifier la configuration de déploiement
+* modifier .replit sauf nécessité absolue et directement liée à cette fonctionnalité
+* modifier Supabase
+* modifier Stripe
+* modifier les comptes Clerk
+* modifier les données existantes.
+
+⸻
+
+IMPORTANT — LE COMMIT GITHUB EST UNIQUEMENT UNE RÉFÉRENCE
+
+Le commit :
+
+825eccb502c8a7a3078ceff5576c47a6e17eba81
+
+contient une implémentation de référence de la fonctionnalité.
+
+Tu peux l’inspecter pour comprendre comment la fonctionnalité avait été construite.
+
+Mais tu ne dois PAS copier/remplacer aveuglément ses fichiers.
+
+Tu dois comparer son diff avec le projet actuel et reproduire uniquement la fonctionnalité nécessaire.
+
+⸻
+
+ÉTAPE 1 — AUDIT DU PROJET ACTUEL
+
+Avant de modifier quoi que ce soit :
+
+inspecte le projet actuellement ouvert.
+
+Cherche :
+
+* route /administration
+* composant du dashboard ADMIN
+* système actuel d’autorisation ADMIN
+* intégration Clerk
+* routes API existantes
+* éventuelle ancienne implémentation AdminDirectory
+* éventuelle route /api/admin/directory
+* éventuelle route /api/admin/users
+* hooks ou clients API liés aux utilisateurs
+* fichiers du commit 825eccb qui peuvent servir de référence.
+
+Ne modifie encore rien.
+
+⸻
+
+ÉTAPE 2 — COMPARER AVEC LE COMMIT 825ECCB
+
+Inspecte uniquement le diff :
+
+parent de 825eccb → 825eccb
+
+Identifie exactement ce qui avait été ajouté pour :
+
+« Utilisateurs enregistrés »
+
+Détermine :
+
+* composants frontend nécessaires ;
+* route API nécessaire ;
+* hooks nécessaires ;
+* types nécessaires ;
+* logique d’autorisation nécessaire.
+
+Ignore toute modification du commit qui n’est pas nécessaire à cette fonctionnalité.
+
+⸻
+
+ÉTAPE 3 — ADAPTER AU PROJET ACTUEL
+
+Implémente la fonctionnalité dans le code actuellement présent.
+
+Ne remplace pas les fichiers actuels par ceux du commit GitHub.
+
+Si App.tsx a évolué depuis le commit GitHub, ajoute uniquement la route/section nécessaire dans la version actuelle.
+
+Si l’autorisation ADMIN actuelle est différente, utilise le système actuel.
+
+Si une route API équivalente existe déjà, réutilise-la au lieu d’en créer une deuxième.
+
+Si une partie de la fonctionnalité existe déjà, complète-la au lieu de la recréer.
+
+⸻
+
+ÉTAPE 4 — COMPORTEMENT ATTENDU
+
+Dans /administration :
+
+Utilisateurs enregistrés
+
+Afficher une liste des vrais utilisateurs Clerk.
+
+Afficher au minimum les informations non sensibles déjà disponibles dans Clerk et nécessaires à l’administration, par exemple :
+
+* nom ;
+* email ;
+* identifiant Clerk si déjà prévu par l’implémentation ;
+* date d’inscription si disponible.
+
+Ne pas afficher de données sensibles inutiles.
+
+Prévoir :
+
+* chargement ;
+* erreur ;
+* liste vide ;
+* liste normale.
+
+⸻
+
+ÉTAPE 5 — SÉCURITÉ
+
+La route API doit être protégée par le mécanisme ADMIN existant.
+
+ADMIN
+
+→ accès autorisé.
+
+Utilisateur connecté mais non-admin
+
+→ HTTP 403 / accès refusé.
+
+Utilisateur non authentifié
+
+→ accès refusé.
+
+Ne jamais exposer de clé secrète Clerk au frontend.
+
+Ne jamais permettre à un utilisateur public d’interroger la liste complète.
+
+⸻
+
+ÉTAPE 6 — NE PAS TOUCHER AUX DONNÉES
+
+Interdiction de :
+
+* migration SQL ;
+* modification du schéma ;
+* suppression de données ;
+* création de comptes ;
+* suppression de comptes ;
+* modification de comptes ;
+* modification des artistes ;
+* modification des œuvres ;
+* modification des statistiques existantes ;
+* modification Stripe ;
+* modification Supabase ;
+* modification des paramètres Clerk.
+
+La fonctionnalité doit uniquement LIRE les utilisateurs.
+
+⸻
+
+ÉTAPE 7 — NE PAS MODIFIER LE RESTE DU DASHBOARD
+
+Les statistiques existantes de /administration doivent rester identiques.
+
+Ne change pas leur calcul.
+
+Ne change pas leur affichage.
+
+Ne change pas leur source de données.
+
+La nouvelle section est indépendante.
+
+⸻
+
+ÉTAPE 8 — NE PAS METTRE LA LISTE SUR UNE PAGE PUBLIQUE
+
+La liste doit uniquement apparaître sur :
+
+/administration
+
+Ne pas l’afficher sur :
+
+* /indamora-records
+* pages publiques ;
+* pages artistes ;
+* pages œuvres ;
+* autres routes publiques.
+
+⸻
+
+ÉTAPE 9 — ARTEFACTS
+
+Avant modification, vérifie quels artefacts existent réellement dans le projet actuel.
+
+Tu dois les préserver.
+
+En particulier :
+
+artifacts/indamora-play-mobile/
+
+S’il existe :
+
+NE PAS LE SUPPRIMER.
+
+Ne modifie pas son contenu.
+
+Ne modifie pas son workflow.
+
+Ne modifie pas sa configuration.
+
+⸻
+
+ÉTAPE 10 — MODIFICATIONS MINIMALES
+
+Après l’implémentation :
+
+git status
+
+Puis :
+
+git diff
+
+Inspecte chaque fichier modifié.
+
+Chaque modification doit pouvoir être justifiée par cette seule phrase :
+
+« Nécessaire pour afficher les utilisateurs enregistrés dans /administration de façon sécurisée. »
+
+Si une modification ne peut pas être justifiée ainsi :
+
+→ annule cette modification.
+
+Ne fais aucun refactoring.
+
+Ne fais aucun nettoyage.
+
+Ne fais aucune optimisation.
+
+Ne mets à jour aucune dépendance.
+
+⸻
+
+ÉTAPE 11 — TESTS
+
+Exécute les tests/builds disponibles :
+
+* typecheck ;
+* build frontend/web ;
+* build API ;
+* tests existants.
+
+Vérifie également :
+
+* /administration fonctionne ;
+* la nouvelle section fonctionne ;
+* les statistiques existantes fonctionnent ;
+* les pages publiques fonctionnent ;
+* l’API est protégée.
+
+Si un test échoue à cause d’une modification non liée :
+
+→ corrige uniquement si cela est directement causé par cette fonctionnalité.
+
+Sinon, arrête-toi et signale le problème.
+
+⸻
+
+ÉTAPE 12 — AVANT TOUT COMMIT
+
+NE fais pas immédiatement de commit.
+
+Présente d’abord un rapport avec :
+
+Fichiers modifiés
+
+Liste exacte.
+
+Pourquoi chaque fichier est modifié
+
+Une phrase par fichier.
+
+Fichiers supprimés
+
+Doit être :
+
+AUCUN
+
+Données modifiées
+
+Doit être :
+
+AUCUNE
+
+Configuration modifiée
+
+Doit être :
+
+AUCUNE, sauf modification strictement nécessaire.
+
+Artefacts supprimés
+
+Doit être :
+
+AUCUN
+
+Tests
+
+Résultats.
+
+⸻
+
+RÈGLE FINALE DE SÉCURITÉ
+
+Si tu découvres que la fonctionnalité ne peut pas être ajoutée proprement sans remplacer une partie importante du projet actuel :
+
+ARRÊTE-TOI.
+
+Ne fais pas de gros remplacement.
+
+Ne fais pas de reset.
+
+Ne fais pas de checkout.
+
+Ne fais pas de merge.
+
+Ne fais pas de force push.
+
+Explique exactement le conflit.
+
+⸻
+
+IMPORTANT — PAS DE DÉPLOIEMENT AUTOMATIQUE
+
+Même si les tests réussissent :
+
+NE DÉPLOIE PAS.
+
+Même si le build réussit :
+
+NE DÉPLOIE PAS.
+
+Même si GitHub est propre :
+
+NE DÉPLOIE PAS.
+
+À la fin, arrête-toi et donne-moi le rapport.
+
+Aucun commit ni push ne doit être effectué sans validation explicite supplémentaire.
+
+⸻
+
+RAPPORT FINAL
+
+Donne-moi :
+
+1. Fichiers modifiés.
+2. Fichiers ajoutés.
+3. Fichiers supprimés.
+4. Nombre total de lignes ajoutées/supprimées.
+5. Fonctionnalité ajoutée.
+6. Protection ADMIN utilisée.
+7. Données modifiées : OUI/NON.
+8. Supabase modifié : OUI/NON.
+9. Clerk modifié : OUI/NON.
+10. Stripe modifié : OUI/NON.
+11. Mobile modifié : OUI/NON.
+12. Tests effectués et résultats.
+13. Build effectué et résultat.
+14. Git status final.
+15. Confirmation : AUCUN DÉPLOIEMENT EFFECTUÉ.
+
+PRIORITÉ ABSOLUE
+
+Préserver le projet actuel et ajouter uniquement la liste des utilisateurs dans /administration.
+
+Aucune autre modification.
