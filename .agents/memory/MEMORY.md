@@ -1,1 +1,2 @@
 - [API response normalization](api-response-normalization.md) — normalize database-native values before generated response validation.
+- [Local artifact validation](local-artifact-validation.md) — terminal builds lack service env; API dev bundles once, so restart before trusting route checks.
