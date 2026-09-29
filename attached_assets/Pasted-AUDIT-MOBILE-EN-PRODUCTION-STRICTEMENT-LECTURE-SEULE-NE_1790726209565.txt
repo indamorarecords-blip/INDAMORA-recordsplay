@@ -1,0 +1,89 @@
+AUDIT MOBILE EN PRODUCTION — STRICTEMENT LECTURE SEULE
+
+NE MODIFIE ABSOLUMENT RIEN.
+
+Le contrôle précédent a établi que :
+
+* Publish publie le projet entier ;
+* une publication Web seule n’est pas disponible ;
+* le dossier Mobile existe dans le workspace ;
+* le Mobile n’apparaît actuellement dans aucun manifest d’artefact ;
+* nous ne pouvons donc pas garantir que le Mobile actuellement en production serait conservé après une nouvelle publication.
+
+Je veux maintenant identifier précisément l’origine et l’état du Mobile actuellement en production.
+
+OBJECTIF UNIQUE :
+
+Déterminer, sans aucune modification, comment le Mobile actuellement publié est enregistré, déployé et protégé contre une éventuelle nouvelle publication du projet.
+
+Vérifie uniquement en lecture seule :
+
+1. Les fichiers et configurations du projet qui font référence au Mobile.
+2. Les éventuels manifests, fichiers de configuration, services ou artefacts associés au Mobile.
+3. Si le Mobile possède actuellement :
+    * un service ;
+    * un artefact ;
+    * un déploiement ;
+    * une URL ;
+    * un identifiant de déploiement ;
+    * un identifiant d’artefact ;
+    * une configuration de production distincte.
+4. Vérifie si une information locale permet d’identifier le déploiement Mobile actuellement en production.
+5. Vérifie si le Mobile est géré par Replit Deployments, une autre configuration Replit, Expo/EAS ou un autre mécanisme.
+6. Vérifie si le Mobile peut être conservé indépendamment du bouton « Publish » du projet Web/API.
+7. Vérifie uniquement les informations nécessaires pour déterminer si une future publication du Web/API pourrait affecter le Mobile.
+
+INTERDICTIONS ABSOLUES :
+
+NE PAS CLIQUER SUR PUBLISH.
+NE PAS DÉPLOYER.
+NE PAS MODIFIER DE FICHIER.
+NE PAS MODIFIER DE CONFIGURATION.
+NE PAS MODIFIER DE MANIFEST.
+NE PAS MODIFIER LE MOBILE.
+NE PAS MODIFIER LE WEB.
+NE PAS MODIFIER L’API.
+NE PAS MODIFIER LA BASE DE DONNÉES.
+NE PAS MODIFIER CLERK.
+NE PAS MODIFIER SUPABASE.
+NE PAS MODIFIER STRIPE.
+NE PAS FAIRE DE COMMIT.
+NE PAS FAIRE DE PUSH.
+NE PAS CHANGER DE BRANCHE.
+NE PAS FAIRE DE CHECKOUT, RESET, MERGE, REBASE OU CHERRY-PICK.
+
+Si une information n’est pas accessible depuis l’environnement Replit, indique-le explicitement au lieu de l’inférer.
+
+Réponds exactement avec :
+
+STATUT MOBILE : IDENTIFIÉ / NON IDENTIFIÉ / INCERTAIN
+
+MÉCANISME DE PUBLICATION MOBILE :
+[description]
+
+IDENTIFIANT DU DÉPLOIEMENT MOBILE :
+[valeur ou NON DISPONIBLE]
+
+IDENTIFIANT DE L’ARTEFACT MOBILE :
+[valeur ou NON DISPONIBLE]
+
+URL / SERVICE MOBILE :
+[valeur ou NON DISPONIBLE]
+
+CONFIGURATION MOBILE :
+[description factuelle]
+
+LE MOBILE EST-IL INDÉPENDANT DU BOUTON « PUBLISH » DU PROJET :
+OUI / NON / INCERTAIN
+
+UNE FUTURE PUBLICATION WEB/API RISQUE-T-ELLE DE MODIFIER LE MOBILE :
+OUI / NON / INCERTAIN
+
+ÉLÉMENTS DE PREUVE :
+[liste précise des éléments vérifiés]
+
+CONCLUSION :
+[uniquement une conclusion factuelle]
+
+RÈGLE FINALE :
+Si le déploiement Mobile actuellement en production ne peut pas être identifié avec suffisamment de certitude, réponds INCERTAIN et ne propose aucune publication.
