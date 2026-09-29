@@ -1,0 +1,74 @@
+{
+  "id": "09534960-febe-416f-abef-600b9ae0bc60",
+  "createdAt": "2026-09-23T10:40:35.280Z",
+  "runtimeVersion": "exposdk:57.0.0",
+  "launchAsset": {
+    "key": "bundle-1790160035280-2741",
+    "contentType": "application/javascript",
+    "url": "https://ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd-00-392orbcamcwi3.kira.replit.dev/1790160035280-2741/_expo/static/js/android/bundle.js"
+  },
+  "assets": [],
+  "metadata": {},
+  "extra": {
+    "eas": {},
+    "expoClient": {
+      "name": "INDAMORA PLAY Mobile",
+      "slug": "indamora-play-mobile",
+      "version": "1.0.0",
+      "orientation": "portrait",
+      "icon": "./assets/images/icon.png",
+      "splash": {
+        "backgroundColor": "#F8F0E2",
+        "image": "./assets/images/icon.png",
+        "resizeMode": "contain"
+      },
+      "scheme": "indamora-play-mobile",
+      "userInterfaceStyle": "automatic",
+      "ios": {
+        "supportsTablet": false
+      },
+      "android": {},
+      "web": {
+        "favicon": "./assets/images/icon.png"
+      },
+      "plugins": [
+        "expo-router"
+      ],
+      "experiments": {
+        "typedRoutes": true,
+        "reactCompiler": true
+      },
+      "_internal": {
+        "isDebug": false,
+        "projectRoot": "/home/runner/workspace/artifacts/indamora-play-mobile",
+        "dynamicConfigPath": {},
+        "staticConfigPath": "/home/runner/workspace/artifacts/indamora-play-mobile/app.json",
+        "packageJsonPath": "/home/runner/workspace/artifacts/indamora-play-mobile/package.json"
+      },
+      "sdkVersion": "57.0.0",
+      "platforms": [
+        "ios",
+        "android",
+        "web"
+      ],
+      "extra": {
+        "router": {}
+      },
+      "iconUrl": "http://127.0.0.1:8081/assets/./assets/images/icon.png",
+      "hostUri": "ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd-00-392orbcamcwi3.kira.replit.dev/android"
+    },
+    "expoGo": {
+      "debuggerHost": "ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd-00-392orbcamcwi3.kira.replit.dev/android",
+      "developer": {
+        "tool": "expo-cli",
+        "projectRoot": "/home/runner/workspace/artifacts/indamora-play-mobile"
+      },
+      "packagerOpts": {
+        "dev": false
+      },
+      "mainModuleName": "artifacts/indamora-play-mobile/node_modules/expo-router/entry",
+      "username": "replit-private-ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd"
+    },
+    "scopeKey": "@anonymous/indamora-play-mobile-ec2c9444-54ad-43fa-859d-3f81ead60d52"
+  }
+}

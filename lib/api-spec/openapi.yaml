@@ -19,7 +19,7 @@ tags:
   - name: press
     description: Public press contact operations
   - name: admin
-    description: Protected INDAMORA RECORDS administration operations
+    description: Private administration operations
   - name: Storage
     description: Object storage upload and serving endpoints.
 paths:
@@ -36,72 +36,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
-  /admin/directory:
-    get:
-      operationId: getAdminDirectory
-      tags: [admin]
-      summary: List protected accounts and INDAMORA profiles
-      security:
-        - clerkSession: []
-      parameters:
-        - name: search
-          in: query
-          required: false
-          schema: { type: string }
-        - name: status
-          in: query
-          required: false
-          schema:
-            type: string
-            enum: [all, no-profile, pending, approved, rejected, published, unpublished]
-        - name: scope
-          in: query
-          required: false
-          schema:
-            type: string
-            enum: [all, users, profiles, artists, professionals]
-      responses:
-        "200":
-          description: Protected account and profile directory
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AdminDirectory"
-        "401":
-          description: Authentication required
-        "403":
-          description: Administrator access required
-  /admin/profiles/{id}/status:
-    patch:
-      operationId: updateAdminProfileStatus
-      tags: [admin]
-      summary: Validate or publish an INDAMORA profile
-      security:
-        - clerkSession: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema: { type: integer }
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AdminProfileStatusInput"
-      responses:
-        "200":
-          description: Updated profile status
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AdminProfileStatus"
-        "401":
-          description: Authentication required
-        "403":
-          description: Administrator access required
-        "404":
-          description: Profile not found
   /catalog:
     get:
       operationId: getCatalog
@@ -188,22 +122,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Artist"
-  /artists/me:
-    get:
-      operationId: getMyArtist
-      tags: [artists]
-      summary: Get the signed-in user's artist profile
-      security:
-        - clerkSession: []
-      responses:
-        "200":
-          description: Artist profile, or null when profile setup is incomplete
-          content:
-            application/json:
-              schema:
-                anyOf:
-                  - $ref: "#/components/schemas/Artist"
-                  - type: "null"
   /artists/{id}:
     get:
       operationId: getArtist
@@ -224,35 +142,6 @@ paths:
                 $ref: "#/components/schemas/Artist"
         "404":
           description: Artist not found
-    patch:
-      operationId: updateArtist
-      tags: [artists]
-      summary: Update an artist profile owned by the signed-in user
-      security:
-        - clerkSession: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ArtistUpdateInput"
-      responses:
-        "200":
-          description: Updated artist profile
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Artist"
-        "403":
-          description: Profile is not owned by the signed-in user
-        "404":
-          description: Artist not found
   /press-requests:
     post:
       operationId: createPressRequest
@@ -271,6 +160,34 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PressRequest"
+  /admin/users:
+    get:
+      operationId: getAdminUsers
+      tags: [admin]
+      summary: List registered users for administrators
+      security:
+        - clerkSession: []
+      parameters:
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        "200":
+          description: A page of registered Clerk users
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUsersPage"
+        "400":
+          description: Invalid pagination offset
+        "401":
+          description: Authentication required
+        "403":
+          description: Administrator access denied
   /submissions:
     get:
       operationId: getSubmissions
@@ -335,26 +252,6 @@ paths:
       responses:
         "200":
           description: Updated submission
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Submission"
-  /submissions/{id}/files:
-    delete:
-      operationId: deleteSubmissionFiles
-      tags: [submissions]
-      summary: Delete files from a rejected, unpublished submission
-      security:
-        - clerkSession: []
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: Submission with file references cleared
           content:
             application/json:
               schema:
@@ -431,24 +328,6 @@ paths:
           content:
             "*/*":
               schema: { type: string, format: binary }
-    delete:
-      operationId: deleteStorageObject
-      tags: [Storage]
-      summary: Delete an owned, unreferenced uploaded object
-      security:
-        - clerkSession: []
-      parameters:
-        - name: objectPath
-          in: path
-          required: true
-          schema: { type: string }
-      responses:
-        "204":
-          description: Object deleted
-        "403":
-          description: Not allowed to delete this object
-        "409":
-          description: Object is still referenced
 components:
   securitySchemes:
     clerkSession:
@@ -463,117 +342,27 @@ components:
           type: string
       required:
         - status
-    AdminDirectory:
-      type: object
-      required: [users, profiles, summary]
-      properties:
-        users:
-          type: array
-          items: { $ref: "#/components/schemas/AdminUser" }
-        profiles:
-          type: array
-          items: { $ref: "#/components/schemas/AdminProfile" }
-        summary:
-          $ref: "#/components/schemas/AdminDirectorySummary"
-    AdminDirectorySummary:
-      type: object
-      required: [users, profiles, publishedProfiles, pendingProfiles, works]
-      properties:
-        users: { type: integer }
-        profiles: { type: integer }
-        publishedProfiles: { type: integer }
-        pendingProfiles: { type: integer }
-        works: { type: integer }
     AdminUser:
       type: object
-      required: [id, firstName, lastName, email, createdAt, emailVerified, hasProfile, activities, profileStatus, isPublished]
+      required: [id, firstName, lastName, username, email, createdAt]
       properties:
         id: { type: string }
         firstName: { type: ["string", "null"] }
         lastName: { type: ["string", "null"] }
         username: { type: ["string", "null"] }
-        email: { type: ["string", "null"], format: email }
+        email: { type: ["string", "null"] }
         createdAt: { type: string, format: date-time }
-        lastSignInAt: { type: ["string", "null"], format: date-time }
-        emailVerified: { type: boolean }
-        hasProfile: { type: boolean }
-        profileId: { type: ["integer", "null"] }
-        activities:
-          type: array
-          items: { type: string }
-        profileStatus: { type: ["string", "null"] }
-        isPublished: { type: boolean }
-    AdminWork:
+    AdminUsersPage:
       type: object
-      required: [id, title, artist, category, status, createdAt]
+      required: [users, totalCount, offset, limit]
       properties:
-        id: { type: integer }
-        title: { type: string }
-        artist: { type: string }
-        category: { type: string }
-        status: { type: string }
-        createdAt: { type: string, format: date-time }
-    AdminSubmission:
-      type: object
-      required: [id, title, category, status, submittedAt]
-      properties:
-        id: { type: integer }
-        title: { type: string }
-        category: { type: string }
-        status: { type: string }
-        submittedAt: { type: string, format: date-time }
-    AdminProfile:
-      type: object
-      required: [id, ownerId, name, category, bio, location, specialties, profileGroup, profileStatus, isPublished, createdAt, updatedAt, works, submissions]
-      properties:
-        id: { type: integer }
-        ownerId: { type: ["string", "null"] }
-        firstName: { type: ["string", "null"] }
-        lastName: { type: ["string", "null"] }
-        email: { type: ["string", "null"], format: email }
-        name: { type: string }
-        category: { type: string }
-        subcategory: { type: ["string", "null"] }
-        bio: { type: string }
-        location: { type: string }
-        country: { type: ["string", "null"] }
-        phone: { type: ["string", "null"] }
-        avatar: { type: ["string", "null"] }
-        website: { type: ["string", "null"], format: uri }
-        socialLinks:
+        users:
           type: array
-          items: { type: string }
-        specialties:
-          type: array
-          items: { type: string }
-        profileGroup: { type: string }
-        profileStatus: { type: string }
-        isPublished: { type: boolean }
-        createdAt: { type: string, format: date-time }
-        updatedAt: { type: ["string", "null"], format: date-time }
-        publicPath: { type: ["string", "null"] }
-        works:
-          type: array
-          items: { $ref: "#/components/schemas/AdminWork" }
-        submissions:
-          type: array
-          items: { $ref: "#/components/schemas/AdminSubmission" }
-    AdminProfileStatusInput:
-      type: object
-      minProperties: 1
-      properties:
-        profileStatus:
-          type: string
-          enum: [pending, approved, rejected]
-        isPublished: { type: boolean }
-    AdminProfileStatus:
-      type: object
-      required: [id, profileStatus, isPublished, updatedAt]
-      properties:
-        id: { type: integer }
-        profileStatus: { type: string }
-        isPublished: { type: boolean }
-        updatedAt: { type: string, format: date-time }
+          items:
+            $ref: "#/components/schemas/AdminUser"
+        totalCount: { type: integer, minimum: 0 }
+        offset: { type: integer, minimum: 0 }
+        limit: { type: integer, minimum: 1 }
     Artist:
       type: object
       required: [id, name, category, bio, location, worksCount, profileGroup, specialties, socialLinks]
@@ -614,30 +403,6 @@ components:
         country: { type: string }
         specialties:
           type: array
-          maxItems: 2
-          items: { type: string }
-        website: { type: string, format: uri }
-        socialLinks:
-          type: array
-          items: { type: string, format: uri }
-        professionalContact: { type: string }
-    ArtistUpdateInput:
-      type: object
-      minProperties: 1
-      properties:
-        name: { type: string, minLength: 2 }
-        category: { type: string, minLength: 2 }
-        bio: { type: string, minLength: 10 }
-        location: { type: string, minLength: 2 }
-        avatar: { type: string }
-        profileGroup:
-          type: string
-          enum: [artists, creations, partners, press]
-        subcategory: { type: string }
-        country: { type: string }
-        specialties:
-          type: array
-          maxItems: 2
           items: { type: string }
         website: { type: string, format: uri }
         socialLinks:

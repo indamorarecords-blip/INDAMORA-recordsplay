@@ -5,12 +5,7 @@
   "type": "module",
   "scripts": {
     "hello": "tsx ./src/hello.ts",
-    "generate-sitemap": "node ./src/generate-sitemap.mjs",
-    "seed-stripe-products": "tsx ./src/seed-stripe-products.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
-  },
-  "dependencies": {
-    "pg": "^8.22.0"
   },
   "devDependencies": {
     "@types/node": "catalog:",

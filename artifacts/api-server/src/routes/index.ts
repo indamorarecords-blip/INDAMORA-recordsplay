@@ -1,21 +1,14 @@
 import { Router, type IRouter } from "express";
+import adminUsersRouter from "./admin-users";
 import healthRouter from "./health";
 import indamoraRouter from "./indamora";
 import storageRouter from "./storage";
-import billingRouter from "./billing";
-import analyticsRouter from "./analytics";
-import adminRouter from "./admin";
 
 const router: IRouter = Router();
 
-router.get("/", (_req, res) => {
-  res.json({ status: "ok" });
-});
+router.use(adminUsersRouter);
 router.use(healthRouter);
 router.use(indamoraRouter);
 router.use(storageRouter);
-router.use(billingRouter);
-router.use(analyticsRouter);
-router.use(adminRouter);
 
 export default router;

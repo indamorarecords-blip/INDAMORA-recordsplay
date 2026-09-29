@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { and, eq, ilike, ne, or } from "drizzle-orm";
-import { adminAuditLogsTable, db, artistsTable, pressRequestsTable, submissionsTable, worksTable } from "@workspace/db";
+import { and, eq, ilike, or } from "drizzle-orm";
+import { db, artistsTable, pressRequestsTable, submissionsTable, worksTable } from "@workspace/db";
 import {
   CreateArtistBody,
   CreateArtistResponse,
@@ -10,7 +10,6 @@ import {
   GetArtistResponse,
   GetArtistsQueryParams,
   GetArtistsResponse,
-  GetMyArtistResponse,
   GetCatalogResponse,
   GetSubmissionsQueryParams,
   GetSubmissionsResponse,
@@ -18,16 +17,12 @@ import {
   GetWorkResponse,
   CreateSubmissionBody,
   CreateSubmissionResponse,
-  DeleteSubmissionFilesParams,
-  DeleteSubmissionFilesResponse,
   UpdateSubmissionStatusBody,
   UpdateSubmissionStatusParams,
   UpdateSubmissionStatusResponse,
-  UpdateArtistBody,
-  UpdateArtistResponse,
 } from "@workspace/api-zod";
 import { logger } from "../lib/logger";
-import { isAdminUser, requireAdmin, requireAuth, requireProfessionalProfile } from "../middlewares/auth";
+import { isAdminUser, requireAdmin, requireAuth } from "../middlewares/auth";
 import { ObjectPermission } from "../lib/objectAcl";
 import { ObjectStorageService } from "../lib/objectStorage";
 
@@ -198,8 +193,9 @@ const seedCatalog = async (): Promise<void> => {
   logger.info("Seeded initial INDAMORA PLAY catalog");
 }
 
-// The production catalog is managed through the administrator workflow.
-// No automatic demo data is inserted at server startup.
+void seedCatalog().catch((error) => {
+  logger.error({ error }, "Unable to seed INDAMORA PLAY catalog");
+});
 
 router.get("/catalog", async (_req, res): Promise<void> => {
   const works = await db.select().from(worksTable).orderBy(worksTable.createdAt);
@@ -269,43 +265,6 @@ router.post("/artists", requireAuth, async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
-  if (!parsed.data.specialties?.length) {
-    res.status(400).json({ error: "Sélectionnez au moins une activité." });
-    return;
-  }
-  const [ownedProfile] = await db
-    .select({ id: artistsTable.id })
-    .from(artistsTable)
-    .where(eq(artistsTable.ownerId, req.clerkUserId!))
-    .limit(1);
-  if (ownedProfile) {
-    res.status(409).json({ error: "Ce compte possède déjà un profil INDAMORA." });
-    return;
-  }
-  if (parsed.data.avatar) {
-    try {
-      const avatar = await objectStorage.getObjectEntityFile(parsed.data.avatar);
-      const [metadata] = await avatar.getMetadata();
-      const contentType = String(metadata.contentType ?? "");
-      const size = Number(metadata.size ?? 0);
-      const owned = await objectStorage.canAccessObjectEntity({
-        userId: req.clerkUserId,
-        objectFile: avatar,
-        requestedPermission: ObjectPermission.WRITE,
-      });
-      if (!allowedImageTypes.has(contentType) || size <= 0 || size > maxImageBytes || !owned) {
-        res.status(400).json({ error: "L’avatar doit être une image téléversée par votre compte." });
-        return;
-      }
-      await objectStorage.setAcl(parsed.data.avatar, {
-        owner: req.clerkUserId!,
-        visibility: "public",
-      });
-    } catch {
-      res.status(400).json({ error: "L’avatar téléversé est introuvable." });
-      return;
-    }
-  }
   const [artist] = await db
     .insert(artistsTable)
     .values({
@@ -316,17 +275,6 @@ router.post("/artists", requireAuth, async (req, res): Promise<void> => {
     })
     .returning();
   res.status(201).json(CreateArtistResponse.parse(directoryProfilesForClient([artist])[0]));
-});
-
-router.get("/artists/me", requireAuth, async (req, res): Promise<void> => {
-  const [artist] = await db
-    .select()
-    .from(artistsTable)
-    .where(eq(artistsTable.ownerId, req.clerkUserId!))
-    .orderBy(artistsTable.createdAt)
-    .limit(1);
-
-  res.json(GetMyArtistResponse.parse(artist ? directoryProfilesForClient([artist])[0] : null));
 });
 
 router.get("/artists/:id", async (req, res): Promise<void> => {
@@ -352,84 +300,6 @@ router.get("/artists/:id", async (req, res): Promise<void> => {
   res.json(GetArtistResponse.parse(directoryProfilesForClient([artist])[0]));
 });
 
-router.patch("/artists/:id", requireAuth, async (req, res): Promise<void> => {
-  const params = GetArtistParams.safeParse(req.params);
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
-  }
-  const parsed = UpdateArtistBody.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.message });
-    return;
-  }
-
-  const [existing] = await db
-    .select()
-    .from(artistsTable)
-    .where(eq(artistsTable.id, params.data.id))
-    .limit(1);
-  if (!existing) {
-    res.status(404).json({ error: "Artist not found" });
-    return;
-  }
-
-  const admin = await isAdminUser(req.clerkUserId!);
-  if (!admin && existing.ownerId !== req.clerkUserId) {
-    res.status(403).json({ error: "Vous ne pouvez modifier que votre propre profil." });
-    return;
-  }
-
-  if (parsed.data.avatar && parsed.data.avatar !== existing.avatar) {
-    try {
-      const avatar = await objectStorage.getObjectEntityFile(parsed.data.avatar);
-      const [metadata] = await avatar.getMetadata();
-      const contentType = String(metadata.contentType ?? "");
-      const size = Number(metadata.size ?? 0);
-      const owned = await objectStorage.canAccessObjectEntity({
-        userId: req.clerkUserId,
-        objectFile: avatar,
-        requestedPermission: ObjectPermission.WRITE,
-      });
-      if (!allowedImageTypes.has(contentType) || size <= 0 || size > maxImageBytes || !owned) {
-        res.status(400).json({ error: "L’avatar doit être une image téléversée par votre compte." });
-        return;
-      }
-      await objectStorage.setAcl(parsed.data.avatar, {
-        owner: existing.ownerId ?? req.clerkUserId!,
-        visibility: "public",
-      });
-    } catch {
-      res.status(400).json({ error: "L’avatar téléversé est introuvable." });
-      return;
-    }
-  }
-
-  const [updated] = await db
-    .update(artistsTable)
-    .set({
-      ...parsed.data,
-      ...(admin ? {} : { profileStatus: "pending", isPublished: "false" }),
-    })
-    .where(eq(artistsTable.id, existing.id))
-    .returning();
-  if (!updated) {
-    res.status(500).json({ error: "Impossible de mettre à jour le profil." });
-    return;
-  }
-  if (admin) {
-    await db.insert(adminAuditLogsTable).values({
-      administratorId: req.clerkUserId!,
-      action: "profile.updated",
-      entityType: "artist",
-      entityId: String(updated.id),
-      targetLabel: updated.name,
-      result: "success",
-    });
-  }
-  res.json(UpdateArtistResponse.parse(directoryProfilesForClient([updated])[0]));
-});
-
 router.post("/press-requests", async (req, res): Promise<void> => {
   const parsed = CreatePressRequestBody.safeParse(req.body);
   if (!parsed.success) {
@@ -445,7 +315,7 @@ router.post("/press-requests", async (req, res): Promise<void> => {
     .json(CreatePressRequestResponse.parse(pressRequestForClient(request)));
 });
 
-router.get("/submissions", requireProfessionalProfile, async (req, res): Promise<void> => {
+router.get("/submissions", requireAuth, async (req, res): Promise<void> => {
   const params = GetSubmissionsQueryParams.safeParse(req.query);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -471,7 +341,7 @@ router.get("/submissions", requireProfessionalProfile, async (req, res): Promise
   res.json(GetSubmissionsResponse.parse(submissionsForClient(submissions)));
 });
 
-router.post("/submissions", requireProfessionalProfile, async (req, res): Promise<void> => {
+router.post("/submissions", requireAuth, async (req, res): Promise<void> => {
   const parsed = CreateSubmissionBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -547,7 +417,7 @@ router.patch("/submissions/:id/status", requireAdmin, async (req, res): Promise<
         category: existing.category,
         description: existing.note || "Une nouvelle création validée par INDAMORA RECORDS.",
         duration: existing.duration,
-         image: "/assets/indamora-play-mark.png",
+        image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=900&q=80",
         mediaType: existing.mediaType,
         mediaObjectPath: existing.mediaObjectPath,
         coverObjectPath: existing.coverObjectPath,
@@ -557,110 +427,14 @@ router.patch("/submissions/:id/status", requireAdmin, async (req, res): Promise<
       if (existing.mediaObjectPath) await objectStorage.setAcl(existing.mediaObjectPath, { owner: existing.ownerId ?? req.clerkUserId!, visibility: "public" });
       if (existing.coverObjectPath) await objectStorage.setAcl(existing.coverObjectPath, { owner: existing.ownerId ?? req.clerkUserId!, visibility: "public" });
       const [updated] = await tx.update(submissionsTable).set({ status: "approved", publishedWorkId: work.id }).where(eq(submissionsTable.id, params.data.id)).returning();
-      await tx.insert(adminAuditLogsTable).values({
-        administratorId: req.clerkUserId!,
-        action: "submission.approved_and_published",
-        entityType: "submission",
-        entityId: String(existing.id),
-        targetLabel: existing.title,
-        result: "success",
-      });
       return { updated };
     }
     const [updated] = await tx.update(submissionsTable).set({ status: body.data.status }).where(eq(submissionsTable.id, params.data.id)).returning();
-    await tx.insert(adminAuditLogsTable).values({
-      administratorId: req.clerkUserId!,
-      action: `submission.${body.data.status}`,
-      entityType: "submission",
-      entityId: String(existing.id),
-      targetLabel: existing.title,
-      result: "success",
-    });
     return { updated };
   });
   if (!submission) { res.status(404).json({ error: "Submission not found" }); return; }
   if ("conflict" in submission) { res.status(409).json({ error: "Une œuvre publiée ne peut pas être refusée sans procédure de retrait." }); return; }
   res.json(UpdateSubmissionStatusResponse.parse(submissionsForClient([submission.updated])[0]));
-});
-
-router.delete("/submissions/:id/files", requireProfessionalProfile, async (req, res): Promise<void> => {
-  const params = DeleteSubmissionFilesParams.safeParse(req.params);
-  if (!params.success) {
-    res.status(400).json({ error: params.error.message });
-    return;
-  }
-  const admin = await isAdminUser(req.clerkUserId!);
-  try {
-    const result = await db.transaction(async (tx) => {
-      const [submission] = await tx
-        .select()
-        .from(submissionsTable)
-        .where(eq(submissionsTable.id, params.data.id))
-        .for("update");
-      if (!submission) return { status: 404, error: "Submission not found" } as const;
-      if (!admin && submission.ownerId !== req.clerkUserId) {
-        return { status: 403, error: "Vous ne pouvez pas supprimer les fichiers de cette soumission." } as const;
-      }
-      if (submission.status !== "rejected" || submission.publishedWorkId) {
-        return { status: 409, error: "Seuls les fichiers d’une soumission refusée et non publiée peuvent être supprimés." } as const;
-      }
-      const paths = [...new Set([submission.mediaObjectPath, submission.coverObjectPath].filter((path): path is string => Boolean(path)))];
-      for (const objectPath of paths) {
-        const [otherSubmission, workReference] = await Promise.all([
-          tx.select({ id: submissionsTable.id }).from(submissionsTable).where(and(
-            ne(submissionsTable.id, submission.id),
-            or(
-              eq(submissionsTable.mediaObjectPath, objectPath),
-              eq(submissionsTable.coverObjectPath, objectPath),
-            ),
-          )).limit(1),
-          tx.select({ id: worksTable.id }).from(worksTable).where(or(
-            eq(worksTable.mediaObjectPath, objectPath),
-            eq(worksTable.coverObjectPath, objectPath),
-          )).limit(1),
-        ]);
-        if (otherSubmission.length || workReference.length) {
-          return { status: 409, error: "Un de ces fichiers est encore utilisé ailleurs." } as const;
-        }
-        const file = await objectStorage.getObjectEntityFile(objectPath);
-        if (!admin && !(await objectStorage.canAccessObjectEntity({
-          userId: req.clerkUserId,
-          objectFile: file,
-          requestedPermission: ObjectPermission.WRITE,
-        }))) {
-          return { status: 403, error: "Vous ne pouvez pas supprimer un fichier appartenant à un autre compte." } as const;
-        }
-      }
-      await Promise.all(paths.map((path) => objectStorage.deleteObjectEntity(path)));
-      const [updated] = await tx
-        .update(submissionsTable)
-        .set({ mediaObjectPath: null, coverObjectPath: null })
-        .where(eq(submissionsTable.id, submission.id))
-        .returning();
-      if (!updated) throw new Error("Submission update failed after file deletion");
-      if (admin) {
-        await tx.insert(adminAuditLogsTable).values({
-          administratorId: req.clerkUserId!,
-          action: "submission.files_deleted",
-          entityType: "submission",
-          entityId: String(submission.id),
-          targetLabel: submission.title,
-          result: "success",
-        });
-      }
-      return { updated } as const;
-    });
-    if ("updated" in result) {
-      const updatedSubmission = result.updated;
-      if (!updatedSubmission) throw new Error("Submission update result missing");
-      res.json(DeleteSubmissionFilesResponse.parse(submissionsForClient([updatedSubmission])[0]));
-      return;
-    }
-    res.status(result.status).json({ error: result.error });
-  } catch (error) {
-    req.log.error({ error }, "Unable to delete rejected submission files");
-    res.status(500).json({ error: "Impossible de supprimer les fichiers de cette soumission." });
-  }
 });
 
 export default router;

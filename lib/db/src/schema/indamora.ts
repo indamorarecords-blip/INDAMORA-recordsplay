@@ -1,31 +1,27 @@
-import { integer, pgTable, serial, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
-export const artistsTable = pgTable(
-  "artists",
-  {
-    id: serial("id").primaryKey(),
-    name: text("name").notNull(),
-    category: text("category").notNull(),
-    bio: text("bio").notNull(),
-    location: text("location").notNull(),
-    avatar: text("avatar"),
-    worksCount: integer("works_count").notNull().default(0),
-    ownerId: text("owner_id"),
-    profileGroup: text("profile_group").notNull().default("artists"),
-    subcategory: text("subcategory"),
-    country: text("country"),
-    specialties: text("specialties").array().notNull().default([]),
-    website: text("website"),
-    socialLinks: text("social_links").array().notNull().default([]),
-    professionalContact: text("professional_contact"),
-    profileStatus: text("profile_status").notNull().default("approved"),
-    isPublished: text("is_published").notNull().default("true"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  },
-  (table) => [uniqueIndex("artists_owner_id_idx").on(table.ownerId)],
-);
+export const artistsTable = pgTable("artists", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  category: text("category").notNull(),
+  bio: text("bio").notNull(),
+  location: text("location").notNull(),
+  avatar: text("avatar"),
+  worksCount: integer("works_count").notNull().default(0),
+  ownerId: text("owner_id"),
+  profileGroup: text("profile_group").notNull().default("artists"),
+  subcategory: text("subcategory"),
+  country: text("country"),
+  specialties: text("specialties").array().notNull().default([]),
+  website: text("website"),
+  socialLinks: text("social_links").array().notNull().default([]),
+  professionalContact: text("professional_contact"),
+  profileStatus: text("profile_status").notNull().default("approved"),
+  isPublished: text("is_published").notNull().default("true"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
 
 export const worksTable = pgTable("works", {
   id: serial("id").primaryKey(),
@@ -74,64 +70,6 @@ export const pressRequestsTable = pgTable("press_requests", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const billingAccountsTable = pgTable(
-  "billing_accounts",
-  {
-    id: serial("id").primaryKey(),
-    clerkUserId: text("clerk_user_id").notNull(),
-    stripeCustomerId: text("stripe_customer_id"),
-    stripeSubscriptionId: text("stripe_subscription_id"),
-    premiumStatus: text("premium_status").notNull().default("none"),
-    premiumCurrentPeriodEnd: timestamp("premium_current_period_end", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
-  },
-  (table) => [
-    uniqueIndex("billing_accounts_clerk_user_id_idx").on(table.clerkUserId),
-    uniqueIndex("billing_accounts_stripe_customer_id_idx").on(table.stripeCustomerId),
-    uniqueIndex("billing_accounts_stripe_subscription_id_idx").on(table.stripeSubscriptionId),
-  ],
-);
-
-export const stripeEventsTable = pgTable(
-  "stripe_events",
-  {
-    id: serial("id").primaryKey(),
-    stripeEventId: text("stripe_event_id").notNull(),
-    eventType: text("event_type").notNull(),
-    kind: text("kind"),
-    clerkUserId: text("clerk_user_id"),
-    stripeCustomerId: text("stripe_customer_id"),
-    stripeSubscriptionId: text("stripe_subscription_id"),
-    amountCents: integer("amount_cents"),
-    currency: text("currency"),
-    paymentStatus: text("payment_status"),
-    occurredAt: timestamp("occurred_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  },
-  (table) => [uniqueIndex("stripe_events_event_id_idx").on(table.stripeEventId)],
-);
-
-export const siteVisitsTable = pgTable("site_visits", {
-  id: serial("id").primaryKey(),
-  sessionHash: text("session_hash").notNull(),
-  path: text("path").notNull(),
-  referrerDomain: text("referrer_domain"),
-  device: text("device").notNull().default("unknown"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
-export const adminAuditLogsTable = pgTable("admin_audit_logs", {
-  id: serial("id").primaryKey(),
-  administratorId: text("administrator_id").notNull(),
-  action: text("action").notNull(),
-  entityType: text("entity_type").notNull(),
-  entityId: text("entity_id"),
-  targetLabel: text("target_label"),
-  result: text("result").notNull().default("success"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-});
-
 export const insertArtistSchema = createInsertSchema(artistsTable).omit({
   id: true,
   createdAt: true,
@@ -160,7 +98,3 @@ export const insertPressRequestSchema = createInsertSchema(pressRequestsTable).o
 });
 export type InsertPressRequest = z.infer<typeof insertPressRequestSchema>;
 export type PressRequest = typeof pressRequestsTable.$inferSelect;
-export type BillingAccount = typeof billingAccountsTable.$inferSelect;
-export type StripeEvent = typeof stripeEventsTable.$inferSelect;
-export type SiteVisit = typeof siteVisitsTable.$inferSelect;
-export type AdminAuditLog = typeof adminAuditLogsTable.$inferSelect;

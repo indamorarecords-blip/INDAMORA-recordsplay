@@ -5,17 +5,6 @@ import { ErrorBoundary } from '@/components/error-boundary';
 
 import './index.css';
 
-function registerServiceWorker() {
-  if (!('serviceWorker' in navigator)) return;
-
-  window.addEventListener('load', () => {
-    void navigator.serviceWorker.register('/service-worker.js', { scope: '/' })
-      .catch((error) => {
-        console.error('Impossible d’enregistrer le service worker PWA.', error);
-      });
-  });
-}
-
 createRoot(document.getElementById('root')!, {
   // Keeps caught errors off reportError(), which would raise the dev overlay.
   onCaughtError: (error, errorInfo) => {
@@ -26,5 +15,3 @@ createRoot(document.getElementById('root')!, {
     <App />
   </ErrorBoundary>,
 );
-
-registerServiceWorker();

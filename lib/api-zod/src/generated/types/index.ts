@@ -6,26 +6,15 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export * from './adminDirectory';
-export * from './adminDirectorySummary';
-export * from './adminProfile';
-export * from './adminProfileStatus';
-export * from './adminProfileStatusInput';
-export * from './adminProfileStatusInputProfileStatus';
-export * from './adminSubmission';
 export * from './adminUser';
-export * from './adminWork';
+export * from './adminUsersPage';
 export * from './artist';
 export * from './artistInput';
 export * from './artistInputProfileGroup';
 export * from './artistProfileGroup';
-export * from './artistUpdateInput';
-export * from './artistUpdateInputProfileGroup';
 export * from './completeUploadRequest';
 export * from './completeUploadResult';
-export * from './getAdminDirectoryParams';
-export * from './getAdminDirectoryScope';
-export * from './getAdminDirectoryStatus';
+export * from './getAdminUsersParams';
 export * from './getArtistsGroup';
 export * from './getArtistsParams';
 export * from './getSubmissionsParams';

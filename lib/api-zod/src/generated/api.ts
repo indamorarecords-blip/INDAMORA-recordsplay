@@ -18,100 +18,6 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
- * @summary List protected accounts and INDAMORA profiles
- */
-export const GetAdminDirectoryQueryParams = zod.object({
-  "search": zod.coerce.string().optional(),
-  "status": zod.enum(['all', 'no-profile', 'pending', 'approved', 'rejected', 'published', 'unpublished']).optional(),
-  "scope": zod.enum(['all', 'users', 'profiles', 'artists', 'professionals']).optional()
-})
-
-export const GetAdminDirectoryResponse = zod.object({
-  "users": zod.array(zod.object({
-  "id": zod.string(),
-  "firstName": zod.string().nullable(),
-  "lastName": zod.string().nullable(),
-  "username": zod.string().nullish(),
-  "email": zod.string().email().nullable(),
-  "createdAt": zod.coerce.date(),
-  "lastSignInAt": zod.coerce.date().nullish(),
-  "emailVerified": zod.boolean(),
-  "hasProfile": zod.boolean(),
-  "profileId": zod.number().int().nullish(),
-  "activities": zod.array(zod.string()),
-  "profileStatus": zod.string().nullable(),
-  "isPublished": zod.boolean()
-})),
-  "profiles": zod.array(zod.object({
-  "id": zod.number().int(),
-  "ownerId": zod.string().nullable(),
-  "firstName": zod.string().nullish(),
-  "lastName": zod.string().nullish(),
-  "email": zod.string().email().nullish(),
-  "name": zod.string(),
-  "category": zod.string(),
-  "subcategory": zod.string().nullish(),
-  "bio": zod.string(),
-  "location": zod.string(),
-  "country": zod.string().nullish(),
-  "phone": zod.string().nullish(),
-  "avatar": zod.string().nullish(),
-  "website": zod.string().url().nullish(),
-  "socialLinks": zod.array(zod.string()).optional(),
-  "specialties": zod.array(zod.string()),
-  "profileGroup": zod.string(),
-  "profileStatus": zod.string(),
-  "isPublished": zod.boolean(),
-  "createdAt": zod.coerce.date(),
-  "updatedAt": zod.coerce.date().nullable(),
-  "publicPath": zod.string().nullish(),
-  "works": zod.array(zod.object({
-  "id": zod.number().int(),
-  "title": zod.string(),
-  "artist": zod.string(),
-  "category": zod.string(),
-  "status": zod.string(),
-  "createdAt": zod.coerce.date()
-})),
-  "submissions": zod.array(zod.object({
-  "id": zod.number().int(),
-  "title": zod.string(),
-  "category": zod.string(),
-  "status": zod.string(),
-  "submittedAt": zod.coerce.date()
-}))
-})),
-  "summary": zod.object({
-  "users": zod.number().int(),
-  "profiles": zod.number().int(),
-  "publishedProfiles": zod.number().int(),
-  "pendingProfiles": zod.number().int(),
-  "works": zod.number().int()
-})
-})
-
-
-/**
- * @summary Validate or publish an INDAMORA profile
- */
-export const UpdateAdminProfileStatusParams = zod.object({
-  "id": zod.coerce.number().int()
-})
-
-export const UpdateAdminProfileStatusBody = zod.object({
-  "profileStatus": zod.enum(['pending', 'approved', 'rejected']).optional(),
-  "isPublished": zod.boolean().optional()
-})
-
-export const UpdateAdminProfileStatusResponse = zod.object({
-  "id": zod.number().int(),
-  "profileStatus": zod.string(),
-  "isPublished": zod.boolean(),
-  "updatedAt": zod.coerce.date()
-})
-
-
-/**
  * @summary List featured content
  */
 export const GetCatalogResponseItem = zod.object({
@@ -194,8 +100,6 @@ export const createArtistBodyBioMin = 10;
 
 export const createArtistBodyLocationMin = 2;
 
-export const createArtistBodySpecialtiesMax = 2;
-
 
 
 export const CreateArtistBody = zod.object({
@@ -207,7 +111,7 @@ export const CreateArtistBody = zod.object({
   "profileGroup": zod.enum(['artists', 'creations', 'partners', 'press']).optional(),
   "subcategory": zod.string().optional(),
   "country": zod.string().optional(),
-  "specialties": zod.array(zod.string()).max(createArtistBodySpecialtiesMax).optional(),
+  "specialties": zod.array(zod.string()).optional(),
   "website": zod.string().url().optional(),
   "socialLinks": zod.array(zod.string().url()).optional(),
   "professionalContact": zod.string().optional()
@@ -232,27 +136,6 @@ export const CreateArtistResponse = zod.object({
 
 
 /**
- * @summary Get the signed-in user's artist profile
- */
-export const GetMyArtistResponse = zod.union([zod.object({
-  "id": zod.number().int(),
-  "name": zod.string(),
-  "category": zod.string(),
-  "bio": zod.string(),
-  "location": zod.string(),
-  "avatar": zod.string().nullish(),
-  "worksCount": zod.number().int(),
-  "profileGroup": zod.enum(['artists', 'creations', 'partners', 'press']),
-  "subcategory": zod.string().nullish(),
-  "country": zod.string().nullish(),
-  "specialties": zod.array(zod.string()),
-  "website": zod.string().url().nullish(),
-  "socialLinks": zod.array(zod.string().url()),
-  "professionalContact": zod.string().nullish()
-}),zod.null()])
-
-
-/**
  * @summary Get an artist profile
  */
 export const GetArtistParams = zod.object({
@@ -260,58 +143,6 @@ export const GetArtistParams = zod.object({
 })
 
 export const GetArtistResponse = zod.object({
-  "id": zod.number().int(),
-  "name": zod.string(),
-  "category": zod.string(),
-  "bio": zod.string(),
-  "location": zod.string(),
-  "avatar": zod.string().nullish(),
-  "worksCount": zod.number().int(),
-  "profileGroup": zod.enum(['artists', 'creations', 'partners', 'press']),
-  "subcategory": zod.string().nullish(),
-  "country": zod.string().nullish(),
-  "specialties": zod.array(zod.string()),
-  "website": zod.string().url().nullish(),
-  "socialLinks": zod.array(zod.string().url()),
-  "professionalContact": zod.string().nullish()
-})
-
-
-/**
- * @summary Update an artist profile owned by the signed-in user
- */
-export const UpdateArtistParams = zod.object({
-  "id": zod.coerce.number().int()
-})
-
-export const updateArtistBodyNameMin = 2;
-
-export const updateArtistBodyCategoryMin = 2;
-
-export const updateArtistBodyBioMin = 10;
-
-export const updateArtistBodyLocationMin = 2;
-
-export const updateArtistBodySpecialtiesMax = 2;
-
-
-
-export const UpdateArtistBody = zod.object({
-  "name": zod.string().min(updateArtistBodyNameMin).optional(),
-  "category": zod.string().min(updateArtistBodyCategoryMin).optional(),
-  "bio": zod.string().min(updateArtistBodyBioMin).optional(),
-  "location": zod.string().min(updateArtistBodyLocationMin).optional(),
-  "avatar": zod.string().optional(),
-  "profileGroup": zod.enum(['artists', 'creations', 'partners', 'press']).optional(),
-  "subcategory": zod.string().optional(),
-  "country": zod.string().optional(),
-  "specialties": zod.array(zod.string()).max(updateArtistBodySpecialtiesMax).optional(),
-  "website": zod.string().url().optional(),
-  "socialLinks": zod.array(zod.string().url()).optional(),
-  "professionalContact": zod.string().optional()
-})
-
-export const UpdateArtistResponse = zod.object({
   "id": zod.number().int(),
   "name": zod.string(),
   "category": zod.string(),
@@ -371,6 +202,40 @@ export const CreatePressRequestResponse = zod.object({
   "requestedDate": zod.string().nullish(),
   "status": zod.enum(['pending', 'handled', 'archived']),
   "createdAt": zod.string()
+})
+
+
+/**
+ * @summary List registered users for administrators
+ */
+export const getAdminUsersQueryOffsetDefault = 0;
+export const getAdminUsersQueryOffsetMin = 0;
+
+
+
+export const GetAdminUsersQueryParams = zod.object({
+  "offset": zod.coerce.number().int().min(getAdminUsersQueryOffsetMin).default(getAdminUsersQueryOffsetDefault)
+})
+
+export const getAdminUsersResponseTotalCountMin = 0;
+
+export const getAdminUsersResponseOffsetMin = 0;
+
+
+
+
+export const GetAdminUsersResponse = zod.object({
+  "users": zod.array(zod.object({
+  "id": zod.string(),
+  "firstName": zod.string().nullable(),
+  "lastName": zod.string().nullable(),
+  "username": zod.string().nullable(),
+  "email": zod.string().nullable(),
+  "createdAt": zod.coerce.date()
+})),
+  "totalCount": zod.number().int().min(getAdminUsersResponseTotalCountMin),
+  "offset": zod.number().int().min(getAdminUsersResponseOffsetMin),
+  "limit": zod.number().int().min(1)
 })
 
 
@@ -463,28 +328,6 @@ export const UpdateSubmissionStatusResponse = zod.object({
 
 
 /**
- * @summary Delete files from a rejected, unpublished submission
- */
-export const DeleteSubmissionFilesParams = zod.object({
-  "id": zod.coerce.number().int()
-})
-
-export const DeleteSubmissionFilesResponse = zod.object({
-  "id": zod.number().int(),
-  "title": zod.string(),
-  "artist": zod.string(),
-  "category": zod.string(),
-  "submittedAt": zod.string(),
-  "status": zod.enum(['pending', 'approved', 'rejected']),
-  "note": zod.string().nullish(),
-  "mediaType": zod.string().nullish(),
-  "mediaObjectPath": zod.string().nullish(),
-  "coverObjectPath": zod.string().nullish(),
-  "duration": zod.string().nullish()
-})
-
-
-/**
  * @summary Request a presigned URL for direct upload
  */
 
@@ -547,15 +390,5 @@ export const GetStorageObjectParams = zod.object({
 })
 
 export const GetStorageObjectResponse = zod.unknown()
-
-
-/**
- * @summary Delete an owned, unreferenced uploaded object
- */
-export const DeleteStorageObjectParams = zod.object({
-  "objectPath": zod.coerce.string()
-})
-
-export const DeleteStorageObjectResponse = zod.void()
 
 

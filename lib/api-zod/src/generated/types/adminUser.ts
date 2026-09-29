@@ -13,18 +13,8 @@ export interface AdminUser {
   /** @nullable */
   lastName: string | null;
   /** @nullable */
-  username?: string | null;
+  username: string | null;
   /** @nullable */
   email: string | null;
   createdAt: Date;
-  /** @nullable */
-  lastSignInAt?: Date | null;
-  emailVerified: boolean;
-  hasProfile: boolean;
-  /** @nullable */
-  profileId?: number | null;
-  activities: string[];
-  /** @nullable */
-  profileStatus: string | null;
-  isPublished: boolean;
 }

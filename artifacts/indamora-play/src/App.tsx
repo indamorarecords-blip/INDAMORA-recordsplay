@@ -1,5 +1,5 @@
 import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { ClerkProvider, SignIn, SignUp, useClerk, useUser } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
 import { frFR } from '@clerk/localizations';
@@ -8,7 +8,7 @@ import {
   ArrowRight, AudioLines, BarChart3, Check, ChevronLeft, CirclePlay, Crown, Disc3,
   FileMusic, Headphones, HeartHandshake, History, LayoutDashboard, LoaderCircle, LockKeyhole, Menu, Mic2,
   Pause, Play, Plus, Search, Send, ShieldCheck, Sparkles, Star, Ticket, UserRound,
-  UsersRound, Video, X, Zap, Globe, Mail, Newspaper, Briefcase, ExternalLink, MapPin, Trash2, Radio, Palette, Award, Camera, Megaphone, HandHeart
+  UsersRound, Video, X, Zap, Globe, Mail, Newspaper, Briefcase, ExternalLink, MapPin
 } from 'lucide-react';
 import { Link, Redirect, Route, Router as WouterRouter, Switch, useLocation, useParams } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
@@ -17,47 +17,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import {
   getGetArtistQueryKey, getGetArtistsQueryKey, getGetCatalogQueryKey, getGetSubmissionsQueryKey,
-  getGetMyArtistQueryKey, getGetWorkQueryKey, useCreateArtist, useCreateSubmission, useGetArtist, useGetArtists,
-  useGetCatalog, useGetSubmissions, useGetWork, useUpdateSubmissionStatus, useCreatePressRequest,
-  useDeleteSubmissionFiles, useGetMyArtist, useUpdateArtist
+  getGetWorkQueryKey, useCreateArtist, useCreateSubmission, useGetArtist, useGetArtists,
+  useGetCatalog, useGetSubmissions, useGetWork, useUpdateSubmissionStatus, useCreatePressRequest
 } from '@workspace/api-client-react';
 import type { Artist, Submission, Work } from '@workspace/api-client-react';
 import { ErrorBoundary } from '@/components/error-boundary';
-import { AdminDirectory } from '@/components/admin-directory';
+import { AdminUserList } from '@/components/admin-user-list';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { SeoHead } from '@/seo';
 
 const queryClient = new QueryClient();
 const ADMIN_EMAIL = 'indamorarecords@gmail.com';
 const categories = ['Musique', 'Humour', 'Cinéma et vidéos', 'Podcasts', 'Autres créations'];
-const creationActivities = [
-  ['Artiste / chanteur', '🎤'],
-  ['Gospel / chantre', '🙏'],
-  ['Producteur', '🎚️'],
-  ['DJ', '🎧'],
-  ['Animateur', '🎙️'],
-  ['Maître de cérémonie', '🎤'],
-  ['Speaker', '🎙️'],
-  ['Danseur / danseuse', '💃'],
-  ['Cinéma / acteur / réalisateur', '🎬'],
-  ['Vidéaste', '🎥'],
-  ['Créateur de contenu', '📱'],
-  ['Influenceur', '⭐'],
-  ['Auteur / compositeur', '✍️'],
-  ['Photographe', '📷'],
-  ['Humoriste', '🎭'],
-  ['Podcasteur', '🎙️'],
-  ['Journaliste', '📰'],
-  ['Radio', '📻'],
-  ['Télévision', '📺'],
-  ['Média en ligne', '🌐'],
-  ['Association', '🤝'],
-  ['Label', '🎵'],
-  ['Organisateur', '🎤'],
-  ['Événementiel', '🎪'],
-  ['Partenaire culturel', '🌍'],
-] as const;
 const categoryIcons = { Musique: AudioLines, Humour: Sparkles, 'Cinéma et vidéos': Disc3, Podcasts: Mic2, 'Autres créations': Sparkles };
 const categoryLabels: Record<string, string> = {
   Music: 'Musique',
@@ -82,61 +53,6 @@ const categorySlug: Record<string, string> = {
 const categoryFromSlug: Record<string, string> = Object.fromEntries(Object.entries(categorySlug).map(([label, slug]) => [slug, label]));
 const isCategory = (value: string, selected: string) => categoryLabel(value) === categoryLabel(selected);
 
-function profileGroupForActivities(activities: string[]): Artist['profileGroup'] {
-  const text = activities.join(' ').toLowerCase();
-  if (['journaliste', 'radio', 'télévision', 'média'].some((term) => text.includes(term))) return 'press';
-  if (['association', 'label', 'organisateur', 'événementiel', 'partenaire culturel'].some((term) => text.includes(term))) return 'partners';
-  if (['danseur', 'cinéma', 'acteur', 'réalisateur', 'vidéaste', 'humoriste', 'podcast', 'créateur de contenu', 'influenceur', 'photographe'].some((term) => text.includes(term))) return 'creations';
-  return 'artists';
-}
-
-function professionalSpaceCopy(profile: Artist) {
-  const text = profile.specialties.join(' ').toLowerCase();
-  if (profile.profileGroup === 'press') {
-    return {
-      eyebrow: 'Espace professionnel / média',
-      title: 'Mon espace professionnel / média',
-      description: 'Gérez votre présentation professionnelle et votre visibilité dans le RÉPERTOIRE.',
-    };
-  }
-  if (['vidéaste', 'créateur de contenu', 'photographe', 'cinéma'].some((term) => text.includes(term))) {
-    return {
-      eyebrow: 'Espace créateur / média',
-      title: 'Mon espace créateur / média',
-      description: 'Présentez vos contenus, suivez vos propositions et développez votre visibilité.',
-    };
-  }
-  if (profile.profileGroup === 'creations') {
-    return {
-      eyebrow: 'Espace créateur',
-      title: 'Mon espace créateur',
-      description: 'Présentez votre parcours, vos créations et les propositions envoyées à INDAMORA RECORDS.',
-    };
-  }
-  if (profile.profileGroup === 'partners') {
-    return {
-      eyebrow: 'Espace professionnel',
-      title: 'Mon espace professionnel',
-      description: 'Gérez votre présentation et votre présence professionnelle dans l’écosystème INDAMORA.',
-    };
-  }
-  return {
-    eyebrow: 'Espace artiste',
-    title: 'Mon espace artiste',
-    description: 'Envoyez vos œuvres à INDAMORA RECORDS et suivez chaque étape de leur examen.',
-  };
-}
-
-function canSubmitWorks(profile?: Artist | null) {
-  if (!profile?.specialties.length) return false;
-  if (profile.profileGroup === 'artists' || profile.profileGroup === 'creations') return true;
-  return profile.specialties.some((activity) =>
-    ['producteur', 'danseur', 'créateur', 'vidéaste', 'humoriste', 'podcast'].some((term) =>
-      activity.toLowerCase().includes(term),
-    ),
-  );
-}
-
 const clerkPubKey = publishableKeyFromHost(window.location.hostname, import.meta.env.VITE_CLERK_PUBLISHABLE_KEY);
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -146,63 +62,7 @@ function stripBase(path: string) {
 function isAdminEmail(email?: string | null) {
   return email?.toLowerCase() === ADMIN_EMAIL;
 }
-type ClerkUser = ReturnType<typeof useUser>['user'];
-function isAdminUser(user: ClerkUser) {
-  const emailVerified = user?.primaryEmailAddress?.verification?.status === 'verified';
-  return Boolean(emailVerified && (isAdminEmail(user?.primaryEmailAddress?.emailAddress) || user?.publicMetadata?.role === 'admin'));
-}
 const storageUrl = (path?: string | null) => path ? `/api/storage${path}` : undefined;
-type BillingStatus = {
-  status: string;
-  subscription: {
-    id: string;
-    status: string;
-    currentPeriodEnd: number | null;
-    cancelAtPeriodEnd: boolean;
-    priceId: string | null;
-  } | null;
-};
-type AdminOverview = {
-  periodDays: number;
-  visits: { count: number; uniqueVisitors: number; topPages: Array<{ path: string; visits: number }> };
-  counts: {
-    users: number | null;
-    artists: number;
-    publishedArtists: number;
-    works: number;
-    submissions: number;
-    pendingSubmissions: number;
-    pendingPressRequests: number;
-    linkedBillingAccounts: number;
-  };
-  stripe: {
-    connected: boolean;
-    activeSubscriptions: number | null;
-    canceledSubscriptions: number | null;
-    donations: { count: number | null; totalEur: number | null };
-  };
-  activity: Array<{ type: string; label: string; createdAt: string }>;
-  auditLog: Array<{
-    id: number;
-    administratorId: string;
-    action: string;
-    entityType: string;
-    entityId: string | null;
-    targetLabel: string | null;
-    result: string;
-    createdAt: string;
-  }>;
-};
-async function billingRequest<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(path, { ...init, credentials: 'include', headers: { 'Content-Type': 'application/json', ...init?.headers } });
-  const body = await response.json().catch(() => null) as { error?: string } | T | null;
-  if (!response.ok) throw new Error((body && typeof body === 'object' && 'error' in body ? body.error : undefined) ?? 'Opération de paiement impossible.');
-  return body as T;
-}
-function checkoutStatusMessage() {
-  const value = new URLSearchParams(window.location.search).get('checkout');
-  return value === 'success' ? 'Votre paiement a été confirmé par Stripe. Le statut Premium sera actualisé après le retour du webhook.' : value === 'cancelled' ? 'Le paiement a été annulé. Aucun débit confirmé n’est affiché ici.' : null;
-}
 async function uploadAsset(file: File, onProgress: (value: number) => void) {
   const response = await fetch('/api/storage/uploads/request-url', {
     method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
@@ -225,40 +85,6 @@ async function uploadAsset(file: File, onProgress: (value: number) => void) {
   });
   if (!completed.ok) throw new Error('Le fichier téléversé n’a pas pu être finalisé.');
   return objectPath;
-}
-async function cleanupUploadedAssets(paths: string[]) {
-  await Promise.allSettled([...new Set(paths)].map((path) => fetch(`/api/storage${path}`, {
-    method: 'DELETE',
-    credentials: 'include',
-  })));
-}
-async function extractMediaDuration(file: File): Promise<string | undefined> {
-  const objectUrl = URL.createObjectURL(file);
-  const media = document.createElement(file.type.startsWith('video/') ? 'video' : 'audio');
-  media.preload = 'metadata';
-  return new Promise((resolve) => {
-    const finish = (duration?: number) => {
-      window.clearTimeout(timeout);
-      media.removeAttribute('src');
-      media.load();
-      URL.revokeObjectURL(objectUrl);
-      if (!duration || !Number.isFinite(duration) || duration <= 0) {
-        resolve(undefined);
-        return;
-      }
-      const seconds = Math.round(duration);
-      const hours = Math.floor(seconds / 3600);
-      const minutes = Math.floor((seconds % 3600) / 60);
-      const remaining = seconds % 60;
-      resolve(hours > 0
-        ? `${hours}:${String(minutes).padStart(2, '0')}:${String(remaining).padStart(2, '0')}`
-        : `${minutes}:${String(remaining).padStart(2, '0')}`);
-    };
-    const timeout = window.setTimeout(() => finish(), 10000);
-    media.onloadedmetadata = () => finish(media.duration);
-    media.onerror = () => finish();
-    media.src = objectUrl;
-  });
 }
 const clerkAppearance = {
   theme: shadcn,
@@ -318,9 +144,8 @@ function Logo({ variant = 'compact', className = '' }: { variant?: 'compact' | '
 
 function Avatar({ name, src, size = 'md' }: { name: string; src?: string; size?: 'sm' | 'md' | 'lg' }) {
   const initials = name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase();
-  const resolvedSrc = src?.startsWith('/objects/') ? storageUrl(src) : src;
-  return resolvedSrc ? (
-    <img src={resolvedSrc} alt={name} className={cx('rounded-full object-cover ring-2 ring-background', size === 'sm' ? 'h-9 w-9' : size === 'lg' ? 'h-24 w-24' : 'h-12 w-12')} data-testid={`img-avatar-${name}`} />
+  return src ? (
+    <img src={src} alt={name} className={cx('rounded-full object-cover ring-2 ring-background', size === 'sm' ? 'h-9 w-9' : size === 'lg' ? 'h-24 w-24' : 'h-12 w-12')} data-testid={`img-avatar-${name}`} />
   ) : (
     <div className={cx('rounded-full bg-secondary text-primary-foreground flex items-center justify-center font-bold ring-2 ring-background', size === 'sm' ? 'h-9 w-9 text-xs' : size === 'lg' ? 'h-24 w-24 text-2xl' : 'h-12 w-12')} data-testid={`avatar-${name}`}>
       {initials}
@@ -333,45 +158,19 @@ function Shell({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const { isSignedIn, user } = useUser();
   const { signOut } = useClerk();
-  const isAdmin = isAdminUser(user);
-  const myArtist = useGetMyArtist({ query: { enabled: Boolean(isSignedIn), queryKey: getGetMyArtistQueryKey() } });
-  const professionalProfile = myArtist.data?.specialties.length ? myArtist.data : null;
-  const canSubmit = canSubmitWorks(professionalProfile);
+  const isAdmin = isAdminEmail(user?.primaryEmailAddress?.emailAddress);
   const nav = [
     { href: '/', label: 'Accueil', icon: Sparkles },
     { href: '/explorer', label: 'Explorer', icon: CirclePlay },
     { href: '/repertoire', label: 'Répertoire', icon: UsersRound },
     { href: '/pricing', label: 'Premium', icon: Crown },
     { href: '/soutenir', label: 'Soutenir', icon: HeartHandshake },
-    ...(isAdmin ? [{ href: '/administration', label: 'Administration', icon: LayoutDashboard }] : []),
   ];
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [location]);
-  useEffect(() => {
-    let sessionId = '';
-    try {
-      sessionId = window.localStorage.getItem('indamora-analytics-session') ?? '';
-      if (!sessionId) {
-        sessionId = window.crypto.randomUUID();
-        window.localStorage.setItem('indamora-analytics-session', sessionId);
-      }
-    } catch {
-      sessionId = window.crypto.randomUUID();
-    }
-    void fetch('/api/analytics/visit', {
-      method: 'POST',
-      keepalive: true,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId, path: location, referrer: document.referrer || undefined }),
-    }).catch(() => undefined);
-  }, [location]);
   return (
     <div className="grain min-h-[100dvh] bg-background">
-      <SeoHead />
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-xl">
         <div className="mx-auto flex h-[4.5rem] max-w-7xl items-center justify-between px-5 lg:px-8">
-          <Link href="/" className="group flex items-center gap-3" data-testid="link-logo" aria-label="Retour à l’accueil">
+          <Link href="/" className="group flex items-center gap-3" data-testid="link-logo">
             <Logo className="transition-transform group-hover:-translate-y-0.5" />
           </Link>
           <nav className="hidden items-center gap-1 md:flex">
@@ -382,20 +181,18 @@ function Shell({ children }: { children: ReactNode }) {
             ))}
           </nav>
           <div className="hidden items-center gap-2 sm:flex">
-             {canSubmit && <Link href="/submit" className="rounded-full border border-border px-4 py-2 text-sm font-bold transition-all hover:-translate-y-0.5 hover:border-primary hover:text-primary" data-testid="link-submit-header">Partager votre œuvre</Link>}
-             {isSignedIn && !professionalProfile && !myArtist.isLoading && <Link href="/profil" className="rounded-full border border-primary/40 px-4 py-2 text-sm font-bold text-primary hover:bg-primary/5" data-testid="link-create-space-header">Je crée mon espace</Link>}
+            <Link href="/submit" className="rounded-full border border-border px-4 py-2 text-sm font-bold transition-all hover:-translate-y-0.5 hover:border-primary hover:text-primary" data-testid="link-submit-header">Partager votre œuvre</Link>
              {isSignedIn ? <><Link href="/profil" className="rounded-full border border-border px-4 py-2 text-sm font-bold hover:border-primary hover:text-primary" data-testid="link-profile-header">{user?.firstName ?? 'Mon compte'}</Link><button onClick={() => void signOut({ redirectUrl: basePath || '/' })} className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground" data-testid="button-logout-header">Déconnexion</button></> : <><Link href="/sign-up" className="rounded-full border border-border px-4 py-2 text-sm font-bold hover:border-primary hover:text-primary" data-testid="link-register-header">Créer un compte</Link><Link href="/sign-in" className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground transition-all hover:-translate-y-0.5 hover:shadow-lg" data-testid="link-login-header">Se connecter</Link></>}
           </div>
-          <button className="rounded-full p-2" onClick={() => setMenuOpen(!menuOpen)} data-testid="button-open-menu" aria-label={menuOpen ? 'Fermer la navigation' : 'Ouvrir la navigation'} aria-expanded={menuOpen}>
+          <button className="rounded-full p-2 md:hidden" onClick={() => setMenuOpen(!menuOpen)} data-testid="button-open-menu" aria-label="Ouvrir la navigation">
             {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
         {menuOpen && (
-          <div className="border-t border-border bg-card px-5 py-4">
+          <div className="border-t border-border bg-card px-5 py-4 md:hidden">
             <div className="grid gap-2">
               {nav.map(({ href, label, icon: Icon }) => <Link key={href} href={href} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 font-semibold hover:bg-muted" data-testid={`link-mobile-${label.toLowerCase()}`}><Icon className="h-4 w-4 text-primary" />{label}</Link>)}
-              {canSubmit && <Link href="/submit" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 font-semibold hover:bg-muted" data-testid="link-mobile-submit"><Send className="h-4 w-4 text-primary" />Partager votre œuvre</Link>}
-              {isSignedIn && !professionalProfile && !myArtist.isLoading && <Link href="/profil" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 font-semibold hover:bg-muted" data-testid="link-mobile-create-space"><Sparkles className="h-4 w-4 text-primary" />Je crée mon espace</Link>}
+              <Link href="/submit" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 font-semibold hover:bg-muted" data-testid="link-mobile-submit"><Send className="h-4 w-4 text-primary" />Partager votre œuvre</Link>
                {isSignedIn ? <><Link href="/profil" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 font-semibold hover:bg-muted" data-testid="link-mobile-profile"><UserRound className="h-4 w-4 text-primary" />Mon compte</Link><button onClick={() => void signOut({ redirectUrl: basePath || '/' })} className="flex items-center gap-3 rounded-xl px-3 py-3 text-left font-semibold hover:bg-muted" data-testid="button-mobile-logout"><UserRound className="h-4 w-4 text-primary" />Déconnexion</button></> : <Link href="/sign-in" onClick={() => setMenuOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-3 font-semibold hover:bg-muted" data-testid="link-mobile-login"><UserRound className="h-4 w-4 text-primary" />Se connecter</Link>}
             </div>
           </div>
@@ -404,13 +201,13 @@ function Shell({ children }: { children: ReactNode }) {
       <main>{children}</main>
       <footer className="mt-24 border-t border-border bg-secondary px-5 py-10 text-secondary-foreground lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
-          <div><Link href="/" className="mb-3 block w-36 rounded-xl bg-white p-1" data-testid="link-footer-logo" aria-label="Retour à l’accueil"><Logo variant="full" /></Link><p className="max-w-xs text-sm leading-6 text-secondary-foreground/70">Le foyer chaleureux des sons, des histoires et des écrans d’Afrique centrale.</p></div>
-            <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-secondary-foreground/80"><Link href="/indamora-records" data-testid="link-footer-records">INDAMORA RECORDS</Link><Link href="/explorer" data-testid="link-footer-explorer">Explorer</Link><Link href="/repertoire" data-testid="link-footer-repertoire">Répertoire</Link><Link href="/presse" data-testid="link-footer-presse">Presse</Link><Link href="/pricing" data-testid="link-footer-pricing">Premium</Link><Link href="/soutenir" data-testid="link-footer-support">Soutenir INDAMORA</Link><Link href="/profil" data-testid="link-footer-profile">Mon profil</Link>{professionalProfile && <Link href="/espace-artiste" data-testid="link-footer-artist-space">Espace professionnel</Link>}{isAdmin && <Link href="/administration" data-testid="link-footer-admin">Administration</Link>}{canSubmit && <Link href="/submit" data-testid="link-footer-submit">Proposer une œuvre</Link>}</div>
+          <div><div className="mb-3 w-36 rounded-xl bg-white p-1"><Logo variant="full" /></div><p className="max-w-xs text-sm leading-6 text-secondary-foreground/70">Le foyer chaleureux des sons, des histoires et des écrans d’Afrique centrale.</p></div>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-secondary-foreground/80"><Link href="/explorer" data-testid="link-footer-explorer">Explorer</Link><Link href="/repertoire" data-testid="link-footer-repertoire">Répertoire</Link><Link href="/presse" data-testid="link-footer-presse">Presse</Link><Link href="/pricing" data-testid="link-footer-pricing">Premium</Link><Link href="/soutenir" data-testid="link-footer-support">Soutenir INDAMORA</Link><Link href="/profil" data-testid="link-footer-profile">Mon profil</Link><Link href="/espace-artiste" data-testid="link-footer-artist-space">Espace artiste</Link>{isAdmin && <Link href="/administration" data-testid="link-footer-admin">Administration</Link>}<Link href="/submit" data-testid="link-footer-submit">Proposer une œuvre</Link></div>
         </div>
         <div className="mx-auto mt-8 max-w-7xl border-t border-secondary-foreground/15 pt-4 font-mono text-[10px] uppercase tracking-[.2em] text-secondary-foreground/50">Bangui · République centrafricaine · La diaspora</div>
       </footer>
-       <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-border bg-card/95 px-2 pt-2 backdrop-blur-xl md:hidden">
-         {[{ href: '/', label: 'Accueil', icon: Sparkles }, { href: '/explorer', label: 'Explorer', icon: CirclePlay }, { href: '/repertoire', label: 'Répertoire', icon: UsersRound }, ...(canSubmit ? [{ href: '/submit', label: 'Créer', icon: Plus }] : []), { href: '/profil', label: 'Profil', icon: UserRound }, ...(isAdmin ? [{ href: '/administration', label: 'Admin', icon: LayoutDashboard }] : [])].map(({ href, label, icon: Icon }) => <Link href={href} key={href} className={cx('flex flex-col items-center gap-1 px-4 py-1 text-[10px] font-bold', location === href ? 'text-primary' : 'text-muted-foreground')} data-testid={`link-bottom-${label.toLowerCase()}`}><Icon className="h-5 w-5" />{label}</Link>)}
+      <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-border bg-card/95 px-2 pt-2 backdrop-blur-xl md:hidden">
+        {[{ href: '/', label: 'Accueil', icon: Sparkles }, { href: '/explorer', label: 'Explorer', icon: CirclePlay }, { href: '/repertoire', label: 'Répertoire', icon: UsersRound }, { href: '/submit', label: 'Créer', icon: Plus }, { href: '/profil', label: 'Profil', icon: UserRound }].map(({ href, label, icon: Icon }) => <Link href={href} key={href} className={cx('flex flex-col items-center gap-1 px-4 py-1 text-[10px] font-bold', location === href ? 'text-primary' : 'text-muted-foreground')} data-testid={`link-bottom-${label.toLowerCase()}`}><Icon className="h-5 w-5" />{label}</Link>)}
       </div>
     </div>
   );
@@ -456,19 +253,7 @@ function WorkSheet({ id, onClose }: { id: number | null; onClose: () => void }) 
   </div>;
 }
 
-function SubmissionCta({ className, testId, label = 'Proposer une œuvre' }: { className: string; testId: string; label?: string }) {
-  const { isSignedIn } = useUser();
-  const myArtist = useGetMyArtist({ query: { enabled: Boolean(isSignedIn), queryKey: getGetMyArtistQueryKey() } });
-  const professionalProfile = myArtist.data?.specialties.length ? myArtist.data : null;
-  if (isSignedIn && myArtist.isLoading) return null;
-  const canSubmit = canSubmitWorks(professionalProfile);
-  const href = canSubmit ? '/submit' : isSignedIn ? '/profil' : '/sign-up';
-  const text = canSubmit ? label : isSignedIn ? 'Créer mon espace professionnel' : 'Créer un compte pour participer';
-  return <Link href={href} className={className} data-testid={testId}>{text} <ArrowRight className="h-4 w-4" /></Link>;
-}
-
 function Home() {
-  const { isSignedIn } = useUser();
   const catalog = useGetCatalog({ query: { queryKey: getGetCatalogQueryKey() } });
   const artists = useGetArtists(undefined, { query: { queryKey: getGetArtistsQueryKey() } });
   const [category, setCategory] = useState('Toutes');
@@ -480,7 +265,7 @@ function Home() {
       <div className="absolute -right-24 -top-32 h-80 w-80 rounded-full border-[42px] border-accent/80 opacity-80 md:h-[34rem] md:w-[34rem]" />
       <div className="absolute bottom-[-5rem] left-[42%] h-40 w-40 rotate-12 border-[20px] border-primary/70 md:h-64 md:w-64" />
       <div className="relative mx-auto grid max-w-7xl items-end gap-12 px-5 pb-16 pt-16 lg:grid-cols-[1.1fr_.9fr] lg:px-8 lg:pb-24 lg:pt-24">
-         <div className="animate-rise-in"><Link href="/" className="mb-6 block w-44 rounded-2xl bg-white p-2 shadow-xl" data-testid="link-hero-logo" aria-label="Retour à l’accueil"><Logo variant="full" /></Link><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-secondary-foreground/20 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[.18em] text-accent"><span className="h-1.5 w-1.5 rounded-full bg-accent" /> Depuis Bangui, avec émotion</div><h1 className="display max-w-3xl text-5xl font-bold leading-[.98] md:text-7xl">Écoutez les voix<br /><span className="text-accent">qui ont le goût du pays.</span></h1><p className="mt-6 max-w-lg text-base leading-7 text-secondary-foreground/75 md:text-lg">Musique, humour, cinéma et podcasts d’Afrique centrale — pour celles et ceux d’ici, et pour partout où nous emportons notre chez-nous.</p><div className="mt-8 flex flex-wrap gap-3"><a href="#discover" className="flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-1" data-testid="link-start-discover">Commencer à découvrir <ArrowRight className="h-4 w-4" /></a><Link href={isSignedIn ? '/profil' : '/sign-up'} className="rounded-full border border-secondary-foreground/25 px-5 py-3 text-sm font-bold transition-colors hover:border-accent hover:text-accent" data-testid="link-share-hero">Je crée</Link></div></div>
+         <div className="animate-rise-in"><div className="mb-6 w-44 rounded-2xl bg-white p-2 shadow-xl"><Logo variant="full" /></div><div className="mb-5 inline-flex items-center gap-2 rounded-full border border-secondary-foreground/20 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[.18em] text-accent"><span className="h-1.5 w-1.5 rounded-full bg-accent" /> Depuis Bangui, avec émotion</div><h1 className="display max-w-3xl text-5xl font-bold leading-[.98] md:text-7xl">Écoutez les voix<br /><span className="text-accent">qui ont le goût du pays.</span></h1><p className="mt-6 max-w-lg text-base leading-7 text-secondary-foreground/75 md:text-lg">Musique, humour, cinéma et podcasts d’Afrique centrale — pour celles et ceux d’ici, et pour partout où nous emportons notre chez-nous.</p><div className="mt-8 flex flex-wrap gap-3"><a href="#discover" className="flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-1" data-testid="link-start-discover">Commencer à découvrir <ArrowRight className="h-4 w-4" /></a><Link href="/submit" className="rounded-full border border-secondary-foreground/25 px-5 py-3 text-sm font-bold transition-colors hover:border-accent hover:text-accent" data-testid="link-share-hero">Je crée</Link></div></div>
         <div className="relative hidden min-h-[20rem] lg:block"><div className="absolute left-8 top-2 h-64 w-64 rotate-[-8deg] overflow-hidden rounded-[2rem] border-8 border-background/10 bg-primary shadow-2xl animate-drift">{featured[0]?.image && <img src={featured[0].image} alt="" className="h-full w-full object-cover mix-blend-luminosity opacity-90" />}<div className="absolute inset-0 bg-primary/25" /></div><div className="absolute bottom-2 right-3 w-56 rotate-[7deg] rounded-2xl bg-accent p-5 text-accent-foreground shadow-2xl"><Star className="mb-8 h-6 w-6 fill-current" /><p className="display text-xl font-bold leading-tight">Votre prochain coup de cœur est déjà ici.</p><div className="mt-5 font-mono text-[9px] uppercase tracking-[.18em]">Sélection Indamora / 001</div></div></div>
       </div>
     </section>
@@ -492,7 +277,7 @@ function Home() {
       {!catalog.isLoading && !catalog.error && works.length === 0 && <div className="rounded-2xl border border-dashed border-border px-5 py-14 text-center text-muted-foreground">Aucune œuvre dans cette catégorie pour le moment. Revenez bientôt.</div>}
       {works.length > 0 && <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">{works.map((work) => <WorkArtwork key={work.id} work={work} onOpen={setSelectedWork} />)}</div>}
     </section>
-    <section className="mx-auto max-w-7xl px-5 pb-14 lg:px-8"><div className="rounded-[2rem] bg-primary px-6 py-8 text-primary-foreground md:flex md:items-center md:justify-between md:px-10"><div><div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary-foreground/70">Une place à la table</div><h2 className="display mt-2 text-3xl font-bold">Une histoire à partager&nbsp;?</h2><p className="mt-2 max-w-md text-sm leading-6 text-primary-foreground/80">Faites découvrir votre son, votre écran ou votre regard à un public centrafricain grandissant.</p></div><SubmissionCta className="mt-6 inline-flex items-center gap-2 rounded-full bg-background px-5 py-3 text-sm font-bold text-foreground md:mt-0" testId="link-submit-banner" /></div></section>
+    <section className="mx-auto max-w-7xl px-5 pb-14 lg:px-8"><div className="rounded-[2rem] bg-primary px-6 py-8 text-primary-foreground md:flex md:items-center md:justify-between md:px-10"><div><div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary-foreground/70">Une place à la table</div><h2 className="display mt-2 text-3xl font-bold">Une histoire à partager&nbsp;?</h2><p className="mt-2 max-w-md text-sm leading-6 text-primary-foreground/80">Faites découvrir votre son, votre écran ou votre regard à un public centrafricain grandissant.</p></div><Link href="/submit" className="mt-6 inline-flex items-center gap-2 rounded-full bg-background px-5 py-3 text-sm font-bold text-foreground md:mt-0" data-testid="link-submit-banner">Proposer une œuvre <ArrowRight className="h-4 w-4" /></Link></div></section>
     <section className="mx-auto max-w-7xl px-5 pb-16 lg:px-8"><SectionHeading eyebrow="Les personnes à suivre" title="Rencontrez les créateurs" action={<Link href="/repertoire" className="flex items-center gap-1 text-sm font-bold text-primary" data-testid="link-view-artists">Tout voir <ArrowRight className="h-4 w-4" /></Link>} />{artists.isLoading ? <LoadingCards count={4} /> : artists.error ? <QueryState error={artists.error} onRetry={() => void artists.refetch()} label="artists" /> : <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">{(artists.data ?? []).slice(0, 4).map((artist) => <Link href={`/artists/${artist.id}`} key={artist.id} className="group rounded-2xl border border-border bg-card p-4 transition-all hover:-translate-y-1 hover:border-primary" data-testid={`card-artist-${artist.id}`}><Avatar name={artist.name} src={artist.avatar ?? undefined} /><p className="mt-4 font-bold group-hover:text-primary">{artist.name}</p><p className="mt-1 text-xs text-muted-foreground">{categoryLabel(artist.category)} · {artist.location}</p></Link>)}</div>}</section>
     <WorkSheet id={selectedWork} onClose={() => setSelectedWork(null)} />
   </div>;
@@ -689,7 +474,7 @@ function CategoryPage() {
   return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16">
     <Link href="/explorer" className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-primary" data-testid="link-category-back"><ChevronLeft className="h-4 w-4" /> Retour à Explorer</Link>
     <div className="mt-10 max-w-2xl"><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Catégorie</div><h1 className="display mt-3 text-5xl font-bold leading-none md:text-7xl">{label}</h1><p className="mt-5 leading-7 text-muted-foreground">Une sélection de créations centrafricaines et de la diaspora, choisies avec attention par INDAMORA RECORDS.</p></div>
-    <div className="mt-12">{catalog.isLoading ? <LoadingCards /> : catalog.error ? <QueryState error={catalog.error} onRetry={() => void catalog.refetch()} label="catégorie" /> : works.length === 0 ? <div className="rounded-2xl border border-dashed border-border px-5 py-20 text-center"><Sparkles className="mx-auto h-7 w-7 text-primary" /><h2 className="mt-4 font-bold">Les premières œuvres arrivent bientôt.</h2><p className="mt-1 text-sm text-muted-foreground">Cette catégorie est prête à accueillir les prochaines créations validées.</p><SubmissionCta className="mt-6 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground" testId="link-category-submit" /></div> : <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">{works.map((work) => <WorkArtwork key={work.id} work={work} onOpen={setSelectedWork} />)}</div>}</div>
+    <div className="mt-12">{catalog.isLoading ? <LoadingCards /> : catalog.error ? <QueryState error={catalog.error} onRetry={() => void catalog.refetch()} label="catégorie" /> : works.length === 0 ? <div className="rounded-2xl border border-dashed border-border px-5 py-20 text-center"><Sparkles className="mx-auto h-7 w-7 text-primary" /><h2 className="mt-4 font-bold">Les premières œuvres arrivent bientôt.</h2><p className="mt-1 text-sm text-muted-foreground">Cette catégorie est prête à accueillir les prochaines créations validées.</p><Link href="/submit" className="mt-6 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground" data-testid="link-category-submit">Proposer une œuvre</Link></div> : <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">{works.map((work) => <WorkArtwork key={work.id} work={work} onOpen={setSelectedWork} />)}</div>}</div>
     <WorkSheet id={selectedWork} onClose={() => setSelectedWork(null)} />
   </div>;
 }
@@ -711,101 +496,60 @@ function SearchPage() {
 
 function Submit() {
   const { isSignedIn } = useUser();
-  const myArtist = useGetMyArtist({ query: { enabled: Boolean(isSignedIn), queryKey: getGetMyArtistQueryKey() } });
   const createSubmission = useCreateSubmission();
+  const createArtist = useCreateArtist();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState({ title: '', artist: '', category: 'Musique', note: '' });
-  const [mediaFile, setMediaFile] = useState<File | null>(null);
-  const [coverFile, setCoverFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+   const [form, setForm] = useState({ title: '', artist: '', category: 'Musique', note: '', location: '', bio: '', addProfile: false });
+   const [mediaFile, setMediaFile] = useState<File | null>(null);
+   const [coverFile, setCoverFile] = useState<File | null>(null);
+   const [uploading, setUploading] = useState(false);
+   const [uploadProgress, setUploadProgress] = useState(0);
   const [done, setDone] = useState<Submission | null>(null);
   const [error, setError] = useState('');
-  const professionalProfile = myArtist.data?.specialties.length ? myArtist.data : null;
-  const canSubmit = canSubmitWorks(professionalProfile);
-  const update = (key: keyof typeof form, value: string) => setForm((current) => ({ ...current, [key]: value }));
-  useEffect(() => {
-    if (!professionalProfile?.name) return;
-    setForm((current) => current.artist ? current : { ...current, artist: professionalProfile.name });
-  }, [professionalProfile?.name]);
-  const submit = async (event: FormEvent) => {
+  const update = (key: keyof typeof form, value: string | boolean) => setForm((current) => ({ ...current, [key]: value }));
+   const submit = async (event: FormEvent) => {
     event.preventDefault(); setError('');
     if (form.title.trim().length < 2 || form.artist.trim().length < 2) { setError('Ajoutez un titre et un nom d’artiste pour que l’équipe retrouve votre œuvre.'); return; }
-    if (!mediaFile) { setError('Ajoutez le fichier audio ou vidéo de votre œuvre.'); return; }
-    const uploadedPaths: string[] = [];
-    try {
-      setUploading(true);
-      const fileCount = 1 + (coverFile ? 1 : 0);
-      let completedFiles = 0;
-      const trackedUpload = async (file: File) => {
-        const path = await uploadAsset(file, (value) => setUploadProgress(Math.round(((completedFiles + value / 100) / fileCount) * 100)));
-        uploadedPaths.push(path);
-        completedFiles += 1;
-        return path;
-      };
-      const duration = await extractMediaDuration(mediaFile);
-      const mediaObjectPath = await trackedUpload(mediaFile);
-      const coverObjectPath = coverFile ? await trackedUpload(coverFile) : undefined;
-      const created = await createSubmission.mutateAsync({ data: { title: form.title, artist: form.artist, category: form.category, note: form.note || undefined, mediaType: mediaFile.type.startsWith('video/') ? 'video' : 'audio', mediaObjectPath, coverObjectPath, duration } });
-      setDone(created);
-      void queryClient.invalidateQueries({ queryKey: getGetSubmissionsQueryKey() });
-    } catch (submissionError) {
-      await cleanupUploadedAssets(uploadedPaths);
-      setError(submissionError instanceof Error ? submissionError.message : 'Votre proposition n’a pas pu être envoyée.');
-    } finally {
-      setUploading(false);
-    }
+     if (!mediaFile) { setError('Ajoutez le fichier audio ou vidéo de votre œuvre.'); return; }
+     try {
+       setUploading(true);
+       const mediaObjectPath = await uploadAsset(mediaFile, (value) => setUploadProgress(coverFile ? Math.round(value / 2) : value));
+       const coverObjectPath = coverFile ? await uploadAsset(coverFile, (value) => setUploadProgress(Math.round(50 + value / 2))) : undefined;
+       if (form.addProfile) await createArtist.mutateAsync({ data: { name: form.artist, category: form.category, bio: form.bio, location: form.location } });
+       const created = await createSubmission.mutateAsync({ data: { title: form.title, artist: form.artist, category: form.category, note: form.note || undefined, mediaType: mediaFile.type.startsWith('video/') ? 'video' : 'audio', mediaObjectPath, coverObjectPath } });
+       setDone(created); void queryClient.invalidateQueries({ queryKey: getGetSubmissionsQueryKey() });
+     } catch (submissionError) {
+       setError(submissionError instanceof Error ? submissionError.message : 'Votre proposition n’a pas pu être envoyée.');
+     } finally { setUploading(false); }
   };
   if (!isSignedIn) return <Redirect to="/sign-in" />;
-  if (myArtist.isLoading) return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8"><div className="skeleton h-72 rounded-[2rem]" /></div>;
-  if (myArtist.error) return <div className="mx-auto max-w-2xl px-5 py-20"><QueryState error={myArtist.error} onRetry={() => void myArtist.refetch()} label="profil de dépôt" /></div>;
-  if (!professionalProfile) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><ShieldCheck className="mx-auto h-10 w-10 text-primary" /><h1 className="display mt-5 text-4xl font-bold">Profil professionnel requis</h1><p className="mt-3 text-muted-foreground">Créez votre profil INDAMORA et choisissez une ou deux activités avant de proposer une œuvre.</p><Link href="/profil" className="mt-7 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">Créer mon espace professionnel</Link></div>;
-  if (!canSubmit) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><LockKeyhole className="mx-auto h-10 w-10 text-primary" /><h1 className="display mt-5 text-4xl font-bold">Dépôt non disponible pour ces activités</h1><p className="mt-3 text-muted-foreground">Votre espace professionnel reste accessible, mais le dépôt d’œuvres est réservé aux activités de création compatibles.</p><Link href="/espace-artiste" className="mt-7 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">Retour à mon espace</Link></div>;
   if (done) return <div className="mx-auto max-w-2xl px-5 py-20 text-center lg:py-28"><div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-accent text-accent-foreground"><Check className="h-9 w-9" /></div><div className="mt-8 font-mono text-[10px] uppercase tracking-[.2em] text-primary">Reçu par Indamora Records</div><h1 className="display mt-3 text-5xl font-bold">Votre œuvre est bien arrivée.</h1><p className="mx-auto mt-5 max-w-md leading-7 text-muted-foreground">Nous avons reçu <strong className="text-foreground">{done.title}</strong> dans notre espace d’écoute. Notre équipe va l’examiner avec attention et vous répondre.</p><Link href="/" className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground" data-testid="link-submission-home">Retour à la découverte <ArrowRight className="h-4 w-4" /></Link></div>;
-  const pending = uploading || createSubmission.isPending;
-  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr]"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Indamora Records</div><h1 className="display mt-3 text-5xl font-bold leading-[.95] md:text-6xl">Mettez votre œuvre<br /><span className="text-primary">dans la lumière.</span></h1><p className="mt-6 max-w-sm leading-7 text-muted-foreground">Cette proposition sera rattachée à votre profil professionnel existant : <strong className="text-foreground">{professionalProfile.name}</strong>.</p><div className="mt-10 space-y-4 border-l-2 border-accent pl-5 text-sm font-semibold"><p>01 · Parlez-nous de votre création</p><p>02 · Notre équipe l’écoute avec attention</p><p>03 · Si elle trouve sa place, elle rencontre son public</p></div></div><form onSubmit={submit} className="rounded-[2rem] border border-border bg-card p-6 shadow-[var(--shadow-card)] md:p-9"><div className="mb-8 flex items-center justify-between"><div><h2 className="display text-2xl font-bold">Détails de l’œuvre</h2><p className="mt-1 text-sm text-muted-foreground">Les champs marqués d’un astérisque sont essentiels.</p></div><FileMusic className="h-7 w-7 text-primary" /></div><div className="grid gap-5 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold sm:col-span-2">Titre <input required value={form.title} onChange={(e) => update('title', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15" placeholder="Comment s’appelle-t-elle&nbsp;?" data-testid="input-submission-title" /></label><label className="grid gap-2 text-sm font-bold">Artiste ou collectif <input required value={form.artist} onChange={(e) => update('artist', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Votre nom public" data-testid="input-submission-artist" /></label><label className="grid gap-2 text-sm font-bold">Catégorie <select value={form.category} onChange={(e) => update('category', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="select-submission-category">{categories.map((item) => <option key={item} value={item}>{categoryLabel(item)}</option>)}</select></label><label className="grid gap-2 text-sm font-bold sm:col-span-2">Un mot pour l’équipe d’écoute <textarea value={form.note} onChange={(e) => update('note', e.target.value)} className="min-h-28 resize-y rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Dites-nous ce que cette œuvre représente pour vous…" data-testid="textarea-submission-note" /></label></div><div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Audio ou vidéo <input required type="file" accept="audio/mpeg,audio/mp4,audio/wav,audio/ogg,video/mp4,video/webm,video/quicktime" onChange={(e) => setMediaFile(e.target.files?.[0] ?? null)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal" data-testid="input-submission-media" />{mediaFile && <span className="text-xs text-muted-foreground">{mediaFile.name}</span>}</label><label className="grid gap-2 text-sm font-bold">Couverture (optionnelle) <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal" data-testid="input-submission-cover" />{coverFile && <span className="text-xs text-muted-foreground">{coverFile.name}</span>}</label></div>{error && <p className="mt-5 rounded-xl bg-destructive/10 px-4 py-3 text-sm font-semibold text-destructive" data-testid="status-submission-error">{error}</p>}<button disabled={pending} className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground transition-all hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-60" data-testid="button-submit-work">{pending ? <><LoaderCircle className="h-4 w-4 animate-spin" /> Envoi en cours… {uploadProgress > 0 && `${uploadProgress}%`}</> : <><Send className="h-4 w-4" /> Envoyer pour examen</>}</button></form></div></div>;
+   const pending = uploading || createSubmission.isPending || createArtist.isPending;
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr]"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Indamora Records</div><h1 className="display mt-3 text-5xl font-bold leading-[.95] md:text-6xl">Mettez votre œuvre<br /><span className="text-primary">dans la lumière.</span></h1><p className="mt-6 max-w-sm leading-7 text-muted-foreground">Une façon simple de présenter votre musique, votre humour, votre cinéma ou votre podcast à un public qui cherche quelque chose de vrai.</p><div className="mt-10 space-y-4 border-l-2 border-accent pl-5 text-sm font-semibold"><p>01 · Parlez-nous de votre création</p><p>02 · Notre équipe l’écoute avec attention</p><p>03 · Si elle trouve sa place, elle rencontre son public</p></div></div><form onSubmit={submit} className="rounded-[2rem] border border-border bg-card p-6 shadow-[var(--shadow-card)] md:p-9"><div className="mb-8 flex items-center justify-between"><div><h2 className="display text-2xl font-bold">Détails de l’œuvre</h2><p className="mt-1 text-sm text-muted-foreground">Les champs marqués d’un astérisque sont essentiels.</p></div><FileMusic className="h-7 w-7 text-primary" /></div><div className="grid gap-5 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold sm:col-span-2">Titre <input required value={form.title} onChange={(e) => update('title', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15" placeholder="Comment s’appelle-t-elle&nbsp;?" data-testid="input-submission-title" /></label><label className="grid gap-2 text-sm font-bold">Artiste ou collectif <input required value={form.artist} onChange={(e) => update('artist', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Votre nom public" data-testid="input-submission-artist" /></label><label className="grid gap-2 text-sm font-bold">Catégorie <select value={form.category} onChange={(e) => update('category', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="select-submission-category">{categories.map((item) => <option key={item} value={item}>{categoryLabel(item)}</option>)}</select></label><label className="grid gap-2 text-sm font-bold sm:col-span-2">Un mot pour l’équipe d’écoute <textarea value={form.note} onChange={(e) => update('note', e.target.value)} className="min-h-28 resize-y rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Dites-nous ce que cette œuvre représente pour vous…" data-testid="textarea-submission-note" /></label></div><div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Audio ou vidéo <input required type="file" accept="audio/mpeg,audio/mp4,audio/wav,audio/ogg,video/mp4,video/webm,video/quicktime" onChange={(e) => setMediaFile(e.target.files?.[0] ?? null)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal" data-testid="input-submission-media" />{mediaFile && <span className="text-xs text-muted-foreground">{mediaFile.name}</span>}</label><label className="grid gap-2 text-sm font-bold">Couverture (optionnelle) <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal" data-testid="input-submission-cover" />{coverFile && <span className="text-xs text-muted-foreground">{coverFile.name}</span>}</label></div><label className="mt-6 flex cursor-pointer items-start gap-3 rounded-2xl bg-muted p-4 text-sm"><input type="checkbox" checked={form.addProfile} onChange={(e) => update('addProfile', e.target.checked)} className="mt-1 h-4 w-4 accent-[hsl(var(--primary))]" data-testid="checkbox-create-profile" /><span><strong>Ajouter mon profil au répertoire</strong><span className="mt-1 block text-xs leading-5 text-muted-foreground">Partagez votre biographie et votre lieu pour que l’on découvre aussi vos autres créations.</span></span></label>{form.addProfile && <div className="mt-4 grid gap-5 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Où êtes-vous basé&nbsp;? <input required value={form.location} onChange={(e) => update('location', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Bangui, République centrafricaine" data-testid="input-artist-location" /></label><label className="grid gap-2 text-sm font-bold">Courte biographie <textarea required value={form.bio} onChange={(e) => update('bio', e.target.value)} className="min-h-12 rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Que créez-vous&nbsp;?" data-testid="textarea-artist-bio" /></label></div>}{error && <p className="mt-5 rounded-xl bg-destructive/10 px-4 py-3 text-sm font-semibold text-destructive" data-testid="status-submission-error">{error}</p>}<button disabled={pending} className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground transition-all hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-60" data-testid="button-submit-work">{pending ? <><LoaderCircle className="h-4 w-4 animate-spin" /> Envoi en cours… {uploadProgress > 0 && `${uploadProgress}%`}</> : <><Send className="h-4 w-4" /> Envoyer pour examen</>}</button></form></div></div>;
 }
 
 function SubmissionPreview({ submission }: { submission: Submission }) {
   const source = storageUrl(submission.mediaObjectPath);
-  const cover = storageUrl(submission.coverObjectPath);
-  if (!source && !cover) return null;
-  return <div className="mt-4 flex max-w-2xl flex-col gap-4 sm:flex-row sm:items-start">
-    {cover && <img src={cover} alt={`Pochette de ${submission.title}`} className="aspect-square w-full max-w-40 rounded-xl object-cover" data-testid={`moderation-cover-${submission.id}`} />}
-    {source && (submission.mediaType === 'video'
-      ? <video controls preload="metadata" poster={cover} src={source} className="max-h-52 w-full max-w-md rounded-xl bg-black" data-testid={`moderation-video-${submission.id}`} />
-      : <audio controls preload="metadata" src={source} className="w-full max-w-md" data-testid={`moderation-audio-${submission.id}`} />)}
-  </div>;
+  if (!source) return null;
+  return submission.mediaType === 'video'
+    ? <video controls preload="metadata" src={source} className="mt-4 max-h-52 w-full max-w-md rounded-xl bg-black" data-testid={`moderation-video-${submission.id}`} />
+    : <audio controls preload="metadata" src={source} className="mt-4 w-full max-w-md" data-testid={`moderation-audio-${submission.id}`} />;
 }
 
 function Moderation() {
   const { isSignedIn, user } = useUser();
-  const isAdmin = isAdminUser(user);
+  const isAdmin = isAdminEmail(user?.primaryEmailAddress?.emailAddress);
   const queryClient = useQueryClient();
   const [filter, setFilter] = useState<'pending' | 'approved' | 'rejected'>('pending');
   const submissions = useGetSubmissions({ status: filter }, { query: { enabled: Boolean(isSignedIn && isAdmin), queryKey: getGetSubmissionsQueryKey({ status: filter }) } });
   const updateStatus = useUpdateSubmissionStatus();
-  const deleteFiles = useDeleteSubmissionFiles();
   const review = (submission: Submission, status: 'approved' | 'rejected') => updateStatus.mutate({ id: submission.id, data: { status } }, { onSuccess: () => { void queryClient.invalidateQueries({ queryKey: getGetSubmissionsQueryKey({ status: filter }) }); void queryClient.invalidateQueries({ queryKey: getGetCatalogQueryKey() }); } });
-  const removeFiles = (submission: Submission) => {
-    if (!window.confirm(`Supprimer définitivement les fichiers de « ${submission.title} » ? Cette action est irréversible.`)) return;
-    deleteFiles.mutate({ id: submission.id }, { onSuccess: () => void queryClient.invalidateQueries({ queryKey: getGetSubmissionsQueryKey({ status: filter }) }) });
-  };
   if (!isSignedIn) return <Redirect to="/sign-in" />;
   if (!isAdmin) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><ShieldCheck className="mx-auto h-10 w-10 text-destructive" /><h1 className="display mt-5 text-4xl font-bold">Accès réservé</h1><p className="mt-3 text-muted-foreground">La modération est réservée à l’équipe INDAMORA RECORDS.</p></div>;
-  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Espace de modération</div><h1 className="display mt-3 text-5xl font-bold">INDAMORA<br /><span className="text-primary">RECORDS.</span></h1><p className="mt-4 text-muted-foreground">Donnez à chaque proposition l’attention qu’elle mérite.</p></div><div className="rounded-2xl bg-secondary px-5 py-4 text-secondary-foreground"><div className="font-mono text-[10px] uppercase tracking-[.15em] text-accent">État de la file</div><div className="mt-2 flex items-center gap-2 text-sm font-bold"><span className="h-2 w-2 animate-pulse rounded-full bg-accent" /> File de revue active</div></div></div><div className="mt-12 flex gap-2 overflow-x-auto border-b border-border pb-3">{(['pending', 'approved', 'rejected'] as const).map((item) => <button onClick={() => setFilter(item)} key={item} className={cx('shrink-0 rounded-full px-4 py-2 text-sm font-bold capitalize', filter === item ? 'bg-primary text-primary-foreground' : 'hover:bg-muted')} data-testid={`button-filter-submissions-${item}`}>{item === 'pending' ? 'En attente' : item === 'approved' ? 'Approuvées' : 'Refusées'}</button>)}</div>{submissions.isLoading ? <div className="mt-6 space-y-3">{[1, 2, 3].map((i) => <div key={i} className="skeleton h-28 rounded-2xl" />)}</div> : submissions.error ? <div className="mt-6"><QueryState error={submissions.error} onRetry={() => void submissions.refetch()} label="submissions" /></div> : (submissions.data ?? []).length === 0 ? <div className="mt-6 rounded-2xl border border-dashed border-border px-5 py-20 text-center"><div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-muted"><Check className="h-6 w-6 text-secondary" /></div><h2 className="mt-4 font-bold">Aucune œuvre dans cette file</h2><p className="mt-1 text-sm text-muted-foreground">La file est vide pour le moment.</p></div> : <div className="mt-6 space-y-3">{(submissions.data ?? []).map((submission) => <div key={submission.id} className="group rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary/50" data-testid={`row-submission-${submission.id}`}><div className="flex flex-col gap-5 md:flex-row md:items-center"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-muted text-primary"><FileMusic className="h-5 w-5" /></div><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h2 className="font-bold">{submission.title}</h2><span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider">{categoryLabel(submission.category)}</span></div><p className="mt-1 text-sm text-muted-foreground">{submission.artist} · {new Date(submission.submittedAt).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric', year: 'numeric' })}</p>{submission.note && <p className="mt-3 max-w-2xl text-sm leading-6 text-foreground/75">“{submission.note}”</p>}<SubmissionPreview submission={submission} /></div>{filter === 'pending' && <div className="flex gap-2"><button disabled={updateStatus.isPending} onClick={() => review(submission, 'rejected')} className="rounded-full border border-border px-4 py-2 text-sm font-bold hover:border-destructive hover:text-destructive disabled:opacity-50" data-testid={`button-reject-${submission.id}`}>Refuser</button><button disabled={updateStatus.isPending} onClick={() => review(submission, 'approved')} className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground hover:bg-primary hover:text-primary-foreground disabled:opacity-50" data-testid={`button-approve-${submission.id}`}>Approuver</button></div>} {filter !== 'pending' && <div className="flex flex-col items-end gap-2"><span className={cx('rounded-full px-3 py-1 text-xs font-bold capitalize', filter === 'approved' ? 'bg-secondary/10 text-secondary' : 'bg-destructive/10 text-destructive')}>{filter === 'approved' ? 'Approuvée' : 'Refusée'}</span>{filter === 'rejected' && (submission.mediaObjectPath || submission.coverObjectPath) && <button disabled={deleteFiles.isPending} onClick={() => removeFiles(submission)} className="inline-flex items-center gap-2 rounded-full border border-destructive/30 px-3 py-1.5 text-xs font-bold text-destructive hover:border-destructive disabled:opacity-50" data-testid={`button-delete-submission-files-${submission.id}`}><Trash2 className="h-3.5 w-3.5" /> Supprimer les fichiers</button>}</div>}</div></div>)}</div>}</div>;
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Espace de modération</div><h1 className="display mt-3 text-5xl font-bold">INDAMORA<br /><span className="text-primary">RECORDS.</span></h1><p className="mt-4 text-muted-foreground">Donnez à chaque proposition l’attention qu’elle mérite.</p></div><div className="rounded-2xl bg-secondary px-5 py-4 text-secondary-foreground"><div className="font-mono text-[10px] uppercase tracking-[.15em] text-accent">État de la file</div><div className="mt-2 flex items-center gap-2 text-sm font-bold"><span className="h-2 w-2 animate-pulse rounded-full bg-accent" /> File de revue active</div></div></div><div className="mt-12 flex gap-2 overflow-x-auto border-b border-border pb-3">{(['pending', 'approved', 'rejected'] as const).map((item) => <button onClick={() => setFilter(item)} key={item} className={cx('shrink-0 rounded-full px-4 py-2 text-sm font-bold capitalize', filter === item ? 'bg-primary text-primary-foreground' : 'hover:bg-muted')} data-testid={`button-filter-submissions-${item}`}>{item === 'pending' ? 'En attente' : item === 'approved' ? 'Approuvées' : 'Refusées'}</button>)}</div>{submissions.isLoading ? <div className="mt-6 space-y-3">{[1, 2, 3].map((i) => <div key={i} className="skeleton h-28 rounded-2xl" />)}</div> : submissions.error ? <div className="mt-6"><QueryState error={submissions.error} onRetry={() => void submissions.refetch()} label="submissions" /></div> : (submissions.data ?? []).length === 0 ? <div className="mt-6 rounded-2xl border border-dashed border-border px-5 py-20 text-center"><div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-muted"><Check className="h-6 w-6 text-secondary" /></div><h2 className="mt-4 font-bold">Aucune œuvre dans cette file</h2><p className="mt-1 text-sm text-muted-foreground">La file est vide pour le moment.</p></div> : <div className="mt-6 space-y-3">{(submissions.data ?? []).map((submission) => <div key={submission.id} className="group rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary/50" data-testid={`row-submission-${submission.id}`}><div className="flex flex-col gap-5 md:flex-row md:items-center"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-muted text-primary"><FileMusic className="h-5 w-5" /></div><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h2 className="font-bold">{submission.title}</h2><span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider">{categoryLabel(submission.category)}</span></div><p className="mt-1 text-sm text-muted-foreground">{submission.artist} · {new Date(submission.submittedAt).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric', year: 'numeric' })}</p>{submission.note && <p className="mt-3 max-w-2xl text-sm leading-6 text-foreground/75">“{submission.note}”</p>}<SubmissionPreview submission={submission} /></div>{filter === 'pending' && <div className="flex gap-2"><button disabled={updateStatus.isPending} onClick={() => review(submission, 'rejected')} className="rounded-full border border-border px-4 py-2 text-sm font-bold hover:border-destructive hover:text-destructive disabled:opacity-50" data-testid={`button-reject-${submission.id}`}>Refuser</button><button disabled={updateStatus.isPending} onClick={() => review(submission, 'approved')} className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground hover:bg-primary hover:text-primary-foreground disabled:opacity-50" data-testid={`button-approve-${submission.id}`}>Approuver</button></div>} {filter !== 'pending' && <span className={cx('rounded-full px-3 py-1 text-xs font-bold capitalize', filter === 'approved' ? 'bg-secondary/10 text-secondary' : 'bg-destructive/10 text-destructive')}>{filter === 'approved' ? 'Approuvée' : 'Refusée'}</span>}</div></div>)}</div>}</div>;
 }
 
 function Pricing() {
-  const { isSignedIn } = useUser();
-  const { toast } = useToast();
-  const statusMessage = checkoutStatusMessage();
-  const billingStatus = useQuery({ queryKey: ['billing-status'], queryFn: () => billingRequest<BillingStatus>('/api/billing/status'), enabled: Boolean(isSignedIn) });
-  const checkout = useMutation({
-    mutationFn: (plan: 'africa' | 'international') => billingRequest<{ url: string }>('/api/billing/checkout', { method: 'POST', body: JSON.stringify({ kind: 'subscription', plan }) }),
-    onSuccess: ({ url }) => window.location.assign(url),
-    onError: (error: Error) => toast({ title: 'Checkout indisponible', description: error.message, variant: 'destructive' }),
-  });
   const premiumBenefits = ['Tout le catalogue gratuit', 'Débloquer les sorties Premium', 'Accéder en avant-première aux nouveautés', 'Soutenir le développement d’INDAMORA PLAY'];
   const futureUses = ['Soutenir les artistes et créateurs', 'Accompagner certains projets artistiques', 'Produire de nouvelles créations et fonctionnalités', 'Contribuer au développement de la création centrafricaine et africaine'];
   return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-20">
@@ -831,14 +575,14 @@ function Pricing() {
         <div className="flex items-center justify-between gap-4"><div><h2 className="display text-3xl font-bold">Premium Afrique</h2><p className="mt-1 text-sm text-secondary-foreground/65">Pour les membres situés en Afrique.</p></div><Crown className="h-7 w-7 shrink-0 text-accent" /></div>
         <div className="mt-8 text-4xl font-bold">500 <span className="text-sm font-medium text-secondary-foreground/65">FCFA / mois</span></div>
         <ul className="mt-8 space-y-4 text-sm text-secondary-foreground/85">{premiumBenefits.map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-4 w-4 shrink-0 text-accent" />{item}</li>)}</ul>
-         <button type="button" disabled={!isSignedIn || checkout.isPending} onClick={() => checkout.mutate('africa')} className="mt-10 flex w-full items-center justify-center gap-2 rounded-full bg-accent py-3 text-center text-sm font-bold text-accent-foreground transition-opacity disabled:cursor-not-allowed disabled:opacity-50" data-testid="button-pricing-africa"><Crown className="h-4 w-4" />{!isSignedIn ? 'Se connecter pour souscrire' : checkout.isPending ? 'Ouverture de Checkout…' : 'Souscrire avec Stripe'}</button>
+        <span className="mt-10 flex items-center justify-center gap-2 rounded-full bg-accent/30 py-3 text-center text-sm font-bold text-secondary-foreground/70" data-testid="status-pricing-africa"><LockKeyhole className="h-4 w-4" /> Bientôt disponible</span>
       </div>
 
       <div className="rounded-[2rem] border border-primary/30 bg-card p-7 shadow-[var(--shadow-card)] md:p-8">
         <div className="flex items-center justify-between gap-4"><div><h2 className="display text-3xl font-bold">Premium International</h2><p className="mt-1 text-sm text-muted-foreground">Pour l’Europe, les États-Unis et les autres pays hors Afrique.</p></div><Crown className="h-7 w-7 shrink-0 text-primary" /></div>
         <div className="mt-8 text-4xl font-bold">5 <span className="text-sm font-medium text-muted-foreground">€ / mois</span></div>
         <ul className="mt-8 space-y-4 text-sm">{premiumBenefits.map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-4 w-4 shrink-0 text-primary" />{item}</li>)}</ul>
-         <button type="button" disabled={!isSignedIn || checkout.isPending} onClick={() => checkout.mutate('international')} className="mt-10 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3 text-center text-sm font-bold text-primary-foreground transition-opacity disabled:cursor-not-allowed disabled:opacity-50" data-testid="button-pricing-international"><Crown className="h-4 w-4" />{!isSignedIn ? 'Se connecter pour souscrire' : checkout.isPending ? 'Ouverture de Checkout…' : 'Souscrire avec Stripe'}</button>
+        <span className="mt-10 flex items-center justify-center gap-2 rounded-full bg-primary/10 py-3 text-center text-sm font-bold text-primary/70" data-testid="status-pricing-international"><LockKeyhole className="h-4 w-4" /> Bientôt disponible</span>
       </div>
     </div>
 
@@ -852,26 +596,23 @@ function Pricing() {
       <p className="mt-8 border-t border-border/70 pt-6 text-sm leading-6 text-muted-foreground"><strong className="text-foreground">Une précision importante :</strong> aucun montant fixe ni revenu garanti n’est promis aux artistes. La redistribution éventuelle ne sera définie par INDAMORA RECORDS que lorsque la plateforme disposera de suffisamment d’abonnés, de revenus et de données pour mettre en place un système équitable et transparent.</p>
     </section>
 
-     {statusMessage && <div className="mx-auto mt-8 max-w-3xl rounded-2xl border border-primary/30 bg-primary/10 px-5 py-4 text-center text-sm text-primary">{statusMessage}</div>}
-     {isSignedIn && billingStatus.data?.subscription && <div className="mx-auto mt-4 flex max-w-3xl flex-wrap items-center justify-center gap-3 text-center text-sm text-muted-foreground"><span>Statut Premium Stripe : <strong className="text-foreground">{billingStatus.data.status}</strong></span><button type="button" onClick={async () => { const { url } = await billingRequest<{ url: string }>('/api/billing/portal', { method: 'POST' }); window.location.assign(url); }} className="rounded-full border border-border px-4 py-2 font-bold hover:border-primary hover:text-primary">Gérer mon abonnement</button></div>}
-     <p className="mx-auto mt-10 max-w-xl text-center text-xs leading-5 text-muted-foreground">Les abonnements permettent actuellement de contribuer au fonctionnement et au développement de la plateforme associative INDAMORA PLAY ainsi qu’à la promotion des artistes. Lorsque les ressources de l’association le permettront, une partie pourra être consacrée à des actions de soutien ou de rémunération des artistes. Cela ne constitue pas une garantie de rémunération.</p>
+    <p className="mx-auto mt-10 flex max-w-xl items-center justify-center gap-2 text-center text-xs leading-5 text-muted-foreground"><LockKeyhole className="h-3.5 w-3.5 shrink-0" /> Les deux offres Premium sont en préparation. Aucun paiement n’est demandé dans cette V1.</p>
   </div>;
 }
 
 function Support() {
   const amounts = [1, 5, 10, 20, 50, 100];
-  const [selectedAmount, setSelectedAmount] = useState<number>(10);
-  const { toast } = useToast();
-  const checkout = useMutation({
-    mutationFn: (amountEur: number) => billingRequest<{ url: string }>('/api/billing/checkout', { method: 'POST', body: JSON.stringify({ kind: 'donation', amountEur }) }),
-    onSuccess: ({ url }) => window.location.assign(url),
-    onError: (error: Error) => toast({ title: 'Don indisponible', description: error.message, variant: 'destructive' }),
-  });
-  const statusMessage = checkoutStatusMessage();
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(10);
+  const [customAmount, setCustomAmount] = useState('');
   const chooseAmount = (amount: number) => {
     setSelectedAmount(amount);
+    setCustomAmount('');
   };
-  const displayAmount = selectedAmount;
+  const enterCustomAmount = (value: string) => {
+    setCustomAmount(value);
+    setSelectedAmount(null);
+  };
+  const displayAmount = selectedAmount ?? Number(customAmount || 0);
   return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-20">
     <div className="grid gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-start">
       <div>
@@ -889,11 +630,12 @@ function Support() {
           <HeartHandshake className="h-8 w-8 shrink-0 text-primary" />
         </div>
         <div className="mt-8 grid grid-cols-3 gap-3">{amounts.map((amount) => <button type="button" key={amount} onClick={() => chooseAmount(amount)} className={cx('rounded-2xl border px-3 py-4 font-bold transition-colors', selectedAmount === amount ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:border-primary')} data-testid={`button-donation-${amount}`}>{amount} €</button>)}</div>
-         <p className="mt-5 text-sm text-muted-foreground">Choisissez un montant prédéfini. Les dons personnalisés pourront être ajoutés après validation du catalogue Stripe.</p>
+        <label className="mt-5 grid gap-2 text-sm font-bold">Autre montant
+          <div className="flex items-center rounded-2xl border border-input bg-background px-4 focus-within:border-primary"><input type="number" min="1" step="1" value={customAmount} onChange={(event) => enterCustomAmount(event.target.value)} className="min-w-0 flex-1 bg-transparent py-4 font-normal outline-none" placeholder="Montant libre" data-testid="input-donation-custom" /><span className="font-bold text-muted-foreground">€</span></div>
+        </label>
         <div className="mt-6 rounded-2xl bg-secondary p-5 text-secondary-foreground"><div className="font-mono text-[10px] uppercase tracking-[.18em] text-accent">Votre sélection</div><div className="mt-2 text-3xl font-bold">{displayAmount > 0 ? `${displayAmount} €` : 'À définir'}</div></div>
-         <button type="button" disabled={checkout.isPending} onClick={() => checkout.mutate(selectedAmount)} className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground transition-opacity disabled:cursor-not-allowed disabled:opacity-50" data-testid="button-donation-checkout"><HeartHandshake className="h-4 w-4" />{checkout.isPending ? 'Ouverture de Checkout…' : `Faire un don de ${selectedAmount} € avec Stripe`}</button>
-         {statusMessage && <p className="mt-4 rounded-xl bg-primary/10 px-4 py-3 text-center text-xs leading-5 text-primary">{statusMessage}</p>}
-         <p className="mt-4 text-center text-xs leading-5 text-muted-foreground">Le paiement est traité par Stripe Checkout. La confirmation affichée par INDAMORA PLAY dépend de la confirmation serveur Stripe.</p>
+        <button type="button" disabled className="mt-6 flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full bg-muted py-3.5 font-bold text-muted-foreground" data-testid="button-donation-unavailable"><LockKeyhole className="h-4 w-4" /> Paiement bientôt disponible</button>
+        <p className="mt-4 text-center text-xs leading-5 text-muted-foreground">Aucun paiement n’est envoyé actuellement. Un fournisseur sécurisé doit encore être connecté et configuré côté serveur.</p>
       </section>
     </div>
     <div className="mt-14 grid gap-4 md:grid-cols-3">
@@ -903,382 +645,46 @@ function Support() {
   </div>;
 }
 
-function RecordsPage() {
-  const poles = [
-    { name: 'INDAMORA TV', description: 'Plateforme audiovisuelle consacrée aux freestyles, clips, interviews, sessions live et contenus originaux.', icon: Video },
-    { name: 'INDAMORA MEDIA.FM', description: 'Un espace dédié à la diffusion, à la promotion et à la mise en avant des artistes et des projets musicaux.', icon: Radio },
-    { name: 'LES STRATÈGES VISUELS', description: 'Direction artistique, identité visuelle, image de marque et communication créative.', icon: Palette },
-    { name: 'GOSPEL FRANCOPHONE AWARDS', description: 'Une initiative destinée à mettre en lumière et valoriser les acteurs et talents du gospel francophone.', icon: Award },
-    { name: 'RCA TALENTS CHANNEL', description: 'Une plateforme consacrée à la découverte et à la promotion des artistes émergents.', icon: Sparkles },
-    { name: 'MEDIA.GOSPEL · UNIVERS GOSPEL', description: 'Des plateformes dédiées à la culture gospel, à son actualité, ses artistes et ses initiatives.', icon: Mic2 },
-    { name: 'SHOWBIZZ AWARDS FRANCE', description: 'Des événements et initiatives consacrés à la mise en valeur des talents et des acteurs de l’industrie artistique et culturelle.', icon: Award },
-    { name: 'LE MONDE DU GOSSIP', description: 'Un média consacré aux actualités, tendances et personnalités de la culture et du divertissement.', icon: Newspaper },
-    { name: 'ROSE AFRICA MAGAZINE', description: 'Un média culturel mettant en avant l’Afrique, ses talents, ses cultures et ses diasporas.', icon: Camera },
-    { name: 'RADIO INDAMORA', description: 'Un espace de diffusion dédié à la musique, aux artistes et aux contenus de l’univers INDAMORA.', icon: Radio },
-    { name: 'ASSOCIATION VOIX DE L’AVENIR', description: 'Une initiative tournée vers l’accompagnement, la valorisation et la mise en lumière des talents et des initiatives porteuses d’avenir.', icon: HandHeart },
-    { name: 'INDAMORA PLAY', description: 'Une plateforme musicale pensée pour offrir un espace de découverte, d’écoute et de valorisation des artistes et de leurs projets.', icon: Headphones, featured: true },
-  ];
-  const services = [
-    ['Production & enregistrement', 'Accompagnement de vos projets musicaux, de la prise de voix à la production.', AudioLines],
-    ['Composition & arrangement', 'Création, écriture, composition et arrangements adaptés à votre identité artistique.', FileMusic],
-    ['Mixage & mastering', 'Finalisation technique de vos titres pour une qualité adaptée aux standards de diffusion.', Zap],
-    ['Production & exploitation musicale', 'Accompagnement dans la structuration, la production et la valorisation de vos œuvres musicales.', Disc3],
-    ['Communication & promotion', 'Développement de stratégies de communication et de visibilité autour de vos sorties et projets.', Megaphone],
-    ['Création de contenus', 'Conception de contenus photo, vidéo et digitaux pour développer votre image et votre présence en ligne.', Camera],
-    ['Audiovisuel', 'Production de contenus audiovisuels : clips, interviews, freestyles, sessions live et formats éditoriaux.', Video],
-    ['Développement de carrière', 'Accompagnement dans la structuration de votre projet artistique et le développement de votre visibilité.', Briefcase],
-  ] as const;
-
-  return <div>
-    <section className="relative overflow-hidden bg-secondary text-secondary-foreground">
-      <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full border-[38px] border-accent/70 opacity-80 md:h-[30rem] md:w-[30rem]" />
-      <div className="absolute bottom-[-5rem] left-[44%] h-48 w-48 rotate-12 border-[18px] border-primary/70 md:h-72 md:w-72" />
-      <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-12 lg:px-8 lg:pb-24 lg:pt-20">
-        <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold text-secondary-foreground/70 transition-colors hover:text-accent" data-testid="link-records-back-home"><ChevronLeft className="h-4 w-4" /> Retour à INDAMORA PLAY</Link>
-        <div className="mt-14 grid items-end gap-12 lg:grid-cols-[1.15fr_.85fr]">
-          <div className="animate-rise-in">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-secondary-foreground/20 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[.18em] text-accent"><span className="h-1.5 w-1.5 rounded-full bg-accent" /> L’écosystème INDAMORA</div>
-            <h1 className="display max-w-4xl text-5xl font-bold leading-[.94] md:text-7xl"><span className="mb-5 block font-mono text-sm font-medium uppercase tracking-[.2em] text-accent md:text-base">INDAMORA RECORDS</span>Créer. Produire.<br /><span className="text-accent">Développer.</span></h1>
-            <p className="mt-7 max-w-2xl text-xl font-semibold leading-8 text-secondary-foreground/90">Faire rayonner les talents.</p>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-secondary-foreground/75 md:text-lg">Bien plus qu’un label : un écosystème créatif au service des talents.</p>
-            <p className="mt-5 max-w-2xl leading-7 text-secondary-foreground/70">INDAMORA RECORDS est une structure indépendante dédiée à la production, au développement, à la promotion et à la diffusion de projets artistiques et musicaux, avec une ambition forte : créer des passerelles entre la France, l’Afrique et les diasporas.</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <a href="#poles" className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-1" data-testid="link-records-poles">Découvrir l’écosystème <ArrowRight className="h-4 w-4" /></a>
-              <SubmissionCta className="inline-flex items-center gap-2 rounded-full border border-secondary-foreground/25 px-5 py-3 text-sm font-bold transition-colors hover:border-accent hover:text-accent" testId="link-records-submit" label="Présenter un projet" />
-            </div>
-          </div>
-          <div className="relative rounded-[2rem] border border-secondary-foreground/15 bg-secondary-foreground/5 p-6 backdrop-blur-sm md:p-8">
-            <div className="font-mono text-[10px] uppercase tracking-[.2em] text-accent">Notre relation</div>
-            <div className="mt-7 space-y-3">
-              <div className="rounded-2xl bg-accent px-5 py-4 text-center font-bold text-accent-foreground">INDAMORA RECORDS<span className="mt-1 block text-xs font-medium opacity-75">L’écosystème créatif</span></div>
-              <div className="text-center text-2xl text-accent" aria-hidden="true">↓</div>
-              <Link href="/" className="block rounded-2xl border border-secondary-foreground/20 bg-background/10 px-5 py-4 text-center font-bold transition-colors hover:border-accent"><span>INDAMORA PLAY</span><span className="mt-1 block text-xs font-medium text-secondary-foreground/70">Une plateforme de INDAMORA RECORDS</span></Link>
-            </div>
-            <p className="mt-7 text-center text-xs leading-5 text-secondary-foreground/60">Musique · artistes · RÉPERTOIRE · découverte · écoute · contenus</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-24">
-      <div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:items-start">
-        <div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Notre vision</div><h2 className="display mt-3 text-4xl font-bold leading-tight md:text-5xl">Révéler, structurer<br /><span className="text-primary">et faire rayonner.</span></h2></div>
-        <div className="space-y-5 text-lg leading-8 text-muted-foreground"><p>Nous croyons que chaque talent mérite les moyens, l’accompagnement et la visibilité nécessaires pour transformer son potentiel en véritable projet.</p><p>Notre ambition est de créer des ponts entre les talents, les cultures et les opportunités, tout en contribuant à faire émerger une nouvelle génération d’artistes et de créateurs issus de France, d’Afrique et des diasporas.</p><p>INDAMORA RECORDS évolue comme un écosystème créatif en mouvement, pensé pour révéler, structurer et faire rayonner les talents.</p></div>
-      </div>
-    </section>
-
-    <section id="poles" className="bg-muted">
-      <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-24">
-        <div className="max-w-2xl"><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Nos pôles & médias</div><h2 className="display mt-3 text-4xl font-bold leading-tight md:text-5xl">Un écosystème pour<br /><span className="text-primary">aller plus loin.</span></h2><p className="mt-5 leading-7 text-muted-foreground">Des médias, activités, initiatives et projets qui se complètent sans perdre leur identité.</p></div>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {poles.map(({ name, description, icon: Icon, featured }) => <div key={name} className={cx('rounded-[1.5rem] border p-5 transition-all hover:-translate-y-1 hover:border-primary/60', featured ? 'border-primary/50 bg-secondary text-secondary-foreground shadow-lg' : 'border-border bg-card')} data-testid={`card-records-pole-${name.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-')}`}>
-            <div className={cx('grid h-11 w-11 place-items-center rounded-2xl', featured ? 'bg-accent text-accent-foreground' : 'bg-primary/10 text-primary')}><Icon className="h-5 w-5" /></div>
-            <h3 className="mt-5 font-bold">{name}</h3><p className={cx('mt-2 text-sm leading-6', featured ? 'text-secondary-foreground/75' : 'text-muted-foreground')}>{description}</p>
-            {featured && <Link href="/" className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-accent hover:underline" data-testid="link-records-play">Accéder à INDAMORA PLAY <ArrowRight className="h-3 w-3" /></Link>}
-          </div>)}
-        </div>
-      </div>
-    </section>
-
-    <section className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-24">
-      <div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr] lg:items-start">
-        <div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Pour les artistes & créateurs</div><h2 className="display mt-3 text-4xl font-bold leading-tight md:text-5xl">Donnez une dimension nouvelle<br /><span className="text-primary">à votre talent.</span></h2></div>
-        <div><p className="max-w-2xl text-lg leading-8 text-muted-foreground">Vous êtes artiste, auteur, compositeur, interprète ou porteur d’un projet musical ? INDAMORA RECORDS vous accompagne dans la transformation de votre idée en un projet structuré, professionnel et visible.</p><p className="mt-5 max-w-2xl leading-7 text-muted-foreground">De la création à la diffusion, nous mettons notre savoir-faire et notre écosystème au service du développement de votre projet.</p><SubmissionCta className="mt-7 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5" testId="link-records-artist-cta" label="Proposer une œuvre à INDAMORA PLAY" /></div>
-      </div>
-      <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {services.map(([title, description, Icon]) => <div key={title} className="rounded-2xl border border-border bg-card p-5"><Icon className="h-5 w-5 text-primary" /><h3 className="mt-5 font-bold">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p></div>)}
-      </div>
-    </section>
-
-    <section className="bg-secondary text-secondary-foreground">
-      <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8 lg:py-24">
-        <div className="max-w-2xl"><div className="font-mono text-[10px] uppercase tracking-[.22em] text-accent">De la première note à la réalisation du projet</div><h2 className="display mt-3 text-4xl font-bold leading-tight md:text-5xl">Vous avez le talent.<br /><span className="text-accent">Nous lui donnons une direction.</span></h2><p className="mt-5 leading-7 text-secondary-foreground/70">Chez INDAMORA RECORDS, nous souhaitons construire des collaborations durables avec les artistes et créateurs que nous accompagnons.</p></div>
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
-          {[['CRÉER', 'Donner vie aux idées et aux projets.', Sparkles], ['PRODUIRE', 'Mettre en place les ressources et les compétences nécessaires à leur réalisation.', Briefcase], ['DÉVELOPPER', 'Construire leur visibilité et créer des opportunités de rayonnement.', ArrowRight]].map(([title, text, Icon]) => <div key={title as string} className="rounded-[1.5rem] border border-secondary-foreground/15 bg-secondary-foreground/5 p-6"><Icon className="h-6 w-6 text-accent" /><div className="mt-8 font-mono text-xs tracking-[.2em] text-accent">{title as string}</div><p className="mt-3 font-semibold leading-6">{text as string}</p></div>)}
-        </div>
-      </div>
-    </section>
-
-    <section className="mx-auto max-w-5xl px-5 py-16 text-center lg:px-8 lg:py-24">
-      <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary"><Mail className="h-6 w-6" /></div>
-      <div className="mt-6 font-mono text-[10px] uppercase tracking-[.22em] text-primary">Vous avez un projet ?</div>
-      <h2 className="display mt-3 text-4xl font-bold md:text-6xl">Parlons de votre projet.</h2>
-      <p className="mx-auto mt-5 max-w-xl leading-7 text-muted-foreground">Vous souhaitez présenter un morceau, développer votre carrière, produire un contenu ou collaborer avec notre écosystème ?</p>
-      <div className="mt-8 flex flex-wrap justify-center gap-3">
-        <a href="mailto:indamorarecords@gmail.com" className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground hover:-translate-y-0.5" data-testid="link-records-email"><Mail className="h-4 w-4" /> indamorarecords@gmail.com</a>
-        <a href="tel:+33780118869" className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-3 text-sm font-bold hover:border-primary hover:text-primary" data-testid="link-records-phone"><ExternalLink className="h-4 w-4" /> 07 80 11 88 69</a>
-      </div>
-      <div className="mx-auto mt-16 max-w-2xl border-t border-border pt-8"><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">INDAMORA RECORDS</div><p className="display mt-3 text-2xl font-bold">Créer. Produire. Développer. Faire rayonner les talents.</p><Link href="/" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline" data-testid="link-records-final-home">Retourner à INDAMORA PLAY <ArrowRight className="h-4 w-4" /></Link></div>
-    </section>
-  </div>;
-}
-
 function AuthPage({ children }: { children: ReactNode }) {
-  return <div className="min-h-[calc(100dvh-4.5rem)] bg-secondary px-4 py-10 text-foreground md:grid md:place-items-center"><div className="w-full max-w-2xl rounded-[2rem] bg-background p-3 shadow-2xl md:p-6"><div className="mb-4 flex justify-center"><Link href="/" data-testid="link-auth-logo" aria-label="Retour à l’accueil"><Logo variant="full" className="max-w-[11rem]" /></Link></div>{children}</div></div>;
-}
-
-type ArtistProfileFormValues = {
-  name: string;
-  category: string;
-  bio: string;
-  location: string;
-  specialties: string[];
-};
-
-function ArtistProfileForm({
-  artist,
-  defaultName,
-  onSaved,
-}: {
-  artist: Artist | null;
-  defaultName: string;
-  onSaved: () => void;
-}) {
-  const { toast } = useToast();
-  const createArtist = useCreateArtist();
-  const updateArtist = useUpdateArtist();
-  const [values, setValues] = useState<ArtistProfileFormValues>(() => ({
-    name: artist?.name ?? defaultName,
-    category: artist?.category ?? 'Musique',
-    bio: artist?.bio ?? '',
-    location: artist?.location ?? '',
-    specialties: artist?.specialties ?? [],
-  }));
-  const [activityError, setActivityError] = useState('');
-
-  useEffect(() => {
-    setValues({
-      name: artist?.name ?? defaultName,
-      category: artist?.category ?? 'Musique',
-      bio: artist?.bio ?? '',
-      location: artist?.location ?? '',
-      specialties: artist?.specialties ?? [],
-    });
-  }, [artist, defaultName]);
-
-  const toggleActivity = (activity: string) => {
-    setValues((current) => {
-      if (current.specialties.includes(activity)) {
-        setActivityError('');
-        return { ...current, specialties: current.specialties.filter((item) => item !== activity) };
-      }
-      if (current.specialties.length >= 2) {
-        setActivityError('Deux activités maximum peuvent être sélectionnées.');
-        return current;
-      }
-      setActivityError('');
-      return { ...current, specialties: [...current.specialties, activity] };
-    });
-  };
-
-  const submit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const name = values.name.trim();
-    const bio = values.bio.trim();
-    const location = values.location.trim();
-    if (name.length < 2 || bio.length < 10 || location.length < 2) {
-      toast({ title: 'Profil incomplet', description: 'Renseignez un nom, une localisation et une bio valide.', variant: 'destructive' });
-      return;
-    }
-    if (values.specialties.length < 1 || values.specialties.length > 2) {
-      setActivityError('Sélectionnez une ou deux activités.');
-      return;
-    }
-
-    const data = {
-      name,
-      category: values.category,
-      bio,
-      location,
-      specialties: values.specialties,
-      profileGroup: profileGroupForActivities(values.specialties),
-      subcategory: values.specialties[0],
-    };
-    const options = {
-      onSuccess: () => {
-        onSaved();
-        toast({
-          title: artist ? 'Profil mis à jour' : 'Profil créé',
-          description: artist
-            ? 'Votre modification sera visible après validation.'
-            : 'Votre profil sera visible dans le RÉPERTOIRE après validation.',
-        });
-      },
-      onError: () => {
-        toast({ title: 'Impossible d’enregistrer', description: 'Vérifiez les champs puis réessayez.', variant: 'destructive' });
-      },
-    };
-    if (artist) {
-      updateArtist.mutate({ id: artist.id, data }, options);
-    } else {
-      createArtist.mutate({ data }, options);
-    }
-  };
-
-  const pending = createArtist.isPending || updateArtist.isPending;
-  return <section className="mt-12 rounded-[2rem] border border-border bg-card p-6 md:p-8">
-    <div className="max-w-2xl">
-      <div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary">Je crée</div>
-      <h2 className="display mt-2 text-3xl font-bold">{artist ? 'Modifier mon profil créatif' : 'Présentez votre univers'}</h2>
-      <p className="mt-3 leading-7 text-muted-foreground">Choisissez une ou deux activités structurées. Votre bio reste libre pour raconter votre parcours et vos autres compétences.</p>
-    </div>
-    <form onSubmit={submit} className="mt-8 grid gap-5 md:grid-cols-2">
-      <label className="grid gap-2 text-sm font-bold">Nom affiché
-        <input value={values.name} onChange={(event) => setValues((current) => ({ ...current, name: event.target.value }))} minLength={2} maxLength={120} required className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="input-artist-profile-name" />
-      </label>
-      <label className="grid gap-2 text-sm font-bold">Catégorie principale
-        <select value={values.category} onChange={(event) => setValues((current) => ({ ...current, category: event.target.value }))} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="select-artist-profile-category">
-          {categories.map((category) => <option key={category} value={category}>{category}</option>)}
-        </select>
-      </label>
-      <label className="grid gap-2 text-sm font-bold md:col-span-2">Localisation
-        <input value={values.location} onChange={(event) => setValues((current) => ({ ...current, location: event.target.value }))} minLength={2} maxLength={120} required placeholder="Ville, pays ou diaspora" className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="input-artist-profile-location" />
-      </label>
-      <div className="grid gap-2 md:col-span-2">
-        <div className="text-sm font-bold">Activités <span className="font-normal text-muted-foreground">(1 ou 2 maximum)</span></div>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-          {creationActivities.map(([activity, icon]) => {
-            const selected = values.specialties.includes(activity);
-            return <button key={activity} type="button" onClick={() => toggleActivity(activity)} className={cx('rounded-xl border px-3 py-3 text-left text-sm font-semibold transition-colors', selected ? 'border-primary bg-primary/10 text-primary' : 'border-border bg-background hover:border-primary/60')} aria-pressed={selected} data-testid={`button-artist-activity-${activity.toLowerCase().replaceAll(/[^a-z0-9]+/g, '-')}`}><span className="mr-2" aria-hidden="true">{icon}</span>{activity}</button>;
-          })}
-        </div>
-        {activityError && <p className="text-xs text-destructive">{activityError}</p>}
-        {values.specialties.length > 2 && <p className="text-xs text-destructive">Ce profil existant contient plus de deux activités. Retirez-en avant d’enregistrer une modification.</p>}
-      </div>
-      <label className="grid gap-2 text-sm font-bold md:col-span-2">Bio / présentation
-        <textarea value={values.bio} onChange={(event) => setValues((current) => ({ ...current, bio: event.target.value }))} minLength={10} maxLength={2000} required rows={6} placeholder="Parlez de votre parcours, de vos compétences et de vos autres activités." className="resize-y rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="textarea-artist-profile-bio" />
-      </label>
-      <div className="flex flex-wrap items-center gap-3 md:col-span-2">
-        <button type="submit" disabled={pending} className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50" data-testid="button-save-artist-profile">{pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}{artist ? 'Enregistrer la modification' : 'Créer mon profil'}</button>
-        {artist && artist.profileGroup === 'artists' && <span className="text-xs text-muted-foreground">Les modifications repassent par la validation du profil.</span>}
-      </div>
-    </form>
-  </section>;
+  return <div className="min-h-[calc(100dvh-4.5rem)] bg-secondary px-4 py-10 text-foreground md:grid md:place-items-center"><div className="w-full max-w-2xl rounded-[2rem] bg-background p-3 shadow-2xl md:p-6"><div className="mb-4 flex justify-center"><Logo variant="full" className="max-w-[11rem]" /></div>{children}</div></div>;
 }
 
 function Profile() {
   const { isSignedIn, user } = useUser();
   const { signOut } = useClerk();
-  const queryClient = useQueryClient();
-  const myArtist = useGetMyArtist({ query: { enabled: Boolean(isSignedIn), queryKey: getGetMyArtistQueryKey() } });
   if (!isSignedIn) return <Redirect to="/sign-in" />;
   const name = user?.fullName ?? user?.firstName ?? 'Membre INDAMORA';
-  if (myArtist.isLoading) return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8"><div className="skeleton h-72 rounded-[2rem]" /></div>;
-  if (myArtist.error) return <div className="mx-auto max-w-2xl px-5 py-20"><QueryState error={myArtist.error} onRetry={() => void myArtist.refetch()} label="profil INDAMORA" /></div>;
-
-  const professionalProfile = myArtist.data?.specialties.length ? myArtist.data : null;
-  const space = professionalProfile ? professionalSpaceCopy(professionalProfile) : null;
-  const canSubmit = canSubmitWorks(professionalProfile);
-  const refreshProfile = () => {
-    void queryClient.invalidateQueries({ queryKey: getGetMyArtistQueryKey() });
-    void queryClient.invalidateQueries({ queryKey: getGetArtistsQueryKey() });
-  };
-
-  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16">
-    <div className="flex flex-col gap-6 rounded-[2rem] bg-secondary p-7 text-secondary-foreground md:flex-row md:items-center md:justify-between md:p-10">
-      <div className="flex items-center gap-5">
-        <Avatar name={name} src={user?.imageUrl} size="lg" />
-        <div>
-          <div className="font-mono text-[10px] uppercase tracking-[.2em] text-accent">{space?.eyebrow ?? 'Mon espace visiteur'}</div>
-          <h1 className="display mt-2 text-4xl font-bold">{name}</h1>
-          <p className="mt-1 text-secondary-foreground/70">{user?.primaryEmailAddress?.emailAddress}</p>
-        </div>
-      </div>
-      <button onClick={() => void signOut({ redirectUrl: basePath || '/' })} className="inline-flex items-center justify-center gap-2 rounded-full border border-secondary-foreground/25 px-4 py-2 text-sm font-bold hover:border-accent hover:text-accent" data-testid="button-profile-logout">Se déconnecter</button>
-    </div>
-
-    <section className="mt-8 rounded-[2rem] border border-border bg-card p-6 md:p-8">
-      <div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary">{space?.eyebrow ?? 'Espace visiteur / auditeur'}</div>
-      <h2 className="display mt-2 text-3xl font-bold">{space?.title ?? 'Mon espace visiteur'}</h2>
-      <p className="mt-3 max-w-2xl leading-7 text-muted-foreground">{space?.description ?? 'Découvrez les artistes, consultez le RÉPERTOIRE, gérez votre abonnement et soutenez INDAMORA sans accès aux outils réservés aux professionnels.'}</p>
-      {professionalProfile && <div className="mt-5 flex flex-wrap gap-2">{professionalProfile.specialties.map((activity) => <span key={activity} className="rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-sm font-bold text-primary">{activity}</span>)}</div>}
-    </section>
-
-    <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      {isAdminUser(user) && <Link href="/administration" className="rounded-2xl border border-primary/40 bg-primary/5 p-6 hover:border-primary"><LayoutDashboard className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Centre de pilotage ADMIN</h2></Link>}
-      <Link href="/explorer" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><History className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Mes découvertes</h2></Link>
-      <Link href="/repertoire" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><UsersRound className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">RÉPERTOIRE</h2></Link>
-      {professionalProfile && <Link href="/espace-artiste" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><FileMusic className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">{space?.title}</h2></Link>}
-      {canSubmit && <Link href="/submit" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><Send className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Proposer une œuvre</h2></Link>}
-      <Link href="/pricing" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><Crown className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Mon abonnement</h2></Link>
-      <Link href="/soutenir" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><HeartHandshake className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Soutenir INDAMORA</h2></Link>
-    </div>
-
-    {!professionalProfile && <div className="mt-12 rounded-[2rem] bg-primary/5 p-6 md:p-8"><div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary">🎨 Je crée mon espace</div><h2 className="display mt-2 text-3xl font-bold">Créer mon espace professionnel</h2><p className="mt-3 max-w-2xl leading-7 text-muted-foreground">Choisissez une ou deux activités pour accéder aux outils correspondant à votre profil.</p></div>}
-    <ArtistProfileForm artist={professionalProfile} defaultName={name} onSaved={refreshProfile} />
-  </div>;
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-6 rounded-[2rem] bg-secondary p-7 text-secondary-foreground md:flex-row md:items-center md:justify-between md:p-10"><div className="flex items-center gap-5"><Avatar name={name} src={user?.imageUrl} size="lg" /><div><div className="font-mono text-[10px] uppercase tracking-[.2em] text-accent">Mon profil</div><h1 className="display mt-2 text-4xl font-bold">{name}</h1><p className="mt-1 text-secondary-foreground/70">{user?.primaryEmailAddress?.emailAddress}</p></div></div><button onClick={() => void signOut({ redirectUrl: basePath || '/' })} className="inline-flex items-center justify-center gap-2 rounded-full border border-secondary-foreground/25 px-4 py-2 text-sm font-bold hover:border-accent hover:text-accent" data-testid="button-profile-logout">Se déconnecter</button></div><div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"><Link href="/explorer" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><History className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Mes découvertes</h2></Link><Link href="/espace-artiste" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><FileMusic className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Espace artiste</h2></Link><Link href="/pricing" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><Crown className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Offres Premium</h2></Link><Link href="/soutenir" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><HeartHandshake className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Soutenir INDAMORA</h2></Link></div></div>;
 }
 
 function ArtistSpace() {
   const { isSignedIn, user } = useUser();
-  const queryClient = useQueryClient();
-  const myArtist = useGetMyArtist({ query: { enabled: Boolean(isSignedIn), queryKey: getGetMyArtistQueryKey() } });
-  const professionalProfile = myArtist.data?.specialties.length ? myArtist.data : null;
-  const canSubmit = canSubmitWorks(professionalProfile);
-  const submissions = useGetSubmissions(undefined, { query: { enabled: Boolean(isSignedIn && canSubmit), queryKey: getGetSubmissionsQueryKey() } });
-  const deleteFiles = useDeleteSubmissionFiles();
+  const submissions = useGetSubmissions(undefined, { query: { enabled: Boolean(isSignedIn), queryKey: getGetSubmissionsQueryKey() } });
   if (!isSignedIn) return <Redirect to="/sign-in" />;
-  if (myArtist.isLoading) return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8"><div className="skeleton h-72 rounded-[2rem]" /></div>;
-  if (myArtist.error) return <div className="mx-auto max-w-2xl px-5 py-20"><QueryState error={myArtist.error} onRetry={() => void myArtist.refetch()} label="profil professionnel" /></div>;
-  if (!professionalProfile) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><ShieldCheck className="mx-auto h-10 w-10 text-primary" /><h1 className="display mt-5 text-4xl font-bold">Espace professionnel non activé</h1><p className="mt-3 text-muted-foreground">Créez d’abord votre profil INDAMORA et choisissez une ou deux activités.</p><Link href="/profil" className="mt-7 inline-flex rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground">Créer mon espace professionnel</Link></div>;
-  const space = professionalSpaceCopy(professionalProfile);
   const statusLabel = (status: string) => status === 'approved' ? 'Validée' : status === 'rejected' ? 'Refusée' : 'En attente';
-  const removeFiles = (submission: Submission) => {
-    if (!window.confirm(`Supprimer définitivement les fichiers de « ${submission.title} » ? Cette action est irréversible.`)) return;
-    deleteFiles.mutate({ id: submission.id }, { onSuccess: () => void queryClient.invalidateQueries({ queryKey: getGetSubmissionsQueryKey() }) });
-  };
-  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16">
-    <div className="flex flex-col gap-6 rounded-[2rem] bg-primary p-7 text-primary-foreground md:flex-row md:items-end md:justify-between md:p-10">
-      <div>
-        <div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary-foreground/70">{space.eyebrow}</div>
-        <h1 className="display mt-3 text-5xl font-bold">{space.title}</h1>
-        <p className="mt-4 max-w-xl leading-7 text-primary-foreground/80">{space.description}</p>
-        <div className="mt-5 flex flex-wrap gap-2">{professionalProfile.specialties.map((activity) => <span key={activity} className="rounded-full bg-background/15 px-3 py-1 text-xs font-bold">{activity}</span>)}</div>
-      </div>
-      {canSubmit && <Link href="/submit" className="inline-flex items-center justify-center gap-2 rounded-full bg-background px-5 py-3 text-sm font-bold text-foreground" data-testid="link-artist-submit"><Plus className="h-4 w-4" /> Envoyer une œuvre</Link>}
-    </div>
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-6 rounded-[2rem] bg-primary p-7 text-primary-foreground md:flex-row md:items-end md:justify-between md:p-10"><div><div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary-foreground/70">Espace artiste</div><h1 className="display mt-3 text-5xl font-bold">{user?.fullName ?? user?.firstName ?? 'Votre espace de création'}</h1><p className="mt-4 max-w-xl leading-7 text-primary-foreground/80">Envoyez vos œuvres à INDAMORA RECORDS et suivez chaque étape de leur examen.</p></div><Link href="/submit" className="inline-flex items-center justify-center gap-2 rounded-full bg-background px-5 py-3 text-sm font-bold text-foreground" data-testid="link-artist-submit"><Plus className="h-4 w-4" /> Envoyer une œuvre</Link></div><div className="mt-12 grid gap-4 sm:grid-cols-3"><div className="rounded-2xl border border-border bg-card p-5"><div className="text-3xl font-bold">{submissions.data?.length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">Œuvres envoyées</p></div><div className="rounded-2xl border border-border bg-card p-5"><div className="text-3xl font-bold text-accent-foreground">{submissions.data?.filter((item) => item.status === 'approved').length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">Validées</p></div><div className="rounded-2xl border border-border bg-card p-5"><div className="text-3xl font-bold">{submissions.data?.filter((item) => item.status === 'pending').length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">En attente</p></div></div><section className="mt-12"><SectionHeading eyebrow="Suivi des propositions" title="Le chemin de vos œuvres" />{submissions.isLoading ? <div className="space-y-3"><div className="skeleton h-24 rounded-2xl" /><div className="skeleton h-24 rounded-2xl" /></div> : submissions.error ? <QueryState error={submissions.error} onRetry={() => void submissions.refetch()} label="espace-artiste" /> : <div className="space-y-3">{(submissions.data ?? []).slice(0, 6).map((item) => <div key={item.id} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-muted text-primary"><FileMusic className="h-5 w-5" /></div><div className="min-w-0 flex-1"><h2 className="font-bold">{item.title}</h2><p className="mt-1 text-sm text-muted-foreground">{categoryLabel(item.category)} · Envoyée le {new Date(item.submittedAt).toLocaleDateString('fr-FR')}</p></div><span className={cx('rounded-full px-3 py-1 text-xs font-bold', item.status === 'approved' ? 'bg-secondary/10 text-secondary' : item.status === 'rejected' ? 'bg-destructive/10 text-destructive' : 'bg-accent/20 text-foreground')}>{statusLabel(item.status)}</span></div>)}</div>}</section></div>;
+}
 
-    {!canSubmit ? <div className="mt-12 grid gap-4 sm:grid-cols-2"><Link href="/profil" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><UserRound className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Mon profil professionnel</h2><p className="mt-2 text-sm text-muted-foreground">Mettez à jour votre présentation et vos activités.</p></Link><Link href="/repertoire" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><UsersRound className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Ma visibilité dans le RÉPERTOIRE</h2><p className="mt-2 text-sm text-muted-foreground">Consultez les profils professionnels publiés.</p></Link></div> : <>
-      <div className="mt-12 grid gap-4 sm:grid-cols-3"><div className="rounded-2xl border border-border bg-card p-5"><div className="text-3xl font-bold">{submissions.data?.length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">Œuvres envoyées</p></div><div className="rounded-2xl border border-border bg-card p-5"><div className="text-3xl font-bold text-accent-foreground">{submissions.data?.filter((item) => item.status === 'approved').length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">Validées</p></div><div className="rounded-2xl border border-border bg-card p-5"><div className="text-3xl font-bold">{submissions.data?.filter((item) => item.status === 'pending').length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">En attente</p></div></div>
-      <section className="mt-12"><SectionHeading eyebrow="Suivi des propositions" title="Le chemin de vos œuvres" />{submissions.isLoading ? <div className="space-y-3"><div className="skeleton h-24 rounded-2xl" /><div className="skeleton h-24 rounded-2xl" /></div> : submissions.error ? <QueryState error={submissions.error} onRetry={() => void submissions.refetch()} label="espace professionnel" /> : <div className="space-y-3">{(submissions.data ?? []).slice(0, 6).map((item) => <div key={item.id} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-muted text-primary"><FileMusic className="h-5 w-5" /></div><div className="min-w-0 flex-1"><h2 className="font-bold">{item.title}</h2><p className="mt-1 text-sm text-muted-foreground">{categoryLabel(item.category)} · Envoyée le {new Date(item.submittedAt).toLocaleDateString('fr-FR')}</p></div><div className="flex flex-col items-end gap-2"><span className={cx('rounded-full px-3 py-1 text-xs font-bold', item.status === 'approved' ? 'bg-secondary/10 text-secondary' : item.status === 'rejected' ? 'bg-destructive/10 text-destructive' : 'bg-accent/20 text-foreground')}>{statusLabel(item.status)}</span>{item.status === 'rejected' && (item.mediaObjectPath || item.coverObjectPath) && <button disabled={deleteFiles.isPending} onClick={() => removeFiles(item)} className="inline-flex items-center gap-2 rounded-full border border-destructive/30 px-3 py-1.5 text-xs font-bold text-destructive hover:border-destructive disabled:opacity-50" data-testid={`button-artist-delete-submission-files-${item.id}`}><Trash2 className="h-3.5 w-3.5" /> Supprimer les fichiers</button>}</div></div>)}</div>}</section>
-    </>}
-  </div>;
+function AdminDashboardContent() {
+  const { isSignedIn, user } = useUser();
+  const isAdmin = isAdminEmail(user?.primaryEmailAddress?.emailAddress);
+  const submissions = useGetSubmissions(undefined, { query: { enabled: Boolean(isSignedIn && isAdmin), queryKey: getGetSubmissionsQueryKey() } });
+  const catalog = useGetCatalog({ query: { queryKey: getGetCatalogQueryKey() } });
+  if (!isSignedIn) return <Redirect to="/sign-in" />;
+  if (!isAdmin) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><ShieldCheck className="mx-auto h-10 w-10 text-destructive" /><h1 className="display mt-5 text-4xl font-bold">Accès réservé</h1><p className="mt-3 text-muted-foreground">L’administration est réservée à INDAMORA RECORDS.</p></div>;
+  const all = submissions.data ?? [];
+  const counts = { pending: all.filter((item) => item.status === 'pending').length, approved: all.filter((item) => item.status === 'approved').length, rejected: all.filter((item) => item.status === 'rejected').length };
+  return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Tableau de bord</div><h1 className="display mt-3 text-5xl font-bold">Piloter INDAMORA<br /><span className="text-primary">RECORDS.</span></h1><p className="mt-4 text-muted-foreground">Une vue simple sur le catalogue et la file de validation.</p></div><Link href="/moderation" className="inline-flex items-center justify-center gap-2 rounded-full bg-secondary px-5 py-3 text-sm font-bold text-secondary-foreground" data-testid="link-dashboard-moderation"><ShieldCheck className="h-4 w-4" /> Ouvrir la modération</Link></div><div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><div className="rounded-2xl border border-border bg-card p-5"><BarChart3 className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{catalog.data?.length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">Œuvres publiées</p></div><div className="rounded-2xl border border-border bg-card p-5"><LoaderCircle className="h-5 w-5 text-accent-foreground" /><div className="mt-5 text-3xl font-bold">{counts.pending}</div><p className="mt-1 text-sm text-muted-foreground">En attente</p></div><div className="rounded-2xl border border-border bg-card p-5"><Check className="h-5 w-5 text-secondary" /><div className="mt-5 text-3xl font-bold">{counts.approved}</div><p className="mt-1 text-sm text-muted-foreground">Validées</p></div><div className="rounded-2xl border border-border bg-card p-5"><ShieldCheck className="h-5 w-5 text-destructive" /><div className="mt-5 text-3xl font-bold">{counts.rejected}</div><p className="mt-1 text-sm text-muted-foreground">Refusées</p></div></div><div className="mt-12 rounded-[2rem] bg-muted p-6 md:p-8"><div className="flex items-center gap-3"><LayoutDashboard className="h-5 w-5 text-primary" /><h2 className="display text-2xl font-bold">Prochaine action</h2></div><p className="mt-3 max-w-2xl leading-7 text-muted-foreground">{counts.pending > 0 ? `Il reste ${counts.pending} œuvre${counts.pending > 1 ? 's' : ''} à examiner par INDAMORA RECORDS.` : 'La file de validation est à jour pour le moment.'}</p><Link href="/moderation" className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground" data-testid="link-dashboard-review">Examiner la file <ArrowRight className="h-4 w-4" /></Link></div></div>;
 }
 
 function AdminDashboard() {
   const { isSignedIn, user } = useUser();
-  const isAdmin = isAdminUser(user);
-  const [days, setDays] = useState<1 | 7 | 30>(7);
-  const overview = useQuery({
-    queryKey: ['admin-overview', days],
-    queryFn: () => billingRequest<AdminOverview>(`/api/admin/overview?days=${days}`),
-    enabled: Boolean(isSignedIn && isAdmin),
-  });
-  if (!isSignedIn) return <Redirect to="/sign-in" />;
-  if (!isAdmin) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><ShieldCheck className="mx-auto h-10 w-10 text-destructive" /><h1 className="display mt-5 text-4xl font-bold">Accès réservé</h1><p className="mt-3 text-muted-foreground">L’administration est réservée à l’équipe INDAMORA RECORDS.</p></div>;
-  if (overview.isLoading) return <div className="mx-auto max-w-7xl px-5 py-20 lg:px-8"><LoadingCards count={8} /></div>;
-  if (overview.error || !overview.data) return <div className="mx-auto max-w-2xl px-5 py-20"><QueryState error={overview.error ?? new Error('Données indisponibles')} onRetry={() => void overview.refetch()} label="admin-overview" /></div>;
-  const data = overview.data;
-  const display = (value: number | null) => value === null ? '—' : value;
-  const auditActionLabel = (action: string) => ({
-    'profile.updated': 'Profil modifié',
-    'submission.approved_and_published': 'Soumission validée et publiée',
-    'submission.approved': 'Soumission validée',
-    'submission.rejected': 'Soumission refusée',
-    'submission.files_deleted': 'Fichiers de soumission supprimés',
-  }[action] ?? action);
-  return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16">
-    <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Tableau de bord privé</div><h1 className="display mt-3 text-5xl font-bold">Piloter INDAMORA<br /><span className="text-primary">RECORDS.</span></h1><p className="mt-4 text-muted-foreground">Données réelles du site, de Clerk, de la base et de Stripe.</p></div><div className="flex flex-wrap gap-2"><Link href="/moderation" className="inline-flex items-center justify-center gap-2 rounded-full bg-secondary px-5 py-3 text-sm font-bold text-secondary-foreground" data-testid="link-dashboard-moderation"><ShieldCheck className="h-4 w-4" /> Modération</Link><Link href="/repertoire" className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-5 py-3 text-sm font-bold hover:border-primary hover:text-primary" data-testid="link-dashboard-directory"><UsersRound className="h-4 w-4" /> Répertoire</Link></div></div>
-    <div className="mt-10 flex flex-wrap items-center justify-between gap-3"><h2 className="display text-2xl font-bold">Activité sur {data.periodDays === 1 ? '24 heures' : `${data.periodDays} jours`}</h2><div className="flex gap-2">{([1, 7, 30] as const).map((period) => <button key={period} type="button" onClick={() => setDays(period)} className={cx('rounded-full border px-3 py-1.5 text-xs font-bold', days === period ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:border-primary')} data-testid={`button-admin-period-${period}`}>{period === 1 ? 'Aujourd’hui' : `${period} jours`}</button>)}</div></div>
-    <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><div className="rounded-2xl border border-border bg-card p-5"><BarChart3 className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{data.visits.count}</div><p className="mt-1 text-sm text-muted-foreground">Visites</p><p className="mt-2 text-xs text-muted-foreground">{data.visits.uniqueVisitors} visiteurs uniques estimés</p></div><div className="rounded-2xl border border-border bg-card p-5"><UserRound className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{display(data.counts.users)}</div><p className="mt-1 text-sm text-muted-foreground">Utilisateurs inscrits</p></div><div className="rounded-2xl border border-border bg-card p-5"><UsersRound className="h-5 w-5 text-secondary" /><div className="mt-5 text-3xl font-bold">{data.counts.artists}</div><p className="mt-1 text-sm text-muted-foreground">Profils artistes</p><p className="mt-2 text-xs text-muted-foreground">{data.counts.publishedArtists} publiés</p></div><div className="rounded-2xl border border-border bg-card p-5"><FileMusic className="h-5 w-5 text-accent-foreground" /><div className="mt-5 text-3xl font-bold">{data.counts.works}</div><p className="mt-1 text-sm text-muted-foreground">Œuvres publiées</p></div></div>
-    <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><div className="rounded-2xl border border-accent/40 bg-accent/10 p-5"><LoaderCircle className="h-5 w-5 text-accent-foreground" /><div className="mt-5 text-3xl font-bold">{data.counts.pendingSubmissions}</div><p className="mt-1 text-sm text-muted-foreground">Soumissions en attente</p></div><div className="rounded-2xl border border-border bg-card p-5"><Newspaper className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{data.counts.pendingPressRequests}</div><p className="mt-1 text-sm text-muted-foreground">Demandes presse en attente</p></div><div className="rounded-2xl border border-border bg-card p-5"><Crown className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{display(data.stripe.activeSubscriptions)}</div><p className="mt-1 text-sm text-muted-foreground">Abonnements actifs</p></div><div className="rounded-2xl border border-border bg-card p-5"><HeartHandshake className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{data.stripe.donations.totalEur === null ? '—' : `${data.stripe.donations.totalEur.toFixed(2)} €`}</div><p className="mt-1 text-sm text-muted-foreground">{data.stripe.donations.count === null ? 'Dons indisponibles' : `${data.stripe.donations.count} don(s) confirmé(s)`}</p></div></div>
-    <div className="mt-8 grid gap-5 lg:grid-cols-[1.1fr_.9fr]"><section className="rounded-[2rem] border border-border bg-card p-6 md:p-8"><div className="flex items-center justify-between gap-4"><div><div className="font-mono text-[10px] uppercase tracking-[.18em] text-primary">Activité récente</div><h2 className="display mt-2 text-2xl font-bold">Ce qui se passe</h2></div><LayoutDashboard className="h-6 w-6 text-primary" /></div>{data.activity.length === 0 ? <p className="mt-6 rounded-2xl bg-muted px-4 py-8 text-center text-sm text-muted-foreground">Aucune activité disponible.</p> : <div className="mt-6 divide-y divide-border">{data.activity.map((item, index) => <div key={`${item.type}-${item.createdAt}-${index}`} className="flex items-start gap-3 py-3"><span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" /><div><p className="text-sm font-semibold">{item.label}</p><p className="mt-1 text-xs text-muted-foreground">{new Date(item.createdAt).toLocaleString('fr-FR')}</p></div></div>)}</div>}</section><section className="rounded-[2rem] bg-secondary p-6 text-secondary-foreground md:p-8"><div className="font-mono text-[10px] uppercase tracking-[.18em] text-accent">Pages les plus visitées</div><h2 className="display mt-2 text-2xl font-bold">Flux du site</h2>{data.visits.topPages.length === 0 ? <p className="mt-6 rounded-2xl border border-secondary-foreground/15 px-4 py-8 text-center text-sm text-secondary-foreground/70">Aucune visite enregistrée sur cette période.</p> : <div className="mt-6 space-y-3">{data.visits.topPages.map((page) => <div key={page.path} className="flex items-center justify-between gap-3 rounded-xl bg-secondary-foreground/10 px-4 py-3 text-sm"><span className="truncate">{page.path}</span><strong>{page.visits}</strong></div>)}</div>}<Link href="/moderation" className="mt-7 inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-bold text-accent-foreground" data-testid="link-dashboard-review">Examiner la file <ArrowRight className="h-4 w-4" /></Link></section></div>
-    <section className="mt-8 overflow-hidden rounded-[2rem] border border-border bg-card">
-      <div className="flex items-center justify-between gap-4 border-b border-border p-6 md:p-8"><div><div className="font-mono text-[10px] uppercase tracking-[.18em] text-primary">Journal ADMIN</div><h2 className="display mt-2 text-2xl font-bold">Actions d’administration</h2><p className="mt-2 text-sm text-muted-foreground">Journal privé des validations, refus, publications, modifications et suppressions effectuées depuis l’administration.</p></div><ShieldCheck className="h-6 w-6 shrink-0 text-primary" /></div>
-      {data.auditLog.length === 0 ? <p className="m-6 rounded-2xl bg-muted px-4 py-8 text-center text-sm text-muted-foreground">Aucune action administrateur enregistrée pour le moment.</p> : <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="bg-muted text-xs uppercase tracking-wide text-muted-foreground"><tr><th className="px-6 py-3">Administrateur</th><th className="px-6 py-3">Action</th><th className="px-6 py-3">Élément</th><th className="px-6 py-3">Date et heure</th><th className="px-6 py-3">Résultat</th></tr></thead><tbody className="divide-y divide-border">{data.auditLog.map((entry) => <tr key={entry.id}><td className="px-6 py-4 font-mono text-xs">{entry.administratorId}</td><td className="px-6 py-4 font-semibold">{auditActionLabel(entry.action)}</td><td className="px-6 py-4">{entry.targetLabel ?? `${entry.entityType}${entry.entityId ? ` #${entry.entityId}` : ''}`}</td><td className="px-6 py-4 text-muted-foreground">{new Date(entry.createdAt).toLocaleString('fr-FR')}</td><td className="px-6 py-4"><span className="rounded-full bg-secondary/10 px-3 py-1 text-xs font-bold text-secondary">{entry.result === 'success' ? 'Succès' : entry.result}</span></td></tr>)}</tbody></table></div>}
-    </section>
-    <AdminDirectory />
-  </div>;
+  const isAdmin = isAdminEmail(user?.primaryEmailAddress?.emailAddress);
+
+  return <>
+    <AdminDashboardContent />
+    {isSignedIn && isAdmin && <div className="mx-auto max-w-7xl px-5 pb-16 lg:px-8"><AdminUserList /></div>}
+  </>;
 }
 
 const pressSchema = z.object({
@@ -1354,7 +760,7 @@ function NotFound() {
 
 function Router() {
   const [location] = useLocation();
-  return <ErrorBoundary resetKey={location}><Shell><Switch><Route path="/" component={Home} /><Route path="/indamora-records" component={RecordsPage} /><Route path="/explorer" component={Explorer} /><Route path="/recherche" component={SearchPage} /><Route path="/categorie/:slug" component={CategoryPage} /><Route path="/oeuvres/:id" component={WorkPage} /><Route path="/repertoire" component={() => <Directory />} /><Route path="/artists" component={() => <Directory />} /><Route path="/artists/:id" component={ArtistProfile} /><Route path="/presse" component={Presse} /><Route path="/submit" component={Submit} /><Route path="/espace-artiste" component={ArtistSpace} /><Route path="/moderation" component={Moderation} /><Route path="/administration" component={AdminDashboard} /><Route path="/admin" component={AdminDashboard} /><Route path="/pricing" component={Pricing} /><Route path="/soutenir" component={Support} /><Route path="/inscription" component={() => <Redirect to="/sign-up" />} /><Route path="/login" component={() => <Redirect to="/sign-in" />} /><Route path="/profil" component={Profile} /><Route component={NotFound} /></Switch></Shell></ErrorBoundary>;
+  return <ErrorBoundary resetKey={location}><Shell><Switch><Route path="/" component={Home} /><Route path="/explorer" component={Explorer} /><Route path="/recherche" component={SearchPage} /><Route path="/categorie/:slug" component={CategoryPage} /><Route path="/oeuvres/:id" component={WorkPage} /><Route path="/repertoire" component={() => <Directory />} /><Route path="/artists" component={() => <Directory />} /><Route path="/artists/:id" component={ArtistProfile} /><Route path="/presse" component={Presse} /><Route path="/submit" component={Submit} /><Route path="/espace-artiste" component={ArtistSpace} /><Route path="/moderation" component={Moderation} /><Route path="/administration" component={AdminDashboard} /><Route path="/pricing" component={Pricing} /><Route path="/soutenir" component={Support} /><Route path="/inscription" component={() => <Redirect to="/sign-up" />} /><Route path="/login" component={() => <Redirect to="/sign-in" />} /><Route path="/profil" component={Profile} /><Route component={NotFound} /></Switch></Shell></ErrorBoundary>;
 }
 
 function ClerkQueryClientCacheInvalidator() {
@@ -1375,7 +781,7 @@ function ClerkQueryClientCacheInvalidator() {
 
 function ClerkApp() {
   const [, setLocation] = useLocation();
-  return <ClerkProvider publishableKey={clerkPubKey} proxyUrl={clerkProxyUrl} appearance={clerkAppearance} signInUrl={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} localization={frFR} routerPush={(to) => setLocation(stripBase(to))} routerReplace={(to) => setLocation(stripBase(to), { replace: true })}><QueryClientProvider client={queryClient}><ClerkQueryClientCacheInvalidator /><TooltipProvider><Switch><Route path="/sign-in/*?" component={() => <Shell><AuthPage><SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} /></AuthPage></Shell>} /><Route path="/sign-up/*?" component={() => <Shell><AuthPage><SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} /></AuthPage></Shell>} /><Route component={Router} /></Switch><Toaster /></TooltipProvider></QueryClientProvider></ClerkProvider>;
+  return <ClerkProvider publishableKey={clerkPubKey} proxyUrl={clerkProxyUrl} appearance={clerkAppearance} signInUrl={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} localization={frFR} routerPush={(to) => setLocation(stripBase(to))} routerReplace={(to) => setLocation(stripBase(to), { replace: true })}><QueryClientProvider client={queryClient}><ClerkQueryClientCacheInvalidator /><TooltipProvider><Switch><Route path="/sign-in/*?" component={() => <AuthPage><SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} /></AuthPage>} /><Route path="/sign-up/*?" component={() => <AuthPage><SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} /></AuthPage>} /><Route component={Router} /></Switch><Toaster /></TooltipProvider></QueryClientProvider></ClerkProvider>;
 }
 
 function App() {

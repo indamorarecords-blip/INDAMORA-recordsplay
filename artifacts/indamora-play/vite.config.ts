@@ -41,6 +41,9 @@ export default defineConfig({
               root: path.resolve(import.meta.dirname, '..'),
             }),
           ),
+          await import('@replit/vite-plugin-dev-banner').then((m) =>
+            m.devBanner(),
+          ),
         ]
       : []),
   ],
@@ -54,7 +57,7 @@ export default defineConfig({
         'attached_assets',
       ),
     },
-    dedupe: ['react', 'react-dom', '@tanstack/react-query'],
+    dedupe: ['react', 'react-dom'],
   },
   root: path.resolve(import.meta.dirname),
   build: {
