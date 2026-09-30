@@ -1,0 +1,107 @@
+Tu peux maintenant appliquer UNIQUEMENT la modification décrite ci-dessous sur le projet INDAMORAPLAY actuel.
+
+OBJECTIF :
+Enrichir la page /administration existante afin que l’ADMIN puisse voir, pour chaque compte inscrit, les informations réellement disponibles.
+
+À CONSERVER ABSOLUMENT :
+
+* l’authentification Clerk existante ;
+* requireAdmin ;
+* la protection serveur de GET /api/admin/users ;
+* la pagination existante ;
+* le fonctionnement actuel de /administration ;
+* les routes publiques existantes ;
+* le Mobile ;
+* les autres fonctionnalités Web/API ;
+* la base de données existante.
+
+MODIFICATION DEMANDÉE :
+
+1. artifacts/api-server/src/routes/admin-users.ts
+    * Conserver requireAdmin.
+    * Pour les comptes Clerk récupérés dans la page courante, rechercher les profils artists dont owner_id correspond à l’identifiant Clerk du compte.
+    * Retourner avec chaque utilisateur uniquement les informations déjà présentes dans les données existantes.
+    * Inclure notamment, lorsqu’elles existent :
+        * prénom ;
+        * nom ;
+        * email ;
+        * username ;
+        * date de création du compte ;
+        * identifiant/type de profil disponible ;
+        * nom du profil artiste ;
+        * catégorie ;
+        * sous-catégorie ;
+        * bio ;
+        * localisation ;
+        * pays ;
+        * spécialités ;
+        * site web ;
+        * réseaux sociaux ;
+        * contact professionnel ;
+        * statut du profil ;
+        * publication ;
+        * avatar ;
+        * autres champs existants réellement disponibles dans artists.
+    * Ne pas inventer de rôle « professionnel » si aucune donnée ne le permet.
+    * Indiquer clairement lorsqu’un compte n’a aucun profil artiste rattaché.
+    * Ne pas exposer ces informations par une route publique.
+2. lib/api-spec/openapi.yaml
+    * Mettre à jour uniquement le contrat API correspondant à GET /api/admin/users.
+3. artifacts/indamora-play/src/components/admin-user-list.tsx
+    * Afficher les informations supplémentaires dans l’interface ADMIN.
+    * Garder une présentation lisible, avec les informations regroupées par utilisateur.
+    * Ne pas modifier la logique d’authentification.
+    * Ne pas modifier les autres pages.
+4. Régénérer les fichiers générés nécessaires à partir de l’OpenAPI :
+    * lib/api-zod/src/generated/api.ts
+    * lib/api-client-react/src/generated/api.ts
+    * lib/api-client-react/src/generated/api.schemas.ts
+        Ne pas modifier manuellement les fichiers générés.
+
+TÉLÉPHONE :
+Ne pas présenter press_requests.phone comme le téléphone du compte utilisateur, car cette table représente des demandes presse et n’est pas reliée aux comptes.
+Si Clerk possède réellement un numéro de téléphone disponible via son modèle déjà utilisé par le projet, tu peux l’afficher comme téléphone du compte. Sinon, laisse le champ absent ou indique « non renseigné ».
+
+SÉCURITÉ :
+
+* GET /api/admin/users doit rester strictement ADMIN.
+* Un visiteur non connecté doit obtenir le comportement d’accès actuel.
+* Un utilisateur connecté mais non ADMIN doit être refusé.
+* Aucun nouveau endpoint public.
+* Aucun élargissement de l’accès aux données personnelles.
+* Ne pas exposer les données personnelles dans les logs.
+* Ne pas afficher de secrets, tokens ou mots de passe.
+
+CONTRAINTES ABSOLUES :
+
+* Aucun changement de schéma PostgreSQL.
+* Aucune migration.
+* Aucun seed.
+* Aucune suppression ou modification de données existantes.
+* Aucun changement de domaine.
+* Aucun déploiement.
+* Aucun changement du Mobile.
+* Ne pas modifier les autres fonctionnalités.
+* Ne pas remplacer l’application existante.
+* Ne pas créer une nouvelle architecture.
+* Ne pas toucher aux tables si ce n’est pas nécessaire.
+
+VÉRIFICATIONS AVANT DE TERMINER :
+
+* typecheck du projet concerné ;
+* vérifier que /administration compile ;
+* vérifier que GET /api/admin/users reste protégé ;
+* vérifier qu’aucune route publique n’a été élargie ;
+* vérifier le diff final ;
+* vérifier qu’aucune migration ou modification de schéma n’a été créée.
+
+À LA FIN :
+Donne-moi :
+
+1. les fichiers réellement modifiés ;
+2. un résumé précis de chaque modification ;
+3. les vérifications effectuées ;
+4. le résultat du typecheck ;
+5. confirme explicitement qu’aucun déploiement n’a été effectué.
+
+NE FAIS AUCUN DÉPLOIEMENT.
