@@ -1,0 +1,411 @@
+MISSION : PRÉPARER ET TESTER LE NOUVEAU WEB INDAMORA DANS UN REPL INDÉPENDANT
+
+IMPORTANT :
+
+CE PROMPT EST DESTINÉ UNIQUEMENT AU NOUVEAU REPL INDÉPENDANT.
+
+IL NE DOIT PAS ÊTRE EXÉCUTÉ DANS LE REPL ACTUEL DE PRODUCTION.
+
+PRODUCTION À PROTÉGER ABSOLUMENT :
+
+https://indamoraplay.com
+
+MOBILE À PROTÉGER ABSOLUMENT :
+
+https://indamoraplay.com/indamora-play-mobile/
+
+OBJECTIF :
+
+Préparer un nouveau Web/API INDAMORA indépendant de l’ancien déploiement, tout en conservant :
+
+* les comptes utilisateurs existants ;
+* les données existantes ;
+* Clerk existant ;
+* PostgreSQL existant ;
+* les services existants ;
+* le Mobile actuel ;
+* le domaine de production actuel.
+
+Le nouveau Web doit notamment conserver :
+
+* /administration
+* « Utilisateurs enregistrés »
+* /api/admin/users
+* la protection ADMIN côté serveur.
+
+AUCUNE BASCULE DE PRODUCTION NE DOIT ÊTRE EFFECTUÉE AUTOMATIQUEMENT.
+
+==================================================
+ÉTAPE 1 — AUDIT DU NOUVEAU REPL
+
+Commence par un audit strictement en lecture seule.
+
+Vérifie :
+
+* git status --short
+* git diff --stat
+* git diff
+* git rev-parse HEAD
+* structure des fichiers ;
+* package manager ;
+* scripts disponibles ;
+* configuration Web ;
+* configuration API ;
+* routes ;
+* dépendances ;
+* fichiers de configuration ;
+* éventuelles variables d’environnement attendues.
+
+Identifie précisément ce qui est déjà présent dans ce nouveau Repl.
+
+NE MODIFIE RIEN pendant cette étape.
+
+NE FAIS :
+
+* aucun commit ;
+* aucun push ;
+* aucun checkout ;
+* aucun reset ;
+* aucun merge ;
+* aucun rebase ;
+* aucune migration ;
+* aucune publication.
+
+RÉSULTAT ATTENDU :
+
+AUDIT ÉTAPE 1 :
+
+* Web :
+* API :
+* Admin :
+* /api/admin/users :
+* Dépendances :
+* Configuration :
+* État Git :
+* Risques :
+* Conclusion :
+
+SI LE NOUVEAU REPL N’EST PAS PROPRE OU SI SA STRUCTURE EST INCOMPATIBLE :
+ARRÊTE-TOI.
+
+==================================================
+ÉTAPE 2 — PRÉPARATION DU CODE WEB/API
+
+UNIQUEMENT SI L’ÉTAPE 1 EST VALIDÉE.
+
+Prépare le code nécessaire au nouveau Web/API.
+
+Le nouveau projet doit contenir uniquement les composants nécessaires au fonctionnement Web/API.
+
+Il n’est PAS nécessaire de transférer le Mobile.
+
+Conserve impérativement :
+
+* application Web ;
+* API ;
+* authentification ;
+* /administration ;
+* « Utilisateurs enregistrés » ;
+* /api/admin/users ;
+* requireAdmin ;
+* protections serveur ;
+* fonctionnalités Web existantes nécessaires.
+
+Ne supprime aucune fonctionnalité existante sans justification.
+
+NE MODIFIE PAS les données de production.
+
+NE MODIFIE PAS le domaine.
+
+NE TOUCHE PAS au Mobile de l’ancien projet.
+
+NE CRÉE PAS de nouvelle base de données.
+
+NE CRÉE PAS de nouveau Clerk.
+
+NE CRÉE PAS de nouveaux comptes.
+
+NE FAIS AUCUNE migration de données.
+
+NE FAIS AUCUN seed de production.
+
+Si un fichier doit être copié depuis une autre source, identifie d’abord précisément ce qui doit être copié et pourquoi.
+
+Si l’origine du code à transférer n’est pas accessible dans ce nouveau Repl :
+
+ARRÊTE-TOI ET INDIQUE EXACTEMENT CE QUI MANQUE.
+
+==================================================
+ÉTAPE 3 — CONNEXION AUX SERVICES EXISTANTS
+
+UNIQUEMENT SI LES ÉTAPES 1 ET 2 SONT VALIDÉES.
+
+Le nouveau Web/API doit utiliser les SERVICES EXISTANTS de l’application.
+
+PRIORITÉ ABSOLUE :
+
+1. Clerk existant.
+2. Base PostgreSQL existante.
+3. Stockage existant.
+4. Services existants réellement nécessaires.
+5. Stripe existant uniquement si nécessaire au fonctionnement.
+
+NE CRÉE PAS de nouveaux services destinés à remplacer les services actuels.
+
+NE COPIE AUCUN SECRET DANS LE CODE.
+
+NE COMMITTE AUCUN SECRET.
+
+NE DEMANDE PAS à l’utilisateur de coller des secrets dans le chat.
+
+Identifie seulement les variables nécessaires.
+
+Pour chaque variable :
+
+NOM :
+NÉCESSAIRE :
+UTILISATION :
+VALEUR : NON AFFICHÉE
+
+IMPORTANT :
+
+Avant de connecter une base existante, vérifie le comportement du serveur au démarrage.
+
+Si le démarrage peut :
+
+* créer des données ;
+* insérer des artistes ;
+* créer des comptes ;
+* modifier des tables ;
+* exécuter un seed ;
+* effectuer une migration automatique ;
+
+ARRÊTE-TOI.
+
+Ne lance aucune opération destructive ou d’écriture sur la base de production.
+
+Si la connexion aux services existants ne peut pas être établie sans risque :
+
+ARRÊTE-TOI.
+
+==================================================
+ÉTAPE 4 — BUILD ET TEST COMPLET SUR URL TEMPORAIRE
+
+UNIQUEMENT SI LES ÉTAPES 1, 2 ET 3 SONT VALIDÉES.
+
+Construis le nouveau Web/API.
+
+Effectue les vérifications suivantes.
+
+BUILD
+
+* build Web ;
+* build API ;
+* vérification TypeScript ;
+* vérification des routes ;
+* vérification des dépendances.
+
+FONCTIONNEL
+
+Tester sur une URL temporaire indépendante :
+
+* page d’accueil ;
+* navigation principale ;
+* authentification ;
+* pages publiques ;
+* /administration ;
+* « Utilisateurs enregistrés » ;
+* /api/admin/users.
+
+SÉCURITÉ
+
+Sans session :
+
+* /administration ne doit pas donner accès au dashboard ADMIN ;
+* /api/admin/users doit être refusé.
+
+Pour un utilisateur non-ADMIN :
+
+* aucun accès au dashboard ADMIN ;
+* aucun accès à la liste des utilisateurs ;
+* aucun accès aux données internes ADMIN ;
+* aucun accès aux statistiques privées de visiteurs.
+
+Pour les profils Artiste / Professionnel :
+
+* aucun accès à la liste des utilisateurs ;
+* aucun accès aux utilisateurs connectés ;
+* aucun accès aux statistiques privées ;
+* aucun accès aux informations internes ADMIN.
+
+Pour ADMIN :
+
+* /administration doit être accessible ;
+* « Utilisateurs enregistrés » doit fonctionner ;
+* /api/admin/users doit fonctionner conformément aux protections existantes.
+
+IMPORTANT :
+
+Si aucun véritable compte ADMIN/non-ADMIN de test n’est disponible dans cet environnement, NE FABRIQUE PAS de compte et ne modifie pas la base pour en créer un.
+
+Indique simplement :
+
+TEST ADMIN RÉEL : NON DISPONIBLE
+
+TEST NON-ADMIN RÉEL : NON DISPONIBLE
+
+et distingue clairement ce qui a été vérifié statiquement de ce qui a été réellement testé.
+
+DONNÉES
+
+Pendant toute cette étape :
+
+* aucune création de compte ;
+* aucune suppression de compte ;
+* aucune modification de données ;
+* aucune migration ;
+* aucun seed ;
+* aucune modification de Clerk ;
+* aucune modification de Supabase/PostgreSQL ;
+* aucune modification de Stripe.
+
+DOMAINE
+
+NE TOUCHE PAS À :
+
+https://indamoraplay.com
+
+NE MODIFIE PAS le DNS.
+
+NE CHANGE PAS le domaine.
+
+NE REMPLACE PAS la production actuelle.
+
+MOBILE
+
+NE TOUCHE PAS au Mobile actuel.
+
+NE SUPPRIME PAS :
+
+https://indamoraplay.com/indamora-play-mobile/
+
+NE TENTE PAS de le republier.
+
+NE TENTE PAS de le reconstruire.
+
+==================================================
+RÈGLE D’ARRÊT ABSOLUE
+
+À N’IMPORTE QUEL MOMENT, si tu rencontres :
+
+* une configuration inconnue ;
+* un risque pour les comptes existants ;
+* un risque pour la base ;
+* un risque pour le Mobile ;
+* un risque pour la production ;
+* un risque de remplacement du déploiement ;
+* un risque sur Clerk ;
+* un risque sur PostgreSQL/Supabase ;
+* un risque sur Stripe ;
+* un secret manquant ;
+* une dépendance critique manquante ;
+* une migration automatique ;
+* un seed automatique ;
+* une impossibilité de tester proprement ;
+
+ARRÊTE-TOI IMMÉDIATEMENT.
+
+NE CONTOURNE PAS LE PROBLÈME.
+
+NE PRENDS AUCUNE INITIATIVE.
+
+N’UTILISE PAS PUBLISH.
+
+N’UTILISE PAS LE DOMAINE DE PRODUCTION.
+
+==================================================
+INTERDICTIONS PERMANENTES
+
+NE PAS :
+
+* publier sur indamoraplay.com ;
+* modifier le DNS ;
+* modifier la production actuelle ;
+* modifier l’ancien Repl ;
+* modifier le Mobile actuel ;
+* créer un nouveau Clerk ;
+* créer de nouveaux comptes utilisateurs ;
+* créer une nouvelle base destinée à remplacer l’ancienne ;
+* migrer les données ;
+* supprimer des données ;
+* modifier les secrets de production ;
+* faire de commit/push vers le dépôt de production sans autorisation explicite ;
+* faire de reset/merge/rebase/checkout sur le projet de production.
+
+==================================================
+RAPPORT FINAL OBLIGATOIRE
+
+À la fin, réponds exactement sous cette forme :
+
+ÉTAPE 1 — AUDIT :
+[OK / BLOQUÉE]
+
+ÉTAPE 2 — WEB/API :
+[OK / BLOQUÉE]
+
+ÉTAPE 3 — SERVICES EXISTANTS :
+[OK / BLOQUÉE]
+
+ÉTAPE 4 — BUILD/TEST :
+[OK / BLOQUÉE]
+
+WEB :
+[OK / ÉCHEC]
+
+API :
+[OK / ÉCHEC]
+
+ADMINISTRATION :
+[OK / ÉCHEC]
+
+UTILISATEURS ENREGISTRÉS :
+[OK / ÉCHEC]
+
+/api/admin/users :
+[OK / ÉCHEC]
+
+SÉCURITÉ ADMIN :
+[OK / ÉCHEC / NON TESTABLE RÉELLEMENT]
+
+CLERK :
+[INCHANGÉ / MODIFIÉ / NON VÉRIFIÉ]
+
+BASE DE DONNÉES :
+[INCHANGÉE / MODIFIÉE / NON VÉRIFIÉE]
+
+DONNÉES :
+[INCHANGÉES / MODIFIÉES / NON VÉRIFIÉES]
+
+MOBILE PRODUCTION :
+[INCHANGÉ / MODIFIÉ / NON VÉRIFIÉ]
+
+DOMAINE PRODUCTION :
+[INCHANGÉ / MODIFIÉ]
+
+PUBLICATION :
+[AUCUNE]
+
+ÉTAT FINAL :
+[PRÊT POUR VALIDATION HUMAINE / BLOQUÉ]
+
+PROBLÈMES :
+[liste précise]
+
+PROCHAINE ACTION SÛRE :
+[une seule action clairement décrite]
+
+RÈGLE FINALE :
+
+MÊME SI TOUS LES TESTS SONT POSITIFS, NE FAIS PAS LA BASCULE FINALE DU DOMAINE ET NE PUBLIE PAS SUR indamoraplay.com.
+
+La mise en production finale nécessitera une validation explicite de l’utilisateur après examen du rapport.
