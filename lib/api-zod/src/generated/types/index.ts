@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './adminArtistProfile';
 export * from './adminUser';
 export * from './adminUsersPage';
 export * from './artist';

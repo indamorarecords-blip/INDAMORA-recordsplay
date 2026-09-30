@@ -344,13 +344,45 @@ components:
         - status
     AdminUser:
       type: object
-      required: [id, firstName, lastName, username, email, createdAt]
+      required: [id, firstName, lastName, username, email, phoneNumber, createdAt, profiles]
       properties:
         id: { type: string }
         firstName: { type: ["string", "null"] }
         lastName: { type: ["string", "null"] }
         username: { type: ["string", "null"] }
         email: { type: ["string", "null"] }
+        phoneNumber: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+        profiles:
+          type: array
+          description: Artist directory profiles linked to this Clerk account; empty when none are linked.
+          items:
+            $ref: "#/components/schemas/AdminArtistProfile"
+    AdminArtistProfile:
+      type: object
+      required: [id, name, category, bio, location, avatar, worksCount, ownerId, profileGroup, subcategory, country, specialties, website, socialLinks, professionalContact, profileStatus, isPublished, createdAt]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        category: { type: string }
+        bio: { type: string }
+        location: { type: string }
+        avatar: { type: ["string", "null"] }
+        worksCount: { type: integer }
+        ownerId: { type: ["string", "null"] }
+        profileGroup: { type: string }
+        subcategory: { type: ["string", "null"] }
+        country: { type: ["string", "null"] }
+        specialties:
+          type: array
+          items: { type: string }
+        website: { type: ["string", "null"] }
+        socialLinks:
+          type: array
+          items: { type: string }
+        professionalContact: { type: ["string", "null"] }
+        profileStatus: { type: string }
+        isPublished: { type: boolean }
         createdAt: { type: string, format: date-time }
     AdminUsersPage:
       type: object

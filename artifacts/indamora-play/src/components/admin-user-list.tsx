@@ -1,6 +1,15 @@
 import { useState } from 'react';
 import { useGetAdminUsers } from '@workspace/api-client-react';
 
+function Detail({ label, value }: { label: string; value: string | number | null | undefined }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-xs font-semibold text-muted-foreground">{label}</dt>
+      <dd className="mt-1 break-words text-sm">{value === null || value === undefined || value === '' ? 'Non renseigné' : value}</dd>
+    </div>
+  );
+}
+
 export function AdminUserList() {
   const [offset, setOffset] = useState(0);
   const users = useGetAdminUsers({ offset });
@@ -35,12 +44,56 @@ export function AdminUserList() {
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <h3 className="break-words font-bold">{name}</h3>
-                    {user.email && <p className="mt-1 break-all text-sm text-muted-foreground">{user.email}</p>}
-                    {user.username && <p className="mt-1 text-xs text-muted-foreground">@{user.username}</p>}
                   </div>
                   <p className="text-xs text-muted-foreground">Inscrit le {new Date(user.createdAt).toLocaleDateString('fr-FR')}</p>
                 </div>
-                <p className="mt-3 break-all font-mono text-xs text-muted-foreground">ID : {user.id}</p>
+                <dl className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <Detail label="Prénom" value={user.firstName} />
+                  <Detail label="Nom" value={user.lastName} />
+                  <Detail label="Email" value={user.email} />
+                  <Detail label="Nom d’utilisateur" value={user.username} />
+                  <Detail label="Téléphone Clerk" value={user.phoneNumber} />
+                  <Detail label="Identifiant Clerk" value={user.id} />
+                </dl>
+
+                <section className="mt-6 border-t border-border pt-5" aria-label={`Profils associés à ${name}`}>
+                  <h4 className="font-semibold">Profils associés</h4>
+                  {user.profiles.length === 0 ? (
+                    <p className="mt-2 text-sm text-muted-foreground">Aucun profil artiste rattaché à ce compte.</p>
+                  ) : (
+                    <div className="mt-3 space-y-3">
+                      {user.profiles.map((profile) => (
+                        <div key={profile.id} className="rounded-xl bg-muted p-4">
+                          <div className="flex items-center gap-3">
+                            {profile.avatar && <img src={profile.avatar} alt="" className="h-12 w-12 shrink-0 rounded-full object-cover" />}
+                            <div className="min-w-0">
+                              <h5 className="break-words font-semibold">{profile.name}</h5>
+                              <p className="text-xs text-muted-foreground">Profil #{profile.id}</p>
+                            </div>
+                          </div>
+                          <dl className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            <Detail label="Groupe de profil" value={profile.profileGroup} />
+                            <Detail label="Catégorie" value={profile.category} />
+                            <Detail label="Sous-catégorie" value={profile.subcategory} />
+                            <Detail label="Biographie" value={profile.bio} />
+                            <Detail label="Localisation" value={profile.location} />
+                            <Detail label="Pays" value={profile.country} />
+                            <Detail label="Spécialités" value={profile.specialties.join(', ')} />
+                            <Detail label="Site web" value={profile.website} />
+                            <Detail label="Réseaux sociaux" value={profile.socialLinks.join(', ')} />
+                            <Detail label="Contact professionnel" value={profile.professionalContact} />
+                            <Detail label="Statut du profil" value={profile.profileStatus} />
+                            <Detail label="Publié" value={profile.isPublished ? 'Oui' : 'Non'} />
+                            <Detail label="Avatar" value={profile.avatar} />
+                            <Detail label="Nombre d’œuvres" value={profile.worksCount} />
+                            <Detail label="Identifiant du propriétaire" value={profile.ownerId} />
+                            <Detail label="Créé le" value={new Date(profile.createdAt).toLocaleDateString('fr-FR')} />
+                          </dl>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
               </article>
             );
           })}

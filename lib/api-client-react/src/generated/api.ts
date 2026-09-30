@@ -139,6 +139,11 @@ export function useHealthCheck<TData = Awaited<ReturnType<typeof healthCheck>>, 
 }
 
 
+
+
+
+
+
 export const getGetCatalogUrl = () => {
 
 
@@ -209,6 +214,13 @@ export function useGetCatalog<TData = Awaited<ReturnType<typeof getCatalog>>, TE
 
   return withQueryKey(query, queryOptions.queryKey);
 }
+
+
+
+
+
+
+
 export const getGetWorkUrl = (id: number,) => {
 
 
@@ -1189,3 +1201,10 @@ export function useGetStorageObject<TData = Awaited<ReturnType<typeof getStorage
 
   return withQueryKey(query, queryOptions.queryKey);
 }
+
+
+
+
+
+
+

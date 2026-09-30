@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { AdminArtistProfile } from './adminArtistProfile';
 
 export interface AdminUser {
   id: string;
@@ -16,5 +17,9 @@ export interface AdminUser {
   username: string | null;
   /** @nullable */
   email: string | null;
+  /** @nullable */
+  phoneNumber: string | null;
   createdAt: Date;
+  /** Artist directory profiles linked to this Clerk account; empty when none are linked. */
+  profiles: AdminArtistProfile[];
 }

@@ -9,6 +9,33 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface AdminArtistProfile {
+  id: number;
+  name: string;
+  category: string;
+  bio: string;
+  location: string;
+  /** @nullable */
+  avatar: string | null;
+  worksCount: number;
+  /** @nullable */
+  ownerId: string | null;
+  profileGroup: string;
+  /** @nullable */
+  subcategory: string | null;
+  /** @nullable */
+  country: string | null;
+  specialties: string[];
+  /** @nullable */
+  website: string | null;
+  socialLinks: string[];
+  /** @nullable */
+  professionalContact: string | null;
+  profileStatus: string;
+  isPublished: boolean;
+  createdAt: string;
+}
+
 export interface AdminUser {
   id: string;
   /** @nullable */
@@ -19,7 +46,11 @@ export interface AdminUser {
   username: string | null;
   /** @nullable */
   email: string | null;
+  /** @nullable */
+  phoneNumber: string | null;
   createdAt: string;
+  /** Artist directory profiles linked to this Clerk account; empty when none are linked. */
+  profiles: AdminArtistProfile[];
 }
 
 export interface AdminUsersPage {
