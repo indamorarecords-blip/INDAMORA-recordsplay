@@ -1,0 +1,365 @@
+MISSION : SÉPARER LE FUTUR WEB DE LA PRODUCTION ACTUELLE SANS RISQUER LE MOBILE
+
+OBJECTIF FINAL
+
+Nous devons pouvoir mettre en production la version Web actuelle contenant notamment :
+
+* /administration
+* la section « Utilisateurs enregistrés »
+* /api/admin/users
+* les protections ADMIN côté serveur
+
+SANS MODIFIER, SUPPRIMER, REMPLACER OU DÉGRADER :
+
+* le Mobile actuellement accessible sur
+    https://indamoraplay.com/indamora-play-mobile/
+* la production actuelle ;
+* les données existantes ;
+* les comptes Clerk ;
+* Supabase ;
+* Stripe ;
+* les autres fonctionnalités existantes.
+
+IMPORTANT :
+
+Le Repl actuel possède un seul déploiement Autoscale commun.
+Une nouvelle publication de ce Repl pourrait remplacer la production actuelle et casser le Mobile.
+
+DONC :
+
+NE PAS UTILISER « PUBLISH » SUR LE REPL ACTUEL.
+
+NE PAS MODIFIER LA PRODUCTION ACTUELLE.
+
+NE PAS PRENDRE DE RISQUE POUR LE MOBILE.
+
+La procédure ci-dessous doit être exécutée en trois phases strictement séquentielles.
+
+==================================================
+PHASE 1 — AUDIT COMPLET AVANT TOUTE MODIFICATION
+
+Commence par un audit STRICTEMENT EN LECTURE SEULE.
+
+Vérifie :
+
+1. git status --short
+2. git diff --stat
+3. git diff
+4. git rev-parse HEAD
+
+Confirme que le workspace actuel est propre.
+
+Identifie précisément :
+
+* la structure Web ;
+* la structure API ;
+* la structure Mobile ;
+* les fichiers nécessaires au Web ;
+* les dépendances nécessaires ;
+* les variables d’environnement nécessaires ;
+* les routes ;
+* les configurations de build ;
+* les configurations de production ;
+* les intégrations Clerk ;
+* les intégrations Supabase ;
+* les intégrations Stripe ;
+* les éventuelles références au Mobile.
+
+Vérifie particulièrement les fonctionnalités déjà présentes :
+
+* /administration
+* « Utilisateurs enregistrés »
+* /api/admin/users
+* contrôle ADMIN côté serveur.
+
+NE MODIFIE RIEN pendant cette phase.
+
+NE FAIS :
+
+* aucun commit ;
+* aucun push ;
+* aucun checkout ;
+* aucun reset ;
+* aucun merge ;
+* aucun rebase ;
+* aucune migration ;
+* aucune modification de base de données ;
+* aucune modification de configuration ;
+* aucune publication.
+
+À la fin de la phase 1, produis :
+
+AUDIT PHASE 1 :
+
+* HEAD :
+* Git propre : OUI/NON
+* Web identifié : OUI/NON
+* API identifiée : OUI/NON
+* Mobile identifié : OUI/NON
+* Fonctionnalité Admin identifiée : OUI/NON
+* /api/admin/users identifié : OUI/NON
+* Dépendances identifiées : OUI/NON
+* Variables nécessaires identifiées : OUI/NON
+* Risque identifié : OUI/NON
+* Conclusion :
+
+SI UN ÉLÉMENT ESSENTIEL N’EST PAS IDENTIFIÉ :
+ARRÊTE-TOI ET NE PASSE PAS À LA PHASE 2.
+
+==================================================
+PHASE 2 — PRÉPARATION D’UN NOUVEAU REPL WEB
+
+UNIQUEMENT SI LA PHASE 1 EST VALIDÉE.
+
+L’objectif est de préparer un environnement Web séparé.
+
+IMPORTANT :
+
+Le Repl de production actuel doit rester totalement inchangé.
+
+NE PAS :
+
+* publier le Repl actuel ;
+* modifier son déploiement ;
+* modifier son domaine ;
+* modifier le Mobile ;
+* supprimer le Mobile ;
+* modifier les données ;
+* modifier Clerk ;
+* modifier Supabase ;
+* modifier Stripe.
+
+Avant toute création ou copie, vérifie si l’environnement permet réellement de créer un NOUVEAU REPL/PROJET séparé.
+
+Si un nouveau Repl peut être créé proprement :
+
+* crée ou prépare uniquement le nouvel environnement Web ;
+* transfère uniquement les composants nécessaires au Web/API ;
+* conserve les protections ADMIN ;
+* conserve /administration ;
+* conserve « Utilisateurs enregistrés » ;
+* conserve /api/admin/users.
+
+NE COPIE PAS automatiquement les secrets ou variables sensibles dans un nouvel environnement.
+
+Pour chaque variable nécessaire, identifie-la mais ne l’affiche jamais en clair.
+
+Ne crée aucune nouvelle donnée utilisateur.
+
+Ne crée aucun nouveau compte Clerk.
+
+Ne modifie aucune donnée Supabase.
+
+Ne modifie aucune donnée Stripe.
+
+NE SUPPRIME RIEN de l’ancien Repl.
+
+Le nouveau Web doit être testable indépendamment de la production actuelle.
+
+À la fin de la phase 2, vérifie :
+
+* build Web ;
+* build API ;
+* routes principales ;
+* /administration ;
+* /api/admin/users ;
+* protection ADMIN ;
+* absence d’exposition publique de la liste utilisateurs ;
+* absence d’accès ADMIN pour les utilisateurs ordinaires ;
+* absence de modification des données de production.
+
+IMPORTANT :
+
+Ne change PAS encore indamoraplay.com.
+
+Ne fais PAS encore de bascule DNS/domaine.
+
+Ne publie PAS sur le domaine de production.
+
+À la fin :
+
+AUDIT PHASE 2 :
+
+* Nouveau Repl Web créé/préparé : OUI/NON
+* Production actuelle inchangée : OUI/NON
+* Mobile inchangé : OUI/NON
+* Données inchangées : OUI/NON
+* Clerk inchangé : OUI/NON
+* Supabase inchangé : OUI/NON
+* Stripe inchangé : OUI/NON
+* Build Web : OK/ÉCHEC
+* Build API : OK/ÉCHEC
+* Admin : OK/ÉCHEC
+* /api/admin/users : OK/ÉCHEC
+* Sécurité ADMIN : OK/ÉCHEC
+* Conclusion :
+
+SI UN TEST ÉCHOUE :
+ARRÊTE-TOI.
+NE PAS PASSER À LA PHASE 3.
+
+==================================================
+PHASE 3 — TEST COMPLET AVANT BASCULE DE PRODUCTION
+
+UNIQUEMENT SI LES PHASES 1 ET 2 SONT VALIDÉES.
+
+Le nouveau Web doit être testé sur sa propre URL temporaire.
+
+NE TOUCHE PAS ENCORE AU DOMAINE :
+
+https://indamoraplay.com
+
+Effectue des tests de fonctionnement et de sécurité.
+
+TESTS OBLIGATOIRES :
+
+1. Page d’accueil Web.
+2. Navigation principale.
+3. Authentification.
+4. /administration sans session :
+    → aucun dashboard ADMIN accessible.
+5. /api/admin/users sans session :
+    → réponse non autorisée.
+6. Vérifier que les utilisateurs ordinaires ne peuvent pas accéder aux données ADMIN.
+7. Vérifier que les profils Artiste/Professionnel ne voient pas :
+    * la liste des utilisateurs ;
+    * les utilisateurs connectés ;
+    * les statistiques privées de visiteurs ;
+    * les informations internes ADMIN.
+8. Vérifier que les données publiques existantes restent publiques uniquement lorsqu’elles doivent l’être.
+9. Vérifier que les données privées restent privées.
+10. Vérifier que le Mobile de l’ancienne production fonctionne toujours :
+    https://indamoraplay.com/indamora-play-mobile/
+
+IMPORTANT :
+
+Aucune modification de production ne doit être effectuée pendant ces tests.
+
+Ne fais pas de migration de données.
+
+Ne crée pas de nouveaux comptes.
+
+Ne supprime aucun compte.
+
+Ne modifie aucune donnée existante.
+
+Ne modifie pas le domaine de production.
+
+==================================================
+RÈGLE ABSOLUE DE SÉCURITÉ
+
+À N’IMPORTE QUEL MOMENT, si tu constates :
+
+* risque pour le Mobile ;
+* risque pour la production actuelle ;
+* risque de suppression de données ;
+* risque de remplacement du déploiement actuel ;
+* impossibilité de séparer le nouveau Web ;
+* impossibilité de tester le nouveau Web indépendamment ;
+* configuration inconnue ;
+* dépendance critique non identifiée ;
+* risque sur Clerk ;
+* risque sur Supabase ;
+* risque sur Stripe ;
+
+ALORS :
+
+ARRÊTE IMMÉDIATEMENT.
+
+NE MODIFIE RIEN.
+
+NE PUBLIE RIEN.
+
+NE CHANGE PAS LE DOMAINE.
+
+Explique précisément le blocage.
+
+==================================================
+INTERDICTIONS PERMANENTES
+
+Pendant toute cette mission :
+
+NE PAS publier le Repl de production actuel.
+
+NE PAS cliquer sur Publish dans le Repl actuel.
+
+NE PAS remplacer le déploiement actuel.
+
+NE PAS supprimer ou recréer le Mobile actuel.
+
+NE PAS modifier le Mobile actuel.
+
+NE PAS modifier les données de production.
+
+NE PAS modifier Clerk.
+
+NE PAS modifier Supabase.
+
+NE PAS modifier Stripe.
+
+NE PAS supprimer de comptes.
+
+NE PAS modifier les secrets existants.
+
+NE PAS faire de migration destructive.
+
+NE PAS faire de commit ou push sur le dépôt de production sans autorisation explicite.
+
+NE PAS modifier le domaine de production sans autorisation explicite.
+
+NE PAS faire de bascule DNS.
+
+NE PAS effectuer de mise en production finale automatiquement.
+
+==================================================
+FIN DE MISSION
+
+À la fin des trois phases, réponds avec ce résumé :
+
+ÉTAT PRODUCTION ACTUELLE :
+[INTACTE / MODIFIÉE]
+
+ÉTAT MOBILE :
+[INTACT / MODIFIÉ / INCERTAIN]
+
+NOUVEAU WEB :
+[PRÊT / NON PRÊT / BLOQUÉ]
+
+ADMIN :
+[OK / ÉCHEC]
+
+UTILISATEURS ENREGISTRÉS :
+[OK / ÉCHEC]
+
+API ADMIN :
+[OK / ÉCHEC]
+
+SÉCURITÉ :
+[OK / ÉCHEC / INCERTAINE]
+
+DONNÉES :
+[INTACTES / MODIFIÉES / INCERTAINES]
+
+CLERK :
+[INTACT / MODIFIÉ / INCERTAIN]
+
+SUPABASE :
+[INTACT / MODIFIÉ / INCERTAIN]
+
+STRIPE :
+[INTACT / MODIFIÉ / INCERTAIN]
+
+DOMAINE DE PRODUCTION :
+[INCHANGÉ / MODIFIÉ]
+
+PUBLICATION FINALE :
+[NON EFFECTUÉE]
+
+PROCHAINE ACTION SÛRE :
+[description précise]
+
+RÈGLE FINALE :
+
+NE PRENDS AUCUNE INITIATIVE DE PUBLICATION.
+
+La bascule finale du domaine et la mise en production ne pourront être effectuées qu’après validation explicite de l’utilisateur.
