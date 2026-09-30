@@ -1,0 +1,128 @@
+AUDIT COMPLET EN LECTURE SEULE — LOGO REPLIT SUR INDAMORA PLAY
+
+Je veux identifier simultanément l’origine du petit logo/bouton Replit noir avec symbole orange qui apparaît maintenant sur INDAMORA PLAY.
+
+Le logo est visible :
+1. sur le site public https://indamoraplay.com
+2. sur l’interface Mobile / application
+3. sur le Preview Replit
+4. sur la version publiée / production
+
+OBJECTIF :
+Déterminer précisément si ce logo vient :
+- du code INDAMORA ;
+- du Web ;
+- du Mobile ;
+- d’une dépendance ;
+- d’un script injecté ;
+- de Replit Preview ;
+- de Replit Deploy/Production ;
+- ou d’une configuration Replit.
+
+IMPORTANT — AUDIT STRICTEMENT EN LECTURE SEULE :
+
+NE MODIFIE RIEN.
+
+Ne pas :
+- modifier de fichier ;
+- modifier le Web ;
+- modifier le Mobile ;
+- modifier l’API ;
+- modifier Clerk ;
+- modifier la base de données ;
+- modifier les routes ;
+- modifier le domaine ;
+- modifier les variables d’environnement ;
+- modifier la configuration de publication ;
+- supprimer une dépendance ;
+- désactiver un service ;
+- publier ou redéployer ;
+- effectuer de commit.
+
+FAIRE LES 4 AUDITS EN MÊME TEMPS :
+
+AUDIT 1 — CODE INDAMORA
+Rechercher dans tout le projet :
+- "Replit"
+- "replit"
+- "badge"
+- "Replit badge"
+- "feedback"
+- "overlay"
+- "dev overlay"
+- "development overlay"
+- "iframe"
+- scripts externes
+- composants ajoutant un bouton flottant
+- éléments positionnés fixed/absolute en bas de l'écran
+- toute référence pouvant correspondre au bouton visible dans les captures.
+
+Identifier précisément les fichiers concernés s'il y en a.
+
+AUDIT 2 — WEB + MOBILE
+Vérifier séparément :
+- artifacts/indamora-play
+- artifacts/indamora-play-mobile
+- leurs dépendances
+- leurs configurations
+- leurs scripts
+- leurs layouts/index.html/root components
+- tout mécanisme commun susceptible d'ajouter le bouton.
+
+Dire clairement si le logo provient du Web, du Mobile, des deux, ou d'aucun des deux.
+
+AUDIT 3 — PREVIEW REPLIT
+Vérifier si Replit ajoute automatiquement ce bouton dans le Preview :
+- script injecté ;
+- overlay ;
+- outil de développement ;
+- iframe ;
+- extension de Preview ;
+- configuration spéciale du Preview.
+
+Déterminer si le bouton fait partie du DOM de l'application ou est ajouté par l'environnement Replit après chargement.
+
+AUDIT 4 — PRODUCTION / DEPLOYMENT
+Vérifier la configuration actuelle de publication Replit :
+- configuration des deployments ;
+- configuration du Web ;
+- configuration du Mobile ;
+- variables/configurations pouvant injecter un badge ;
+- scripts de production ;
+- éventuelle option Replit liée à un badge, branding, feedback ou overlay ;
+- différence entre Preview et Production.
+
+Vérifier également pourquoi le logo peut maintenant apparaître sur https://indamoraplay.com alors qu'il n'était pas présent auparavant.
+
+COMPARAISON :
+Comparer l'état actuel avec l'état précédent fonctionnel et les derniers changements/publications connus.
+
+Je veux savoir si l'apparition du logo est liée :
+- à la dernière publication ;
+- à une modification de configuration Replit ;
+- à une modification du code ;
+- à une dépendance ;
+- ou à autre chose.
+
+RÉSULTAT FINAL :
+
+Présente un rapport avec exactement ces 4 sections :
+
+1. CODE INDAMORA
+2. WEB / MOBILE
+3. PREVIEW REPLIT
+4. PRODUCTION / DEPLOYMENT
+
+Puis ajoute :
+
+CONCLUSION
+- origine exacte si identifiée ;
+- sinon hypothèse la plus probable ;
+- fichiers/configuration concernés ;
+- pourquoi le logo apparaît maintenant ;
+- comment le retirer proprement.
+
+IMPORTANT :
+Ne fais absolument aucune modification pendant cet audit.
+
+À la fin, arrête-toi et attends mon autorisation explicite avant de proposer ou d’effectuer une correction.
