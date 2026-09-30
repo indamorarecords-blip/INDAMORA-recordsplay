@@ -1,0 +1,63 @@
+Fais UNIQUEMENT un audit en lecture seule du projet INDAMORAPLAY actuel.
+
+OBJECTIF :
+Je veux modifier ensuite la page /administration afin que seul un ADMIN puisse voir les personnes inscrites :
+
+* utilisateurs ordinaires ;
+* artistes ;
+* professionnels.
+
+Pour chaque personne, l’ADMIN devra pouvoir voir toutes les informations réellement enregistrées dans la base, notamment si elles existent :
+
+* nom ;
+* prénom ;
+* email ;
+* téléphone ;
+* type de profil / rôle ;
+* date d’inscription ;
+* statut ;
+* informations artiste ;
+* informations professionnel ;
+* autres informations de profil effectivement stockées.
+
+AVANT TOUTE MODIFICATION, vérifie précisément :
+
+1. La route/page actuelle /administration.
+2. Le système d’authentification utilisé.
+3. La manière dont le rôle ADMIN est contrôlé.
+4. Les tables/modèles qui contiennent les comptes utilisateurs.
+5. Les tables/modèles des profils artistes.
+6. Les tables/modèles des profils professionnels.
+7. Les relations entre compte utilisateur et profils artiste/professionnel.
+8. Les champs réellement disponibles dans ces tables/modèles.
+9. Les routes API déjà existantes concernant les utilisateurs, comptes, artistes et professionnels.
+10. Les protections empêchant un utilisateur non ADMIN d’accéder à ces données.
+11. Vérifie qu’aucune route publique ne permet déjà de récupérer la liste complète des utilisateurs.
+12. Indique exactement quels fichiers devraient être modifiés pour ajouter cet affichage dans /administration.
+
+IMPORTANT :
+
+* Ne modifie aucun fichier.
+* Ne crée aucune table.
+* Ne modifie aucune table.
+* Ne lance aucune migration.
+* Ne crée aucune donnée de test.
+* Ne supprime aucune donnée.
+* Ne modifie aucun compte.
+* Ne modifie pas l’authentification.
+* Ne modifie pas le Mobile.
+* Ne modifie pas le domaine.
+* Ne publie rien.
+* Ne déploie rien.
+* Ne révèle aucun secret, token ou mot de passe.
+* Ne m’affiche pas les données personnelles réelles des utilisateurs dans le rapport.
+
+Je veux uniquement les noms des fichiers, tables/modèles, champs, relations, routes et protections existantes.
+
+À la fin, donne-moi :
+A. ce qui existe déjà ;
+B. ce qui manque pour l’affichage ADMIN ;
+C. la liste minimale des fichiers à modifier ;
+D. un plan de modification minimal et non destructif.
+
+PUIS ARRÊTE-TOI ET ATTENDS MON ACCORD EXPLICITE AVANT DE MODIFIER QUOI QUE CE SOIT.
