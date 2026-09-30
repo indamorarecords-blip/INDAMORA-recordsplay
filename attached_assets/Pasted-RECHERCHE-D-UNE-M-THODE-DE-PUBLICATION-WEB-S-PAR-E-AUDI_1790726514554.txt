@@ -1,0 +1,90 @@
+RECHERCHE D’UNE MÉTHODE DE PUBLICATION WEB SÉPARÉE
+
+AUDIT STRICTEMENT EN LECTURE SEULE.
+
+NE MODIFIE ABSOLUMENT RIEN.
+
+CONTEXTE ÉTABLI :
+
+* Le site Web actuel fonctionne sur https://indamoraplay.com
+* Le Mobile fonctionne actuellement sur https://indamoraplay.com/indamora-play-mobile/
+* Le Mobile était servi par le déploiement commun.
+* Le Mobile n’est actuellement plus enregistré comme artefact dans l’inventaire Replit.
+* Une nouvelle publication du projet entier pourrait donc supprimer/remplacer la route Mobile.
+* Aucun identifiant fiable du déploiement Mobile actuel n’est disponible.
+* Nous devons absolument préserver le Mobile existant.
+
+OBJECTIF UNIQUE :
+
+Déterminer s’il existe, dans la configuration actuelle de Replit, UNE méthode permettant de mettre à jour uniquement le Web/API vers la production sans republier, remplacer, supprimer ou modifier le déploiement qui sert actuellement le Mobile.
+
+Recherche uniquement en lecture seule :
+
+1. Vérifie les différents mécanismes de déploiement disponibles dans ce projet.
+2. Vérifie s’il existe un déploiement Web/API séparé du déploiement qui sert actuellement :
+    /indamora-play-mobile/
+3. Vérifie s’il existe une option Replit permettant de publier :
+    * uniquement le Web ;
+    * uniquement un service ;
+    * uniquement un artefact ;
+    * uniquement une URL/réécriture ;
+    * ou une autre méthode équivalente.
+4. Vérifie si le domaine https://indamoraplay.com peut avoir plusieurs déploiements/services indépendants.
+5. Vérifie si une nouvelle version Web peut être déployée sous une nouvelle cible temporaire sans toucher à la production actuelle.
+6. Vérifie si le projet permet de créer un second déploiement Web indépendant SANS modifier le déploiement actuel.
+7. Si une solution existe, décris-la précisément.
+8. Si aucune solution sûre n’existe, indique-le clairement.
+
+INTERDICTIONS ABSOLUES :
+
+NE PAS CLIQUER SUR PUBLISH.
+NE PAS DÉPLOYER.
+NE PAS CRÉER DE NOUVEAU DÉPLOIEMENT.
+NE PAS MODIFIER DE FICHIER.
+NE PAS MODIFIER DE CONFIGURATION.
+NE PAS MODIFIER DE MANIFEST.
+NE PAS MODIFIER LE MOBILE.
+NE PAS MODIFIER LE WEB.
+NE PAS MODIFIER L’API.
+NE PAS MODIFIER LA BASE DE DONNÉES.
+NE PAS MODIFIER CLERK.
+NE PAS MODIFIER SUPABASE.
+NE PAS MODIFIER STRIPE.
+NE PAS FAIRE DE COMMIT.
+NE PAS FAIRE DE PUSH.
+NE PAS CHANGER DE BRANCHE.
+NE PAS FAIRE DE CHECKOUT, RESET, MERGE, REBASE OU CHERRY-PICK.
+
+IMPORTANT :
+
+Ne propose pas une solution simplement parce qu’elle semble théoriquement possible.
+
+La solution doit être démontrée comme compatible avec la configuration ACTUELLE du projet.
+
+Si tu ne peux pas garantir que le Mobile actuellement accessible à :
+
+https://indamoraplay.com/indamora-play-mobile/
+
+restera strictement inchangé, alors considère la solution comme NON SÛRE.
+
+Réponds exactement :
+
+MÉTHODE WEB INDÉPENDANTE DISPONIBLE : OUI / NON / INCERTAIN
+
+DÉPLOIEMENT WEB SÉPARÉ EXISTANT : OUI / NON / INCERTAIN
+
+MOBILE PROTÉGEABLE PENDANT LA MISE À JOUR WEB : OUI / NON / INCERTAIN
+
+MÉTHODE IDENTIFIÉE :
+[description précise]
+
+PREUVES :
+[éléments vérifiables]
+
+RISQUE :
+[AUCUN / IDENTIFIÉ / INCERTAIN]
+
+ACTION RECOMMANDÉE :
+[uniquement l’action techniquement sûre]
+
+AUCUNE PUBLICATION N’A ÉTÉ EFFECTUÉE.
