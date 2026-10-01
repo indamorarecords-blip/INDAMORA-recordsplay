@@ -1,0 +1,418 @@
+INDAMORA PLAY — RÉACTIVER LE PAIEMENT UNIQUEMENT
+
+OBJECTIF UNIQUE
+
+Réactiver le paiement Premium Stripe en production sur le projet INDAMORA PLAY existant.
+
+Ne faire absolument rien d’autre.
+
+Le projet, son design, son contenu et toutes ses fonctionnalités existantes doivent rester tels quels.
+
+⸻
+
+1. RÈGLE ABSOLUE — NE RIEN MODIFIER D’AUTRE
+
+NE PAS reconstruire le projet.
+
+NE PAS refaire le site.
+
+NE PAS changer le design.
+
+NE PAS changer le logo.
+
+NE PAS changer les couleurs, textes ou interfaces.
+
+NE PAS modifier la navigation.
+
+NE PAS modifier le RÉPERTOIRE.
+
+NE PAS modifier les artistes, œuvres ou lecteur.
+
+NE PAS modifier Clerk sauf si une correction strictement indispensable au paiement l’exige.
+
+NE PAS modifier la base de données sauf si une correction strictement indispensable au paiement l’exige.
+
+NE PAS modifier les fonctionnalités qui ne concernent pas Stripe Premium.
+
+NE PAS créer de nouveau Repl.
+
+NE PAS créer de staging.
+
+NE PAS ajouter d’Artifact.
+
+Le seul objectif est :
+
+RÉTABLIR LE PAIEMENT PREMIUM STRIPE EXISTANT.
+
+⸻
+
+2. COMMENCER PAR AUDITER L’EXISTANT
+
+Avant toute modification :
+
+* inspecter le flux de paiement existant ;
+* inspecter les routes Stripe existantes ;
+* inspecter le Checkout existant ;
+* inspecter /api/billing/plans ;
+* inspecter /api/stripe/webhook ;
+* inspecter la configuration Stripe ;
+* inspecter les Price IDs existants ;
+* inspecter la logique Premium ;
+* inspecter l’idempotence existante.
+
+Ne rien recréer si cela existe déjà.
+
+Réutiliser au maximum le code, les routes, les produits et les prix déjà présents.
+
+⸻
+
+3. STRIPE LIVE
+
+Les vérifications précédentes ont confirmé que les produits/prix Premium existent déjà en LIVE.
+
+Réutiliser les prix existants.
+
+Premium Afrique
+
+500 XAF / mois
+
+Premium International
+
+5 EUR / mois
+
+Ne pas créer de doublons.
+
+Ne pas modifier les prix existants.
+
+Ne pas modifier les produits existants.
+
+Ne pas créer un nouveau produit si le produit actuel fonctionne déjà.
+
+⸻
+
+4. PRIORITÉ N°1 — CHECKOUT PREMIUM
+
+Rétablir le Checkout Premium existant.
+
+Vérifier que :
+
+* l’utilisateur peut sélectionner Premium ;
+* le bon Price ID LIVE est utilisé ;
+* le Checkout Stripe LIVE est créé côté serveur ;
+* l’utilisateur est correctement associé à son Customer Stripe ;
+* le paiement peut être effectué ;
+* le retour vers INDAMORA PLAY fonctionne.
+
+Ne jamais mettre les clés secrètes ou secrets Stripe côté client.
+
+Ne jamais exposer les Price IDs sensibles inutilement.
+
+⸻
+
+5. PRIORITÉ N°2 — /api/billing/plans
+
+Corriger uniquement cette route si nécessaire.
+
+En production :
+
+/api/billing/plans
+
+doit répondre correctement et permettre au système d’identifier les offres Premium existantes.
+
+Vérifier les deux offres :
+
+* 500 XAF/mois ;
+* 5 EUR/mois.
+
+Ne pas utiliser de fausses données.
+
+Ne pas contourner Stripe avec des valeurs codées en dur si le système existant utilise déjà Stripe.
+
+⸻
+
+6. PRIORITÉ N°3 — WEBHOOK PREMIUM
+
+Le principal blocage actuel est le webhook.
+
+La route production attendue est :
+
+https://indamoraplay.com/api/stripe/webhook
+
+Elle doit exister et ne plus retourner 404.
+
+Réutiliser la logique webhook existante si elle existe.
+
+Ne pas créer une architecture différente sans nécessité.
+
+⸻
+
+7. WEBHOOK STRIPE LIVE
+
+Configurer le webhook Stripe LIVE pour qu’il pointe vers :
+
+https://indamoraplay.com/api/stripe/webhook
+
+et non vers l’ancienne fonction Supabase externe, si cette ancienne destination ne permet pas au flux Premium actuel de fonctionner correctement.
+
+Le webhook doit recevoir les événements nécessaires au fonctionnement Premium.
+
+Au minimum vérifier :
+
+* customer.subscription.created
+* customer.subscription.updated
+* customer.subscription.deleted
+* invoice.paid
+* invoice.payment_failed
+
+Ajouter uniquement les autres événements réellement nécessaires au flux existant.
+
+⸻
+
+8. SIGNATURE STRIPE
+
+Le webhook doit vérifier la signature Stripe avec le secret correspondant au webhook LIVE.
+
+Tester :
+
+* événement correctement signé → accepté ;
+* événement sans signature → refusé ;
+* signature invalide → refusée.
+
+Ne jamais désactiver la vérification de signature pour faire fonctionner le paiement.
+
+Ne jamais afficher le secret.
+
+⸻
+
+9. IDEMPOTENCE
+
+Conserver le système d’idempotence existant.
+
+Si le code utilise déjà l’identifiant d’événement Stripe pour éviter les doublons, le conserver.
+
+Vérifier qu’un même événement reçu plusieurs fois ne :
+
+* réactive pas plusieurs fois Premium ;
+* ne crée pas plusieurs opérations ;
+* ne provoque pas de doublon en base.
+
+Ne pas refaire ce système s’il fonctionne déjà.
+
+⸻
+
+10. ACTIVATION PREMIUM
+
+Après paiement confirmé par Stripe :
+
+* le webhook doit être reçu ;
+* la signature doit être validée ;
+* l’événement doit être traité ;
+* le statut Premium doit être mis à jour côté serveur.
+
+Le client ne doit jamais pouvoir s’attribuer lui-même Premium.
+
+Le statut Premium doit provenir d’une confirmation Stripe côté serveur.
+
+⸻
+
+11. CLERK
+
+Conserver Clerk.
+
+Ne pas remplacer Clerk.
+
+Ne modifier Clerk que si cela est absolument nécessaire pour que l’utilisateur authentifié soit correctement relié au paiement Stripe.
+
+Ne pas modifier :
+
+* inscription ;
+* connexion ;
+* vérification e-mail ;
+* sessions ;
+* permissions ;
+
+si tout fonctionne déjà.
+
+⸻
+
+12. DONATIONS
+
+NE PAS modifier le système de dons, sauf si une modification est absolument nécessaire au fonctionnement partagé du webhook.
+
+Les dons restent des paiements uniques.
+
+Ne pas transformer les dons en abonnements.
+
+Ne pas modifier leurs prix existants.
+
+⸻
+
+13. BASE DE DONNÉES
+
+Ne pas modifier la base de données si ce n’est pas nécessaire.
+
+Avant toute migration :
+
+1. inspecter le schéma existant ;
+2. vérifier les champs Premium/Stripe existants ;
+3. réutiliser les champs existants ;
+4. ne créer une modification que si le paiement ne peut réellement pas fonctionner autrement.
+
+Aucune donnée existante ne doit être supprimée.
+
+⸻
+
+14. TEST AVANT PUBLICATION
+
+Avant de publier :
+
+TEST TECHNIQUE
+
+Vérifier :
+
+* /api/healthz ;
+* /api/billing/plans ;
+* Checkout ;
+* webhook ;
+* signature ;
+* idempotence ;
+* statut Premium.
+
+TEST PAIEMENT
+
+Effectuer un test contrôlé avec Stripe conformément aux possibilités de l’environnement.
+
+Vérifier :
+
+Utilisateur → Checkout → Stripe → paiement → webhook → confirmation serveur → Premium actif
+
+Ne pas considérer uniquement l’ouverture du Checkout comme une validation.
+
+Le statut Premium doit être vérifié après réception de l’événement Stripe.
+
+⸻
+
+15. NE PAS TOUCHER AU RESTE DU SITE
+
+Pendant toute l’opération :
+
+NE PAS modifier :
+
+* page d’accueil ;
+* RÉPERTOIRE ;
+* artistes ;
+* œuvres ;
+* lecteur audio ;
+* recherche ;
+* navigation ;
+* design ;
+* logo ;
+* responsive ;
+* mobile ;
+* desktop ;
+* application ;
+* SEO ;
+* contenu ;
+* stockage ;
+* modération ;
+* administration ;
+* fonctionnalités sans rapport avec Stripe Premium.
+
+Si une modification de l’un de ces éléments semble nécessaire :
+
+STOP.
+
+Ne pas la faire sans justification explicite.
+
+⸻
+
+16. RÈGLE D’ARRÊT
+
+NE PAS PUBLIER si l’un des éléments suivants n’est pas confirmé :
+
+* Checkout Premium fonctionnel ;
+* /api/billing/plans fonctionnel ;
+* /api/stripe/webhook accessible ;
+* webhook Stripe LIVE correctement configuré ;
+* signature vérifiée ;
+* événements nécessaires activés ;
+* idempotence fonctionnelle ;
+* statut Premium mis à jour côté serveur ;
+* aucun risque de paiement incorrect ;
+* aucune régression du site existant.
+
+Ne jamais publier simplement pour “voir si ça marche”.
+
+⸻
+
+17. PUBLICATION
+
+Une fois toutes les vérifications réussies :
+
+1. effectuer la dernière vérification de non-régression ;
+2. confirmer que seuls les éléments Stripe nécessaires ont été modifiés ;
+3. publier la version existante avec la correction du paiement ;
+4. vérifier immédiatement le fonctionnement du paiement après publication.
+
+Ne pas profiter de cette publication pour effectuer d’autres améliorations.
+
+⸻
+
+18. RAPPORT FINAL
+
+À la fin, fournir un rapport court et précis :
+
+MODIFICATIONS
+
+Lister uniquement les fichiers/configurations réellement modifiés pour réactiver le paiement.
+
+STRIPE
+
+* Premium Afrique : OK / BLOQUÉ
+* Premium International : OK / BLOQUÉ
+* Checkout : OK / BLOQUÉ
+* Webhook LIVE : OK / BLOQUÉ
+* Signature : OK / BLOQUÉ
+* Événements : OK / BLOQUÉ
+* Idempotence : OK / BLOQUÉ
+* Activation Premium : OK / BLOQUÉ
+
+NON-RÉGRESSION
+
+Confirmer que le reste du site n’a pas été modifié.
+
+PRODUCTION
+
+Indiquer clairement :
+
+PAIEMENT PREMIUM : RÉACTIVÉ
+ou
+PAIEMENT PREMIUM : NON RÉACTIVÉ — PUBLICATION BLOQUÉE
+
+Si un blocage subsiste, expliquer exactement lequel.
+
+⸻
+
+19. ORDRE STRICT
+
+Suivre exactement cette séquence :
+
+AUDITER → RÉUTILISER L’EXISTANT → CORRIGER UNIQUEMENT STRIPE PREMIUM → CORRIGER LE WEBHOOK → TESTER → VÉRIFIER LE STATUT PREMIUM → NON-RÉGRESSION → PUBLIER UNIQUEMENT SI TOUT EST VALIDÉ
+
+RÈGLE FINALE
+
+UN SEUL OBJECTIF : RÉACTIVER LE PAIEMENT PREMIUM.
+
+AUCUN REBUILD.
+
+AUCUN REDESIGN.
+
+AUCUNE NOUVELLE FONCTIONNALITÉ.
+
+AUCUNE MODIFICATION INUTILE.
+
+AUCUNE MODIFICATION DU RESTE DU SITE.
+
+SI LE PAIEMENT PEUT ÊTRE RÉACTIVÉ AVEC L’EXISTANT, UTILISER L’EXISTANT.
+
+SI UN ÉLÉMENT CRITIQUE N’EST PAS VÉRIFIÉ, NE PAS PUBLIER.
