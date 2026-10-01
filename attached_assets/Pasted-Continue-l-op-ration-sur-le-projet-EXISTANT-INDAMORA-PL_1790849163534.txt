@@ -1,0 +1,118 @@
+Continue l’opération sur le projet EXISTANT INDAMORA PLAY.
+
+L’objectif reste UNIQUE :
+
+RÉACTIVER LE PAIEMENT PREMIUM STRIPE.
+
+Ne crée pas de staging, ne crée pas de nouveau Repl et ne modifie pas le reste du site.
+
+1. Termine d’abord l’audit TEST/LIVE
+
+Vérifie précisément quelle configuration Stripe est réellement utilisée par :
+
+* /api/billing/plans
+* le Checkout Premium
+* /api/stripe/webhook
+
+Confirme les Price IDs Premium existants :
+
+* Afrique : 500 XAF/mois
+* International : 5 EUR/mois
+
+Vérifie réellement leur mode Stripe avec livemode=true/false.
+
+Ne te fie pas uniquement au nom d’une variable ou à NODE_ENV.
+
+2. Si les Price IDs LIVE existants sont corrects
+
+Réutilise-les.
+
+Ne crée aucun nouveau produit.
+
+Ne crée aucun nouveau prix.
+
+Ne crée aucun doublon.
+
+3. Corrige uniquement ce qui empêche Premium de fonctionner
+
+Si /api/billing/plans, le Checkout ou la logique Premium utilisent une mauvaise configuration, corrige uniquement cette partie.
+
+Si /api/stripe/webhook est actuellement en 404, corrige uniquement cette route afin qu’elle puisse fonctionner avec l’architecture existante.
+
+4. WEBHOOK LIVE
+
+Une fois que l’audit confirme exactement la bonne configuration :
+
+configure le webhook Stripe LIVE pour utiliser l’endpoint INDAMORA PLAY approprié.
+
+Il doit recevoir les événements nécessaires au Premium, notamment :
+
+* customer.subscription.created
+* customer.subscription.updated
+* customer.subscription.deleted
+* invoice.paid
+* invoice.payment_failed
+
+Vérifie la signature Stripe et l’idempotence.
+
+Ne désactive aucune sécurité.
+
+5. TEST COMPLET
+
+Avant publication, vérifie le parcours complet :
+
+Utilisateur connecté → Premium → Checkout Stripe → paiement → webhook → confirmation serveur → Premium actif
+
+Vérifie également qu’un événement Stripe répété n’entraîne pas de double traitement.
+
+6. STRICTEMENT NE PAS MODIFIER
+
+Ne touche pas à :
+
+* design ;
+* logo ;
+* navigation ;
+* RÉPERTOIRE ;
+* artistes ;
+* œuvres ;
+* lecteur ;
+* recherche ;
+* mobile ;
+* desktop ;
+* application ;
+* contenu ;
+* fonctionnalités sans rapport avec Premium ;
+* Clerk, sauf nécessité absolue pour le paiement ;
+* base de données, sauf nécessité absolue pour le paiement.
+
+7. PUBLICATION
+
+Ne publie que lorsque TOUS les points suivants sont vérifiés :
+
+* Price ID Afrique LIVE confirmé ;
+* Price ID International LIVE confirmé ;
+* Checkout Premium fonctionnel ;
+* /api/billing/plans fonctionnel ;
+* /api/stripe/webhook fonctionnel ;
+* webhook LIVE correctement configuré ;
+* signature validée ;
+* événements nécessaires actifs ;
+* idempotence validée ;
+* statut Premium mis à jour côté serveur ;
+* aucune régression détectée.
+
+Si un seul point critique reste non vérifié :
+
+NE PUBLIE PAS.
+
+Dans ce cas, indique exactement le blocage restant et ne modifie rien d’autre.
+
+RÈGLE FINALE
+
+Ne cherche plus à créer un environnement de staging.
+
+Ne reconstruis rien.
+
+Ne change rien au site qui n’est pas nécessaire à la réactivation de Premium.
+
+Le seul objectif est de remettre le paiement Premium existant en fonctionnement.
