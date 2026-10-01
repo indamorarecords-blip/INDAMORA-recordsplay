@@ -1,0 +1,626 @@
+INDAMORA PLAY — STAGING DE VALIDATION STRIPE SANS MODIFICATION DE LA PRODUCTION
+
+OBJECTIF
+
+Préparer un environnement de staging séparé et isolé permettant de lever les blocages actuels de validation Stripe, sans publier ni modifier la version LIVE actuelle du projet principal.
+
+Le but est de pouvoir vérifier correctement :
+
+* l’API INDAMORA PLAY ;
+* /api/billing/plans ;
+* le Checkout Premium ;
+* Clerk et l’authentification ;
+* le webhook Stripe ;
+* la signature Stripe ;
+* l’idempotence ;
+* la mise à jour serveur du statut Premium ;
+* les événements Stripe nécessaires ;
+* la séparation TEST / LIVE ;
+* les parcours mobile, desktop et application ;
+
+avant toute décision de publication.
+
+⸻
+
+1. RÈGLE ABSOLUE : NE PAS MODIFIER L’EXISTANT
+
+NE PAS RECONSTRUIRE LE PROJET.
+
+NE PAS refaire le site.
+
+NE PAS modifier inutilement le code existant.
+
+NE PAS modifier :
+
+* le design ;
+* le logo ;
+* les couleurs ;
+* les textes ;
+* la navigation ;
+* le RÉPERTOIRE ;
+* les artistes ;
+* les œuvres ;
+* le lecteur ;
+* les fonctionnalités existantes ;
+* Clerk ;
+* la base de données ;
+* le stockage ;
+* les API existantes ;
+* les fichiers audio ;
+* les systèmes de modération ;
+* les systèmes administrateur ;
+* le responsive ;
+* le SEO ;
+* les performances ;
+* la sécurité.
+
+Le projet actuel doit rester la référence.
+
+Toute modification éventuelle doit être strictement limitée à ce qui est indispensable au staging, et uniquement dans une configuration ou une copie isolée.
+
+⸻
+
+2. NE PAS PUBLIER LE PROJET PRINCIPAL
+
+INTERDICTION DE PUBLIER LE PROJET PRINCIPAL EN LIVE pendant cette opération.
+
+Ne pas utiliser la publication de production pour contourner les blocages.
+
+Ne pas effectuer de publication partielle si Replit indique que les différents artifacts sont publiés ensemble.
+
+Ne pas considérer une publication comme un moyen de test.
+
+Si une vérification ne peut pas être effectuée sans publication du projet principal :
+
+STOP.
+
+Ne pas contourner cette règle.
+
+⸻
+
+3. CRÉER OU PRÉPARER UN STAGING ISOLÉ
+
+Si l’environnement Replit le permet, préparer un environnement de staging séparé.
+
+Le staging doit être clairement identifié comme :
+
+INDAMORA PLAY — STAGING
+
+Il doit être séparé de la production concernant :
+
+* configuration ;
+* variables d’environnement ;
+* endpoints ;
+* secrets ;
+* Stripe ;
+* webhooks ;
+* données de test ;
+* URLs de callback ;
+* configuration Clerk si nécessaire.
+
+Ne jamais mélanger TEST et LIVE.
+
+⸻
+
+4. STRIPE : UTILISER STRIPE TEST POUR LE STAGING
+
+Le staging doit utiliser en priorité Stripe TEST.
+
+Ne pas effectuer de paiement réel.
+
+Ne pas créer de véritable abonnement LIVE.
+
+Ne pas effectuer de don réel.
+
+Ne pas modifier les produits ou prix LIVE existants.
+
+Les offres Premium canoniques déjà existantes doivent être réutilisées lorsque possible.
+
+Offres à vérifier en TEST
+
+* Afrique : 500 XAF / mois
+* International : 5 EUR / mois
+
+Vérifier leurs Price IDs TEST.
+
+Vérifier explicitement :
+
+* livemode=false
+* devise ;
+* montant ;
+* récurrence mensuelle ;
+* produit associé.
+
+Ne pas supposer qu’un Price ID est TEST simplement parce qu’il provient de la configuration de développement.
+
+⸻
+
+5. SÉPARATION TEST / LIVE
+
+Le problème actuel doit être diagnostiqué précisément.
+
+Actuellement :
+
+* /api/billing/plans en développement répond 200 mais ne confirme pas correctement les offres ;
+* ReplitConnectors avec NODE_ENV=development a retourné des prix LIVE ;
+* la cause de cette sélection n’est pas encore confirmée.
+
+Identifier précisément pourquoi.
+
+Vérifier notamment :
+
+* variables réellement chargées ;
+* environnement Stripe utilisé ;
+* configuration Replit ;
+* NODE_ENV ;
+* clés Stripe ;
+* Price IDs ;
+* mode livemode ;
+* ordre de priorité des variables ;
+* éventuelles variables de production injectées dans le développement ;
+* éventuels connecteurs Replit ;
+* logique de sélection des prix.
+
+Ne jamais résoudre ce problème en affichant ou copiant les secrets.
+
+Dans le rapport final, afficher uniquement les noms des variables, jamais leurs valeurs.
+
+⸻
+
+6. VARIABLES STRIPE
+
+Inspecter les variables existantes.
+
+Variables actuellement identifiées :
+
+* STRIPE_PRICE_AFRICA_MONTHLY
+* STRIPE_PRICE_INTERNATIONAL_MONTHLY
+* STRIPE_WEBHOOK_SECRET
+
+Pour le staging, utiliser les valeurs TEST appropriées dans l’environnement isolé.
+
+Si une variable distincte est nécessaire pour éviter tout mélange TEST/LIVE, créer uniquement la configuration strictement nécessaire au staging.
+
+Ne pas modifier les valeurs LIVE existantes.
+
+Ne jamais afficher :
+
+* clé secrète ;
+* webhook secret ;
+* token ;
+* identifiant privé ;
+* credential ;
+* valeur complète d’une variable sensible.
+
+⸻
+
+7. API /api/billing/plans
+
+Dans le staging :
+
+1. vérifier que la route existe ;
+2. vérifier qu’elle répond ;
+3. vérifier qu’elle utilise Stripe TEST ;
+4. vérifier qu’elle retourne les deux offres Premium attendues ;
+5. vérifier les montants et devises ;
+6. vérifier que les Price IDs correspondent bien au mode TEST ;
+7. vérifier qu’aucun Price ID LIVE n’est utilisé.
+
+Résultat attendu :
+
+Afrique
+
+500 XAF / mois
+
+International
+
+5 EUR / mois
+
+Aucune donnée fictive.
+
+⸻
+
+8. CHECKOUT PREMIUM
+
+Tester le vrai flux Stripe TEST.
+
+Avec un utilisateur de test authentifié :
+
+1. connexion via Clerk ;
+2. accès à Premium ;
+3. sélection de l’offre ;
+4. création du Checkout Stripe TEST ;
+5. redirection vers Stripe TEST ;
+6. paiement avec un moyen de paiement de test ;
+7. retour vers INDAMORA PLAY ;
+8. réception de l’événement Stripe ;
+9. traitement serveur ;
+10. mise à jour du statut Premium ;
+11. vérification que le statut est réellement confirmé côté serveur.
+
+Ne jamais simuler artificiellement :
+
+* un abonnement ;
+* un paiement ;
+* un statut Premium ;
+* un revenu.
+
+⸻
+
+9. CLERK
+
+Conserver Clerk comme système d’authentification.
+
+Ne pas le remplacer.
+
+Dans le staging, vérifier :
+
+* connexion ;
+* session ;
+* vérification e-mail ;
+* utilisateur authentifié ;
+* association correcte avec le Customer Stripe ;
+* accès aux fonctionnalités Premium après confirmation Stripe.
+
+Ne pas modifier la configuration de production de Clerk.
+
+Si un environnement Clerk staging/test est nécessaire, l’isoler de la production.
+
+⸻
+
+10. RELATION CLERK ↔ STRIPE
+
+Vérifier que le système existant permet d’associer correctement :
+
+Utilisateur Clerk → Customer Stripe → abonnement Stripe → statut Premium
+
+Vérifier que le Customer Stripe est bien identifié côté serveur.
+
+Ne pas créer de doublons inutiles.
+
+Ne pas modifier les données existantes de production.
+
+⸻
+
+11. WEBHOOK STRIPE STAGING
+
+Créer/configurer uniquement un webhook Stripe TEST destiné au staging.
+
+Il doit pointer vers une route réelle et fonctionnelle du staging, par exemple :
+
+/api/stripe/webhook
+
+Ne pas modifier le webhook LIVE actuel.
+
+Ne pas remplacer le webhook LIVE de production pendant cette opération.
+
+⸻
+
+12. ROUTE WEBHOOK
+
+La route staging doit :
+
+* exister ;
+* répondre ;
+* recevoir POST ;
+* lire le payload Stripe ;
+* vérifier la signature Stripe ;
+* utiliser le secret correspondant au webhook TEST ;
+* refuser les signatures invalides ;
+* traiter les événements nécessaires ;
+* être idempotente ;
+* ne pas traiter deux fois le même événement ;
+* mettre à jour le statut Premium côté serveur.
+
+Tester notamment :
+
+* customer.subscription.created
+* customer.subscription.updated
+* customer.subscription.deleted
+* invoice.paid
+* invoice.payment_failed
+* les événements Checkout nécessaires au fonctionnement existant.
+
+Ne pas supprimer les événements existants sans justification.
+
+⸻
+
+13. SIGNATURE STRIPE
+
+Tester réellement :
+
+Cas valide
+
+Un événement Stripe TEST signé correctement doit être accepté.
+
+Cas invalide
+
+Une requête sans signature ou avec une mauvaise signature doit être refusée.
+
+Le test actuel :
+
+POST /api/stripe/webhook
+
+sans signature ne doit pas être considéré comme un test fonctionnel du webhook.
+
+Il doit permettre de confirmer que la route existe et protège correctement son accès.
+
+⸻
+
+14. IDEMPOTENCE
+
+Vérifier le mécanisme existant de déduplication par identifiant d’événement.
+
+Tester :
+
+1. réception d’un événement ;
+2. traitement ;
+3. envoi du même événement une deuxième fois ;
+4. absence de double traitement ;
+5. absence de double activation Premium ;
+6. absence de double écriture incompatible.
+
+Ne pas introduire un deuxième système de déduplication si le système actuel fonctionne déjà.
+
+Compléter uniquement si nécessaire.
+
+⸻
+
+15. BASE DE DONNÉES
+
+NE PAS modifier la base de production.
+
+Avant toute modification :
+
+* inspecter le schéma existant ;
+* identifier les champs Premium existants ;
+* identifier les champs Stripe existants ;
+* identifier les mécanismes d’idempotence existants.
+
+Ne créer une migration ou une nouvelle colonne dans le staging que si elle est réellement indispensable.
+
+Ne jamais supprimer de données existantes.
+
+Ne jamais remplacer une structure existante simplement pour simplifier le test.
+
+⸻
+
+16. DONATIONS
+
+Les dons restent séparés de Premium.
+
+Ils doivent rester :
+
+paiements uniques
+
+et non des abonnements.
+
+Les prix de dons TEST existants doivent être réutilisés.
+
+Ne pas modifier les prix LIVE.
+
+Ne pas effectuer de don réel.
+
+Vérifier uniquement le fonctionnement en TEST.
+
+⸻
+
+17. WEBHOOK LIVE EXISTANT
+
+Le webhook LIVE actuel pointe actuellement vers une fonction Supabase externe.
+
+NE PAS LE MODIFIER pendant la préparation du staging.
+
+Le problème de production doit seulement être documenté comme blocage à résoudre ultérieurement.
+
+La route attendue actuellement :
+
+https://indamoraplay.com/api/stripe/webhook
+
+répond 404 en production.
+
+Ne pas essayer de résoudre cela en publiant le projet principal.
+
+⸻
+
+18. PRODUCTION
+
+La production reste dans l’état actuel.
+
+AUCUNE PUBLICATION LIVE.
+
+Ne pas modifier :
+
+* domaine ;
+* production ;
+* webhook LIVE ;
+* produits LIVE ;
+* prix LIVE ;
+* base de données LIVE ;
+* secrets LIVE.
+
+⸻
+
+19. MOBILE / DESKTOP / APPLICATION
+
+Le staging doit permettre, lorsque techniquement possible, de vérifier :
+
+* desktop ;
+* mobile ;
+* application ;
+* navigation ;
+* connexion ;
+* Premium ;
+* Checkout TEST ;
+* retour après paiement ;
+* affichage du statut Premium.
+
+Aucun changement visuel ne doit être effectué.
+
+Comparer avec l’existant.
+
+Le but est de vérifier, pas de redesign.
+
+⸻
+
+20. RÉPERTOIRE
+
+Le RÉPERTOIRE reste central.
+
+Vérifier qu’aucun test Stripe/staging ne modifie :
+
+* artistes ;
+* œuvres ;
+* profils ;
+* données ;
+* recherche ;
+* navigation ;
+* audio ;
+* affichage.
+
+Aucune donnée fictive ne doit être ajoutée au RÉPERTOIRE de production.
+
+⸻
+
+21. TESTS OBLIGATOIRES AVANT DE CONSIDÉRER LE STAGING VALIDÉ
+
+Effectuer les tests suivants :
+
+API
+
+* /api/healthz
+* /api/billing/plans
+* Checkout Premium
+* webhook
+* signature
+* idempotence
+
+Stripe TEST
+
+* Premium Afrique
+* Premium International
+* paiement TEST
+* abonnement TEST
+* événement customer.subscription.created
+* événement customer.subscription.updated
+* événement customer.subscription.deleted
+* invoice.paid
+* invoice.payment_failed
+
+Auth
+
+* Clerk login
+* session
+* vérification e-mail
+* association Customer Stripe
+
+Premium
+
+* activation après confirmation Stripe
+* maintien du statut
+* changement d’état
+* annulation
+* paiement échoué
+
+Non-régression
+
+* RÉPERTOIRE
+* recherche
+* artistes
+* œuvres
+* lecteur
+* navigation
+* responsive
+* desktop
+* mobile
+* application
+
+⸻
+
+22. CONDITIONS D’ARRÊT
+
+STOP IMMÉDIATEMENT si :
+
+* Stripe TEST et LIVE sont mélangés ;
+* un paiement réel risque d’être effectué ;
+* une modification de production est nécessaire ;
+* une modification du webhook LIVE est nécessaire ;
+* une migration production est nécessaire ;
+* un secret doit être affiché ;
+* une fonctionnalité existante doit être réécrite ;
+* le staging ne peut pas être suffisamment isolé ;
+* un test critique n’est pas vérifiable ;
+* l’environnement Replit impose une publication globale pour poursuivre.
+
+Dans ces cas :
+
+NE PAS PUBLIER.
+
+⸻
+
+23. RAPPORT FINAL OBLIGATOIRE
+
+À la fin, produire un rapport clair contenant :
+
+EXISTANT
+
+Ce qui a été conservé.
+
+STAGING
+
+Ce qui a été créé ou configuré.
+
+STRIPE TEST
+
+* Premium Afrique ;
+* Premium International ;
+* Checkout ;
+* Billing ;
+* webhooks ;
+* événements ;
+* signature ;
+* idempotence.
+
+CLERK
+
+Résultats des tests.
+
+BASE DE DONNÉES
+
+Aucune modification production.
+
+API
+
+Résultats des routes testées.
+
+MOBILE / DESKTOP / APPLICATION
+
+Résultats des vérifications.
+
+PRODUCTION
+
+Confirmer explicitement :
+
+PUBLICATION LIVE : NON EFFECTUÉE
+
+BLOQUANTS RESTANTS
+
+Lister précisément ce qui empêche encore une publication LIVE.
+
+PROCHAINE ÉTAPE
+
+Indiquer exactement ce qui devra être fait en production après validation complète du staging.
+
+⸻
+
+24. RÈGLE FINALE
+
+La séquence obligatoire est :
+
+AUDITER → ISOLER LE STAGING → CONFIGURER STRIPE TEST → TESTER CHECKOUT → TESTER WEBHOOK → TESTER SIGNATURE → TESTER IDEMPOTENCE → TESTER CLERK → TESTER PREMIUM → TESTER MOBILE/DESKTOP/APPLICATION → VÉRIFIER NON-RÉGRESSION → DOCUMENTer LES BLOQUANTS → ARRÊTER
+
+Ne publier le projet principal que dans une étape ultérieure et uniquement après validation explicite de tous les contrôles critiques.
+
+Le staging sert à lever les incertitudes. Il ne doit jamais servir à contourner la règle d’arrêt.
+
+PRIORITÉ ABSOLUE : préserver INDAMORA PLAY tel qu’il existe aujourd’hui et effectuer uniquement les vérifications/configurations strictement nécessaires dans un environnement isolé.
