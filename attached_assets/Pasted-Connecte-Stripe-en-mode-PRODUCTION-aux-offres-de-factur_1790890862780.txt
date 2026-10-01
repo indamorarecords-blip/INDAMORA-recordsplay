@@ -1,0 +1,65 @@
+Connecte Stripe en mode PRODUCTION aux offres de facturation déjà présentes dans l’application.
+
+Règle absolue
+
+Ne modifie rien d’autre.
+
+Conserve strictement :
+
+* les offres existantes ;
+* les tarifs existants ;
+* les montants existants ;
+* les Price IDs existants ;
+* les textes et l’interface ;
+* les produits Stripe existants ;
+* les fonctionnalités existantes ;
+* Clerk ;
+* Web, Mobile et administration ;
+* les dépendances ;
+* les webhooks existants s’ils sont déjà correctement configurés.
+
+Offres à connecter
+
+* Gratuit : 0 FCFA/mois
+* Premium Afrique : 500 FCFA/mois
+* Premium International : 5 €/mois
+
+Le seul objectif est que les boutons « Se connecter pour souscrire » utilisent désormais Stripe PRODUCTION avec les produits/prix LIVE correspondant exactement aux offres déjà affichées.
+
+Stripe
+
+Utilise uniquement la connexion Stripe production/LIVE existante.
+
+Ne :
+
+* crée pas de nouveaux produits si les produits LIVE correspondants existent déjà ;
+* ne change aucun prix ;
+* ne recrée aucun Price ID ;
+* ne bascule pas l’application vers TEST ;
+* ne modifie pas les offres affichées ;
+* ne supprime aucune connexion Stripe ;
+* ne touche pas aux données existantes.
+
+Validation
+
+Avant de publier, vérifie simplement que :
+
+1. Premium Afrique → Stripe LIVE → 500 FCFA/mois ;
+2. Premium International → Stripe LIVE → 5 €/mois ;
+3. les Checkout utilisent bien le compte Stripe LIVE ;
+4. aucun Price ID n’a été remplacé ou recréé ;
+5. le reste de l’application est inchangé.
+
+Ne fais aucun paiement réel pour tester. Utilise uniquement une vérification de configuration/identifiants et, si nécessaire, les mécanismes de validation non facturants disponibles.
+
+Si un élément Stripe LIVE correspondant à une offre est absent, ne crée rien automatiquement et ne modifie rien : arrête-toi et indique précisément ce qui manque.
+
+Si tout est déjà présent et correctement raccordable, effectue uniquement le raccordement Stripe Production aux offres existantes, puis publie.
+
+À la fin, indique uniquement :
+
+* Stripe Production connecté : OUI/NON
+* Premium Afrique connecté : OUI/NON
+* Premium International connecté : OUI/NON
+* Modifications hors raccordement Stripe : AUCUNE
+* Publication : OUI/NON
