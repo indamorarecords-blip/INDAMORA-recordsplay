@@ -23,6 +23,9 @@ import {
 import type { Artist, Submission, Work } from '@workspace/api-client-react';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { AdminUserList } from '@/components/admin-user-list';
+import {
+  CheckoutReturnNotice, DonationCheckoutButton, PremiumBillingStatus, PremiumPlanAction, useBillingActions
+} from '@/components/billing-actions';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
@@ -550,6 +553,7 @@ function Moderation() {
 }
 
 function Pricing() {
+  const billing = useBillingActions();
   const premiumBenefits = ['Tout le catalogue gratuit', 'Débloquer les sorties Premium', 'Accéder en avant-première aux nouveautés', 'Soutenir le développement d’INDAMORA PLAY'];
   const futureUses = ['Soutenir les artistes et créateurs', 'Accompagner certains projets artistiques', 'Produire de nouvelles créations et fonctionnalités', 'Contribuer au développement de la création centrafricaine et africaine'];
   return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-20">
@@ -575,16 +579,21 @@ function Pricing() {
         <div className="flex items-center justify-between gap-4"><div><h2 className="display text-3xl font-bold">Premium Afrique</h2><p className="mt-1 text-sm text-secondary-foreground/65">Pour les membres situés en Afrique.</p></div><Crown className="h-7 w-7 shrink-0 text-accent" /></div>
         <div className="mt-8 text-4xl font-bold">500 <span className="text-sm font-medium text-secondary-foreground/65">FCFA / mois</span></div>
         <ul className="mt-8 space-y-4 text-sm text-secondary-foreground/85">{premiumBenefits.map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-4 w-4 shrink-0 text-accent" />{item}</li>)}</ul>
-        <span className="mt-10 flex items-center justify-center gap-2 rounded-full bg-accent/30 py-3 text-center text-sm font-bold text-secondary-foreground/70" data-testid="status-pricing-africa"><LockKeyhole className="h-4 w-4" /> Bientôt disponible</span>
+        <PremiumPlanAction plan="africa" billing={billing} />
       </div>
 
       <div className="rounded-[2rem] border border-primary/30 bg-card p-7 shadow-[var(--shadow-card)] md:p-8">
         <div className="flex items-center justify-between gap-4"><div><h2 className="display text-3xl font-bold">Premium International</h2><p className="mt-1 text-sm text-muted-foreground">Pour l’Europe, les États-Unis et les autres pays hors Afrique.</p></div><Crown className="h-7 w-7 shrink-0 text-primary" /></div>
         <div className="mt-8 text-4xl font-bold">5 <span className="text-sm font-medium text-muted-foreground">€ / mois</span></div>
         <ul className="mt-8 space-y-4 text-sm">{premiumBenefits.map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-4 w-4 shrink-0 text-primary" />{item}</li>)}</ul>
-        <span className="mt-10 flex items-center justify-center gap-2 rounded-full bg-primary/10 py-3 text-center text-sm font-bold text-primary/70" data-testid="status-pricing-international"><LockKeyhole className="h-4 w-4" /> Bientôt disponible</span>
+        <PremiumPlanAction plan="international" billing={billing} />
       </div>
     </div>
+
+    {billing.plans.data?.mode === 'test' && import.meta.env.MODE !== 'production' &&
+      <p className="mx-auto mt-5 max-w-xl text-center text-xs text-muted-foreground">Les paiements de cet environnement utilisent le mode test de Stripe.</p>}
+    <PremiumBillingStatus billing={billing} />
+    <CheckoutReturnNotice billing={billing} />
 
     <section className="mx-auto mt-16 max-w-5xl rounded-[2rem] bg-muted p-7 md:p-10">
       <div className="max-w-2xl">
@@ -596,11 +605,12 @@ function Pricing() {
       <p className="mt-8 border-t border-border/70 pt-6 text-sm leading-6 text-muted-foreground"><strong className="text-foreground">Une précision importante :</strong> aucun montant fixe ni revenu garanti n’est promis aux artistes. La redistribution éventuelle ne sera définie par INDAMORA RECORDS que lorsque la plateforme disposera de suffisamment d’abonnés, de revenus et de données pour mettre en place un système équitable et transparent.</p>
     </section>
 
-    <p className="mx-auto mt-10 flex max-w-xl items-center justify-center gap-2 text-center text-xs leading-5 text-muted-foreground"><LockKeyhole className="h-3.5 w-3.5 shrink-0" /> Les deux offres Premium sont en préparation. Aucun paiement n’est demandé dans cette V1.</p>
+    <p className="mx-auto mt-10 flex max-w-xl items-center justify-center gap-2 text-center text-xs leading-5 text-muted-foreground"><LockKeyhole className="h-3.5 w-3.5 shrink-0" /> Le statut Premium affiché est vérifié côté serveur auprès de Stripe.</p>
   </div>;
 }
 
 function Support() {
+  const billing = useBillingActions();
   const amounts = [1, 5, 10, 20, 50, 100];
   const [selectedAmount, setSelectedAmount] = useState<number | null>(10);
   const [customAmount, setCustomAmount] = useState('');
@@ -613,6 +623,7 @@ function Support() {
     setSelectedAmount(null);
   };
   const displayAmount = selectedAmount ?? Number(customAmount || 0);
+  const supportedDonation = Number.isInteger(displayAmount) && amounts.includes(displayAmount);
   return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-20">
     <div className="grid gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-start">
       <div>
@@ -634,8 +645,8 @@ function Support() {
           <div className="flex items-center rounded-2xl border border-input bg-background px-4 focus-within:border-primary"><input type="number" min="1" step="1" value={customAmount} onChange={(event) => enterCustomAmount(event.target.value)} className="min-w-0 flex-1 bg-transparent py-4 font-normal outline-none" placeholder="Montant libre" data-testid="input-donation-custom" /><span className="font-bold text-muted-foreground">€</span></div>
         </label>
         <div className="mt-6 rounded-2xl bg-secondary p-5 text-secondary-foreground"><div className="font-mono text-[10px] uppercase tracking-[.18em] text-accent">Votre sélection</div><div className="mt-2 text-3xl font-bold">{displayAmount > 0 ? `${displayAmount} €` : 'À définir'}</div></div>
-        <button type="button" disabled className="mt-6 flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full bg-muted py-3.5 font-bold text-muted-foreground" data-testid="button-donation-unavailable"><LockKeyhole className="h-4 w-4" /> Paiement bientôt disponible</button>
-        <p className="mt-4 text-center text-xs leading-5 text-muted-foreground">Aucun paiement n’est envoyé actuellement. Un fournisseur sécurisé doit encore être connecté et configuré côté serveur.</p>
+        <DonationCheckoutButton billing={billing} amount={displayAmount} supported={supportedDonation} />
+        <p className="mt-4 text-center text-xs leading-5 text-muted-foreground">Le paiement est traité par Stripe Checkout. La confirmation d’un don dépend de sa vérification côté serveur.</p>
       </section>
     </div>
     <div className="mt-14 grid gap-4 md:grid-cols-3">

@@ -18,6 +18,72 @@ export const HealthCheckResponse = zod.object({
 
 
 /**
+ * @summary Check Premium plans available in the current Stripe environment
+ */
+export const GetBillingPlansResponse = zod.object({
+  "available": zod.boolean(),
+  "webhookReady": zod.boolean().describe('False in development without a verified test webhook; in production, true only when a live signed webhook endpoint is configured.'),
+  "mode": zod.enum(['test', 'live', 'unavailable']),
+  "reason": zod.string().optional(),
+  "plans": zod.object({
+  "africa": zod.object({
+  "available": zod.boolean()
+}),
+  "international": zod.object({
+  "available": zod.boolean()
+})
+})
+})
+
+
+/**
+ * @summary Get the authenticated user's Stripe subscription status
+ */
+export const GetBillingStatusResponse = zod.object({
+  "status": zod.string(),
+  "isPremium": zod.boolean(),
+  "subscription": zod.union([zod.object({
+  "id": zod.string(),
+  "status": zod.string(),
+  "currentPeriodEnd": zod.number().int().nullable(),
+  "cancelAtPeriodEnd": zod.boolean(),
+  "priceId": zod.string().nullable()
+}),zod.null()])
+})
+
+
+/**
+ * @summary Create a Premium subscription or donation checkout
+ */
+export const CreateBillingCheckoutBody = zod.object({
+  "kind": zod.enum(['subscription', 'donation']),
+  "plan": zod.enum(['africa', 'international']).optional(),
+  "amountEur": zod.union([zod.literal(1),zod.literal(5),zod.literal(10),zod.literal(20),zod.literal(50),zod.literal(100)]).optional()
+})
+
+export const CreateBillingCheckoutResponse = zod.object({
+  "url": zod.string().url()
+})
+
+
+/**
+ * @summary Create a Stripe subscription-management portal session
+ */
+export const CreateBillingPortalResponse = zod.object({
+  "url": zod.string().url()
+})
+
+
+/**
+ * The raw request body is verified using the Stripe signature before processing.
+ * @summary Receive a signed Stripe webhook event
+ */
+export const ReceiveStripeWebhookBody = zod.record(zod.string(), zod.unknown())
+
+export const ReceiveStripeWebhookResponse = zod.unknown()
+
+
+/**
  * @summary List featured content
  */
 export const GetCatalogResponseItem = zod.object({

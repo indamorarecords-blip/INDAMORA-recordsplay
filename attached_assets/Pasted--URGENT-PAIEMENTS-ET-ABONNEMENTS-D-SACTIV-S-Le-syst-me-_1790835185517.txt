@@ -1,0 +1,253 @@
+🚨 URGENT — PAIEMENTS ET ABONNEMENTS DÉSACTIVÉS
+
+Le système de paiement et d’abonnement de INDAMORA PLAY fonctionnait auparavant en production.
+
+Aujourd’hui, les utilisateurs ne peuvent plus payer ni souscrire à l’abonnement.
+
+OBJECTIF
+
+RÉTABLIR LE SYSTÈME DE PAIEMENT ET D’ABONNEMENT QUI EXISTAIT DÉJÀ.
+
+⚠️ NE PAS RECONSTRUIRE STRIPE DEPUIS ZÉRO.
+
+⚠️ NE PAS CRÉER UN NOUVEAU SYSTÈME DE PAIEMENT.
+
+⚠️ NE PAS SUPPRIMER LA CONFIGURATION EXISTANTE.
+
+Utiliser en priorité l’implémentation Stripe déjà présente dans le projet et/ou celle qui fonctionnait précédemment en production.
+
+⸻
+
+1. DIAGNOSTIC AVANT TOUTE MODIFICATION
+
+Commencer par identifier précisément pourquoi le paiement est actuellement désactivé.
+
+Vérifier :
+
+* page Premium ;
+* bouton d’abonnement ;
+* bouton de paiement ;
+* création de Checkout Session ;
+* connexion Stripe ;
+* mode LIVE / TEST ;
+* variables d’environnement ;
+* prix Stripe existants ;
+* Price ID ;
+* Product ID ;
+* Customer ID ;
+* webhooks Stripe ;
+* endpoint webhook ;
+* signature du webhook ;
+* traitement des événements ;
+* synchronisation avec la base de données ;
+* statut Premium de l’utilisateur ;
+* gestion des abonnements actifs ;
+* gestion des annulations ;
+* gestion des paiements échoués ;
+* retour après paiement ;
+* page de confirmation ;
+* authentification de l’utilisateur.
+
+IMPORTANT
+
+Comparer le fonctionnement actuel avec ce qui existait avant.
+
+Ne pas remplacer une configuration fonctionnelle par une nouvelle architecture.
+
+⸻
+
+2. PRODUCTION UNIQUEMENT
+
+Le site officiel est :
+
+https://indamoraplay.com/
+
+Le paiement doit fonctionner en production.
+
+Vérifier que le système utilise bien les clés et ressources Stripe LIVE nécessaires à la production.
+
+⚠️ Ne jamais afficher les clés secrètes dans le rapport.
+
+⚠️ Ne jamais me demander de copier une clé secrète dans le chat.
+
+⸻
+
+3. STRIPE CHECKOUT
+
+Vérifier toute la chaîne :
+
+INDAMORA PLAY → bouton Premium → création Checkout → Stripe → paiement → retour INDAMORA PLAY
+
+Le bouton doit permettre à un utilisateur réel de commencer son abonnement.
+
+Si le bouton est actuellement désactivé, identifier exactement pourquoi.
+
+⸻
+
+4. ABONNEMENT
+
+Vérifier la chaîne complète :
+
+Utilisateur connecté
+→ sélection Premium
+→ Stripe Checkout
+→ paiement
+→ abonnement Stripe
+→ webhook
+→ mise à jour du compte INDAMORA
+→ Premium activé.
+
+Le statut Premium doit être déterminé côté serveur.
+
+Ne jamais faire confiance uniquement au navigateur.
+
+⸻
+
+5. WEBHOOK STRIPE
+
+Vérifier que le webhook de production fonctionne réellement.
+
+Contrôler notamment les événements nécessaires à l’abonnement et au paiement.
+
+Vérifier :
+
+* endpoint actif ;
+* URL correcte ;
+* signature validée ;
+* événements reçus ;
+* traitement côté serveur ;
+* mise à jour de la base ;
+* gestion des renouvellements ;
+* annulation ;
+* paiement échoué.
+
+Ne pas désactiver la vérification de signature pour faire fonctionner le système.
+
+⸻
+
+6. BASE DE DONNÉES
+
+Vérifier la liaison entre Stripe et les comptes INDAMORA.
+
+Utiliser les tables existantes.
+
+Ne pas supprimer les données.
+
+Ne pas créer de fausses transactions.
+
+Ne pas créer de faux abonnements.
+
+Ne pas fabriquer de faux paiements.
+
+⸻
+
+7. DONS
+
+⚠️ NE PAS MODIFIER LE SYSTÈME DE DONS S’IL FONCTIONNE.
+
+Vérifier simplement qu’une correction du système Premium n’a pas cassé les dons.
+
+⸻
+
+8. TEST RÉEL
+
+Après diagnostic et correction minimale, effectuer un test réel approprié.
+
+Vérifier :
+
+1. ouvrir https://indamoraplay.com/ ;
+2. accéder à Premium ;
+3. vérifier que le bouton d’abonnement est actif ;
+4. vérifier que Checkout Stripe s’ouvre ;
+5. vérifier que le produit/prix correct apparaît ;
+6. vérifier le retour vers INDAMORA PLAY ;
+7. vérifier la réception du webhook ;
+8. vérifier la mise à jour du statut Premium.
+
+IMPORTANT SUR LE TEST DE PAIEMENT
+
+Ne pas effectuer de paiement réel avec mon argent sans mon autorisation explicite.
+
+Si un test LIVE nécessite un paiement réel, arrêter avant la confirmation finale et indiquer précisément ce qui reste à vérifier.
+
+Utiliser le mode TEST uniquement pour les tests techniques lorsque cela est approprié, puis vérifier séparément la configuration LIVE.
+
+⸻
+
+9. NE RIEN MODIFIER D’AUTRE
+
+INTERDICTION DE MODIFIER :
+
+* Accueil ;
+* Explorer ;
+* RÉPERTOIRE ;
+* profils ;
+* JE CRÉE ;
+* administration ;
+* médias ;
+* stockage ;
+* SEO ;
+* domaine ;
+* logo ;
+* design général ;
+* application/PWA ;
+* données utilisateurs ;
+* système d’inscription.
+
+La seule intervention autorisée concerne :
+
+PAIEMENTS + ABONNEMENTS PREMIUM + leur fonctionnement Stripe associé.
+
+⸻
+
+10. NON-RÉGRESSION
+
+Après correction, vérifier que :
+
+* le site fonctionne ;
+* Premium fonctionne ;
+* les dons fonctionnent toujours ;
+* l’authentification fonctionne ;
+* le RÉPERTOIRE fonctionne ;
+* les profils fonctionnent ;
+* aucun contenu public n’a été modifié.
+
+⸻
+
+11. RAPPORT FINAL OBLIGATOIRE
+
+Donner un rapport factuel indiquant :
+
+Cause exacte
+
+Pourquoi les paiements avaient été désactivés.
+
+Correction
+
+Ce qui a été corrigé exactement.
+
+Stripe
+
+* Checkout : ✅ / ❌
+* abonnement : ✅ / ❌
+* webhook : ✅ / ❌
+* synchronisation compte : ✅ / ❌
+* Premium : ✅ / ❌
+
+Production
+
+Indiquer clairement si le paiement est de nouveau opérationnel sur :
+
+https://indamoraplay.com/
+
+Test
+
+Préciser ce qui a réellement été testé et ce qui n’a pas pu l’être.
+
+RÈGLE ABSOLUE
+
+DIAGNOSTIQUER → CORRIGER LE MINIMUM NÉCESSAIRE → TESTER → VÉRIFIER → RETESTER.
+
+Ne pas considérer la tâche terminée simplement parce que Stripe est connecté techniquement.
+
+La tâche est terminée uniquement lorsque l’utilisateur peut réellement accéder au paiement et souscrire à l’abonnement en production, sous réserve du test de paiement réel nécessitant mon autorisation.

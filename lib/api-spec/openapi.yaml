@@ -18,6 +18,8 @@ tags:
     description: INDAMORA RECORDS moderation operations
   - name: press
     description: Public press contact operations
+  - name: billing
+    description: INDAMORA Premium and Stripe checkout operations
   - name: admin
     description: Private administration operations
   - name: Storage
@@ -36,6 +38,95 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /billing/plans:
+    get:
+      operationId: getBillingPlans
+      tags: [billing]
+      summary: Check Premium plans available in the current Stripe environment
+      responses:
+        "200":
+          description: Environment and available Premium plans
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BillingPlans"
+  /billing/status:
+    get:
+      operationId: getBillingStatus
+      tags: [billing]
+      summary: Get the authenticated user's Stripe subscription status
+      security:
+        - clerkSession: []
+      responses:
+        "200":
+          description: Current subscription status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BillingStatus"
+        "401":
+          description: Authentication required
+  /billing/checkout:
+    post:
+      operationId: createBillingCheckout
+      tags: [billing]
+      summary: Create a Premium subscription or donation checkout
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BillingCheckoutInput"
+      responses:
+        "200":
+          description: Stripe Checkout redirect URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BillingCheckout"
+        "400":
+          description: Invalid payment selection
+        "401":
+          description: Authentication required for Premium
+        "409":
+          description: An existing subscription must be managed first
+        "503":
+          description: No matching Stripe price configured for this environment
+  /billing/portal:
+    post:
+      operationId: createBillingPortal
+      tags: [billing]
+      summary: Create a Stripe subscription-management portal session
+      security:
+        - clerkSession: []
+      responses:
+        "200":
+          description: Stripe customer portal redirect URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BillingCheckout"
+        "401":
+          description: Authentication required
+        "404":
+          description: No Stripe subscription exists for this account
+  /stripe/webhook:
+    post:
+      operationId: receiveStripeWebhook
+      tags: [billing]
+      summary: Receive a signed Stripe webhook event
+      description: The raw request body is verified using the Stripe signature before processing.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StripeWebhookPayload"
+      responses:
+        "200":
+          description: Signed event accepted
+        "400":
+          description: Missing or invalid signature/event
   /catalog:
     get:
       operationId: getCatalog
@@ -342,6 +433,73 @@ components:
           type: string
       required:
         - status
+    BillingPlanAvailability:
+      type: object
+      required: [available]
+      properties:
+        available: { type: boolean }
+    BillingPlans:
+      type: object
+      required: [available, mode, webhookReady, plans]
+      properties:
+        available: { type: boolean }
+        webhookReady:
+          type: boolean
+          description: False in development without a verified test webhook; in production, true only when a live signed webhook endpoint is configured.
+        mode:
+          type: string
+          enum: [test, live, unavailable]
+        reason: { type: string }
+        plans:
+          type: object
+          required: [africa, international]
+          properties:
+            africa:
+              $ref: "#/components/schemas/BillingPlanAvailability"
+            international:
+              $ref: "#/components/schemas/BillingPlanAvailability"
+    BillingStatus:
+      type: object
+      required: [status, isPremium, subscription]
+      properties:
+        status: { type: string }
+        isPremium: { type: boolean }
+        subscription:
+          oneOf:
+            - $ref: "#/components/schemas/BillingSubscription"
+            - type: "null"
+    BillingSubscription:
+      type: object
+      required: [id, status, currentPeriodEnd, cancelAtPeriodEnd, priceId]
+      properties:
+        id: { type: string }
+        status: { type: string }
+        currentPeriodEnd: { type: ["integer", "null"] }
+        cancelAtPeriodEnd: { type: boolean }
+        priceId: { type: ["string", "null"] }
+    BillingCheckoutInput:
+      type: object
+      required: [kind]
+      properties:
+        kind:
+          type: string
+          enum: [subscription, donation]
+        plan:
+          type: string
+          enum: [africa, international]
+        amountEur:
+          type: integer
+          enum: [1, 5, 10, 20, 50, 100]
+    BillingCheckout:
+      type: object
+      required: [url]
+      properties:
+        url: { type: string, format: uri }
+    BillingError:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
     AdminUser:
       type: object
       required: [id, firstName, lastName, username, email, phoneNumber, createdAt, profiles]
@@ -551,4 +709,7 @@ components:
       required: [objectPath]
       properties:
         objectPath: { type: string }
+    StripeWebhookPayload:
+      type: object
+      additionalProperties: true
 

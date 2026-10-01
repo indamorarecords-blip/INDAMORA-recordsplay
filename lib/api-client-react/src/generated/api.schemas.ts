@@ -9,6 +9,91 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface BillingPlanAvailability {
+  available: boolean;
+}
+
+export type BillingPlansMode = typeof BillingPlansMode[keyof typeof BillingPlansMode];
+
+
+export const BillingPlansMode = {
+  test: 'test',
+  live: 'live',
+  unavailable: 'unavailable',
+} as const;
+
+export type BillingPlansPlans = {
+  africa: BillingPlanAvailability;
+  international: BillingPlanAvailability;
+};
+
+export interface BillingPlans {
+  available: boolean;
+  /** False in development without a verified test webhook; in production, true only when a live signed webhook endpoint is configured. */
+  webhookReady: boolean;
+  mode: BillingPlansMode;
+  reason?: string;
+  plans: BillingPlansPlans;
+}
+
+export interface BillingSubscription {
+  id: string;
+  status: string;
+  /** @nullable */
+  currentPeriodEnd: number | null;
+  cancelAtPeriodEnd: boolean;
+  /** @nullable */
+  priceId: string | null;
+}
+
+export interface BillingStatus {
+  status: string;
+  isPremium: boolean;
+  subscription: BillingSubscription | null;
+}
+
+export type BillingCheckoutInputKind = typeof BillingCheckoutInputKind[keyof typeof BillingCheckoutInputKind];
+
+
+export const BillingCheckoutInputKind = {
+  subscription: 'subscription',
+  donation: 'donation',
+} as const;
+
+export type BillingCheckoutInputPlan = typeof BillingCheckoutInputPlan[keyof typeof BillingCheckoutInputPlan];
+
+
+export const BillingCheckoutInputPlan = {
+  africa: 'africa',
+  international: 'international',
+} as const;
+
+export type BillingCheckoutInputAmountEur = typeof BillingCheckoutInputAmountEur[keyof typeof BillingCheckoutInputAmountEur];
+
+
+export const BillingCheckoutInputAmountEur = {
+  NUMBER_1: 1,
+  NUMBER_5: 5,
+  NUMBER_10: 10,
+  NUMBER_20: 20,
+  NUMBER_50: 50,
+  NUMBER_100: 100,
+} as const;
+
+export interface BillingCheckoutInput {
+  kind: BillingCheckoutInputKind;
+  plan?: BillingCheckoutInputPlan;
+  amountEur?: BillingCheckoutInputAmountEur;
+}
+
+export interface BillingCheckout {
+  url: string;
+}
+
+export interface BillingError {
+  error: string;
+}
+
 export interface AdminArtistProfile {
   id: number;
   name: string;
@@ -283,6 +368,8 @@ export interface CompleteUploadRequest {
 export interface CompleteUploadResult {
   objectPath: string;
 }
+
+export interface StripeWebhookPayload { [key: string]: unknown }
 
 export type GetArtistsParams = {
 group?: GetArtistsGroup;
