@@ -15,8 +15,8 @@ A workspace Stripe connection and a successful TEST Checkout are not evidence th
 
 **How to apply:** Report environment and actual verification separately. Confirm LIVE resources and authenticated account synchronization before declaring production billing operational. Do not publish automatically or complete a real payment without explicit authorization.
 
-Do not infer Stripe mode from `NODE_ENV` or an Agent-side connection query alone. On 2026-10-01, Agent-side lookups resolved the separate TEST and LIVE prices correctly, but the running development API workflow's `ReplitConnectors.proxy` rejected its configured TEST Price IDs as nonexistent; the app runtime's effective Stripe account/mode remained unverified.
+Do not infer Stripe mode from `NODE_ENV`, connection environment labels, or an Agent-side query alone. The generic application SDK proxy can return LIVE prices in development even when an environment-specific Agent connection resolves the expected TEST prices. Both the SDK's CLI identity path and its environment-identity fallback exhibited this mismatch.
 
-**Why:** Agent-side connector calls and the app's runtime proxy can use different Replit identity/environment contexts; a missing resource does not establish which account answered.
+**Why:** Agent-side connector calls and the app's runtime proxy can use different Replit routing contexts. A read-only price collection confirmed LIVE responses from the application SDK path; a missing resource error alone would not have established the mode.
 
-**How to apply:** Verify `livemode` through the same running application path before checkout. If it cannot resolve the environment's existing price, stop and keep checkout disabled; never compensate by using LIVE IDs in development or by introducing another Stripe architecture.
+**How to apply:** Verify `livemode` through the same application transport before checkout. If it returns LIVE resources in development, stop all Checkout testing until the connector routing is corrected. Do not compensate with LIVE IDs, disconnect production, or invent undocumented connection-selection headers.

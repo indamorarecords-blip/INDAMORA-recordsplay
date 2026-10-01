@@ -1,0 +1,231 @@
+CORRIGER + VALIDER — STRIPE TEST DU WORKFLOW API
+AUCUNE AUTRE MODIFICATION AUTORISÉE
+
+Le dernier audit a confirmé que le seul blocage actuel est la connexion Stripe TEST utilisée par le workflow API de développement.
+
+Je t’autorise maintenant à :
+
+1. CORRIGER cette connexion Stripe TEST ;
+2. VALIDER que la correction fonctionne réellement ;
+3. TESTER que les offres Premium TEST sont bien récupérées ;
+4. TESTER le parcours Checkout TEST sans effectuer de paiement réel.
+
+Tout le reste doit rester strictement inchangé.
+
+==================================================
+RÈGLE ABSOLUE
+==================================================
+
+NE MODIFIER QUE CE QUI EST STRICTEMENT NÉCESSAIRE POUR CORRIGER LA CONNEXION STRIPE TEST DU WORKFLOW.
+
+INTERDICTION DE MODIFIER :
+
+- le code INDAMORA non nécessaire ;
+- le Web ;
+- le Mobile ;
+- Clerk ;
+- les utilisateurs ;
+- les artistes ;
+- l'administration ;
+- la base de données ;
+- les prix Stripe ;
+- les Price IDs ;
+- le webhook LIVE ;
+- le webhook Supabase ;
+- le Deployment production ;
+- le domaine ;
+- les fonctionnalités qui fonctionnent déjà ;
+- les dépendances ;
+- le design ;
+- les routes non liées au problème.
+
+NE PAS PUBLIER.
+NE PAS REDÉPLOYER.
+
+==================================================
+1. CORRIGER LA CONNEXION STRIPE TEST
+==================================================
+
+Identifier la connexion Stripe réellement utilisée par le workflow API.
+
+Le problème actuel est :
+
+/api/billing/plans
+
+répond HTTP 200 mais retourne :
+
+mode: unavailable
+
+et le proxy Stripe du workflow indique :
+
+"No such price"
+
+Les prix TEST existent déjà.
+
+Connecter le workflow API au compte Stripe TEST qui contient ces prix.
+
+NE PAS utiliser Stripe LIVE.
+
+NE PAS créer de nouveaux prix.
+
+NE PAS modifier les prix existants.
+
+NE PAS afficher de clé ou de secret.
+
+==================================================
+2. VALIDER LES PRIX TEST
+==================================================
+
+Après correction, appeler réellement :
+
+GET /api/billing/plans
+
+Vérifier que les offres suivantes sont retrouvées :
+
+- Afrique : 500 XAF / mois
+- International : 5 EUR / mois
+
+Le résultat ne doit plus être :
+
+mode: unavailable
+
+Confirmer que les Price IDs TEST existants sont correctement reconnus.
+
+==================================================
+3. VALIDER PREMIUM EN TEST
+==================================================
+
+Tester le parcours Premium en environnement TEST :
+
+- sélection de l'offre Afrique ;
+- sélection de l'offre International ;
+- création du Checkout Stripe TEST ;
+- vérification que Stripe Checkout s'ouvre correctement.
+
+NE PAS effectuer le paiement réel.
+
+Si Stripe Checkout TEST permet d'aller jusqu'à la page de paiement, cela suffit pour valider la création du Checkout.
+
+==================================================
+4. VALIDER LES DONS EN TEST
+==================================================
+
+Tester également le parcours Don en TEST.
+
+Vérifier que les montants existants sont correctement retrouvés et que le Checkout TEST peut être créé.
+
+Les montants existants sont :
+
+- 1 €
+- 5 €
+- 10 €
+- 20 €
+- 50 €
+- 100 €
+
+NE PAS créer de nouveaux prix.
+
+NE PAS modifier les montants.
+
+NE PAS effectuer de paiement réel.
+
+==================================================
+5. VALIDATION TECHNIQUE
+==================================================
+
+Après correction :
+
+- vérifier TypeScript si nécessaire ;
+- vérifier le build concerné si nécessaire ;
+- vérifier `/api/billing/plans` ;
+- vérifier la création Checkout Premium TEST ;
+- vérifier la création Checkout Don TEST.
+
+Si aucun fichier n'a besoin d'être modifié, ne modifier aucun fichier.
+
+==================================================
+6. CONTRÔLE DE NON-RÉGRESSION
+==================================================
+
+Vérifier que cette correction n'a touché à rien d'autre.
+
+Contrôler notamment :
+
+- Web ;
+- Mobile ;
+- Clerk ;
+- Administration ;
+- profils ;
+- artistes ;
+- Explorer ;
+- Répertoire ;
+- navigation ;
+- API non liée à Stripe.
+
+Si une régression apparaît :
+
+STOP.
+
+Ne pas tenter de corriger autre chose automatiquement.
+
+==================================================
+7. PRODUCTION — INTERDICTION
+==================================================
+
+NE PAS :
+
+- publier ;
+- redéployer ;
+- modifier Stripe LIVE ;
+- modifier le webhook LIVE ;
+- modifier Supabase ;
+- effectuer un paiement LIVE.
+
+La production doit rester strictement inchangée pendant cette étape.
+
+==================================================
+8. RAPPORT FINAL OBLIGATOIRE
+==================================================
+
+À la fin, indique clairement :
+
+CONNEXION STRIPE TEST
+- corrigée : OUI/NON
+- compte TEST correct : OUI/NON
+
+PREMIUM TEST
+- `/api/billing/plans` : OK/ÉCHEC
+- Afrique 500 XAF/mois : OK/ÉCHEC
+- International 5 EUR/mois : OK/ÉCHEC
+- Checkout TEST : OK/ÉCHEC
+
+DONS TEST
+- 1 € : OK/ÉCHEC
+- 5 € : OK/ÉCHEC
+- 10 € : OK/ÉCHEC
+- 20 € : OK/ÉCHEC
+- 50 € : OK/ÉCHEC
+- 100 € : OK/ÉCHEC
+- Checkout Don TEST : OK/ÉCHEC
+
+NON-RÉGRESSION
+- Web : OK/ÉCHEC
+- Mobile : OK/ÉCHEC
+- autres fonctionnalités : OK/ÉCHEC
+
+FICHIERS
+- fichiers modifiés : liste exacte
+- fichiers non modifiés : confirmer
+- production modifiée : NON
+- publication effectuée : NON
+
+IMPORTANT :
+
+Si tu ne peux pas corriger la connexion sans toucher à autre chose que le périmètre autorisé :
+
+ARRÊTE-TOI immédiatement et explique précisément ce qui bloque.
+
+NE PRENDS AUCUNE INITIATIVE SUPPLÉMENTAIRE.
+
+OBJECTIF UNIQUE :
+CORRIGER ET VALIDER LE PAIEMENT EN MODE TEST, SANS TOUCHER À CE QUI FONCTIONNE DÉJÀ ET SANS TOUCHER À LA PRODUCTION.
