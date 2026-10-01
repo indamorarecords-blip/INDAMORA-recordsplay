@@ -1,0 +1,68 @@
+Le résultat actuel est :
+
+* Stripe Production connecté : OUI
+* Premium Afrique connecté : NON
+* Premium International connecté : NON
+* Modifications hors raccordement Stripe : AUCUNE
+* Publication : NON
+
+Corrige uniquement le raccordement Stripe des deux offres existantes.
+
+À connecter
+
+Premium Afrique
+
+* Offre existante dans l’application : Premium Afrique
+* Tarif affiché : 500 FCFA / mois
+* Utiliser le produit/prix Stripe LIVE existant correspondant exactement à 500 FCFA/mois.
+
+Premium International
+
+* Offre existante dans l’application : Premium International
+* Tarif affiché : 5 € / mois
+* Utiliser le produit/prix Stripe LIVE existant correspondant exactement à 5 €/mois.
+
+Contraintes ABSOLUES
+
+Ne modifie absolument rien d’autre :
+
+* ne change aucun texte ;
+* ne change aucun tarif affiché ;
+* ne crée pas de nouveau produit Stripe ;
+* ne crée pas de nouveau Price ID si le prix LIVE correspondant existe ;
+* ne supprime aucun produit ou prix ;
+* ne modifie pas les Price IDs existants sauf pour les associer aux offres ;
+* ne touche pas à Clerk ;
+* ne touche pas au Web/Mobile ;
+* ne touche pas à l’administration ;
+* ne touche pas aux dépendances ;
+* ne touche pas à .replit sauf si strictement nécessaire au raccordement Stripe ;
+* ne modifie pas les webhooks existants ;
+* ne passe pas en TEST ;
+* ne modifie aucune autre fonctionnalité.
+
+Vérification avant publication
+
+Vérifie que :
+
+Premium Afrique → Price Stripe LIVE → 500 FCFA/mois
+
+Premium International → Price Stripe LIVE → 5 €/mois
+
+Vérifie également que les deux Checkout utilisent bien le compte Stripe Production/LIVE.
+
+Ne crée aucun paiement réel.
+
+Si les deux prix LIVE correspondants existent et que le raccordement peut être effectué sans autre modification, effectue le raccordement puis publie.
+
+Si l’un des deux prix LIVE n’existe pas ou si tu ne peux pas identifier avec certitude le bon prix, ne crée rien et ne publie pas. Arrête-toi et indique uniquement lequel manque.
+
+Résultat final obligatoire
+
+Retourne :
+
+* Stripe Production connecté : OUI
+* Premium Afrique — 500 FCFA/mois : OUI/NON
+* Premium International — 5 €/mois : OUI/NON
+* Modifications hors raccordement Stripe : AUCUNE
+* Publication : OUI/NON
