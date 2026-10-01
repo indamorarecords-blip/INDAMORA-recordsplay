@@ -36,3 +36,13 @@ externalPort = 3000
 
 [objectStorage]
 defaultBucketID = "replit-objstore-b0d9411b-1130-47e7-baec-ed12536781a1"
+
+[userenv]
+
+[userenv.development]
+STRIPE_PRICE_AFRICA_MONTHLY = "price_1UHX0mKBm6WFlJtTyjSf5bQJ"
+STRIPE_PRICE_INTERNATIONAL_MONTHLY = "price_1UHX0nKBm6WFlJtTfik0UNKc"
+
+[userenv.production]
+STRIPE_PRICE_AFRICA_MONTHLY = "price_1UHXxXJK2gfz9jMjoawlIQuW"
+STRIPE_PRICE_INTERNATIONAL_MONTHLY = "price_1UHXxXJK2gfz9jMjPcUkjB3U"
