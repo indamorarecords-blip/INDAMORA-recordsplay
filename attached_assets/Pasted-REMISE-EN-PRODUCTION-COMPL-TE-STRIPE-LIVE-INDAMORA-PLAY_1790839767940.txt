@@ -1,0 +1,188 @@
+REMISE EN PRODUCTION COMPLÈTE — STRIPE LIVE + INDAMORA PLAY
+
+La restauration Stripe a été préparée et testée en TEST dans le workspace.
+Je veux maintenant remettre les paiements en production sur :
+
+https://indamoraplay.com
+
+OBJECTIF :
+Réactiver en production :
+- les abonnements Premium ;
+- les dons ;
+- le Checkout Stripe ;
+- le portail d’abonnement ;
+- le webhook Stripe ;
+- la synchronisation du statut des abonnements ;
+- les renouvellements ;
+- les annulations ;
+- les paiements échoués.
+
+IMPORTANT :
+Cette opération concerne UNIQUEMENT la remise en production du système de paiement restauré.
+
+NE PAS MODIFIER :
+- le Mobile ;
+- Clerk/authentification ;
+- les utilisateurs ;
+- les artistes ;
+- l’administration ;
+- Explorer ;
+- Répertoire ;
+- profils ;
+- données utilisateurs ;
+- fonctionnalités non liées à Stripe ;
+- domaine ;
+- architecture générale de l'application.
+
+--------------------------------------------------
+ÉTAPE 1 — VÉRIFICATION STRIPE LIVE
+--------------------------------------------------
+
+Avant publication, vérifier la configuration réellement utilisée par le Deployment de production.
+
+Vérifier :
+1. Stripe LIVE secret key.
+2. Stripe LIVE publishable key si nécessaire.
+3. Price ID Premium LIVE.
+4. Price ID des dons LIVE.
+5. Webhook Stripe LIVE.
+6. Webhook signing secret LIVE.
+7. Variables d'environnement utilisées par la production.
+8. Absence de mélange entre TEST et LIVE.
+
+NE JAMAIS afficher les clés ou secrets dans le rapport.
+Indiquer uniquement leur présence/absence et leur environnement.
+
+Si une variable LIVE obligatoire manque :
+- NE PAS publier ;
+- NE PAS inventer de valeur ;
+- NE PAS utiliser une valeur TEST comme remplacement ;
+- NE PAS créer de nouvelle clé Stripe ;
+- s'arrêter et me signaler exactement ce qui manque.
+
+--------------------------------------------------
+ÉTAPE 2 — VÉRIFICATION DU CODE
+--------------------------------------------------
+
+Vérifier que la restauration utilise bien l'ancienne architecture Stripe existante et ne crée pas une nouvelle architecture inutile.
+
+Vérifier :
+- Checkout Premium ;
+- dons ;
+- portail d'abonnement ;
+- récupération du statut d'abonnement ;
+- webhook signé ;
+- idempotence ;
+- protection contre les événements anciens ;
+- protection contre les doublons ;
+- renouvellements ;
+- annulations ;
+- paiements échoués ;
+- synchronisation avec les tables existantes.
+
+Vérifier également que :
+- un faux paramètre checkout=success ne peut pas activer artificiellement Premium ;
+- Premium n'est activé qu'après confirmation serveur/Stripe valide ;
+- un événement Stripe non signé est rejeté.
+
+--------------------------------------------------
+ÉTAPE 3 — BUILD ET TESTS
+--------------------------------------------------
+
+Exécuter avant publication :
+- typecheck Web ;
+- typecheck API ;
+- build Web ;
+- build API ;
+- tests disponibles ;
+- vérification des routes Stripe.
+
+Confirmer que les endpoints Stripe restaurés ne répondent plus 404.
+
+Ne pas considérer les tests Stripe TEST comme une validation LIVE.
+
+--------------------------------------------------
+ÉTAPE 4 — VÉRIFICATION DE L'IMPACT DE PUBLICATION
+--------------------------------------------------
+
+Avant de publier, vérifier précisément les services qui seront déployés.
+
+IMPORTANT :
+- ne pas publier une modification Mobile ;
+- ne pas modifier la configuration Mobile ;
+- ne pas modifier les données ;
+- ne pas modifier Clerk ;
+- ne pas modifier les fonctionnalités non liées au paiement.
+
+Vérifier également que la publication conserve :
+https://indamoraplay.com
+
+--------------------------------------------------
+ÉTAPE 5 — PUBLICATION
+--------------------------------------------------
+
+Si et seulement si toutes les vérifications précédentes sont OK :
+
+1. Publier la version préparée en production.
+2. Attendre que le déploiement soit terminé.
+3. Vérifier que le déploiement est en état opérationnel.
+4. Ne pas effectuer de nouvelle modification après publication sans mon autorisation.
+
+--------------------------------------------------
+ÉTAPE 6 — VÉRIFICATION POST-PUBLICATION
+--------------------------------------------------
+
+Après publication, vérifier sur la production :
+
+https://indamoraplay.com
+
+Vérifier :
+- que le site fonctionne ;
+- que la connexion fonctionne ;
+- que les boutons Premium sont de nouveau actifs ;
+- que le parcours Checkout Premium est accessible ;
+- que le parcours Don est accessible ;
+- que les endpoints Stripe ne répondent plus 404 ;
+- que le webhook de production est correctement configuré.
+
+IMPORTANT :
+Ne pas effectuer automatiquement un véritable paiement réel avec ma carte ou celle d'un utilisateur.
+
+Pour le contrôle LIVE :
+- vérifier la configuration et le fonctionnement du parcours ;
+- si une validation nécessite obligatoirement une transaction réelle, ARRÊTER l'opération et me demander mon autorisation explicite avant tout paiement.
+
+--------------------------------------------------
+ÉTAPE 7 — RAPPORT FINAL
+--------------------------------------------------
+
+À la fin, fournir un rapport clair :
+
+STRIPE LIVE :
+- configuration LIVE : OK/ÉCHEC
+- Premium LIVE : OK/ÉCHEC
+- dons LIVE : OK/ÉCHEC
+- webhook LIVE : OK/ÉCHEC
+- synchronisation : OK/ÉCHEC
+- protection contre doublons : OK/ÉCHEC
+
+PRODUCTION :
+- publication : OK/ÉCHEC
+- https://indamoraplay.com : OK/ÉCHEC
+- Checkout Premium : OK/ÉCHEC
+- Don : OK/ÉCHEC
+- endpoints Stripe : OK/ÉCHEC
+
+SÉCURITÉ :
+- mélange TEST/LIVE : NON/OUI
+- secrets exposés : NON/OUI
+- autres fonctionnalités modifiées : NON/OUI
+- Mobile modifié : NON/OUI
+
+FICHIERS :
+Donner la liste exacte des fichiers modifiés par la restauration Stripe.
+
+IMPORTANT :
+Ne jamais afficher de clé secrète, token ou webhook secret dans le rapport.
+
+Si une étape critique échoue, ne pas continuer à publier et m'indiquer précisément le problème.
