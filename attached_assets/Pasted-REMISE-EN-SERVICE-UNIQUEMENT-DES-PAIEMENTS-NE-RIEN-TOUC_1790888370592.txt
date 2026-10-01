@@ -1,0 +1,245 @@
+REMISE EN SERVICE UNIQUEMENT DES PAIEMENTS — NE RIEN TOUCHER À CE QUI FONCTIONNE
+
+OBJECTIF UNIQUE :
+
+Remettre en fonctionnement sur INDAMORA PLAY :
+
+1. les abonnements Premium ;
+2. les dons ;
+3. leur paiement Stripe ;
+4. leur fonctionnement sur ordinateur ;
+5. leur fonctionnement sur navigateur mobile ;
+6. leur fonctionnement dans l'application uniquement si celle-ci utilise déjà le parcours Web/API existant.
+
+TOUT LE RESTE DOIT RESTER STRICTEMENT INCHANGÉ.
+
+==================================================
+RÈGLE ABSOLUE — NE RIEN CASSER
+==================================================
+
+AVANT TOUTE MODIFICATION :
+
+Faire un état des lieux précis du fonctionnement actuel.
+
+Identifier les fonctionnalités qui fonctionnent actuellement.
+
+À PARTIR DE CET ÉTAT :
+
+NE PAS MODIFIER :
+- l'accueil ;
+- Explorer ;
+- Répertoire ;
+- profils ;
+- artistes ;
+- créations ;
+- administration ;
+- connexion Clerk ;
+- comptes utilisateurs ;
+- inscriptions ;
+- Mobile ;
+- navigation ;
+- design ;
+- responsive ;
+- API non liée aux paiements ;
+- base de données non liée aux paiements ;
+- contenu ;
+- images ;
+- menus ;
+- URLs existantes ;
+- domaine ;
+- hébergement ;
+- configuration qui fonctionne déjà ;
+- fonctionnalités déjà opérationnelles.
+
+NE PAS faire de refactoring général.
+
+NE PAS nettoyer du code sans rapport avec Stripe.
+
+NE PAS mettre à jour les dépendances sans nécessité absolue.
+
+NE PAS remplacer une architecture existante par une nouvelle architecture.
+
+NE PAS modifier le Mobile sauf si une modification STRICTEMENT nécessaire au parcours de paiement existant est indispensable.
+
+==================================================
+PÉRIMÈTRE AUTORISÉ
+==================================================
+
+Les seules fonctionnalités pouvant être modifiées sont :
+
+A. Premium
+B. Dons
+C. Checkout Stripe correspondant
+D. Webhook nécessaire au fonctionnement de Premium/Dons
+E. synchronisation nécessaire du statut Premium
+F. configuration Stripe nécessaire au fonctionnement de ces paiements
+
+RIEN D'AUTRE.
+
+==================================================
+IMPORTANT — CONSERVER CE QUI EXISTE
+==================================================
+
+Réutiliser en priorité le code Stripe existant qui fonctionnait auparavant.
+
+Ne pas recréer inutilement :
+- tables ;
+- architecture ;
+- routes ;
+- composants ;
+- système d'abonnement ;
+- système de dons.
+
+Si une ancienne implémentation fonctionnelle existe dans l'historique Git, la restaurer de manière ciblée plutôt que de réécrire tout le système.
+
+==================================================
+STRIPE TEST
+==================================================
+
+Le workflow de développement doit utiliser UNIQUEMENT Stripe TEST.
+
+Les prix TEST existants sont :
+
+Afrique :
+500 XAF / mois
+
+International :
+5 EUR / mois
+
+Ne pas utiliser les Price IDs LIVE dans le développement.
+
+Ne pas modifier les prix existants.
+
+==================================================
+STRIPE LIVE
+==================================================
+
+En production uniquement :
+
+- utiliser Stripe LIVE ;
+- utiliser les Price IDs LIVE existants ;
+- utiliser le webhook LIVE approprié ;
+- utiliser les secrets LIVE déjà configurés.
+
+NE PAS créer de nouveaux prix.
+
+NE PAS modifier les prix Stripe.
+
+NE PAS remplacer un webhook existant sans avoir vérifié à quoi il sert.
+
+Si le webhook LIVE actuel sert à autre chose, le préserver.
+
+==================================================
+WEBHOOK
+==================================================
+
+Le webhook doit uniquement gérer les événements nécessaires à INDAMORA Premium/Dons.
+
+Avant toute modification du webhook :
+
+- identifier son usage actuel ;
+- vérifier qu'il ne sert pas à une autre fonctionnalité ;
+- ne rien supprimer ;
+- ne rien casser.
+
+Conserver :
+- vérification de signature ;
+- idempotence ;
+- protection contre les doublons ;
+- protection contre les événements invalides.
+
+==================================================
+VALIDATION
+==================================================
+
+Avant publication :
+
+1. vérifier le build ;
+2. vérifier TypeScript ;
+3. tester les routes Stripe ;
+4. tester les plans ;
+5. tester le Checkout TEST ;
+6. tester le webhook TEST ;
+7. vérifier que les fonctionnalités existantes restent intactes.
+
+Faire une comparaison avant/après.
+
+==================================================
+PROTECTION CONTRE LES RÉGRESSIONS
+==================================================
+
+Après modification, vérifier explicitement que les fonctionnalités suivantes fonctionnent exactement comme avant :
+
+- accueil ;
+- connexion ;
+- inscription ;
+- Explorer ;
+- Répertoire ;
+- profils ;
+- artistes ;
+- créations ;
+- administration ;
+- navigation desktop ;
+- navigation mobile ;
+- application ;
+- API non liée à Stripe.
+
+Si une fonctionnalité qui fonctionnait avant ne fonctionne plus :
+
+STOP.
+
+Ne pas publier.
+
+Corriger uniquement la régression directement causée par la modification Stripe.
+
+==================================================
+PUBLICATION
+==================================================
+
+Si et seulement si :
+
+- Premium fonctionne ;
+- Dons fonctionnent ;
+- Stripe LIVE est correctement configuré ;
+- webhook LIVE est correctement configuré ;
+- aucune autre fonctionnalité n'a été modifiée ;
+- aucun test critique n'échoue ;
+
+alors publier la correction en production.
+
+NE PAS effectuer de paiement LIVE réel automatiquement.
+
+==================================================
+RAPPORT FINAL
+==================================================
+
+Donner obligatoirement :
+
+1. Liste exacte des fichiers modifiés.
+2. Liste exacte des fichiers non modifiés concernant le reste du site.
+3. Fonctionnalités Premium restaurées.
+4. Fonctionnalités Dons restaurées.
+5. Tests effectués.
+6. Vérification desktop.
+7. Vérification mobile.
+8. Vérification application.
+9. Vérification Stripe TEST.
+10. Vérification Stripe LIVE.
+11. Vérification webhook.
+12. Confirmation :
+
+« Aucune fonctionnalité existante hors Premium/Dons n'a été volontairement modifiée. »
+
+IMPORTANT :
+
+NE JAMAIS afficher de clé Stripe, secret, token ou webhook secret.
+
+NE PAS publier si une modification hors périmètre est nécessaire.
+
+Dans ce cas, ARRÊTER et me demander mon autorisation.
+
+PRIORITÉ ABSOLUE :
+
+PRÉSERVER TOUT CE QUI FONCTIONNE DÉJÀ.
+
+La remise en service des paiements ne doit pas servir de prétexte pour modifier, améliorer, refactoriser ou remplacer une autre partie d'INDAMORA PLAY.
