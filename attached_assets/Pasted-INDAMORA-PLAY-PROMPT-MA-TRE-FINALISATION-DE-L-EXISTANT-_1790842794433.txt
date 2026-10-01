@@ -1,0 +1,1138 @@
+INDAMORA PLAY — PROMPT MAÎTRE FINALISATION DE L’EXISTANT + STRIPE + PRÉPARATION LIVE
+
+⚠️ CONSIGNE ABSOLUE — NE PAS RECONSTRUIRE INDAMORA PLAY
+
+Tu travailles exclusivement sur le projet EXISTANT INDAMORA PLAY.
+
+Le projet possède déjà :
+
+* son architecture ;
+* son code ;
+* son design ;
+* son logo ;
+* sa navigation ;
+* son RÉPERTOIRE ;
+* ses artistes ;
+* ses œuvres ;
+* son lecteur ;
+* sa base de données ;
+* son stockage ;
+* son authentification ;
+* ses API ;
+* ses fonctionnalités existantes.
+
+OBJECTIF
+
+Finaliser l’existant, corriger uniquement ce qui est réellement nécessaire et terminer l’intégration Stripe afin de préparer puis permettre la mise en production.
+
+NE RECONSTRUIS PAS LE PROJET.
+
+NE REFAIS PAS CE QUI FONCTIONNE.
+
+NE MODIFIE PAS LE SITE OU L’APPLICATION SANS NÉCESSITÉ TECHNIQUE RÉELLE.
+
+⸻
+
+1. RÈGLE DE TRAVAIL ABSOLUE
+
+Toujours respecter :
+
+PRÉSERVER → AUDITER → COMPLÉTER → TESTER → VÉRIFIER → CORRIGER → RETESTER → VALIDER → PUBLIER
+
+Une fonctionnalité n’est pas considérée comme terminée simplement parce que le code compile.
+
+Elle doit fonctionner réellement.
+
+⸻
+
+2. PROTECTION DE L’EXISTANT
+
+Avant toute modification :
+
+1. inspecter l’architecture existante ;
+2. identifier ce qui fonctionne ;
+3. identifier ce qui est partiel ;
+4. identifier ce qui est réellement cassé ;
+5. identifier les éléments qui bloquent la production ;
+6. déterminer la correction minimale nécessaire.
+
+INTERDICTIONS
+
+Ne pas :
+
+* reconstruire l’application ;
+* refaire l’architecture ;
+* changer de framework ;
+* remplacer Clerk ;
+* remplacer la base de données ;
+* remplacer le stockage ;
+* refaire toute l’interface ;
+* refaire le design ;
+* modifier le logo ;
+* modifier inutilement les couleurs ;
+* modifier inutilement la navigation ;
+* supprimer des pages fonctionnelles ;
+* supprimer des données ;
+* remplacer des fonctionnalités fonctionnelles ;
+* créer de faux comptes ;
+* créer de fausses données ;
+* créer de faux paiements ;
+* créer de faux abonnements ;
+* créer de faux dons ;
+* créer de faux revenus ;
+* créer de fausses statistiques ;
+* simuler des écoutes ;
+* promettre une rémunération automatique aux artistes.
+
+Toute modification doit être techniquement justifiée.
+
+⸻
+
+3. RAPPEL DU BLOCAGE ACTUEL
+
+Le dernier contrôle de publication a confirmé :
+
+CE QUI EST DÉJÀ OK
+
+* le compte Stripe de production est bien en LIVE ;
+* les prix de dons existent.
+
+CE QUI BLOQUE ACTUELLEMENT LA PUBLICATION
+
+BLOCAGE 1
+
+Aucun Price ID Premium LIVE correspondant aux offres INDAMORA PLAY n’a été trouvé.
+
+Les offres attendues sont :
+
+AFRIQUE
+
+500 FCFA / mois
+
+HORS AFRIQUE
+
+5 € / mois
+
+BLOCAGE 2
+
+Le webhook Stripe LIVE actuellement actif ne cible pas correctement l’API d’INDAMORA PLAY et ne reçoit pas tous les événements nécessaires.
+
+OBJECTIF PRIORITAIRE
+
+Corriger uniquement ces blocages, puis tester l’ensemble.
+
+Ne profite pas de cette intervention pour refaire le reste du projet.
+
+⸻
+
+4. STRIPE — OBJECTIF
+
+Mettre en place réellement :
+
+1. abonnements Premium mensuels ;
+2. dons ponctuels ;
+3. confirmation sécurisée des paiements ;
+4. statut Premium réel ;
+5. webhooks sécurisés ;
+6. gestion des abonnements ;
+7. préparation complète à la production.
+
+⸻
+
+5. ABONNEMENT PREMIUM
+
+Les deux offres officielles sont :
+
+🌍 AFRIQUE
+
+500 FCFA / mois
+
+Devise Stripe :
+
+XOF
+
+Récurrence :
+
+mensuelle
+
+🌎 HORS AFRIQUE
+
+5 € / mois
+
+Devise Stripe :
+
+EUR
+
+Récurrence :
+
+mensuelle
+
+Ce sont de véritables abonnements Stripe récurrents.
+
+⸻
+
+6. PRIX STRIPE LIVE — PRIORITÉ ACTUELLE
+
+Avant de créer quoi que ce soit dans Stripe LIVE :
+
+1. rechercher les produits existants ;
+2. rechercher les Price IDs existants ;
+3. vérifier leur devise ;
+4. vérifier leur montant ;
+5. vérifier leur périodicité ;
+6. vérifier leur statut ;
+7. vérifier qu’ils correspondent exactement aux offres INDAMORA PLAY.
+
+SI LE PRIX EXISTE ET EST CORRECT
+
+Réutilise-le.
+
+SI LE PRIX N’EXISTE PAS
+
+Créer uniquement le prix manquant.
+
+NE PAS
+
+* créer des doublons ;
+* créer plusieurs produits identiques ;
+* modifier un prix existant incorrect sans nécessité ;
+* supprimer des produits existants sans raison ;
+* inventer un Price ID ;
+* utiliser un Price ID TEST en production.
+
+⸻
+
+7. PRICE IDs
+
+Prévoir les références nécessaires côté serveur, par exemple :
+
+STRIPE_PRICE_AFRICA_MONTHLY
+
+STRIPE_PRICE_INTERNATIONAL_MONTHLY
+
+Si le projet possède déjà une convention différente :
+
+conserve la convention existante.
+
+Les valeurs doivent correspondre aux vrais Price IDs Stripe.
+
+Ne jamais exposer les valeurs sensibles.
+
+⸻
+
+8. SOURCE DE VÉRITÉ DES PRIX
+
+Les prix affichés dans INDAMORA PLAY doivent correspondre aux prix réellement configurés dans Stripe.
+
+Le frontend ne doit jamais être la source de vérité.
+
+Ne jamais faire confiance à :
+
+* montant envoyé par le navigateur ;
+* Price ID arbitraire ;
+* statut envoyé par le navigateur ;
+* Customer ID envoyé arbitrairement ;
+* abonnement déclaré par le navigateur.
+
+Le serveur doit contrôler les Price IDs autorisés.
+
+⸻
+
+9. DON — PAIEMENT PONCTUEL
+
+Le don doit rester complètement distinct de Premium.
+
+ABONNEMENT
+
+Paiement récurrent mensuel.
+
+DON
+
+Paiement ponctuel.
+
+Ne jamais transformer automatiquement un don en abonnement.
+
+Les prix de dons existants doivent être conservés lorsqu’ils sont corrects.
+
+Ne crée pas de nouveaux prix de dons si les prix existants répondent déjà au besoin.
+
+⸻
+
+10. TEXTE PREMIUM
+
+Dans la section Premium/Soutenir INDAMORA existante, intégrer si nécessaire :
+
+🎧 Abonnement mensuel
+
+🌍 Afrique
+
+500 FCFA / mois
+
+Une formule pensée pour les visiteurs vivant en Afrique.
+
+Votre abonnement contribue au fonctionnement de la plateforme, à son développement et à la mise en valeur des artistes.
+
+🌎 Hors Afrique
+
+5 € / mois
+
+Une formule destinée aux visiteurs vivant en dehors de l’Afrique.
+
+Votre soutien permet à l’association de développer progressivement les services d’INDAMORA PLAY.
+
+Important
+
+Les abonnements servent actuellement au fonctionnement et au développement de la plateforme associative.
+
+Lorsque les ressources de l’association le permettront, une partie pourra également être consacrée à des actions de soutien et de rémunération en faveur des artistes.
+
+Ne jamais présenter cette rémunération comme garantie.
+
+⸻
+
+11. TEXTE DON
+
+Dans la section existante correspondante :
+
+❤️ Faire un DON
+
+Votre don peut faire la différence
+
+Vous souhaitez simplement encourager INDAMORA PLAY sans souscrire à un abonnement ? Vous pouvez soutenir librement la plateforme par un don.
+
+❤️ Développer la plateforme
+
+🎧 Améliorer les services musicaux
+
+🌍 Promouvoir les artistes d’Afrique centrale
+
+🎤 Accompagner les artistes qui publient sur la plateforme
+
+🤝 Permettre à l’association de réaliser progressivement des gestes de soutien envers les artistes
+
+Chaque don contribue directement au développement du projet associatif.
+
+🚀 Notre objectif
+
+Maintenir une plateforme musicale accessible aux artistes.
+
+Développer INDAMORA PLAY sans dépendre uniquement de financements extérieurs.
+
+Créer progressivement des ressources permettant de soutenir les artistes.
+
+Mettre en place à terme un système transparent de rémunération lorsque les finances de l’association le permettront.
+
+💙 Merci pour votre soutien.
+
+⸻
+
+12. STRIPE CHECKOUT
+
+Utiliser :
+
+* Stripe Checkout ;
+* Stripe Billing ;
+* SDK Stripe officiel côté serveur ;
+* Price IDs Stripe ;
+* variables d’environnement ;
+* webhooks Stripe.
+
+Ne jamais confirmer un paiement uniquement depuis le frontend.
+
+⸻
+
+13. CLERK
+
+NE PAS REMPLACER CLERK.
+
+Conserver l’authentification existante.
+
+Vérifier uniquement :
+
+* inscription ;
+* connexion ;
+* sessions ;
+* rôles ;
+* routes protégées ;
+* vérification email ;
+* profil.
+
+Si tout fonctionne :
+
+NE RIEN REFAIRE.
+
+⸻
+
+14. RELATION CLERK ↔ STRIPE
+
+Lorsqu’un utilisateur connecté souscrit :
+
+Clerk
+↓
+utilisateur identifié
+↓
+recherche Customer Stripe
+↓
+Customer existant réutilisé si présent
+↓
+création uniquement si nécessaire
+↓
+Stripe Checkout
+↓
+paiement
+↓
+webhook Stripe
+↓
+confirmation serveur
+↓
+statut Premium
+
+Ne pas créer plusieurs Customers Stripe pour la même personne.
+
+⸻
+
+15. BASE DE DONNÉES
+
+Avant toute modification :
+
+inspecter le schéma existant.
+
+Ne créer aucune structure en double.
+
+Si nécessaire, conserver uniquement les informations utiles telles que :
+
+* Clerk user ID ;
+* Stripe Customer ID ;
+* Stripe Subscription ID ;
+* statut ;
+* Price ID ;
+* dates utiles ;
+* identifiants d’événements Stripe traités.
+
+Pour les dons :
+
+conserver les identifiants et informations nécessaires pour suivre l’état du paiement.
+
+Ne jamais stocker les données bancaires sensibles.
+
+⸻
+
+16. WEBHOOK STRIPE — BLOCAGE PRIORITAIRE
+
+Le webhook LIVE doit être réellement connecté à l’API existante d’INDAMORA PLAY.
+
+Avant toute modification :
+
+1. identifier l’endpoint API existant ;
+2. identifier le webhook Stripe LIVE actuel ;
+3. vérifier l’URL configurée ;
+4. vérifier qu’elle correspond à l’API INDAMORA PLAY ;
+5. vérifier que le domaine est correct ;
+6. vérifier la signature ;
+7. vérifier les événements ;
+8. vérifier le traitement côté serveur.
+
+IMPORTANT
+
+Ne crée pas une deuxième architecture si l’endpoint existant peut être utilisé.
+
+Finalise l’existant.
+
+⸻
+
+17. ÉVÉNEMENTS WEBHOOK
+
+Configurer uniquement les événements nécessaires au fonctionnement réel, notamment ceux liés :
+
+* aux Checkout Sessions ;
+* aux paiements ;
+* à la création d’abonnement ;
+* à la mise à jour d’abonnement ;
+* à l’annulation ;
+* à la fin d’abonnement ;
+* aux paiements échoués ;
+* aux renouvellements ;
+* aux changements de statut pertinents.
+
+Le webhook doit :
+
+* vérifier la signature ;
+* identifier l’événement ;
+* gérer les doublons ;
+* traiter l’événement côté serveur ;
+* mettre à jour la base uniquement après validation.
+
+⸻
+
+18. IDÉMPOTENCE
+
+Un même événement Stripe peut être reçu plusieurs fois.
+
+Empêcher :
+
+* double abonnement local ;
+* double activation Premium ;
+* double traitement d’un paiement ;
+* double traitement d’un don ;
+* double écriture d’événement.
+
+Réutiliser le mécanisme d’idempotence existant s’il existe.
+
+⸻
+
+19. STATUT PREMIUM
+
+Le frontend ne doit jamais pouvoir se déclarer Premium.
+
+Le flux attendu :
+
+Utilisateur
+↓
+Stripe Checkout
+↓
+Stripe
+↓
+Webhook signé
+↓
+Serveur INDAMORA PLAY
+↓
+Base de données
+↓
+Premium actif
+
+Le statut doit refléter l’état réel de Stripe.
+
+Prévoir les états nécessaires :
+
+* aucun abonnement ;
+* actif ;
+* paiement en cours/problématique si pertinent ;
+* annulé ;
+* expiré ;
+* paiement échoué.
+
+⸻
+
+20. ANNULATION
+
+Si une fonction d’annulation existe déjà :
+
+la conserver.
+
+Si elle est nécessaire mais absente :
+
+l’ajouter uniquement si indispensable.
+
+L’annulation doit être effectuée via Stripe.
+
+Ne jamais considérer un abonnement annulé simplement parce qu’une ligne a été supprimée de la base.
+
+⸻
+
+21. ÉCHEC DE PAIEMENT
+
+Gérer correctement :
+
+* paiement refusé ;
+* carte expirée ;
+* abonnement impayé ;
+* abonnement annulé ;
+* paiement remboursé si pertinent.
+
+Le statut Premium ne doit pas rester artificiellement actif si Stripe indique qu’il ne l’est plus.
+
+⸻
+
+22. DONNÉES ET TRANSPARENCE
+
+Ne jamais inventer :
+
+* paiements ;
+* dons ;
+* abonnements ;
+* revenus ;
+* écoutes ;
+* artistes ;
+* œuvres ;
+* statistiques.
+
+Si une donnée réelle n’existe pas :
+
+afficher un état vide propre.
+
+⸻
+
+23. ARTISTES ET RÉMUNÉRATION
+
+Ne jamais présenter Premium ou les dons comme une rémunération automatique des artistes.
+
+Le texte doit rester :
+
+Les contributions servent actuellement au fonctionnement et au développement de la plateforme associative.
+
+Lorsque les ressources de l’association le permettront, elles pourront contribuer à des actions de soutien ou de rémunération des artistes.
+
+Aucune garantie de revenu ne doit être affichée.
+
+⸻
+
+24. DESIGN ET NAVIGATION
+
+Conserver intégralement :
+
+* logo ;
+* identité visuelle ;
+* couleurs ;
+* typographies ;
+* composants ;
+* navigation ;
+* RÉPERTOIRE ;
+* pages existantes.
+
+Si une section Premium existe déjà :
+
+l’utiliser.
+
+Si une section Soutenir INDAMORA existe déjà :
+
+l’utiliser.
+
+Ne pas créer de nouveaux menus inutilement.
+
+Le RÉPERTOIRE reste au centre de l’application.
+
+⸻
+
+25. MOBILE / DESKTOP / APPLICATION
+
+Tester l’intégration existante sur :
+
+* ordinateur ;
+* mobile ;
+* application, lorsque le projet existant la concerne.
+
+Vérifier :
+
+* connexion ;
+* inscription ;
+* vérification email ;
+* navigation ;
+* Premium ;
+* Checkout ;
+* don ;
+* retour depuis Stripe ;
+* lecteur ;
+* Répertoire.
+
+Ne pas refaire l’interface mobile.
+
+Ne pas refaire l’application.
+
+⸻
+
+26. SÉCURITÉ
+
+Vérifier :
+
+* authentification ;
+* permissions ;
+* routes protégées ;
+* accès administrateur ;
+* données privées ;
+* uploads ;
+* Stripe ;
+* webhooks ;
+* secrets ;
+* validation serveur.
+
+Ne jamais exposer :
+
+STRIPE_SECRET_KEY
+
+STRIPE_WEBHOOK_SECRET
+
+ou toute autre valeur secrète.
+
+Ne jamais mettre ces valeurs :
+
+* dans React ;
+* dans JavaScript client ;
+* dans HTML ;
+* dans Git ;
+* dans les logs ;
+* dans une réponse API.
+
+⸻
+
+27. VARIABLES D’ENVIRONNEMENT
+
+Vérifier les variables existantes.
+
+Prévoir si nécessaire :
+
+STRIPE_SECRET_KEY
+
+STRIPE_WEBHOOK_SECRET
+
+STRIPE_PRICE_AFRICA_MONTHLY
+
+STRIPE_PRICE_INTERNATIONAL_MONTHLY
+
+Utiliser les conventions déjà présentes.
+
+Ne jamais afficher les valeurs.
+
+Tu peux uniquement indiquer :
+
+variable présente / absente / incorrectement configurée
+
+⸻
+
+28. MODE TEST
+
+Avant toute utilisation LIVE :
+
+tester Stripe TEST.
+
+Tester :
+
+PREMIUM AFRIQUE
+
+500 FCFA / mois.
+
+PREMIUM INTERNATIONAL
+
+5 € / mois.
+
+DON
+
+Paiement ponctuel.
+
+Tester également :
+
+* paiement réussi ;
+* paiement échoué ;
+* Checkout annulé ;
+* création Customer ;
+* abonnement ;
+* webhook ;
+* renouvellement ;
+* annulation ;
+* perte Premium ;
+* webhook doublé ;
+* utilisateur non connecté ;
+* Price ID invalide ;
+* montant invalide.
+
+⸻
+
+29. TEST DE SÉCURITÉ DES PRIX
+
+Tester une tentative d’envoi depuis le navigateur d’un Price ID non autorisé.
+
+Résultat attendu :
+
+REFUS CÔTÉ SERVEUR.
+
+Tester également une tentative de modification arbitraire du montant.
+
+Résultat attendu :
+
+REFUS CÔTÉ SERVEUR.
+
+⸻
+
+30. RETOUR STRIPE
+
+Après Checkout :
+
+* ne pas afficher immédiatement « paiement réussi » si le webhook n’a pas confirmé ;
+* afficher un état approprié ;
+* permettre le retour vers INDAMORA PLAY ;
+* attendre la confirmation serveur lorsque nécessaire.
+
+États possibles :
+
+* paiement confirmé ;
+* paiement en cours de confirmation ;
+* paiement annulé ;
+* paiement échoué.
+
+⸻
+
+31. TEST DU WEBHOOK LIVE AVANT PUBLICATION
+
+Avant de considérer le projet prêt :
+
+vérifier réellement que le webhook LIVE :
+
+1. reçoit un événement Stripe ;
+2. reçoit la signature ;
+3. valide la signature ;
+4. identifie correctement l’événement ;
+5. traite l’événement ;
+6. met à jour correctement l’état ;
+7. ne traite pas deux fois le même événement.
+
+Si ce test ne peut pas être effectué, ne déclare pas le système LIVE comme validé.
+
+⸻
+
+32. RÉPERTOIRE — NON-RÉGRESSION
+
+Après toute modification Stripe :
+
+vérifier que rien n’a cassé dans :
+
+* RÉPERTOIRE ;
+* artistes ;
+* œuvres ;
+* profils ;
+* recherche ;
+* filtres ;
+* catégories ;
+* lecteur ;
+* navigation.
+
+Si tout fonctionnait avant :
+
+ne pas le réécrire.
+
+⸻
+
+33. TESTS DE NON-RÉGRESSION
+
+Après chaque modification importante :
+
+TESTER → VÉRIFIER → CORRIGER → RETESTER
+
+Tester aussi les fonctionnalités qui n’ont pas été directement modifiées mais qui peuvent être impactées.
+
+⸻
+
+34. PASSAGE EN PRODUCTION
+
+Ne publier en LIVE que lorsque :
+
+STRIPE
+
+* Price Afrique LIVE confirmé ;
+* Price International LIVE confirmé ;
+* prix correspondant exactement aux offres ;
+* Checkout fonctionnel ;
+* webhook LIVE configuré ;
+* webhook LIVE cible l’API INDAMORA PLAY ;
+* événements nécessaires configurés ;
+* signature validée ;
+* idempotence validée ;
+* statut Premium confirmé côté serveur.
+
+CLERK
+
+* authentification OK ;
+* vérification email OK ;
+* sessions OK ;
+* permissions OK.
+
+PRODUIT
+
+* RÉPERTOIRE OK ;
+* artistes OK ;
+* œuvres OK ;
+* lecteur OK ;
+* navigation OK ;
+* mobile OK ;
+* desktop OK ;
+* application OK si concernée.
+
+SÉCURITÉ
+
+* aucun secret exposé ;
+* Price IDs contrôlés ;
+* paiements confirmés côté serveur ;
+* webhooks sécurisés.
+
+⸻
+
+35. RÈGLE D’ARRÊT
+
+Si un seul élément critique est :
+
+* absent ;
+* inaccessible ;
+* impossible à vérifier ;
+* incorrect ;
+* non testé ;
+
+NE PUBLIE PAS.
+
+Arrête-toi et indique précisément le blocage.
+
+Ne contourne jamais un contrôle.
+
+Ne simule jamais un résultat.
+
+⸻
+
+36. PUBLICATION LIVE
+
+Lorsque tous les contrôles sont confirmés :
+
+publier la version actuelle du projet, telle qu’elle existe, avec uniquement les corrections nécessaires effectuées.
+
+La publication ne doit pas entraîner :
+
+* refonte ;
+* changement de design ;
+* changement de logo ;
+* changement d’architecture ;
+* suppression de données ;
+* réécriture de fonctionnalités fonctionnelles.
+
+⸻
+
+37. APRÈS PUBLICATION
+
+Vérifier réellement :
+
+* site ordinateur ;
+* site mobile ;
+* application ;
+* connexion ;
+* RÉPERTOIRE ;
+* recherche ;
+* artiste ;
+* œuvre ;
+* lecteur ;
+* Premium ;
+* Checkout ;
+* don ;
+* webhook ;
+* statut Premium.
+
+En cas de régression :
+
+arrêter toute modification supplémentaire et corriger uniquement la régression concernée.
+
+⸻
+
+38. RAPPORT FINAL OBLIGATOIRE
+
+Fournir un rapport final comprenant :
+
+A. EXISTANT CONSERVÉ
+
+Ce qui n’a pas été modifié.
+
+B. CORRECTIONS
+
+Fichiers et éléments réellement corrigés.
+
+C. STRIPE
+
+Indiquer :
+
+* produits réutilisés ou créés ;
+* Price Afrique ;
+* Price International ;
+* dons ;
+* Checkout ;
+* Billing ;
+* webhook ;
+* événements ;
+* idempotence.
+
+D. WEBHOOK LIVE
+
+Indiquer :
+
+* endpoint utilisé ;
+* confirmation qu’il cible l’API INDAMORA PLAY ;
+* événements configurés ;
+* test effectué ;
+* résultat.
+
+Ne jamais afficher de secret.
+
+E. CLERK
+
+Indiquer :
+
+* authentification ;
+* vérification email ;
+* sessions ;
+* permissions.
+
+F. BASE DE DONNÉES
+
+Indiquer uniquement :
+
+* tables modifiées ;
+* champs ajoutés ;
+* migrations effectuées ;
+* raison de chaque modification.
+
+G. VARIABLES
+
+Lister uniquement les noms des variables d’environnement nécessaires.
+
+Jamais les valeurs.
+
+H. TESTS
+
+Indiquer :
+
+* tests réussis ;
+* tests échoués ;
+* tests corrigés ;
+* tests restant à effectuer.
+
+I. MOBILE / DESKTOP / APPLICATION
+
+Indiquer les résultats.
+
+J. PRODUCTION
+
+Indiquer clairement :
+
+PUBLICATION LIVE : RÉUSSIE
+
+ou
+
+PUBLICATION LIVE : NON EFFECTUÉE
+
+En cas de non-publication, indiquer précisément le blocage.
+
+⸻
+
+39. RÈGLES FINALES NON NÉGOCIABLES
+
+NE RECONSTRUIS PAS INDAMORA PLAY.
+
+NE REFAIS PAS CE QUI FONCTIONNE.
+
+NE MODIFIE PAS INUTILEMENT LE CODE.
+
+NE CHANGE PAS LE LOGO.
+
+NE CHANGE PAS LE DESIGN.
+
+NE CHANGE PAS LE DOMAINE.
+
+NE SUPPRIME PAS LES DONNÉES.
+
+NE REMPLACE PAS CLERK.
+
+NE REMPLACE PAS LA BASE DE DONNÉES EXISTANTE.
+
+NE REMPLACE PAS LE STOCKAGE EXISTANT.
+
+NE MULTIPLIE PAS LES MENUS.
+
+NE CRÉE AUCUNE FAUSSE DONNÉE.
+
+NE SIMULE AUCUN PAIEMENT.
+
+NE SIMULE AUCUN ABONNEMENT.
+
+NE SIMULE AUCUN DON.
+
+NE SIMULE AUCUN REVENU.
+
+NE PROMETS PAS DE RÉMUNÉRATION AUX ARTISTES.
+
+NE RÉVÈLE AUCUN SECRET.
+
+NE FAIS PAS CONFIANCE AU NAVIGATEUR POUR LE PRIX OU LE STATUT PREMIUM.
+
+NE CONSIDÈRE PAS UN PAIEMENT COMME CONFIRMÉ SANS VALIDATION SERVEUR.
+
+NE PASSE PAS EN LIVE TANT QUE LES CONTRÔLES CRITIQUES NE SONT PAS CONFIRMÉS.
+
+⸻
+
+OBJECTIF FINAL
+
+Le résultat attendu est :
+
+INDAMORA PLAY EXISTANT
+
+Stripe réellement intégré
+
+500 FCFA/mois — Afrique
+
+5 €/mois — Hors Afrique
+
+Dons ponctuels
+
+Checkout Stripe
+
+Stripe Billing
+
+Webhooks sécurisés
+
+Webhook LIVE correctement connecté à l’API INDAMORA PLAY
+
+Price IDs LIVE réellement configurés
+
+Statut Premium déterminé côté serveur
+
+Clerk conservé
+
+RÉPERTOIRE conservé
+
+Design conservé
+
+Aucune donnée fictive
+
+Aucune régression
+
+Tests réalisés
+
+Publication LIVE uniquement après validation de tous les prérequis
+
+ORDRE OBLIGATOIRE
+
+AUDITER
+
+↓
+
+CORRIGER UNIQUEMENT LES BLOQUAGES RÉELS
+
+↓
+
+CONFIGURER STRIPE TEST
+
+↓
+
+TESTER
+
+↓
+
+CONFIGURER LES PRICE IDs LIVE
+
+↓
+
+CONFIGURER LE WEBHOOK LIVE VERS L’API INDAMORA PLAY
+
+↓
+
+VÉRIFIER LES ÉVÉNEMENTS
+
+↓
+
+TESTER
+
+↓
+
+VÉRIFIER LA NON-RÉGRESSION
+
+↓
+
+VALIDER
+
+↓
+
+PUBLIER EN LIVE
+
+Si une étape critique échoue : ARRÊT AVANT PUBLICATION.
