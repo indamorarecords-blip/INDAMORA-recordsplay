@@ -15,8 +15,8 @@ A workspace Stripe connection and a successful TEST Checkout are not evidence th
 
 **How to apply:** Report environment and actual verification separately. Confirm LIVE resources and authenticated account synchronization before declaring production billing operational. Do not publish automatically or complete a real payment without explicit authorization.
 
-Do not infer Stripe mode from `NODE_ENV` alone. In this workspace, the development API still failed to confirm TEST prices while a direct `ReplitConnectors` request from a Node process with `NODE_ENV=development` returned only LIVE prices.
+Do not infer Stripe mode from `NODE_ENV` or an Agent-side connection query alone. On 2026-10-01, Agent-side lookups resolved the separate TEST and LIVE prices correctly, but the running development API workflow's `ReplitConnectors.proxy` rejected its configured TEST Price IDs as nonexistent; the app runtime's effective Stripe account/mode remained unverified.
 
-**Why:** The connector proxy selects credentials through Replit identity/environment context; setting the app's mode does not prove which Stripe account answered.
+**Why:** Agent-side connector calls and the app's runtime proxy can use different Replit identity/environment contexts; a missing resource does not establish which account answered.
 
-**How to apply:** Verify `livemode` using the same runtime path the app will use before any payment operation. If the returned mode differs from the intended environment, stop and keep checkout disabled rather than compensating with a different architecture or an unverified key.
+**How to apply:** Verify `livemode` through the same running application path before checkout. If it cannot resolve the environment's existing price, stop and keep checkout disabled; never compensate by using LIVE IDs in development or by introducing another Stripe architecture.
