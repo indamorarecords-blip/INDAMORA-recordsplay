@@ -19,4 +19,16 @@ Do not infer Stripe mode from `NODE_ENV`, connection environment labels, or an A
 
 **Why:** Agent-side connector calls and the app's runtime proxy can use different Replit routing contexts. A read-only price collection confirmed LIVE responses from the application SDK path; a missing resource error alone would not have established the mode.
 
-**How to apply:** Verify `livemode` through the same application transport before checkout. If it returns LIVE resources in development, stop all Checkout testing until the connector routing is corrected. Do not compensate with LIVE IDs, disconnect production, or invent undocumented connection-selection headers.
+**How to apply:** Verify `livemode` through the same application transport before checkout. Do not silently compensate for a development routing mismatch with LIVE IDs, disconnect production, or invent undocumented connection-selection headers. Without explicit authorization for unpaid LIVE session testing, stop Checkout tests when development unexpectedly resolves LIVE resources.
+
+The owner explicitly authorized testing the opening of real LIVE Checkout sessions without submitting payment. Keep such checks isolated from the normal development configuration.
+
+**Why:** The requested acceptance criterion is a real LIVE hosted Checkout for each existing offer, while prices, products, Clerk, donations and other functionality must remain unchanged. A TEST session or a mocked response does not satisfy it.
+
+**How to apply:** Use a temporary production-equivalent validation process and isolated test identities rather than changing persistent development settings. Confirm actual session and price `livemode`, stop before payment, and distinguish these checks from a published-build verification.
+
+Keep webhook registration readiness as a diagnostic rather than an additional authorization requirement for opening Checkout.
+
+**Why:** The owner specifically requested correcting the webhook-related opening blocker without weakening security. Registration discovery is not signature verification; opening an unpaid Checkout does not grant Premium, whose status is verified directly with Stripe.
+
+**How to apply:** Preserve authentication, price/mode and ownership checks, duplicate-subscription prevention, signed webhook validation and server-side Premium confirmation. Do not interpret successful Checkout opening as proof of working webhook synchronization.

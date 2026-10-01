@@ -11,6 +11,7 @@ import {
   getRecognizedPremiumPriceId,
   isPremiumSubscription,
   isRecognizedPremiumPrice,
+  isSecureSubscriptionCheckout,
   matchesStripeMode,
   PREMIUM_PLAN_CONFIG,
   selectCurrentPremiumSubscription,
@@ -279,7 +280,10 @@ async function getBillingReadiness(): Promise<{
     const webhook = inProduction
       ? await getWebhookReadiness()
       : { ready: false };
-    const available = anyPriceAvailable && (!inProduction || webhook.ready);
+    // Endpoint registration is a synchronization diagnostic, not a prerequisite
+    // for opening Checkout. Payment confirmation still comes from Stripe, never
+    // from the browser return URL; signed webhook validation remains unchanged.
+    const available = anyPriceAvailable;
 
     const reasons: string[] = [];
     if (!anyPriceAvailable) {
@@ -300,9 +304,9 @@ async function getBillingReadiness(): Promise<{
       mode: anyPriceAvailable ? (inProduction ? "live" : "test") : "unavailable",
       webhookReady: webhook.ready,
       plans: {
-        africa: { available: Boolean(africa) && (!inProduction || webhook.ready) },
+        africa: { available: Boolean(africa) },
         international: {
-          available: Boolean(international) && (!inProduction || webhook.ready),
+          available: Boolean(international),
         },
       },
       ...(reasons.length ? { reason: reasons.join(" ") } : {}),
@@ -476,7 +480,9 @@ async function findOpenSubscriptionCheckout(
       candidate, lineItems.data, requestedPlan, requestedPriceId, stripeMode,
     );
     if (offer === "conflict") return { offerConflict: true };
-    if (offer === "reuse" && candidate.url) return { url: candidate.url };
+    if (offer === "reuse" && isSecureSubscriptionCheckout(candidate, stripeMode)) {
+      return { url: candidate.url };
+    }
     sessions.splice(sessions.indexOf(candidate), 1);
     candidate = selectReusableSubscriptionCheckout(sessions, userId, customerId, stripeMode);
   }
@@ -645,7 +651,7 @@ router.post(
             return { conflict: true as const };
           }
 
-          const session = await stripeApi<{ url?: string }>(
+          const session = await stripeApi<SubscriptionCheckoutSession>(
             "/v1/checkout/sessions",
             {
               method: "POST",
@@ -660,7 +666,9 @@ router.post(
               }),
             },
           );
-          if (!session.url) throw new Error("Checkout Stripe n’a pas fourni de lien.");
+          if (!isSecureSubscriptionCheckout(session, stripeMode)) {
+            throw new Error("Checkout Stripe ne correspond pas au mode de paiement actif ou à une adresse sécurisée.");
+          }
           return { conflict: false as const, url: session.url };
         });
         if (result.conflict) {

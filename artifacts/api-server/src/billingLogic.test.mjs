@@ -8,6 +8,7 @@ import {
   createCustomerIdempotencyKey,
   isPremiumSubscription,
   isRecognizedPremiumPrice,
+  isSecureSubscriptionCheckout,
   matchesStripeMode,
   selectCurrentPremiumSubscription,
   selectReusableSubscriptionCheckout,
@@ -27,6 +28,30 @@ function price(overrides = {}) {
     ...overrides,
   };
 }
+
+test("subscription Checkout must match Stripe mode and a secure Stripe URL", () => {
+  const session = {
+    id: "cs_live_example",
+    mode: "subscription",
+    livemode: true,
+    url: "https://checkout.stripe.com/c/pay/cs_live_example",
+  };
+  assert.equal(isSecureSubscriptionCheckout(session, "live"), true);
+  for (const overrides of [
+    { livemode: false },
+    { livemode: undefined },
+    { mode: "payment" },
+    { url: undefined },
+    { url: "http://checkout.stripe.com/pay" },
+    { url: "https://checkout.stripe.com.evil.example/pay" },
+    { url: "https://user@checkout.stripe.com/pay" },
+    { url: "https://checkout.stripe.com:8443/pay" },
+    { url: "invalid" },
+  ]) {
+    assert.equal(isSecureSubscriptionCheckout({ ...session, ...overrides }, "live"), false);
+  }
+  assert.equal(isSecureSubscriptionCheckout(session, "test"), false);
+});
 
 function subscription(id, status, created, currentPrice = price()) {
   return {

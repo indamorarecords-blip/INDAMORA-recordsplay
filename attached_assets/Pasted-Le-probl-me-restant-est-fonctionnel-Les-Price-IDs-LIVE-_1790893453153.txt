@@ -1,0 +1,73 @@
+Le problème restant est fonctionnel :
+
+Les Price IDs LIVE sont corrects :
+
+* Premium Afrique : 500 XAF/mois
+* Premium International : 5 EUR/mois
+
+Mais les offres ne sont actuellement pas cliquables, donc l’utilisateur ne peut pas s’abonner.
+
+Corrige uniquement ce problème
+
+Rends les boutons d’abonnement réellement fonctionnels :
+
+Premium Afrique
+→ bouton cliquable
+→ création d’une session Stripe Checkout en LIVE
+→ abonnement au Price ID LIVE existant de 500 XAF/mois
+
+Premium International
+→ bouton cliquable
+→ création d’une session Stripe Checkout en LIVE
+→ abonnement au Price ID LIVE existant de 5 EUR/mois
+
+Le bouton doit ouvrir/rediriger vers Stripe Checkout.
+
+Contraintes absolues
+
+Ne change pas :
+
+* les offres ;
+* les tarifs affichés ;
+* les Price IDs ;
+* les produits Stripe ;
+* les textes existants sauf si nécessaire pour rendre le bouton clairement cliquable ;
+* le design existant ;
+* Clerk ;
+* Mobile ;
+* Administration ;
+* les dons ;
+* les autres fonctionnalités.
+
+Ne crée aucun nouveau produit ni nouveau prix.
+
+Utilise les Price IDs LIVE déjà présents.
+
+Ne bascule surtout pas vers Stripe TEST.
+
+Validation obligatoire
+
+Vérifie réellement que :
+
+1. Le bouton Premium Afrique est cliquable.
+2. Le bouton Premium International est cliquable.
+3. Chaque bouton appelle le backend de création de Checkout.
+4. Le backend utilise Stripe LIVE.
+5. Le bon Price ID LIVE est transmis à Checkout.
+6. Stripe Checkout s’ouvre correctement.
+7. Aucun paiement réel ne doit être effectué pendant le test.
+
+Si un contrôle de webhook empêche uniquement la création/ouverture du Checkout, identifie et corrige uniquement le problème nécessaire au fonctionnement du Checkout, sans supprimer les contrôles de sécurité ni modifier les offres.
+
+Publication
+
+Une fois les deux boutons fonctionnels et le Checkout LIVE correctement généré, publie immédiatement l’application.
+
+À la fin, indique :
+
+* Premium Afrique cliquable : OUI/NON
+* Premium International cliquable : OUI/NON
+* Checkout LIVE généré : OUI/NON
+* Bons Price IDs LIVE utilisés : OUI/NON
+* Publication : OUI/NON
+* Autres modifications : AUCUNE

@@ -60,6 +60,26 @@ export function matchesStripeMode(livemode: unknown, mode: StripeMode): boolean 
   return typeof livemode === "boolean" && livemode === (mode === "live");
 }
 
+export function isSecureSubscriptionCheckout(
+  session: SubscriptionCheckoutSession,
+  mode: StripeMode,
+): session is SubscriptionCheckoutSession & { url: string } {
+  if (
+    session.mode !== "subscription" ||
+    !matchesStripeMode(session.livemode, mode) ||
+    !session.url
+  ) return false;
+  try {
+    const url = new URL(session.url);
+    return url.protocol === "https:" &&
+      url.hostname === "checkout.stripe.com" &&
+      !url.username && !url.password &&
+      (!url.port || url.port === "443");
+  } catch {
+    return false;
+  }
+}
+
 export function isRecognizedPremiumPrice(
   price: PremiumPrice | undefined,
   mode: StripeMode,
