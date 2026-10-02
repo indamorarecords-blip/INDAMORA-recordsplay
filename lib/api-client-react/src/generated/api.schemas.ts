@@ -148,6 +148,51 @@ export interface AdminUsersPage {
   limit: number;
 }
 
+export interface DeletionConfirmation {
+  confirmed: true;
+}
+
+export type WorkAccess = typeof WorkAccess[keyof typeof WorkAccess];
+
+
+export const WorkAccess = {
+  free: 'free',
+  premium: 'premium',
+} as const;
+
+export interface Work {
+  id: number;
+  title: string;
+  artist: string;
+  category: string;
+  description: string;
+  /** @nullable */
+  duration: string | null;
+  image: string;
+  /** @nullable */
+  mediaType: string | null;
+  /** @nullable */
+  mediaObjectPath: string | null;
+  /** @nullable */
+  coverObjectPath: string | null;
+  featured: boolean;
+  access: WorkAccess;
+}
+
+export interface AdminContent {
+  profiles: AdminArtistProfile[];
+  works: Work[];
+}
+
+export interface DemoCleanupResult {
+  /** @minimum 0 */
+  profiles: number;
+  /** @minimum 0 */
+  works: number;
+  /** @minimum 0 */
+  submissions: number;
+}
+
 export type ArtistProfileGroup = typeof ArtistProfileGroup[keyof typeof ArtistProfileGroup];
 
 
@@ -251,33 +296,6 @@ export interface PressRequestInput {
   /** @minLength 10 */
   message: string;
   requestedDate?: string;
-}
-
-export type WorkAccess = typeof WorkAccess[keyof typeof WorkAccess];
-
-
-export const WorkAccess = {
-  free: 'free',
-  premium: 'premium',
-} as const;
-
-export interface Work {
-  id: number;
-  title: string;
-  artist: string;
-  category: string;
-  description: string;
-  /** @nullable */
-  duration: string | null;
-  image: string;
-  /** @nullable */
-  mediaType: string | null;
-  /** @nullable */
-  mediaObjectPath: string | null;
-  /** @nullable */
-  coverObjectPath: string | null;
-  featured: boolean;
-  access: WorkAccess;
 }
 
 export type SubmissionStatus = typeof SubmissionStatus[keyof typeof SubmissionStatus];

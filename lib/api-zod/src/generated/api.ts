@@ -326,6 +326,100 @@ export const GetAdminUsersResponse = zod.object({
 })
 
 
+export const GetAdminContentResponse = zod.object({
+  "profiles": zod.array(zod.object({
+  "id": zod.number().int(),
+  "name": zod.string(),
+  "category": zod.string(),
+  "bio": zod.string(),
+  "location": zod.string(),
+  "avatar": zod.string().nullable(),
+  "worksCount": zod.number().int(),
+  "ownerId": zod.string().nullable(),
+  "profileGroup": zod.string(),
+  "subcategory": zod.string().nullable(),
+  "country": zod.string().nullable(),
+  "specialties": zod.array(zod.string()),
+  "website": zod.string().nullable(),
+  "socialLinks": zod.array(zod.string()),
+  "professionalContact": zod.string().nullable(),
+  "profileStatus": zod.string(),
+  "isPublished": zod.boolean(),
+  "createdAt": zod.coerce.date()
+})),
+  "works": zod.array(zod.object({
+  "id": zod.number().int(),
+  "title": zod.string(),
+  "artist": zod.string(),
+  "category": zod.string(),
+  "description": zod.string(),
+  "duration": zod.string().nullable(),
+  "image": zod.string(),
+  "mediaType": zod.string().nullable(),
+  "mediaObjectPath": zod.string().nullable(),
+  "coverObjectPath": zod.string().nullable(),
+  "featured": zod.boolean(),
+  "access": zod.enum(['free', 'premium'])
+}))
+})
+
+
+/**
+ * Deletes only the selected directory profile, never its Clerk account or works.
+ */
+
+
+
+export const DeleteAdminProfileParams = zod.object({
+  "id": zod.coerce.number().int().min(1)
+})
+
+export const DeleteAdminProfileBody = zod.object({
+  "confirmed": zod.literal(true)
+})
+
+export const DeleteAdminProfileResponse = zod.void()
+
+
+/**
+ * Deletes only the selected published work and detaches its submission references. Shared or unverified files are retained.
+ */
+
+
+
+export const DeleteAdminWorkParams = zod.object({
+  "id": zod.coerce.number().int().min(1)
+})
+
+export const DeleteAdminWorkBody = zod.object({
+  "confirmed": zod.literal(true)
+})
+
+export const DeleteAdminWorkResponse = zod.void()
+
+
+/**
+ * Removes only the previously verified demonstration fingerprints. Uncertain records, including the later Nzelé publication, are preserved.
+ */
+export const CleanupAdminDemosBody = zod.object({
+  "confirmed": zod.literal(true)
+})
+
+export const cleanupAdminDemosResponseProfilesMin = 0;
+
+export const cleanupAdminDemosResponseWorksMin = 0;
+
+export const cleanupAdminDemosResponseSubmissionsMin = 0;
+
+
+
+export const CleanupAdminDemosResponse = zod.object({
+  "profiles": zod.number().int().min(cleanupAdminDemosResponseProfilesMin),
+  "works": zod.number().int().min(cleanupAdminDemosResponseWorksMin),
+  "submissions": zod.number().int().min(cleanupAdminDemosResponseSubmissionsMin)
+})
+
+
 /**
  * @summary List work submissions
  */

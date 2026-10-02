@@ -1,3 +1,4 @@
 - [API response normalization](api-response-normalization.md) — normalize database-native values before generated response validation.
 - [Local artifact validation](local-artifact-validation.md) — terminal builds lack service env; API dev bundles once, so restart before trusting route checks.
 - [Billing repair constraints](billing-repair-constraints.md) — preserve the existing Stripe flow and distinguish workspace TEST checks from production LIVE proof.
+- [Timestamp fingerprints](timestamp-fingerprints.md) — exact database fingerprints must retain PostgreSQL microseconds, which date serializers can hide.

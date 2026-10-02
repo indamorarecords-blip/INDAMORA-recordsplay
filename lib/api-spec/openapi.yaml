@@ -279,6 +279,107 @@ paths:
           description: Authentication required
         "403":
           description: Administrator access denied
+  /admin/content:
+    get:
+      operationId: getAdminContent
+      tags: [admin]
+      security:
+        - clerkSession: []
+      responses:
+        "200":
+          description: Directory profiles and published catalogue works
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminContent"
+        "401":
+          description: Authentication required
+        "403":
+          description: Administrator access denied
+  /admin/profiles/{id}:
+    delete:
+      operationId: deleteAdminProfile
+      tags: [admin]
+      description: Deletes only the selected directory profile, never its Clerk account or works.
+      security:
+        - clerkSession: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeletionConfirmation"
+      responses:
+        "204":
+          description: Profile deleted
+        "400":
+          description: Invalid identifier or missing confirmation
+        "401":
+          description: Authentication required
+        "403":
+          description: Administrator access denied
+        "404":
+          description: Profile not found
+  /admin/works/{id}:
+    delete:
+      operationId: deleteAdminWork
+      tags: [admin]
+      description: Deletes only the selected published work and detaches its submission references. Shared or unverified files are retained.
+      security:
+        - clerkSession: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeletionConfirmation"
+      responses:
+        "204":
+          description: Published work deleted
+        "400":
+          description: Invalid identifier or missing confirmation
+        "401":
+          description: Authentication required
+        "403":
+          description: Administrator access denied
+        "404":
+          description: Work not found
+  /admin/demo-cleanup:
+    post:
+      operationId: cleanupAdminDemos
+      tags: [admin]
+      description: Removes only the previously verified demonstration fingerprints. Uncertain records, including the later Nzelé publication, are preserved.
+      security:
+        - clerkSession: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeletionConfirmation"
+      responses:
+        "200":
+          description: Exact demonstration cleanup counts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DemoCleanupResult"
+        "400":
+          description: Confirmation required
+        "401":
+          description: Authentication required
+        "403":
+          description: Administrator access denied
   /submissions:
     get:
       operationId: getSubmissions
@@ -553,6 +654,30 @@ components:
         totalCount: { type: integer, minimum: 0 }
         offset: { type: integer, minimum: 0 }
         limit: { type: integer, minimum: 1 }
+    DeletionConfirmation:
+      type: object
+      required: [confirmed]
+      properties:
+        confirmed: { type: boolean, enum: [true] }
+    AdminContent:
+      type: object
+      required: [profiles, works]
+      properties:
+        profiles:
+          type: array
+          items:
+            $ref: "#/components/schemas/AdminArtistProfile"
+        works:
+          type: array
+          items:
+            $ref: "#/components/schemas/Work"
+    DemoCleanupResult:
+      type: object
+      required: [profiles, works, submissions]
+      properties:
+        profiles: { type: integer, minimum: 0 }
+        works: { type: integer, minimum: 0 }
+        submissions: { type: integer, minimum: 0 }
     Artist:
       type: object
       required: [id, name, category, bio, location, worksCount, profileGroup, specialties, socialLinks]

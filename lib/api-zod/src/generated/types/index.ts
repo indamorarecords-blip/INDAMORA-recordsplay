@@ -7,6 +7,7 @@
  */
 
 export * from './adminArtistProfile';
+export * from './adminContent';
 export * from './adminUser';
 export * from './adminUsersPage';
 export * from './artist';
@@ -27,6 +28,8 @@ export * from './billingStatus';
 export * from './billingSubscription';
 export * from './completeUploadRequest';
 export * from './completeUploadResult';
+export * from './deletionConfirmation';
+export * from './demoCleanupResult';
 export * from './getAdminUsersParams';
 export * from './getArtistsGroup';
 export * from './getArtistsParams';

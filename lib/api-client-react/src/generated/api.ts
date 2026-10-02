@@ -20,6 +20,7 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AdminContent,
   AdminUsersPage,
   Artist,
   ArtistInput,
@@ -29,6 +30,8 @@ import type {
   BillingStatus,
   CompleteUploadRequest,
   CompleteUploadResult,
+  DeletionConfirmation,
+  DemoCleanupResult,
   GetAdminUsersParams,
   GetArtistsParams,
   GetSubmissionsParams,
@@ -1057,6 +1060,283 @@ export function useGetAdminUsers<TData = Awaited<ReturnType<typeof getAdminUsers
 
 
 
+
+export const getGetAdminContentUrl = () => {
+
+
+
+
+  return `/api/admin/content`
+}
+
+export const getAdminContent = async ( options?: Parameters<typeof customFetch>[1]): Promise<AdminContent> => {
+
+  return customFetch<AdminContent>(getGetAdminContentUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminContentQueryKey = () => {
+    return [
+    `/api/admin/content`
+    ] as const;
+    }
+
+
+export const getGetAdminContentQueryOptions = <TData = Awaited<ReturnType<typeof getAdminContent>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminContent>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminContentQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminContent>>> = ({ signal }) => getAdminContent({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminContent>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminContentQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminContent>>>
+export type GetAdminContentQueryError = ErrorType<void>
+
+
+
+export function useGetAdminContent<TData = Awaited<ReturnType<typeof getAdminContent>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminContent>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminContentQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getDeleteAdminProfileUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/profiles/${id}`
+}
+
+/**
+ * Deletes only the selected directory profile, never its Clerk account or works.
+ */
+export const deleteAdminProfile = async (id: number,
+    deletionConfirmation: DeletionConfirmation, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteAdminProfileUrl(id),
+  {
+    ...options,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(deletionConfirmation)
+  }
+);}
+
+
+
+
+
+export const getDeleteAdminProfileMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAdminProfile>>, TError,{id: number;data: BodyType<DeletionConfirmation>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAdminProfile>>, TError,{id: number;data: BodyType<DeletionConfirmation>}, TContext> => {
+
+const mutationKey = ['deleteAdminProfile'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAdminProfile>>, {id: number;data: BodyType<DeletionConfirmation>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  deleteAdminProfile(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteAdminProfileMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAdminProfile>>>
+    export type DeleteAdminProfileMutationBody = BodyType<DeletionConfirmation>
+    export type DeleteAdminProfileMutationError = ErrorType<void>
+
+    export const useDeleteAdminProfile = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAdminProfile>>, TError,{id: number;data: BodyType<DeletionConfirmation>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteAdminProfile>>,
+        TError,
+        {id: number;data: BodyType<DeletionConfirmation>},
+        TContext
+      > => {
+      return useMutation(getDeleteAdminProfileMutationOptions(options));
+    }
+
+export const getDeleteAdminWorkUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/works/${id}`
+}
+
+/**
+ * Deletes only the selected published work and detaches its submission references. Shared or unverified files are retained.
+ */
+export const deleteAdminWork = async (id: number,
+    deletionConfirmation: DeletionConfirmation, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteAdminWorkUrl(id),
+  {
+    ...options,
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(deletionConfirmation)
+  }
+);}
+
+
+
+
+
+export const getDeleteAdminWorkMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAdminWork>>, TError,{id: number;data: BodyType<DeletionConfirmation>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAdminWork>>, TError,{id: number;data: BodyType<DeletionConfirmation>}, TContext> => {
+
+const mutationKey = ['deleteAdminWork'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAdminWork>>, {id: number;data: BodyType<DeletionConfirmation>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  deleteAdminWork(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteAdminWorkMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAdminWork>>>
+    export type DeleteAdminWorkMutationBody = BodyType<DeletionConfirmation>
+    export type DeleteAdminWorkMutationError = ErrorType<void>
+
+    export const useDeleteAdminWork = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAdminWork>>, TError,{id: number;data: BodyType<DeletionConfirmation>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteAdminWork>>,
+        TError,
+        {id: number;data: BodyType<DeletionConfirmation>},
+        TContext
+      > => {
+      return useMutation(getDeleteAdminWorkMutationOptions(options));
+    }
+
+export const getCleanupAdminDemosUrl = () => {
+
+
+
+
+  return `/api/admin/demo-cleanup`
+}
+
+/**
+ * Removes only the previously verified demonstration fingerprints. Uncertain records, including the later Nzelé publication, are preserved.
+ */
+export const cleanupAdminDemos = async (deletionConfirmation: DeletionConfirmation, options?: Parameters<typeof customFetch>[1]): Promise<DemoCleanupResult> => {
+
+  return customFetch<DemoCleanupResult>(getCleanupAdminDemosUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(deletionConfirmation)
+  }
+);}
+
+
+
+
+
+export const getCleanupAdminDemosMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cleanupAdminDemos>>, TError,{data: BodyType<DeletionConfirmation>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof cleanupAdminDemos>>, TError,{data: BodyType<DeletionConfirmation>}, TContext> => {
+
+const mutationKey = ['cleanupAdminDemos'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof cleanupAdminDemos>>, {data: BodyType<DeletionConfirmation>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  cleanupAdminDemos(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CleanupAdminDemosMutationResult = NonNullable<Awaited<ReturnType<typeof cleanupAdminDemos>>>
+    export type CleanupAdminDemosMutationBody = BodyType<DeletionConfirmation>
+    export type CleanupAdminDemosMutationError = ErrorType<void>
+
+    export const useCleanupAdminDemos = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cleanupAdminDemos>>, TError,{data: BodyType<DeletionConfirmation>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof cleanupAdminDemos>>,
+        TError,
+        {data: BodyType<DeletionConfirmation>},
+        TContext
+      > => {
+      return useMutation(getCleanupAdminDemosMutationOptions(options));
+    }
 
 export const getGetSubmissionsUrl = (params?: GetSubmissionsParams,) => {
   const normalizedParams = new URLSearchParams();

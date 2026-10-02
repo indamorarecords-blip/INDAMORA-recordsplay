@@ -21,7 +21,6 @@ import {
   UpdateSubmissionStatusParams,
   UpdateSubmissionStatusResponse,
 } from "@workspace/api-zod";
-import { logger } from "../lib/logger";
 import { isAdminUser, requireAdmin, requireAuth } from "../middlewares/auth";
 import { ObjectPermission } from "../lib/objectAcl";
 import { ObjectStorageService } from "../lib/objectStorage";
@@ -89,113 +88,7 @@ const pressRequestForClient = (request: typeof pressRequestsTable.$inferSelect) 
   createdAt: request.createdAt.toISOString(),
 });
 
-const seedCatalog = async (): Promise<void> => {
-  const [artistCount] = await db.select({ count: artistsTable.id }).from(artistsTable);
-  if (artistCount?.count) return;
-
-  const [firstArtist, secondArtist] = await db
-    .insert(artistsTable)
-    .values([
-      {
-        name: "Béatrice Londo",
-        category: "Musique",
-        profileGroup: "artists",
-        subcategory: "Artiste / Chanteur",
-        country: "République centrafricaine",
-        specialties: ["Afro-fusion", "Chant"],
-        bio: "Une voix solaire entre Bangui et la diaspora.",
-        location: "Bangui, RCA",
-        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
-        worksCount: 3,
-      },
-      {
-        name: "Mikaël Gbaï",
-        category: "Humour",
-        profileGroup: "creations",
-        subcategory: "Humoriste",
-        country: "France",
-        specialties: ["Humour", "Spectacle"],
-        bio: "Des histoires du quotidien racontées avec tendresse.",
-        location: "Paris, France",
-        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
-        worksCount: 2,
-      },
-    ])
-    .returning();
-
-  await db.insert(worksTable).values([
-    {
-      title: "Bangui la belle",
-      artist: firstArtist.name,
-      category: "Musique",
-      description: "Un voyage musical entre mémoire, douceur et énergie.",
-      duration: "3:42",
-      image: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80",
-      featured: "true",
-      access: "free",
-    },
-    {
-      title: "Rire en famille",
-      artist: secondArtist.name,
-      category: "Humour",
-      description: "Le nouveau spectacle qui fait rire toute la communauté.",
-      duration: "18:20",
-      image: "https://images.unsplash.com/photo-1527224857830-43a7acc85260?auto=format&fit=crop&w=900&q=80",
-      featured: "true",
-      access: "premium",
-    },
-    {
-      title: "Les voix du fleuve",
-      artist: "Collectif Sangha",
-      category: "Podcast",
-      description: "Des conversations sincères sur la création centrafricaine.",
-      duration: "32:08",
-      image: "https://images.unsplash.com/photo-1478737270239-2f02b77fc618?auto=format&fit=crop&w=900&q=80",
-      featured: "false",
-      access: "free",
-    },
-    {
-      title: "Sur la route de Bangui",
-      artist: "Joël Kossi",
-      category: "Cinéma",
-      description: "Un court métrage sensible, tourné entre ville et campagne.",
-      duration: "14:12",
-      image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=900&q=80",
-      featured: "false",
-      access: "premium",
-    },
-  ]);
-
-  await db.insert(submissionsTable).values([
-    {
-      title: "Nzelé",
-      artist: firstArtist.name,
-      category: "Musique",
-      status: "pending",
-      note: "Single afro-fusion à découvrir.",
-    },
-    {
-      title: "Bangui stories",
-      artist: "Aline Mboli",
-      category: "Podcast",
-      status: "pending",
-      note: "Épisode pilote.",
-    },
-    {
-      title: "Le quartier se réveille",
-      artist: "Mikaël Gbaï",
-      category: "Humour",
-      status: "approved",
-      note: "Prêt pour publication.",
-    },
-  ]);
-
-  logger.info("Seeded initial INDAMORA PLAY catalog");
-}
-
-void seedCatalog().catch((error) => {
-  logger.error({ error }, "Unable to seed INDAMORA PLAY catalog");
-});
+// No automatic demonstration seeding: deleted fake profiles must not reappear.
 
 router.get("/catalog", async (_req, res): Promise<void> => {
   const works = await db.select().from(worksTable).orderBy(worksTable.createdAt);
