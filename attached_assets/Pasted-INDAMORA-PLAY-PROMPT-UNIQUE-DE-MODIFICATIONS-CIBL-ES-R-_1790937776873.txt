@@ -1,0 +1,586 @@
+INDAMORA PLAY — PROMPT UNIQUE DE MODIFICATIONS CIBLÉES
+
+⚠️ RÈGLE ABSOLUE — PRÉSERVER 100 % DE L’EXISTANT
+
+Avant toute chose :
+
+TOUT CE QUI FONCTIONNE DÉJÀ SUR INDAMORA PLAY DOIT RESTER EXACTEMENT COMME IL EST.
+
+Ne pas déplacer.
+
+Ne pas réorganiser.
+
+Ne pas refaire.
+
+Ne pas remplacer.
+
+Ne pas supprimer.
+
+Ne pas redessiner.
+
+Ne pas modifier le fonctionnement.
+
+Ne pas modifier la navigation.
+
+Ne pas modifier les pages.
+
+Ne pas modifier les menus.
+
+Ne pas modifier les composants existants.
+
+Ne pas modifier les fonctionnalités qui fonctionnent déjà.
+
+Ne pas faire de refactoring inutile.
+
+Ne pas faire de redesign.
+
+Ne pas améliorer d’autres éléments sans demande.
+
+AUCUN CHANGEMENT NON DEMANDÉ.
+
+La règle est :
+
+CONSERVER → MODIFIER UNIQUEMENT CE QUI EST DEMANDÉ → NE RIEN DÉPLACER → NE RIEN CASSER → VÉRIFIER.
+
+⸻
+
+1. OBJECTIFS UNIQUES DE CETTE INTERVENTION
+
+Cette intervention concerne uniquement les éléments suivants :
+
+A. NETTOYAGE
+
+Supprimer les faux profils et faux contenus créés par Replit pour les tests/démonstrations.
+
+B. ADMINISTRATEUR
+
+Permettre à l’administrateur autorisé de supprimer depuis l’espace ADMINISTRATEUR :
+
+* des profils ;
+* des musiques ;
+* des publications ;
+* des commentaires.
+
+C. AVATARS
+
+Supprimer les avatars associés aux faux profils supprimés lorsqu’ils sont exclusivement utilisés par ces faux profils.
+
+D. LOGO
+
+Je fournirai moi-même le nouveau logo officiel à Replit.
+
+Lorsque je fournis le nouveau logo, remplacer uniquement l’ancien logo par le fichier fourni.
+
+E. ABSOLUMENT RIEN D’AUTRE
+
+Tout le reste doit rester exactement comme actuellement.
+
+⸻
+
+2. FAUX PROFILS CRÉÉS PAR REPLIT
+
+Les deux profils suivants ont été créés par Replit comme faux profils de démonstration :
+
+* Béatrice Londo
+* Mikaël Gbaï
+
+Ils doivent être supprimés uniquement après confirmation qu’il s’agit bien des profils artificiels créés par Replit.
+
+Supprimer également les contenus artificiels directement associés à ces profils lorsqu’ils ont été créés par Replit, notamment :
+
+* fausses publications ;
+* fausses musiques ;
+* faux commentaires ;
+* faux contenus de démonstration ;
+* avatars exclusivement associés à ces faux profils.
+
+⚠️ PROTECTION DES VRAIES DONNÉES
+
+NE JAMAIS supprimer une vraie donnée.
+
+Ne jamais supprimer :
+
+* un vrai profil ;
+* une vraie musique ;
+* une vraie publication ;
+* un vrai commentaire ;
+* une vraie œuvre ;
+* une vraie donnée utilisateur.
+
+Si l’origine d’une donnée n’est pas certaine :
+
+NE PAS LA SUPPRIMER.
+
+Aucune suppression globale.
+
+Aucune suppression massive.
+
+Aucune suppression basée uniquement sur une ressemblance de nom.
+
+⸻
+
+3. SUPPRESSION PROPRE DES FAUX CONTENUS
+
+Lorsqu’un faux profil est confirmé comme étant une donnée de test créée par Replit :
+
+1. identifier précisément son identifiant ;
+2. identifier uniquement ses contenus de test associés ;
+3. supprimer uniquement ces données ;
+4. respecter les relations existantes dans la base de données ;
+5. vérifier qu’aucune vraie donnée n’est affectée.
+
+Ne pas modifier la structure de la base de données si ce n’est pas nécessaire.
+
+Ne pas créer de nouvelle architecture.
+
+⸻
+
+4. ESPACE ADMINISTRATEUR
+
+Conserver l’espace ADMINISTRATEUR actuel exactement à sa place.
+
+Ne pas déplacer ses menus.
+
+Ne pas refaire son interface.
+
+Ne pas modifier son design.
+
+Ne pas réorganiser les pages.
+
+Ajouter uniquement les contrôles nécessaires à la gestion des contenus.
+
+L’administrateur autorisé doit pouvoir supprimer :
+
+PROFILS
+
+Supprimer un profil utilisateur.
+
+MUSIQUES
+
+Supprimer une musique publiée.
+
+PUBLICATIONS
+
+Supprimer une publication.
+
+COMMENTAIRES
+
+Supprimer un commentaire déjà publié.
+
+⸻
+
+5. SÉCURITÉ DE L’ADMINISTRATEUR
+
+Les suppressions doivent être réellement protégées côté serveur.
+
+Un utilisateur normal ne doit jamais pouvoir supprimer un contenu simplement en appelant directement une API.
+
+Vérifier côté serveur que l’utilisateur possède réellement les permissions administrateur.
+
+Conserver le système d’authentification existant, notamment Clerk.
+
+Ne pas créer un nouveau système d’authentification.
+
+Ne pas modifier les permissions existantes inutilement.
+
+⸻
+
+6. CONFIRMATION AVANT SUPPRESSION
+
+Chaque action destructive doit demander une confirmation.
+
+Pour :
+
+* profil ;
+* musique ;
+* publication ;
+* commentaire.
+
+Afficher une confirmation claire du type :
+
+« Voulez-vous vraiment supprimer cet élément ? Cette action est irréversible. »
+
+Ne pas supprimer accidentellement un contenu avec un simple clic.
+
+⸻
+
+7. SUPPRESSION CÔTÉ SERVEUR
+
+La suppression doit être réelle côté serveur.
+
+Elle ne doit pas simplement cacher l’élément dans l’interface.
+
+Après suppression :
+
+* la donnée doit réellement disparaître selon le fonctionnement prévu ;
+* les références associées doivent être correctement gérées ;
+* aucun contenu orphelin inutile ne doit être créé ;
+* aucune autre donnée ne doit être supprimée.
+
+Réutiliser les mécanismes existants lorsqu’ils existent déjà.
+
+⸻
+
+8. MUSIQUES ET FICHIERS AUDIO
+
+Lorsqu’un administrateur supprime une musique :
+
+supprimer uniquement les éléments réellement associés à cette musique selon l’architecture existante :
+
+* entrée en base ;
+* fichier audio si approprié ;
+* image associée si elle appartient exclusivement à cette musique ;
+* métadonnées associées.
+
+Ne jamais supprimer un fichier partagé par plusieurs contenus.
+
+Si un fichier est partagé ou si son propriétaire est incertain :
+
+NE PAS LE SUPPRIMER.
+
+⸻
+
+9. COMMENTAIRES
+
+L’administrateur doit pouvoir supprimer un commentaire déjà publié.
+
+La suppression doit :
+
+* être confirmée ;
+* être autorisée uniquement pour l’administrateur ;
+* être exécutée côté serveur ;
+* supprimer uniquement le commentaire sélectionné.
+
+Ne pas modifier les autres commentaires.
+
+⸻
+
+10. AVATARS
+
+Les avatars des faux profils supprimés ne doivent plus apparaître.
+
+Ne supprimer un fichier image que s’il est confirmé qu’il appartient exclusivement au faux profil supprimé.
+
+Ne modifier aucun avatar appartenant à un vrai profil.
+
+Ne pas modifier le style des avatars existants.
+
+⸻
+
+11. RÉPERTOIRE
+
+Le RÉPERTOIRE doit rester exactement comme actuellement, à l’exception de la disparition des faux profils confirmés.
+
+Ne modifier :
+
+* ni la position des cartes ;
+* ni les filtres ;
+* ni la recherche ;
+* ni les catégories ;
+* ni les boutons ;
+* ni les couleurs ;
+* ni les dimensions ;
+* ni la navigation.
+
+Après suppression des faux profils, vérifier que les vrais profils restent inchangés.
+
+⸻
+
+12. NOUVEAU LOGO
+
+Je fournirai moi-même le nouveau logo officiel à Replit.
+
+NE PAS créer de logo.
+
+NE PAS générer de logo.
+
+NE PAS inventer de logo.
+
+Lorsque je fournirai le fichier :
+
+REMPLACER UNIQUEMENT L’ANCIEN LOGO PAR LE NOUVEAU FICHIER FOURNI.
+
+Conserver exactement :
+
+* emplacement ;
+* taille prévue ;
+* proportions ;
+* alignement ;
+* header ;
+* menu ;
+* navigation ;
+* responsive.
+
+Ne pas déplacer les autres éléments du header.
+
+Ne pas modifier le design du site pour accompagner le nouveau logo.
+
+⸻
+
+13. DESIGN DU SITE
+
+NE RIEN MODIFIER EN DEHORS DES ÉLÉMENTS EXPRESSÉMENT DEMANDÉS.
+
+Conserver exactement :
+
+* accueil ;
+* header ;
+* footer ;
+* menus ;
+* navigation ;
+* boutons ;
+* cartes ;
+* filtres ;
+* recherche ;
+* RÉPERTOIRE ;
+* lecteur ;
+* pages ;
+* profils ;
+* espaces utilisateur ;
+* espace administrateur ;
+* couleurs ;
+* typographies ;
+* espacements ;
+* tailles ;
+* animations ;
+* responsive.
+
+NE RIEN DÉPLACER.
+
+⸻
+
+14. MOBILE / DESKTOP / APPLICATION
+
+Le site doit conserver son fonctionnement actuel sur :
+
+* mobile ;
+* desktop ;
+* application.
+
+Ne pas refaire le responsive.
+
+Ne pas déplacer les éléments.
+
+Ne pas modifier la navigation mobile.
+
+Ne pas modifier la barre de navigation existante.
+
+Ne pas modifier le menu.
+
+Ne modifier que les éléments explicitement demandés dans ce prompt.
+
+⸻
+
+15. STRIPE / PREMIUM
+
+NE PAS MODIFIER STRIPE OU PREMIUM DANS CETTE INTERVENTION.
+
+Ne pas toucher à :
+
+* Stripe ;
+* Checkout ;
+* Price IDs ;
+* abonnements ;
+* dons ;
+* webhooks ;
+* variables Stripe ;
+* logique Premium.
+
+Le paiement Premium doit rester tel qu’il est pendant cette opération.
+
+⸻
+
+16. CLERK
+
+Conserver Clerk.
+
+Ne pas remplacer Clerk.
+
+Ne pas modifier :
+
+* connexion ;
+* inscription ;
+* vérification e-mail ;
+* sessions ;
+* permissions ;
+
+sauf si une modification est strictement indispensable pour sécuriser les fonctions administrateur demandées.
+
+⸻
+
+17. BASE DE DONNÉES
+
+Conserver l’architecture actuelle.
+
+Avant toute modification :
+
+1. inspecter les tables existantes ;
+2. identifier les relations ;
+3. identifier les données de test ;
+4. réutiliser les structures existantes.
+
+Ne pas créer de nouvelle table si ce n’est pas nécessaire.
+
+Ne pas effectuer de migration inutile.
+
+Ne supprimer aucune donnée réelle.
+
+⸻
+
+18. TRAÇABILITÉ ADMINISTRATEUR
+
+Si un système de journalisation administrative existe déjà, le réutiliser.
+
+Lorsque cela est possible sans modifier inutilement l’architecture, conserver une trace de :
+
+* administrateur ayant effectué la suppression ;
+* type de contenu supprimé ;
+* date ;
+* identifiant du contenu.
+
+Ne pas créer un système complexe si ce n’est pas nécessaire.
+
+⸻
+
+19. TESTS OBLIGATOIRES
+
+Après les modifications :
+
+NETTOYAGE
+
+Vérifier :
+
+* Béatrice Londo supprimée si confirmée comme faux profil ;
+* Mikaël Gbaï supprimé si confirmé comme faux profil ;
+* faux contenus associés supprimés ;
+* aucune vraie donnée supprimée.
+
+ADMINISTRATEUR
+
+Tester :
+
+* suppression d’un profil de test ;
+* suppression d’une musique de test ;
+* suppression d’une publication de test ;
+* suppression d’un commentaire de test ;
+* confirmation avant suppression ;
+* contrôle des permissions ;
+* refus pour un utilisateur non administrateur.
+
+NON-RÉGRESSION
+
+Vérifier que tout ce qui fonctionnait avant fonctionne toujours :
+
+* accueil ;
+* navigation ;
+* RÉPERTOIRE ;
+* recherche ;
+* profils ;
+* lecteur ;
+* création ;
+* authentification ;
+* espace administrateur ;
+* mobile ;
+* desktop ;
+* application.
+
+⸻
+
+20. RÈGLE D’ARRÊT
+
+STOP IMMÉDIATEMENT si :
+
+* l’origine d’une donnée à supprimer n’est pas certaine ;
+* une vraie donnée risque d’être supprimée ;
+* une fonctionnalité existante doit être déplacée ;
+* une page existante doit être restructurée ;
+* le design existant doit être modifié ;
+* une fonctionnalité sans rapport doit être modifiée ;
+* une migration risquée est nécessaire ;
+* une modification importante du système existant est nécessaire.
+
+Dans ces situations :
+
+NE PAS IMPROVISER.
+
+NE PAS ÉTENDRE LE PÉRIMÈTRE.
+
+Signaler le blocage.
+
+⸻
+
+21. VÉRIFICATION FINALE AVANT VALIDATION
+
+Comparer le site avant/après.
+
+La seule différence doit correspondre aux demandes de ce prompt :
+
+1. faux profils confirmés supprimés ;
+2. faux contenus confirmés supprimés ;
+3. fonctions de suppression ajoutées dans l’espace ADMINISTRATEUR ;
+4. nouveau logo remplacé lorsque je l’ai fourni.
+
+Tout le reste doit rester inchangé.
+
+⸻
+
+22. RAPPORT FINAL
+
+Fournir un rapport clair indiquant :
+
+FAUX CONTENUS
+
+* profils supprimés ;
+* musiques supprimées ;
+* publications supprimées ;
+* commentaires supprimés.
+
+ADMINISTRATEUR
+
+* suppression profils : OK / BLOQUÉ ;
+* suppression musiques : OK / BLOQUÉ ;
+* suppression publications : OK / BLOQUÉ ;
+* suppression commentaires : OK / BLOQUÉ ;
+* sécurité côté serveur : OK / BLOQUÉ ;
+* confirmation avant suppression : OK / BLOQUÉ.
+
+LOGO
+
+* en attente du fichier fourni ;
+* ou nouveau logo installé.
+
+PRÉSERVATION
+
+Confirmer :
+
+Aucun élément existant non concerné n’a été modifié.
+
+Aucun élément existant n’a été déplacé.
+
+Aucune fonctionnalité existante n’a été volontairement modifiée.
+
+Aucune vraie donnée n’a été supprimée.
+
+⸻
+
+🔴 RÈGLE FINALE ABSOLUE
+
+NE TOUCHER À RIEN DE CE QUI FONCTIONNE DÉJÀ.
+
+NE RIEN DÉPLACER.
+
+NE RIEN REFAIRE.
+
+NE RIEN RESTRUCTURER.
+
+NE RIEN REDESIGNER.
+
+NE RIEN AMÉLIORER SANS DEMANDE.
+
+NE SUPPRIMER QUE LES FAUX CONTENUS CONFIRMÉS.
+
+MODIFIER UNIQUEMENT LES ÉLÉMENTS EXPLICITEMENT DEMANDÉS.
+
+TOUT LE RESTE DU SITE DOIT RESTER EXACTEMENT COMME IL EST.
+
+PRIORITÉ ABSOLUE : PRÉSERVER L’EXISTANT ET EFFECTUER UNIQUEMENT LES MODIFICATIONS DEMANDÉES.
