@@ -1,0 +1,176 @@
+CORRECTION UNIQUE — ICÔNE DE L’APPLICATION INDAMORAPLAY
+
+Je viens de constater sur l’iPhone que l’application installée affiche :
+
+- Nom : INDAMORAPLAY ✅
+- Icône : ❌ mauvaise icône / icône par défaut
+
+L’icône affichée actuellement est un carré gris avec un élément blanc au centre au lieu du véritable logo INDAMORA PLAY.
+
+OBJECTIF UNIQUE :
+
+Faire apparaître le véritable logo INDAMORA PLAY comme icône de l’application téléphone.
+
+==================================================
+RÈGLE ABSOLUE
+==================================================
+
+NE RIEN MODIFIER D’AUTRE.
+
+Ne pas modifier :
+
+- le site Web ;
+- l'interface Web ;
+- l'API ;
+- Stripe ;
+- Premium ;
+- les dons ;
+- Clerk ;
+- les utilisateurs ;
+- les artistes ;
+- l’administration ;
+- les routes ;
+- la navigation ;
+- le design ;
+- les fonctionnalités ;
+- la base de données ;
+- le domaine ;
+- les variables d’environnement ;
+- les dépendances sauf nécessité strictement liée à l’icône ;
+- le nom INDAMORAPLAY.
+
+Ne pas faire de refactoring.
+
+Ne pas publier le Web/API.
+
+Ne pas modifier la version desktop.
+
+==================================================
+1. DIAGNOSTIC
+==================================================
+
+Identifier précisément la configuration de l’application Mobile qui définit :
+
+- l’icône iOS ;
+- l’icône Android ;
+- l’icône affichée sur l’écran d’accueil ;
+- les assets utilisés par Expo / React Native si applicable.
+
+Vérifier notamment :
+
+- app.json ;
+- app.config.js ;
+- app.config.ts ;
+- configuration Expo ;
+- assets ;
+- références aux fichiers icon ;
+- adaptive icon Android ;
+- icône iOS.
+
+Déterminer pourquoi l’icône actuelle apparaît comme une icône par défaut.
+
+==================================================
+2. LOGO À UTILISER
+==================================================
+
+Utiliser le véritable logo officiel INDAMORA PLAY déjà présent dans le projet, s’il existe.
+
+NE PAS inventer un nouveau logo.
+
+NE PAS utiliser un logo Replit.
+
+NE PAS utiliser une icône générique.
+
+NE PAS modifier le logo source.
+
+Si plusieurs logos existent, identifier celui qui est déjà utilisé par INDAMORA PLAY et demander confirmation uniquement si le choix est réellement ambigu.
+
+==================================================
+3. ICÔNE IOS
+==================================================
+
+Configurer correctement l’icône iOS afin que l’application installée affiche le logo INDAMORA PLAY.
+
+Vérifier :
+- dimensions ;
+- format ;
+- transparence ;
+- référence du fichier ;
+- configuration Expo/iOS ;
+- génération des assets.
+
+Éviter les marges inutiles ou un logo minuscule dans l’icône.
+
+==================================================
+4. ICÔNE ANDROID
+==================================================
+
+Si la configuration Android existe déjà, vérifier également l’icône Android.
+
+Ne modifier que la configuration nécessaire à l’icône.
+
+==================================================
+5. TEST
+==================================================
+
+Après correction :
+
+- vérifier que la configuration Mobile est valide ;
+- vérifier que les assets existent ;
+- vérifier que l’application référence bien le bon fichier ;
+- vérifier qu’aucune autre configuration n’a changé.
+
+Si possible, produire un build/contrôle Mobile permettant de confirmer l’icône.
+
+IMPORTANT :
+
+Une simple modification du nom de l’application ne suffit pas.
+
+Je veux que l’IMAGE du logo apparaisse réellement comme icône sur l’écran d’accueil du téléphone.
+
+==================================================
+6. PROTECTION CONTRE LES RÉGRESSIONS
+==================================================
+
+Confirmer que :
+
+- le nom INDAMORAPLAY reste identique ;
+- aucune fonctionnalité Mobile n’a changé ;
+- le Web n’a pas changé ;
+- l’API n’a pas changé ;
+- Stripe n’a pas changé ;
+- Premium n’a pas changé ;
+- les dons n’ont pas changé.
+
+==================================================
+7. PUBLICATION
+==================================================
+
+NE PAS publier automatiquement.
+
+NE PAS redéployer le Web/API.
+
+Si une nouvelle compilation ou publication de l’application Mobile est nécessaire pour que la nouvelle icône apparaisse sur l’iPhone, l’indiquer clairement mais attendre mon autorisation avant toute publication.
+
+==================================================
+RAPPORT FINAL
+==================================================
+
+Indiquer :
+
+1. Cause exacte de l’icône actuelle.
+2. Fichier/configuration responsable.
+3. Logo INDAMORA PLAY utilisé.
+4. Fichiers modifiés.
+5. Confirmation que seul le Mobile/icone a été modifié.
+6. Confirmation que Web/API/Stripe n’ont pas été modifiés.
+7. Confirmation que le nom INDAMORAPLAY n’a pas été modifié.
+8. Indiquer si un nouveau build Mobile est nécessaire.
+9. Ne pas publier sans mon autorisation.
+
+RÈGLE ABSOLUE :
+
+UNE SEULE CORRECTION :
+faire apparaître le véritable logo INDAMORA PLAY comme icône de l’application.
+
+TOUT LE RESTE DOIT RESTER EXACTEMENT COMME IL FONCTIONNE ACTUELLEMENT.
