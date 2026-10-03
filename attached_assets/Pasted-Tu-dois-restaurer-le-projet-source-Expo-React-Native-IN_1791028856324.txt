@@ -1,0 +1,233 @@
+Tu dois restaurer le projet source Expo/React Native INDAMORA PLAY Mobile à partir de l’historique Git, sans modifier le Web, l’API, Canvas, Stripe, Clerk, les données ou les autres artifacts.
+
+Contexte vérifié
+
+Le projet source Expo complet a existé sous :
+
+artifacts/indamora-play-mobile/
+
+Identité du projet :
+
+* Nom Expo : INDAMORA PLAY Mobile
+* Slug : indamora-play-mobile
+* Package : @workspace/indamora-play-mobile
+* Expo : ~57.0.7
+* React Native : 0.86.3
+* Navigation : Expo Router
+
+Les sources complètes sont encore accessibles dans Git.
+
+Révisions sources de référence
+
+Sur main :
+
+f1c8499269511c9b569d813d6ed0114a6c2d7e5b
+
+Date : 29 septembre 2026 à 23:05:29 UTC
+
+Sur replit-agent :
+
+97a7a281a2d6675f6fc43bb519f7878c20150339
+
+Date : 29 septembre 2026 à 23:05:29 UTC
+
+Ces deux révisions contiennent notamment :
+
+artifacts/indamora-play-mobile/app.json
+artifacts/indamora-play-mobile/package.json
+artifacts/indamora-play-mobile/metro.config.js
+artifacts/indamora-play-mobile/tsconfig.json
+artifacts/indamora-play-mobile/.replit-artifact/artifact.toml
+artifacts/indamora-play-mobile/assets/images/icon.png
+artifacts/indamora-play-mobile/app/_layout.tsx
+artifacts/indamora-play-mobile/app/(auth)/
+artifacts/indamora-play-mobile/app/(tabs)/
+artifacts/indamora-play-mobile/app/admin.tsx
+artifacts/indamora-play-mobile/app/artist/[id].tsx
+artifacts/indamora-play-mobile/app/work/[id].tsx
+artifacts/indamora-play-mobile/components/
+artifacts/indamora-play-mobile/constants/
+artifacts/indamora-play-mobile/hooks/
+artifacts/indamora-play-mobile/lib/
+artifacts/indamora-play-mobile/scripts/build.js
+artifacts/indamora-play-mobile/server/serve.js
+
+Les commits suivants ont ensuite supprimé les sources et conservé principalement des fichiers générés :
+
+main:
+485924d4c3ce4b4cda7e5d57d8ffe0e1857b4e31
+replit-agent:
+561b09e63443c5e8657f672f37b251aab6c3d5da
+
+Message :
+
+Add expo environment types and android static bundle
+
+Mission
+
+Restaurer uniquement le projet source :
+
+artifacts/indamora-play-mobile/
+
+en récupérant les fichiers sources depuis la révision Git historique appropriée.
+
+Avant toute modification
+
+1. Inspecte l’état actuel du workspace.
+2. Vérifie git status --short.
+3. Vérifie que artifacts/indamora-play-mobile/ ne contient pas déjà une version source complète.
+4. Ne supprime aucun fichier existant sans nécessité.
+5. Ne modifie aucun autre artifact ou application.
+
+Stratégie de restauration
+
+Utilise en priorité la révision :
+
+f1c8499269511c9b569d813d6ed0114a6c2d7e5b
+
+et restaure depuis cette révision les fichiers sources du projet sous :
+
+artifacts/indamora-play-mobile/
+
+Ne fais pas un reset, revert ou changement de branche global.
+
+Ne remplace pas arbitrairement les fichiers générés actuels si leur conservation est utile. L’objectif est de retrouver le projet source complet tout en limitant les modifications au dossier mobile.
+
+Si nécessaire, compare les deux révisions sources :
+
+f1c8499269511c9b569d813d6ed0114a6c2d7e5b
+97a7a281a2d6675f6fc43bb519f7878c20150339
+
+et utilise la version cohérente avec l’historique main, sauf différence démontrée.
+
+Fichiers particulièrement importants à restaurer
+
+Vérifie impérativement la présence de :
+
+app.json
+package.json
+metro.config.js
+tsconfig.json
+.replit-artifact/artifact.toml
+assets/images/icon.png
+app/_layout.tsx
+app/(auth)/
+app/(tabs)/
+app/admin.tsx
+app/artist/[id].tsx
+app/work/[id].tsx
+components/
+constants/
+hooks/
+lib/
+scripts/build.js
+server/serve.js
+
+Ne recrée pas artificiellement ces fichiers à partir des bundles : récupère-les depuis Git.
+
+Icône
+
+L’icône historique correcte du projet Expo est :
+
+artifacts/indamora-play-mobile/assets/images/icon.png
+
+Elle mesure historiquement :
+
+1254 × 1254
+PNG RGB
+821527 octets
+
+app.json doit notamment conserver les références historiques :
+
+"icon": "./assets/images/icon.png"
+
+et :
+
+"splash": {
+  "backgroundColor": "#F8F0E2",
+  "image": "./assets/images/icon.png",
+  "resizeMode": "contain"
+}
+
+ainsi que :
+
+"web": {
+  "favicon": "./assets/images/icon.png"
+}
+
+Ne remplace surtout pas cette icône par :
+
+artifacts/indamora-play/public/assets/indamora-play-mark.png
+
+qui est un asset Web différent.
+
+Important : ne pas inventer de configuration native
+
+Ne crée pas arbitrairement :
+
+* eas.json
+* app.config.js
+* app.config.ts
+* ios/
+* android/
+* android.adaptiveIcon
+* ios.bundleIdentifier
+* android.package
+
+sauf si ces éléments sont effectivement présents dans la révision historique et nécessaires à la restauration.
+
+L’objectif est de restaurer le projet historique, pas de moderniser ou compléter sa configuration.
+
+Après restauration
+
+Effectue uniquement des vérifications non destructives :
+
+1. git status --short
+2. vérifier que les fichiers sources principaux sont présents ;
+3. vérifier que app.json référence bien ./assets/images/icon.png ;
+4. vérifier que l’icône existe et possède les propriétés historiques attendues ;
+5. vérifier le package.json et les versions Expo/React Native ;
+6. vérifier le manifest .replit-artifact/artifact.toml ;
+7. vérifier que le projet utilise bien Expo Router ;
+8. vérifier qu’aucun fichier hors de artifacts/indamora-play-mobile/ n’a été modifié.
+
+Ne lance pas de build, Expo, EAS, publication ou installation de dépendances tant que la restauration n’est pas vérifiée.
+
+Contraintes absolues
+
+* Ne touche pas au Web.
+* Ne touche pas à l’API.
+* Ne touche pas à Canvas.
+* Ne touche pas à Stripe.
+* Ne touche pas à Clerk.
+* Ne touche pas aux données.
+* Ne modifie pas les autres artifacts.
+* Ne fais pas de reset --hard.
+* Ne fais pas de revert.
+* Ne change pas de branche.
+* Ne fais aucun fetch distant.
+* Ne publie rien.
+* Ne lance aucun déploiement.
+* Ne corrige pas ou ne modernise pas le code pour l’instant.
+* Ne change pas l’icône autrement que par restauration du fichier historique.
+
+Résultat attendu
+
+À la fin, le workspace doit contenir à nouveau le projet source complet :
+
+artifacts/indamora-play-mobile/
+
+avec son app.json, package.json, configuration Metro, manifest artifact, code Expo Router, composants, hooks, librairies, scripts et surtout :
+
+assets/images/icon.png
+
+Puis donne-moi un rapport précis indiquant :
+
+* les fichiers restaurés ;
+* la révision Git utilisée ;
+* les éventuels fichiers déjà présents et donc non remplacés ;
+* les éventuelles différences entre l’état avant/après ;
+* le résultat de git status --short ;
+* et confirme explicitement qu’aucun autre artifact n’a été modifié.
+
+Ne passe à aucune correction fonctionnelle ou génération de build : cette étape est exclusivement une restauration contrôlée du source Expo historique.
