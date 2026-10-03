@@ -1,0 +1,68 @@
+Le diagnostic en lecture seule confirme que le projet source est présent, mais que ses dépendances ne sont pas installées/résolues :
+
+* expo absent en pratique ;
+* create-launch absent en pratique ;
+* expo-router absent ;
+* react absent ;
+* react-native absent ;
+* seulement 6/47 dépendances sont actuellement résolubles ;
+* aucun importeur artifacts/indamora-play-mobile n’est actuellement présent dans le lockfile pnpm racine.
+
+Je t’autorise maintenant à réparer uniquement les dépendances du projet mobile afin de permettre au workflow Expo de démarrer.
+
+Autorisé
+
+* Ajouter l’importeur artifacts/indamora-play-mobile au lockfile pnpm racine.
+* Installer les dépendances déjà déclarées dans le package.json du projet mobile.
+* Utiliser les versions compatibles avec les contraintes déjà présentes dans ce package.json.
+* Générer uniquement les fichiers nécessaires à l’installation des dépendances.
+
+Interdit
+
+Ne modifie pas le code source.
+
+Ne modifie pas les versions ou les dépendances du package.json.
+
+Ne modifie pas app.json.
+
+Ne modifie pas le logo.
+
+Ne touche pas au Web, à l’API, Canvas, Stripe, Clerk ou aux données.
+
+Ne modifie aucun autre artifact.
+
+Ne fais pas de mise à niveau ou de migration Expo.
+
+Ne fais pas de build iOS.
+
+Ne fais pas de build Android.
+
+Ne fais pas de publication ou de déploiement.
+
+Ne fais pas de git reset, revert, changement de branche ou fetch.
+
+Après installation
+
+Relance le workflow :
+
+artifacts/indamora-play-mobile: expo
+
+et vérifie :
+
+* que expo est maintenant résoluble ;
+* que create-launch est maintenant résoluble ;
+* que expo-router, react et react-native sont résolubles ;
+* que le serveur démarre ;
+* que le port 24082 écoute ;
+* que /status répond ;
+* que l’URL de preview ne renvoie plus 502.
+
+Si une nouvelle erreur apparaît après l’installation, ne modifie rien d’autre et ne tente pas de correction automatique. Donne-moi simplement l’erreur exacte.
+
+Enfin, donne-moi :
+
+git status --short
+
+et la liste exacte des fichiers modifiés/créés par l’installation.
+
+L’objectif est uniquement de rendre les dépendances du projet Expo restauré fonctionnelles. Rien d’autre.
