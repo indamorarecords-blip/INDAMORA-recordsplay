@@ -1,0 +1,212 @@
+# 🔴 CORRECTION UNIQUE — GOOGLE OAUTH PRODUCTION
+# AFFICHER « INDAMORA PLAY » AU LIEU DE « REPLIT »
+#
+# NE MODIFIER AUCUN CODE
+# NE PAS TOUCHER AU RESTE DU PROJET
+
+Le problème est confirmé :
+
+Lorsque les visiteurs choisissent « Se connecter avec Google », Google affiche :
+
+« Sélectionnez un compte »
+« Accéder à l’application Replit »
+
+Je veux remplacer cette marque par **INDAMORA PLAY**.
+
+Le site utilise Clerk géré par Replit et Google est un fournisseur SSO Clerk.
+
+==================================================
+OBJECTIF UNIQUE
+==================================================
+
+Configurer Google OAuth en PRODUCTION avec des identifiants Google personnalisés afin que l'écran de consentement Google présente :
+
+**INDAMORA PLAY**
+
+au lieu de :
+
+**Replit**
+
+==================================================
+ÉTAPE 1 — AUDIT AVANT MODIFICATION
+==================================================
+
+Avant toute modification, vérifie uniquement :
+
+1. Auth → Configure → Production → SSO providers → Google.
+2. Vérifie si Google utilise actuellement les identifiants Replit-managed.
+3. Affiche/relève les informations non secrètes de Provider setup :
+   - Authorized redirect URI ;
+   - Authorized JavaScript origins ;
+   - autres valeurs nécessaires à Google.
+4. Vérifie si l'option Custom credentials est disponible.
+
+NE MODIFIE RIEN pendant cette vérification.
+
+==================================================
+ÉTAPE 2 — GOOGLE CLOUD
+==================================================
+
+Si un client OAuth Google personnalisé n'existe pas encore :
+
+Indique-moi exactement les valeurs que je dois utiliser dans Google Cloud.
+
+Pour l'application :
+
+Nom :
+INDAMORA PLAY
+
+Type :
+Web application
+
+Pour les URI de redirection et origines JavaScript :
+
+UTILISE UNIQUEMENT les valeurs exactes fournies par le panneau Provider setup de Clerk/Replit.
+
+NE DEVINE AUCUNE URI.
+
+NE MODIFIE AUCUNE URI existante.
+
+Si la création du client OAuth doit être effectuée manuellement par moi dans Google Cloud Console, ARRÊTE-TOI à cette étape et donne-moi les instructions exactes.
+
+==================================================
+ÉTAPE 3 — CONFIGURATION CLERK / REPLIT
+==================================================
+
+Une fois que le Client ID et le Client Secret Google personnalisés existent :
+
+Dans :
+
+Auth → Configure → Production → SSO providers → Google
+
+activer :
+
+Custom credentials
+
+et utiliser le Client ID et le Client Secret du client Google personnalisé.
+
+IMPORTANT :
+
+Le Client Secret est une donnée confidentielle.
+
+NE L'AFFICHE JAMAIS dans ton rapport.
+
+NE LE COPIE JAMAIS dans le chat.
+
+NE LE STOCKE PAS dans un fichier du projet.
+
+==================================================
+SÉCURITÉ
+==================================================
+
+NE MODIFIE PAS :
+
+- les fichiers du projet ;
+- Clerk autrement que la configuration Google explicitement nécessaire ;
+- les utilisateurs ;
+- les profils ;
+- les sessions ;
+- les autres fournisseurs SSO ;
+- les routes ;
+- l'API ;
+- la base de données ;
+- Stripe ;
+- Premium ;
+- les dons ;
+- Mobile ;
+- Web ;
+- le domaine ;
+- les statistiques ;
+- Analytics ;
+- le déploiement.
+
+NE crée aucun utilisateur.
+
+NE supprime aucun utilisateur.
+
+NE modifie aucune donnée utilisateur.
+
+NE modifie aucun mot de passe.
+
+NE change aucune permission.
+
+NE change aucune variable d'environnement.
+
+NE fais aucune migration.
+
+NE fais aucun refactoring.
+
+==================================================
+TEST
+==================================================
+
+Après configuration, vérifie uniquement que la configuration Google personnalisée est bien enregistrée.
+
+Si un test de connexion est nécessaire :
+
+- ne réalise aucune connexion avec un compte réel sans mon autorisation ;
+- ne réalise aucun achat ;
+- ne modifie aucune donnée.
+
+Si la vérification nécessite une publication/déploiement de production :
+
+ARRÊTE-TOI et demande mon autorisation.
+
+==================================================
+RÈGLE ABSOLUE
+==================================================
+
+Si une étape nécessite :
+
+- une information que seul je peux fournir ;
+- la création manuelle du client Google ;
+- le Client ID ;
+- le Client Secret ;
+- une validation Google ;
+- une publication ;
+- un déploiement ;
+
+ARRÊTE-TOI.
+
+Ne prends aucune initiative supplémentaire.
+
+==================================================
+RAPPORT FINAL
+==================================================
+
+Indique simplement :
+
+1. Configuration Google avant :
+   Replit-managed / autre.
+
+2. Configuration Google après :
+   Custom credentials activés ou non.
+
+3. Nom de l'application Google :
+   INDAMORA PLAY.
+
+4. Client OAuth personnalisé créé :
+   oui / non / doit être créé manuellement.
+
+5. Test effectué :
+   oui / non.
+
+6. Modification de fichiers :
+   aucune.
+
+7. Modification de données :
+   aucune.
+
+8. Déploiement :
+   aucun.
+
+9. Si une action reste nécessaire de ma part :
+   indique précisément laquelle.
+
+# 🔴 IMPORTANT
+
+Le seul objectif est :
+
+**remplacer « Accéder à l’application Replit » par « INDAMORA PLAY » lors de la connexion Google.**
+
+Aucune autre modification n'est autorisée.
