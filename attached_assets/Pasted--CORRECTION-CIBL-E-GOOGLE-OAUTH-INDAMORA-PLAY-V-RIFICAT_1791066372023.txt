@@ -1,0 +1,165 @@
+# CORRECTION CIBLÉE — GOOGLE OAUTH INDAMORA PLAY
+# + VÉRIFICATION ANALYTICS
+# AUCUNE MODIFICATION DU CODE DU SITE
+
+L'audit en lecture seule est terminé.
+
+Deux points sont confirmés :
+
+1. Le site utilise Clerk provisionné/géré par Replit.
+2. Google est configuré avec les identifiants OAuth gérés par Replit, ce qui affiche « Accéder à l’application Replit ».
+3. Les statistiques du site sont gérées par Replit Project Analytics / Growth et ne nécessitent pas de script Analytics dans le code.
+
+Je veux maintenant traiter UNIQUEMENT ces deux sujets.
+
+==================================================
+A — GOOGLE OAUTH : AFFICHER INDAMORA PLAY
+==================================================
+
+OBJECTIF :
+
+Lorsqu'un visiteur choisit « Se connecter avec Google », l'écran Google doit présenter INDAMORA PLAY au lieu de « Replit ».
+
+PROCÉDURE AUTORISÉE :
+
+1. Ouvrir uniquement la configuration d'authentification de production :
+   Auth → Configure → Production → SSO providers → Google.
+
+2. Vérifier que Replit-managed credentials est actuellement utilisé.
+
+3. Préparer le passage aux Custom credentials.
+
+4. Indiquer exactement :
+   - le nom de l'application Google à utiliser : INDAMORA PLAY ;
+   - les coordonnées nécessaires ;
+   - les URI de redirection ;
+   - les origines JavaScript autorisées ;
+   - les autres paramètres Google Cloud nécessaires.
+
+5. NE JAMAIS afficher ou transmettre un Client Secret dans le rapport final.
+
+6. NE PAS inventer d'URI.
+   Utiliser exclusivement les URI indiquées par le panneau Provider setup de Clerk/Replit.
+
+7. NE PAS modifier le code source.
+
+8. NE PAS modifier :
+   - Clerk autrement que la configuration Google explicitement nécessaire ;
+   - les utilisateurs ;
+   - les profils ;
+   - les sessions ;
+   - les autres fournisseurs SSO ;
+   - les routes ;
+   - l'API ;
+   - la base de données ;
+   - Stripe ;
+   - Premium ;
+   - les dons ;
+   - Mobile ;
+   - le domaine ;
+   - le design.
+
+IMPORTANT :
+
+Si les identifiants Google personnalisés ne peuvent pas être configurés sans que je crée d'abord le client OAuth dans Google Cloud Console, ARRÊTE-TOI.
+
+Dans ce cas, donne-moi simplement les informations exactes que je dois renseigner dans Google Cloud Console.
+
+Ne crée aucun secret toi-même.
+Ne demande pas de publier l'application.
+Ne modifie aucune autre configuration.
+
+APRÈS CONFIGURATION :
+
+Vérifier que :
+
+- Google utilise bien les Custom credentials ;
+- l'ancien identifiant Replit-managed n'est plus utilisé pour le SSO Google de production ;
+- les autres méthodes de connexion fonctionnent toujours ;
+- les comptes existants ne sont pas supprimés ou recréés.
+
+NE FAIS AUCUN TEST DE CONNEXION AVEC UN COMPTE RÉEL SANS MON AUTORISATION.
+
+==================================================
+B — STATISTIQUES / VISITES DU SITE
+==================================================
+
+NE MODIFIE PAS LE CODE.
+
+NE PAS installer Google Analytics.
+NE PAS ajouter de script de tracking.
+NE PAS modifier le domaine.
+NE PAS modifier le déploiement.
+
+Vérifie uniquement :
+
+1. Que le projet utilise bien :
+   Tools → Growth → Project Analytics.
+
+2. Que Project Analytics est disponible pour ce projet.
+
+3. Que Analytics est actuellement activé ou désactivé.
+
+4. Si activé, vérifier si les Page Views et l'historique quotidien sont disponibles.
+
+5. Si les statistiques ne sont pas disponibles, déterminer précisément si la cause est :
+   - Analytics désactivé ;
+   - forfait/accès ;
+   - mauvais projet ;
+   - mauvais déploiement ;
+   - absence d'historique antérieur ;
+   - autre cause clairement identifiable.
+
+6. Ne rien modifier pour résoudre ce problème.
+
+==================================================
+RÈGLE ABSOLUE
+==================================================
+
+Aucune modification de code.
+
+Aucune modification de base de données.
+
+Aucune modification Stripe.
+
+Aucune modification Premium/Dons.
+
+Aucune modification Mobile.
+
+Aucune modification des pages publiques.
+
+Aucune modification des utilisateurs.
+
+Aucune suppression de données.
+
+Aucun déploiement de production.
+
+Aucun commit.
+
+Aucun push.
+
+Si une action nécessite une autorisation ou une information que je dois fournir moi-même, ARRÊTE-TOI et indique-moi exactement ce qu'il faut faire.
+
+==================================================
+RAPPORT FINAL
+==================================================
+
+Réponds uniquement avec :
+
+GOOGLE
+- configuration actuelle ;
+- ce qui doit être fait dans Google Cloud ;
+- ce qui doit être configuré dans Clerk/Replit ;
+- confirmation que rien d'autre n'a été modifié.
+
+ANALYTICS
+- emplacement exact du tableau ;
+- Analytics activé ou non ;
+- Page Views disponibles ou non ;
+- historique disponible ou non ;
+- cause exacte si inaccessible.
+
+MODIFICATIONS
+- fichiers modifiés : aucun ;
+- déploiement effectué : non ;
+- données modifiées : aucune.
