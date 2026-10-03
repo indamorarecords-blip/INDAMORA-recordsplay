@@ -1,0 +1,122 @@
+Le projet Expo INDAMORA PLAY Mobile est maintenant restauré et le workflow Expo fonctionne correctement en preview.
+
+Je veux maintenant lancer uniquement un build natif iOS afin que le nouveau logo soit intégré à l’application.
+
+Objectif
+
+Construire une nouvelle version iOS de :
+
+artifacts/indamora-play-mobile/
+
+en utilisant la configuration actuelle du projet, notamment :
+
+artifacts/indamora-play-mobile/app.json
+
+avec l’icône :
+
+artifacts/indamora-play-mobile/assets/images/indamora-play-app-icon.png
+
+Le fichier fait 1254 × 1254 pixels et correspond au logo officiel INDAMORA PLAY.
+
+Autorisation
+
+Tu es autorisé à :
+
+* lancer le processus de build natif iOS ;
+* générer les fichiers temporaires nécessaires au build ;
+* utiliser les outils Expo/EAS nécessaires au build ;
+* générer l’artefact iOS résultant ;
+* effectuer les opérations strictement nécessaires à la compilation.
+
+Interdictions
+
+Ne modifie pas le code source de l’application.
+
+Ne modifie pas :
+
+* app.json ;
+* package.json ;
+* pnpm-lock.yaml ;
+* le logo ;
+* les écrans ;
+* les composants ;
+* les hooks ;
+* les librairies ;
+* l’API ;
+* le Web ;
+* Canvas ;
+* Stripe ;
+* Clerk ;
+* les données ;
+* les autres artifacts.
+
+Ne fais aucune migration Expo.
+
+Ne mets aucune dépendance à jour.
+
+Ne change aucune version.
+
+Ne crée pas de nouvelle configuration fonctionnelle.
+
+Ne change pas le bundle identifier existant s’il est déjà configuré.
+
+Ne crée pas une deuxième application iOS avec un nouvel identifiant si un identifiant existant est disponible.
+
+Configuration importante
+
+Utilise exactement la configuration actuelle du projet mobile.
+
+L’icône doit être celle actuellement référencée par :
+
+expo.icon
+
+dans app.json :
+
+./assets/images/indamora-play-app-icon.png
+
+Ne remplace pas cette icône par l’ancien :
+
+./assets/images/icon.png
+
+Le fichier icon.png peut rester utilisé par le splash si c’est ce que prévoit actuellement app.json.
+
+Avant le build
+
+Effectue uniquement les vérifications nécessaires pour t’assurer que :
+
+* le projet Expo est valide ;
+* le workflow Expo fonctionne ;
+* l’icône existe ;
+* app.json référence le bon fichier ;
+* la configuration iOS existante peut être utilisée.
+
+Si une information obligatoire au build iOS manque, arrête-toi et demande-moi avant de modifier ou d’inventer une configuration.
+
+Build
+
+Lance ensuite le build iOS avec la configuration existante.
+
+Ne publie pas automatiquement sur l’App Store.
+
+Ne soumets pas automatiquement à App Store Connect.
+
+Ne crée pas de nouvelle fiche d’application.
+
+Le résultat attendu est simplement un build iOS installable/testable contenant le nouveau logo.
+
+Après le build
+
+Donne-moi un rapport indiquant :
+
+1. si le build iOS a réussi ;
+2. la version/build générée ;
+3. l’identifiant iOS utilisé ;
+4. l’artefact généré et comment le récupérer/installer ;
+5. la confirmation que l’icône intégrée au build provient bien de :
+    assets/images/indamora-play-app-icon.png
+6. les éventuelles erreurs ou avertissements ;
+7. le résultat de :
+
+git status --short
+
+Ne fais aucune autre modification ou opération après le build.
