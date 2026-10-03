@@ -1,0 +1,152 @@
+AUDIT STRICT — GOOGLE LOGIN + ANALYTICS
+NE RIEN MODIFIER
+
+J’ai identifié deux problèmes qui doivent être examinés séparément.
+
+PROBLÈME 1 — CONNEXION GOOGLE
+
+Lorsque je clique sur « Se connecter avec Google » sur INDAMORA PLAY, Google affiche :
+
+« Accéder à l'application Replit »
+
+Je ne veux pas que les visiteurs voient le nom Replit.
+
+Je veux que l’identité affichée lors de l’authentification Google soit celle d’INDAMORA PLAY.
+
+IMPORTANT :
+Ne modifie absolument rien pour le moment.
+
+Vérifie précisément :
+
+1. Quel système d’authentification est actuellement utilisé :
+   - Clerk ;
+   - Google OAuth ;
+   - Replit Auth ;
+   - autre.
+
+2. Quelle application OAuth Google est actuellement utilisée en production.
+
+3. Si elle utilise les identifiants OAuth gérés par Replit.
+
+4. Si des identifiants OAuth Google personnalisés INDAMORA peuvent être utilisés en production.
+
+5. Ce qui doit être configuré pour que Google affiche INDAMORA PLAY au lieu de Replit.
+
+6. Vérifie également si cette modification peut affecter :
+   - les comptes existants ;
+   - les utilisateurs ;
+   - Clerk ;
+   - la connexion actuelle ;
+   - les autres méthodes de connexion.
+
+NE PAS modifier les identifiants OAuth.
+NE PAS modifier Clerk.
+NE PAS modifier le code.
+NE PAS supprimer la connexion Google.
+NE PAS créer de nouvelles credentials.
+NE PAS publier.
+
+Si une configuration Google Cloud est nécessaire, indique-moi exactement ce qui doit être configuré et où.
+
+==================================================
+PROBLÈME 2 — STATISTIQUES DE VISITES
+==================================================
+
+J’avais auparavant accès à un tableau de bord permettant de voir le nombre de visites du site par jour.
+
+Je ne retrouve plus ces statistiques.
+
+Je veux retrouver EXACTEMENT le tableau de bord/statistiques qui permettait de voir les visites du site.
+
+Vérifier :
+
+1. Quel Deployment sert actuellement :
+   https://indamoraplay.com
+
+2. Quel type de Deployment est utilisé.
+
+3. Si l’onglet Analytics existe toujours pour ce Deployment.
+
+4. Si les statistiques Page Views sont toujours disponibles.
+
+5. Si l’historique des visites est toujours présent.
+
+6. Si je regarde actuellement le mauvais Deployment ou le mauvais workspace.
+
+7. Si la publication récente a créé/remplacé un Deployment différent.
+
+8. Si les statistiques sont disponibles dans :
+   - Publishing ;
+   - Analytics ;
+   - Monitoring ;
+   - autre panneau Replit.
+
+9. Vérifier que les visites du site public sont bien celles qui sont comptabilisées.
+
+IMPORTANT :
+Ne pas installer Google Analytics.
+Ne pas ajouter de nouveau système de tracking.
+Ne pas modifier le code.
+Ne pas ajouter de script de statistiques.
+Ne pas modifier les cookies.
+Ne pas modifier la confidentialité.
+Ne pas modifier le domaine.
+
+Je veux d'abord retrouver le système de statistiques existant.
+
+==================================================
+RÈGLE ABSOLUE
+==================================================
+
+CET AUDIT EST STRICTEMENT EN LECTURE SEULE.
+
+NE MODIFIER :
+- aucun fichier ;
+- aucun code ;
+- aucune configuration ;
+- aucun compte ;
+- aucun utilisateur ;
+- Clerk ;
+- Google OAuth ;
+- Stripe ;
+- Mobile ;
+- Web ;
+- API ;
+- base de données ;
+- domaine ;
+- Deployment.
+
+NE PAS PUBLIER.
+NE PAS REDÉPLOYER.
+
+==================================================
+RAPPORT FINAL
+==================================================
+
+Donner deux rapports séparés.
+
+A — GOOGLE
+
+- système d'authentification utilisé ;
+- application OAuth actuellement utilisée ;
+- pourquoi Google affiche « Replit » ;
+- solution propre pour afficher INDAMORA PLAY ;
+- impact potentiel sur les utilisateurs ;
+- fichiers modifiés : AUCUN.
+
+B — ANALYTICS
+
+- Deployment actuel de indamoraplay.com ;
+- type de Deployment ;
+- emplacement exact du tableau Analytics ;
+- Page Views disponibles : OUI/NON ;
+- historique disponible : OUI/NON ;
+- nombre de visites quotidiennes récupérable : OUI/NON ;
+- raison pour laquelle je ne retrouve plus le tableau ;
+- aucune modification effectuée.
+
+Si une correction est nécessaire :
+
+ARRÊTE-TOI APRÈS L’AUDIT.
+
+Attends mon autorisation avant toute modification.
