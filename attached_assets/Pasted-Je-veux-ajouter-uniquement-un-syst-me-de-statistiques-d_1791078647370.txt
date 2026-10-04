@@ -1,0 +1,46 @@
+Je veux ajouter uniquement un système de statistiques de fréquentation pour INDAMORA PLAY.
+
+IMPORTANT — NE RIEN MODIFIER D’AUTRE :
+
+* Le site actuel fonctionne correctement : ne modifie aucune fonctionnalité existante.
+* Ne modifie pas le design existant.
+* Ne modifie pas les pages publiques.
+* Ne modifie pas Google OAuth / Users & Auth.
+* Ne modifie pas Stripe.
+* Ne modifie pas les contenus.
+* Ne modifie pas le lecteur audio/vidéo.
+* Ne modifie pas les fonctionnalités des artistes.
+* Ne modifie pas les fonctionnalités des utilisateurs simples.
+* Ne change aucune dépendance existante sauf nécessité absolue.
+* Ne casse aucun fonctionnement actuel.
+
+OBJECTIF :
+Je veux disposer d’un tableau de statistiques de fréquentation permettant de voir :
+
+1. le nombre de visiteurs par jour ;
+2. le nombre de visiteurs sur une période donnée ;
+3. les pays des visiteurs ;
+4. les pages les plus visitées ;
+5. l’évolution de la fréquentation dans le temps.
+
+🔒 ACCÈS STRICTEMENT ADMINISTRATEUR :
+
+* Ces statistiques doivent être visibles UNIQUEMENT par le compte administrateur autorisé d’INDAMORA PLAY.
+* Les artistes ne doivent absolument pas voir ces statistiques.
+* Les utilisateurs simples ne doivent absolument pas voir ces statistiques.
+* Les visiteurs non connectés ne doivent absolument pas voir ces statistiques.
+* Aucun lien, bouton, menu ou page de statistiques ne doit apparaître dans l’espace artiste ou utilisateur.
+* Les données statistiques ne doivent pas être accessibles directement par une route API publique.
+* Vérifie côté serveur que seul l’administrateur autorisé peut récupérer les données.
+* Ne crée pas de nouveau rôle et ne modifie pas les rôles existants.
+
+AVANT DE MODIFIER QUOI QUE CE SOIT :
+
+* vérifie si un système d’analytics existe déjà ;
+* si oui, utilise celui qui existe déjà et ne crée pas de doublon ;
+* si aucun système n’existe, indique-moi la solution exacte à mettre en place ;
+* vérifie que la solution respecte le fonctionnement actuel du site et ne perturbe ni Google OAuth, ni Stripe, ni les artistes, ni les utilisateurs.
+
+IMPORTANT :
+Ne fais aucune modification non liée aux statistiques.
+Ne publie rien avant d’avoir vérifié que le changement est limité à cette fonctionnalité et que tout le reste fonctionne exactement comme avant.
