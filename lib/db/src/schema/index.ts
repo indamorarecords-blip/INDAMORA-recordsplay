@@ -19,3 +19,4 @@
 
 export * from "./indamora";
 export * from "./billing";
+export * from "./analytics";

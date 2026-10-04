@@ -5,6 +5,67 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export interface PageviewInput {
+  /**
+     * @minLength 1
+     * @maxLength 160
+     */
+  path: string;
+}
+
+export type TrafficReportGeoipStatus = typeof TrafficReportGeoipStatus[keyof typeof TrafficReportGeoipStatus];
+
+
+export const TrafficReportGeoipStatus = {
+  ready: 'ready',
+  stale: 'stale',
+  unavailable: 'unavailable',
+} as const;
+
+export interface TrafficDay {
+  date: string;
+  /** @minimum 0 */
+  visitors: number;
+  /** @minimum 0 */
+  pageviews: number;
+}
+
+export interface TrafficCountry {
+  /** @nullable */
+  country: string | null;
+  /** @minimum 0 */
+  visitors: number;
+  /** @minimum 0 */
+  pageviews: number;
+}
+
+export interface TrafficPage {
+  path: string;
+  /** @minimum 0 */
+  visitors: number;
+  /** @minimum 0 */
+  pageviews: number;
+}
+
+export interface TrafficReport {
+  start: string;
+  end: string;
+  timezone: string;
+  /** @minimum 0 */
+  visitors: number;
+  /** @minimum 0 */
+  pageviews: number;
+  retentionDays: number;
+  /** @nullable */
+  firstCollectedAt: string | null;
+  /** @nullable */
+  geoipRelease: string | null;
+  geoipStatus: TrafficReportGeoipStatus;
+  daily: TrafficDay[];
+  countries: TrafficCountry[];
+  pages: TrafficPage[];
+}
+
 export interface HealthStatus {
   status: string;
 }
@@ -388,6 +449,17 @@ export interface CompleteUploadResult {
 }
 
 export interface StripeWebhookPayload { [key: string]: unknown }
+
+export type GetAdminAnalyticsParams = {
+/**
+ * @pattern ^\d{4}-\d{2}-\d{2}$
+ */
+start: string;
+/**
+ * @pattern ^\d{4}-\d{2}-\d{2}$
+ */
+end: string;
+};
 
 export type GetArtistsParams = {
 group?: GetArtistsGroup;

@@ -2,3 +2,5 @@
 - [Local artifact validation](local-artifact-validation.md) — terminal builds lack service env; API dev bundles once, so restart before trusting route checks.
 - [Billing repair constraints](billing-repair-constraints.md) — preserve the existing Stripe flow and distinguish workspace TEST checks from production LIVE proof.
 - [Timestamp fingerprints](timestamp-fingerprints.md) — exact database fingerprints must retain PostgreSQL microseconds, which date serializers can hide.
+- [Traffic analytics scope](traffic-analytics-scope.md) — ADMIN-only, local GeoIP, isolated data; preserve OAuth, billing and existing product behavior.
+- [Dependency scope](dependency-scope.md) — managed installs can target the root and drift unrelated transitives; inspect and keep final changes scoped.

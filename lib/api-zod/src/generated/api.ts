@@ -9,6 +9,78 @@ import * as zod from 'zod';
 
 
 /**
+ * @summary Record an anonymous public page visit; never returns statistics
+ */
+export const recordPageviewBodyPathMax = 160;
+
+
+
+export const RecordPageviewBody = zod.object({
+  "path": zod.string().min(1).max(recordPageviewBodyPathMax)
+})
+
+export const RecordPageviewResponse = zod.void()
+
+
+/**
+ * @summary Private website traffic statistics for the existing authorized administrator
+ */
+export const getAdminAnalyticsQueryStartRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+export const getAdminAnalyticsQueryEndRegExp = new RegExp('^\\d{4}-\\d{2}-\\d{2}$');
+
+
+export const GetAdminAnalyticsQueryParams = zod.object({
+  "start": zod.coerce.string().regex(getAdminAnalyticsQueryStartRegExp),
+  "end": zod.coerce.string().regex(getAdminAnalyticsQueryEndRegExp)
+})
+
+export const getAdminAnalyticsResponseVisitorsMin = 0;
+
+export const getAdminAnalyticsResponsePageviewsMin = 0;
+
+export const getAdminAnalyticsResponseDailyItemVisitorsMin = 0;
+
+export const getAdminAnalyticsResponseDailyItemPageviewsMin = 0;
+
+export const getAdminAnalyticsResponseCountriesItemVisitorsMin = 0;
+
+export const getAdminAnalyticsResponseCountriesItemPageviewsMin = 0;
+
+export const getAdminAnalyticsResponsePagesItemVisitorsMin = 0;
+
+export const getAdminAnalyticsResponsePagesItemPageviewsMin = 0;
+
+
+
+export const GetAdminAnalyticsResponse = zod.object({
+  "start": zod.string(),
+  "end": zod.string(),
+  "timezone": zod.string(),
+  "visitors": zod.number().int().min(getAdminAnalyticsResponseVisitorsMin),
+  "pageviews": zod.number().int().min(getAdminAnalyticsResponsePageviewsMin),
+  "retentionDays": zod.number().int(),
+  "firstCollectedAt": zod.coerce.date().nullable(),
+  "geoipRelease": zod.string().nullable(),
+  "geoipStatus": zod.enum(['ready', 'stale', 'unavailable']),
+  "daily": zod.array(zod.object({
+  "date": zod.string(),
+  "visitors": zod.number().int().min(getAdminAnalyticsResponseDailyItemVisitorsMin),
+  "pageviews": zod.number().int().min(getAdminAnalyticsResponseDailyItemPageviewsMin)
+})),
+  "countries": zod.array(zod.object({
+  "country": zod.string().nullable(),
+  "visitors": zod.number().int().min(getAdminAnalyticsResponseCountriesItemVisitorsMin),
+  "pageviews": zod.number().int().min(getAdminAnalyticsResponseCountriesItemPageviewsMin)
+})),
+  "pages": zod.array(zod.object({
+  "path": zod.string(),
+  "visitors": zod.number().int().min(getAdminAnalyticsResponsePagesItemVisitorsMin),
+  "pageviews": zod.number().int().min(getAdminAnalyticsResponsePagesItemPageviewsMin)
+}))
+})
+
+
+/**
  * Returns server health status
  * @summary Health check
  */

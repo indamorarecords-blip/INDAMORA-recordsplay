@@ -24,6 +24,8 @@ import type { Artist, Submission, Work } from '@workspace/api-client-react';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { AdminUserList } from '@/components/admin-user-list';
 import { AdminContentManagement } from '@/components/admin-content-management';
+import { AdminTraffic } from '@/components/admin-traffic';
+import { TrafficCollector } from '@/components/traffic-collector';
 import {
   CheckoutReturnNotice, DonationCheckoutButton, PremiumBillingStatus, PremiumPlanAction, useBillingActions
 } from '@/components/billing-actions';
@@ -695,7 +697,7 @@ function AdminDashboard() {
 
   return <>
     <AdminDashboardContent />
-    {isSignedIn && isAdmin && <div className="mx-auto max-w-7xl px-5 pb-16 lg:px-8"><AdminUserList /><AdminContentManagement /></div>}
+    {isSignedIn && isAdmin && <div className="mx-auto max-w-7xl px-5 pb-16 lg:px-8"><AdminTraffic /><AdminUserList /><AdminContentManagement /></div>}
   </>;
 }
 
@@ -798,7 +800,7 @@ function ClerkApp() {
 
 function App() {
   if (!clerkPubKey) throw new Error('Missing VITE_CLERK_PUBLISHABLE_KEY in .env file');
-  return <WouterRouter base={basePath}><ClerkApp /></WouterRouter>;
+  return <WouterRouter base={basePath}><TrafficCollector /><ClerkApp /></WouterRouter>;
 }
 
 export default App;

@@ -25,6 +25,59 @@ tags:
   - name: Storage
     description: Object storage upload and serving endpoints.
 paths:
+  /analytics/pageviews:
+    post:
+      operationId: recordPageview
+      tags: [admin]
+      summary: Record an anonymous public page visit; never returns statistics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PageviewInput"
+      responses:
+        "204":
+          description: Visit accepted or excluded by privacy and bot filters
+        "400":
+          description: Invalid public page
+        "403":
+          description: Cross-site collection refused
+        "429":
+          description: Too many visits
+        "503":
+          description: Collector unavailable
+  /admin/analytics:
+    get:
+      operationId: getAdminAnalytics
+      tags: [admin]
+      summary: Private website traffic statistics for the existing authorized administrator
+      security:
+        - clerkSession: []
+      parameters:
+        - name: start
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
+        - name: end
+          in: query
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}-\d{2}$' }
+      responses:
+        "200":
+          description: Traffic estimates; dates and days use Europe/Paris
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrafficReport"
+        "400":
+          description: Invalid range or dates outside the 90-day retention window
+        "401":
+          description: Authentication required
+        "403":
+          description: Administrator access denied
+        "503":
+          description: Analytics unavailable
   /healthz:
     get:
       operationId: healthCheck
@@ -527,6 +580,58 @@ components:
       in: cookie
       name: __session
   schemas:
+    PageviewInput:
+      type: object
+      additionalProperties: false
+      required: [path]
+      properties:
+        path: { type: string, minLength: 1, maxLength: 160 }
+    TrafficReport:
+      type: object
+      required: [start, end, timezone, visitors, pageviews, daily, countries, pages, firstCollectedAt, retentionDays, geoipRelease, geoipStatus]
+      properties:
+        start: { type: string }
+        end: { type: string }
+        timezone: { type: string }
+        visitors: { type: integer, minimum: 0 }
+        pageviews: { type: integer, minimum: 0 }
+        retentionDays: { type: integer }
+        firstCollectedAt: { type: ["string", "null"], format: date-time }
+        geoipRelease: { type: ["string", "null"] }
+        geoipStatus: { type: string, enum: [ready, stale, unavailable] }
+        daily:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrafficDay"
+        countries:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrafficCountry"
+        pages:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrafficPage"
+    TrafficDay:
+      type: object
+      required: [date, visitors, pageviews]
+      properties:
+        date: { type: string }
+        visitors: { type: integer, minimum: 0 }
+        pageviews: { type: integer, minimum: 0 }
+    TrafficCountry:
+      type: object
+      required: [country, visitors, pageviews]
+      properties:
+        country: { type: ["string", "null"] }
+        visitors: { type: integer, minimum: 0 }
+        pageviews: { type: integer, minimum: 0 }
+    TrafficPage:
+      type: object
+      required: [path, visitors, pageviews]
+      properties:
+        path: { type: string }
+        visitors: { type: integer, minimum: 0 }
+        pageviews: { type: integer, minimum: 0 }
     HealthStatus:
       type: object
       properties:

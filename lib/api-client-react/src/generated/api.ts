@@ -32,16 +32,19 @@ import type {
   CompleteUploadResult,
   DeletionConfirmation,
   DemoCleanupResult,
+  GetAdminAnalyticsParams,
   GetAdminUsersParams,
   GetArtistsParams,
   GetSubmissionsParams,
   HealthStatus,
+  PageviewInput,
   PressRequest,
   PressRequestInput,
   StripeWebhookPayload,
   Submission,
   SubmissionInput,
   SubmissionStatusInput,
+  TrafficReport,
   UploadUrlRequest,
   UploadUrlResponse,
   Work
@@ -73,6 +76,161 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getRecordPageviewUrl = () => {
+
+
+
+
+  return `/api/analytics/pageviews`
+}
+
+/**
+ * @summary Record an anonymous public page visit; never returns statistics
+ */
+export const recordPageview = async (pageviewInput: PageviewInput, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getRecordPageviewUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(pageviewInput)
+  }
+);}
+
+
+
+
+
+export const getRecordPageviewMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordPageview>>, TError,{data: BodyType<PageviewInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof recordPageview>>, TError,{data: BodyType<PageviewInput>}, TContext> => {
+
+const mutationKey = ['recordPageview'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof recordPageview>>, {data: BodyType<PageviewInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  recordPageview(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RecordPageviewMutationResult = NonNullable<Awaited<ReturnType<typeof recordPageview>>>
+    export type RecordPageviewMutationBody = BodyType<PageviewInput>
+    export type RecordPageviewMutationError = ErrorType<void>
+
+    /**
+ * @summary Record an anonymous public page visit; never returns statistics
+ */
+export const useRecordPageview = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordPageview>>, TError,{data: BodyType<PageviewInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof recordPageview>>,
+        TError,
+        {data: BodyType<PageviewInput>},
+        TContext
+      > => {
+      return useMutation(getRecordPageviewMutationOptions(options));
+    }
+
+export const getGetAdminAnalyticsUrl = (params: GetAdminAnalyticsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/analytics?${stringifiedParams}` : `/api/admin/analytics`
+}
+
+/**
+ * @summary Private website traffic statistics for the existing authorized administrator
+ */
+export const getAdminAnalytics = async (params: GetAdminAnalyticsParams, options?: Parameters<typeof customFetch>[1]): Promise<TrafficReport> => {
+
+  return customFetch<TrafficReport>(getGetAdminAnalyticsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminAnalyticsQueryKey = (params?: GetAdminAnalyticsParams,) => {
+    return [
+    `/api/admin/analytics`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAdminAnalyticsQueryOptions = <TData = Awaited<ReturnType<typeof getAdminAnalytics>>, TError = ErrorType<void>>(params: GetAdminAnalyticsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminAnalytics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminAnalyticsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminAnalytics>>> = ({ signal }) => getAdminAnalytics(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminAnalytics>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminAnalyticsQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminAnalytics>>>
+export type GetAdminAnalyticsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Private website traffic statistics for the existing authorized administrator
+ */
+
+export function useGetAdminAnalytics<TData = Awaited<ReturnType<typeof getAdminAnalytics>>, TError = ErrorType<void>>(
+ params: GetAdminAnalyticsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminAnalytics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminAnalyticsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getHealthCheckUrl = () => {
 

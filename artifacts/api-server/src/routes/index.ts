@@ -5,6 +5,7 @@ import healthRouter from "./health";
 import indamoraRouter from "./indamora";
 import storageRouter from "./storage";
 import billingRouter from "./billing";
+import analyticsRouter from "./analytics";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(healthRouter);
 router.use(indamoraRouter);
 router.use(storageRouter);
 router.use(billingRouter);
+router.use(analyticsRouter);
 
 export default router;
