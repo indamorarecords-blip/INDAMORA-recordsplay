@@ -6,3 +6,4 @@
 - [Dependency scope](dependency-scope.md) — managed installs can target the root and drift unrelated transitives; inspect and keep final changes scoped.
 - [Publish CHECK serialization](publish-check-serialization.md) — valid bare boolean predicates can be double-wrapped by the Publish diff; verify catalogs and generated SQL.
 - [Gift Card privacy boundary](giftcard-privacy-boundary.md) — keep the artifact TEST/private; no production data, payments, or publishing without explicit approval.
+- [Gel d’INDAMORA PLAY](production-freeze.md) — version actuelle gelée ; conserver proxy-addr@2.0.8 et demander confirmation avant toute action sur la production.
