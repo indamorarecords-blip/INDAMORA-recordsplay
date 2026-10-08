@@ -1,0 +1,84 @@
+Le diagnostic précédent indique que l’aperçu Replit fonctionne et que le serveur Expo répond HTTP 200.
+
+Mon problème reste cependant le suivant : je n’arrive pas à ouvrir INDAMORA PLAY MOBILE depuis mon côté.
+
+Je veux maintenant identifier précisément où se situe le blocage.
+
+⚠️ IMPORTANT : INDAMORA PLAY est stable et gelé.
+
+NE MODIFIE RIEN pour le moment.
+
+Ne change :
+
+* aucun fichier source ;
+* aucune dépendance ;
+* aucune version Expo ;
+* aucune configuration ;
+* aucun app.json ;
+* aucune route ;
+* aucune API ;
+* aucune base de données ;
+* aucune fonctionnalité ;
+* aucun réglage de production ;
+* aucun réglage Gift Card ;
+* proxy-addr@2.0.8.
+
+Ne lance :
+
+* aucun Publish ;
+* aucun Deploy ;
+* aucune migration ;
+* aucun build d’export qui pourrait modifier ou nettoyer des fichiers.
+
+DIAGNOSTIC UNIQUEMENT
+
+Je veux que tu testes séparément les scénarios suivants :
+
+1. Ouverture depuis l’aperçu Replit.
+2. Ouverture de l’URL/aperçu mobile depuis Replit.
+3. Génération du QR code Expo, si utilisée.
+4. Connexion au serveur Expo depuis un appareil externe.
+5. Scan du QR code avec Expo Go.
+6. Chargement du bundle JavaScript après le scan.
+7. Connexion de l’appareil au serveur Metro/Expo.
+8. Vérification des problèmes de réseau, tunnel, LAN ou URL inaccessible depuis l’appareil.
+
+Pour chaque étape, indique :
+
+* OK ou ÉCHEC ;
+* l’URL ou le point de connexion testé ;
+* le code HTTP si disponible ;
+* l’erreur exacte si elle existe ;
+* à quel moment précis le parcours échoue.
+
+IMPORTANT
+
+Ne considère pas automatiquement les éléments suivants comme la cause du problème :
+
+* libglib-2.0.so.0 ;
+* le dossier /home/runner/.expo/ ;
+* les versions Expo signalées ;
+* les erreurs TypeScript de app/admin.tsx ;
+* le champ splash de app.json.
+
+Ils doivent seulement être signalés comme problèmes séparés s’ils ne bloquent pas réellement l’ouverture de l’application.
+
+OBJECTIF
+
+Je veux savoir précisément :
+
+« À quel endroit INDAMORA PLAY MOBILE cesse de fonctionner entre Replit → Expo/Metro → QR code → appareil → Expo Go → chargement de l’application ? »
+
+Ne corrige rien.
+
+Si tu ne peux pas reproduire le problème parce que l’appareil externe est nécessaire, indique exactement ce que je dois regarder sur mon téléphone et quel message je dois te transmettre.
+
+À la fin, donne uniquement :
+
+1. le point exact où le blocage est reproduit ;
+2. le message d’erreur exact ;
+3. la cause probable ;
+4. les éléments qui sont confirmés comme fonctionnels ;
+5. les éléments qui restent impossibles à vérifier depuis Replit.
+
+Confirme qu’aucun fichier, aucune configuration et aucune production n’a été modifié.
