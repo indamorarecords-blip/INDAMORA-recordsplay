@@ -1,0 +1,297 @@
+INDAMORA PLAY — MOCKUPS OFFICIELS À PARTIR DE MES MODÈLES
+
+OBJECTIF
+
+Je vais fournir les images originales des produits ainsi que le QR code officiel INDAMORA PLAY.
+
+À partir UNIQUEMENT de ces éléments, créer les mockups professionnels de la future collection :
+
+* T-shirts
+* Tote bags
+* Casquettes
+* Bobs
+* Coques de téléphone
+
+⚠️ Les images que je fournis sont les références officielles.
+
+NE PAS remplacer les modèles par des modèles générés ou inventés.
+
+NE PAS modifier la forme, la couleur ou le style des produits fournis.
+
+⸻
+
+1. MES IMAGES SONT LES RÉFÉRENCES
+
+Lorsque je fournis une image produit :
+
+* conserver exactement le modèle ;
+* conserver sa forme ;
+* conserver sa couleur ;
+* conserver ses proportions ;
+* conserver son orientation lorsque possible ;
+* ne pas ajouter d’éléments inutiles ;
+* ne pas recréer un autre produit.
+
+Le travail consiste à appliquer le design INDAMORA PLAY sur mes modèles.
+
+⸻
+
+2. QR CODE FOURNI
+
+Je fournirai également le QR code officiel.
+
+⚠️ UTILISER EXACTEMENT LE QR CODE FOURNI.
+
+NE PAS :
+
+* générer un nouveau QR code ;
+* modifier le QR code ;
+* le déformer ;
+* changer son contenu ;
+* remplacer son URL.
+
+Le QR code fourni doit rester parfaitement lisible et scannable.
+
+Sa destination officielle est :
+
+https://indamoraplay.com
+
+Si le QR code fourni ne peut pas être utilisé correctement, STOPPER et me prévenir.
+
+⸻
+
+3. PHRASES OFFICIELLES
+
+Créer une variante pour chacune de ces phrases :
+
+I’M FROM CENTRAL AFRICA
+
+NO LABEL. JUST TALENT.
+
+BADDIE WITH ROOTS.
+
+FROM BANGUI TO THE WORLD.
+
+BANGUI SOCIETY
+
+SANGO SOCIETY
+
+Respecter exactement :
+
+* l’orthographe ;
+* les majuscules ;
+* les apostrophes ;
+* la ponctuation.
+
+Ne pas reformuler.
+
+⸻
+
+4. T-SHIRT
+
+Pour chaque phrase :
+
+DEVANT
+
+* petit logo officiel INDAMORA PLAY ;
+* phrase correspondante ;
+* placement élégant et premium.
+
+DOS
+
+* grand QR code fourni ;
+* QR code bien centré ;
+* QR code parfaitement lisible.
+
+Le principe est :
+
+PETIT LOGO + PHRASE DEVANT
+
+GRAND QR CODE AU DOS
+
+Créer au minimum :
+
+* vue avant ;
+* vue arrière.
+
+⸻
+
+5. TOTE BAG
+
+Sur le modèle fourni :
+
+* phrase de la collection ;
+* QR code fourni ;
+* composition premium ;
+* placement réaliste.
+
+Le QR code doit rester suffisamment grand pour être scannable.
+
+⸻
+
+6. CASQUETTE
+
+Sur la casquette fournie :
+
+* phrase de la collection ;
+* QR code fourni ;
+* placement réaliste ;
+* rendu streetwear premium.
+
+Ne pas surcharger le produit.
+
+⸻
+
+7. BOB
+
+Sur le bob fourni :
+
+* phrase de la collection ;
+* QR code fourni ;
+* rendu réaliste ;
+* placement propre et portable.
+
+⸻
+
+8. COQUE DE TÉLÉPHONE
+
+Sur la coque fournie :
+
+* phrase de la collection ;
+* grand QR code fourni ;
+* composition équilibrée ;
+* rendu réaliste.
+
+⸻
+
+9. BANGUI SOCIETY / SANGO SOCIETY
+
+Traiter :
+
+BANGUI SOCIETY
+
+et
+
+SANGO SOCIETY
+
+comme des variantes premium de la collection.
+
+Elles doivent bénéficier d’un traitement typographique particulièrement propre et haut de gamme.
+
+⸻
+
+10. STYLE
+
+Direction artistique :
+
+INDAMORA PLAY STREETWEAR
+
+* premium ;
+* minimaliste ;
+* contemporain ;
+* musical ;
+* international ;
+* Afrique / diaspora / Europe / États-Unis ;
+* noir et blanc en priorité ;
+* très peu d’éléments décoratifs.
+
+Ne pas ajouter de motifs africains génériques ou d’éléments folkloriques.
+
+L’identité doit être moderne et internationale.
+
+⸻
+
+11. LOGO
+
+Utiliser exclusivement le logo officiel fourni ou déjà présent dans le projet.
+
+NE PAS :
+
+* redessiner le logo ;
+* modifier ses proportions ;
+* créer une variante non validée.
+
+⸻
+
+12. QUALITÉ DES MOCKUPS
+
+Les mockups doivent donner l’impression de véritables produits prêts à être présentés dans une boutique professionnelle.
+
+Utiliser les images fournies comme base.
+
+Le résultat doit permettre de voir clairement :
+
+* le produit ;
+* la phrase ;
+* le logo lorsque prévu ;
+* le QR code ;
+* le placement réel sur le produit.
+
+⸻
+
+13. NE PAS PUBLIER
+
+Ces mockups sont actuellement des éléments de préparation.
+
+NE PAS les publier automatiquement sur la Boutique publique.
+
+NE PAS modifier Stripe.
+
+NE PAS créer de commande.
+
+NE PAS modifier les prix.
+
+NE PAS modifier la base de données.
+
+NE PAS modifier la PWA.
+
+NE PAS modifier Gift Card.
+
+NE PAS effectuer de Publish ou Deploy.
+
+⸻
+
+14. ORGANISATION
+
+Créer une organisation claire des fichiers :
+
+mockups/indamora-play/tshirts/
+
+mockups/indamora-play/tote-bags/
+
+mockups/indamora-play/caps/
+
+mockups/indamora-play/bobs/
+
+mockups/indamora-play/phone-cases/
+
+Utiliser des noms de fichiers explicites correspondant au produit et à la phrase.
+
+⸻
+
+15. RAPPORT FINAL
+
+À la fin, indiquer :
+
+* quels modèles ont été traités ;
+* quelles phrases ont été utilisées ;
+* combien de mockups ont été créés ;
+* où ils sont enregistrés ;
+* confirmer que le QR code fourni a été utilisé sans modification ;
+* confirmer qu’aucun changement de production n’a été effectué.
+
+Si une image fournie est insuffisante, incompatible ou impossible à utiliser proprement :
+
+NE PAS INVENTER.
+
+Signaler précisément le problème et attendre mes instructions.
+
+RÈGLE FINALE
+
+MES IMAGES = RÉFÉRENCE PRODUIT
+
+MON QR CODE = QR CODE OFFICIEL
+
+MES PHRASES = TEXTE OFFICIEL
+
+Replit doit uniquement réaliser la composition et les mockups professionnels à partir de ces éléments.
