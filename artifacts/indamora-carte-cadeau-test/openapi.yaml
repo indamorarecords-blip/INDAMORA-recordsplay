@@ -1,0 +1,527 @@
+openapi: 3.1.0
+info:
+  title: GiftcardTestApi
+  version: 1.0.0
+  description: API dédiée à l’environnement TEST des cartes cadeaux INDAMORAPLAY.
+servers:
+  - url: /carte-cadeau-api
+paths:
+  /healthz:
+    get:
+      operationId: getGiftcardHealth
+      responses:
+        "200":
+          description: API TEST disponible
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GiftcardHealth"
+  /auth/login:
+    post:
+      operationId: loginGiftcardAdmin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GiftcardLoginInput"
+      responses:
+        "200":
+          description: Session administrateur TEST ouverte
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GiftcardAdminSession"
+        "401":
+          description: Identifiants invalides
+        "429":
+          description: Trop de tentatives
+  /auth/session:
+    get:
+      operationId: getGiftcardAdminSession
+      security:
+        - giftcardSession: []
+      responses:
+        "200":
+          description: Administrateur connecté
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GiftcardAdminSession"
+        "401":
+          description: Session absente ou expirée
+  /auth/logout:
+    post:
+      operationId: logoutGiftcardAdmin
+      security:
+        - giftcardSession: []
+      responses:
+        "204":
+          description: Session fermée
+  /customer/balance:
+    post:
+      operationId: lookupGiftcardBalance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GiftcardBalanceInput"
+      responses:
+        "200":
+          description: Solde et transactions récentes de la carte
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GiftcardBalance"
+        "401":
+          description: Carte ou code confidentiel invalide
+        "429":
+          description: Trop de tentatives de vérification
+  /customer/qr/{reference}:
+    get:
+      operationId: resolveGiftcardQr
+      parameters:
+        - name: reference
+          in: path
+          required: true
+          schema: { type: string, pattern: "^[a-f0-9]{48,64}$" }
+      responses:
+        "200":
+          description: Référence QR vérifiée; le code PIN reste nécessaire pour voir le solde.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GiftcardQrReference"
+        "404":
+          description: Référence inconnue ou carte annulée
+        "429":
+          description: Trop de tentatives
+  /admin/dashboard:
+    get:
+      operationId: getGiftcardDashboard
+      security:
+        - giftcardSession: []
+      responses:
+        "200":
+          description: Indicateurs et activités récentes des cartes TEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GiftcardDashboard"
+        "401":
+          description: Authentification administrateur requise
+  /admin/cards:
+    get:
+      operationId: listGiftcards
+      security:
+        - giftcardSession: []
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string, maxLength: 80 }
+        - name: status
+          in: query
+          schema: { $ref: "#/components/schemas/GiftcardStatus" }
+        - name: offset
+          in: query
+          schema: { type: integer, minimum: 0, default: 0 }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+      responses:
+        "200":
+          description: Cartes cadeaux correspondantes
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GiftcardList"
+        "401":
+          description: Authentification administrateur requise
+    post:
+      operationId: createGiftcard
+      security:
+        - giftcardSession: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GiftcardCreateInput"
+      responses:
+        "201":
+          description: Carte TEST créée. Le code PIN n’est présenté qu’une fois.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GiftcardCreated"
+        "400":
+          description: Montant non autorisé
+        "401":
+          description: Authentification administrateur requise
+  /admin/cards/batch:
+    post:
+      operationId: createGiftcardBatch
+      security:
+        - giftcardSession: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GiftcardBatchInput"
+      responses:
+        "201":
+          description: Cartes TEST créées de façon atomique
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GiftcardBatch"
+        "400":
+          description: Taille du lot ou montant non autorisé
+        "401":
+          description: Authentification administrateur requise
+  /admin/cards/export:
+    get:
+      operationId: exportGiftcardsCsv
+      security:
+        - giftcardSession: []
+      parameters:
+        - name: q
+          in: query
+          schema: { type: string, maxLength: 80 }
+        - name: status
+          in: query
+          schema: { $ref: "#/components/schemas/GiftcardStatus" }
+      responses:
+        "200":
+          description: Export CSV des cartes. Les codes PIN ne sont jamais exportés.
+          content:
+            text/csv:
+              schema: { type: string }
+        "401":
+          description: Authentification administrateur requise
+  /admin/cards/{id}:
+    get:
+      operationId: getGiftcard
+      security:
+        - giftcardSession: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: Détail de la carte TEST
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Giftcard"
+        "404":
+          description: Carte introuvable
+        "401":
+          description: Authentification administrateur requise
+  /admin/cards/{id}/status:
+    patch:
+      operationId: updateGiftcardStatus
+      security:
+        - giftcardSession: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GiftcardStatusInput"
+      responses:
+        "200":
+          description: Statut mis à jour
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Giftcard"
+        "400":
+          description: Transition de statut invalide
+        "404":
+          description: Carte introuvable
+  /admin/cards/{id}/transactions:
+    get:
+      operationId: getGiftcardTransactions
+      security:
+        - giftcardSession: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      responses:
+        "200":
+          description: Journal immuable des opérations de la carte
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/GiftcardTransaction" }
+        "404":
+          description: Carte introuvable
+  /admin/cards/{id}/redeem:
+    post:
+      operationId: redeemGiftcard
+      security:
+        - giftcardSession: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, minimum: 1 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GiftcardRedeemInput"
+      responses:
+        "200":
+          description: Débit simulé effectué par le partenaire fictif
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GiftcardTransaction" }
+        "400":
+          description: Débit impossible
+        "409":
+          description: Clé d’idempotence déjà utilisée ou solde insuffisant
+  /admin/partners:
+    get:
+      operationId: listGiftcardPartners
+      security:
+        - giftcardSession: []
+      responses:
+        "200":
+          description: Partenaires simulés configurés pour TEST
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/GiftcardPartner" }
+  /admin/partners/{code}:
+    patch:
+      operationId: updateGiftcardPartner
+      security:
+        - giftcardSession: []
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema: { type: string, pattern: "^[A-Z0-9_-]{2,32}$" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GiftcardPartnerInput"
+      responses:
+        "200":
+          description: Partenaire simulé mis à jour
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/GiftcardPartner" }
+        "404":
+          description: Partenaire introuvable
+  /admin/audit:
+    get:
+      operationId: listGiftcardAudit
+      security:
+        - giftcardSession: []
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 50 }
+      responses:
+        "200":
+          description: Journal consultable des actions administrateur
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/GiftcardAuditEntry" }
+components:
+  securitySchemes:
+    giftcardSession:
+      type: apiKey
+      in: cookie
+      name: __Host-giftcard_admin
+  schemas:
+    GiftcardHealth:
+      type: object
+      required: [status, mode]
+      properties:
+        status: { type: string, enum: [ok] }
+        mode: { type: string, enum: [TEST] }
+    GiftcardStatus:
+      type: string
+      enum: [issued, active, blocked, cancelled, spent, expired]
+    GiftcardLoginInput:
+      type: object
+      additionalProperties: false
+      required: [username, password]
+      properties:
+        username: { type: string, minLength: 1, maxLength: 64 }
+        password: { type: string, minLength: 1, maxLength: 200 }
+    GiftcardAdminSession:
+      type: object
+      required: [username, role, mode]
+      properties:
+        username: { type: string }
+        role: { type: string, enum: [admin, issuer, viewer] }
+        mode: { type: string, enum: [TEST] }
+    GiftcardBalanceInput:
+      type: object
+      additionalProperties: false
+      required: [cardNumber, pin]
+      properties:
+        cardNumber: { type: string, minLength: 12, maxLength: 24 }
+        pin: { type: string, pattern: "^[0-9]{6}$" }
+    GiftcardBalance:
+      type: object
+      required: [cardNumber, currency, startingBalanceCents, balanceCents, status, createdAt, expiresAt, recentTransactions, mode]
+      properties:
+        cardNumber: { type: string }
+        currency: { type: string, enum: [EUR] }
+        startingBalanceCents: { type: integer }
+        balanceCents: { type: integer }
+        status: { $ref: "#/components/schemas/GiftcardStatus" }
+        createdAt: { type: string, format: date-time }
+        activatedAt: { type: ["string", "null"], format: date-time }
+        expiresAt: { type: ["string", "null"], format: date-time }
+        recentTransactions:
+          type: array
+          items: { $ref: "#/components/schemas/GiftcardTransaction" }
+        mode: { type: string, enum: [TEST] }
+    GiftcardQrReference:
+      type: object
+      required: [cardNumber]
+      properties:
+        cardNumber: { type: string }
+    GiftcardDashboard:
+      type: object
+      required: [totalCards, activeCards, blockedCards, startingValueCents, remainingValueCents, redeemedValueCents, mockPartnerLabel, recentActivity]
+      properties:
+        totalCards: { type: integer, minimum: 0 }
+        activeCards: { type: integer, minimum: 0 }
+        blockedCards: { type: integer, minimum: 0 }
+        startingValueCents: { type: integer, minimum: 0 }
+        remainingValueCents: { type: integer, minimum: 0 }
+        redeemedValueCents: { type: integer, minimum: 0 }
+        mockPartnerLabel: { type: string }
+        recentActivity:
+          type: array
+          items: { $ref: "#/components/schemas/GiftcardAuditEntry" }
+    Giftcard:
+      type: object
+      required: [id, cardNumber, currency, startingBalanceCents, balanceCents, status, createdAt, activatedAt, expiresAt, qrUrl]
+      properties:
+        id: { type: integer }
+        cardNumber: { type: string }
+        currency: { type: string, enum: [EUR] }
+        startingBalanceCents: { type: integer }
+        balanceCents: { type: integer }
+        status: { $ref: "#/components/schemas/GiftcardStatus" }
+        createdAt: { type: string, format: date-time }
+        activatedAt: { type: ["string", "null"], format: date-time }
+        expiresAt: { type: ["string", "null"], format: date-time }
+        qrUrl: { type: string }
+    GiftcardList:
+      type: object
+      required: [cards, total]
+      properties:
+        cards:
+          type: array
+          items: { $ref: "#/components/schemas/Giftcard" }
+        total: { type: integer, minimum: 0 }
+    GiftcardCreateInput:
+      type: object
+      additionalProperties: false
+      required: [amountCents]
+      properties:
+        amountCents: { type: integer, minimum: 1000, maximum: 100000 }
+        expiresAt: { type: ["string", "null"], format: date-time }
+        activateNow: { type: boolean, default: false }
+    GiftcardBatchInput:
+      type: object
+      additionalProperties: false
+      required: [count, amountCents]
+      properties:
+        count: { type: integer, minimum: 1, maximum: 50 }
+        amountCents: { type: integer, minimum: 1000, maximum: 100000 }
+        expiresAt: { type: ["string", "null"], format: date-time }
+        activateNow: { type: boolean, default: false }
+    GiftcardCreated:
+      type: object
+      required: [card, pin, mode]
+      properties:
+        card: { $ref: "#/components/schemas/Giftcard" }
+        pin: { type: string, pattern: "^[0-9]{6}$" }
+        mode: { type: string, enum: [TEST] }
+    GiftcardBatch:
+      type: object
+      required: [cards, mode]
+      properties:
+        cards:
+          type: array
+          items: { $ref: "#/components/schemas/GiftcardCreated" }
+        mode: { type: string, enum: [TEST] }
+    GiftcardStatusInput:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status: { $ref: "#/components/schemas/GiftcardStatus" }
+    GiftcardTransaction:
+      type: object
+      required: [id, kind, amountCents, balanceAfterCents, partnerLabel, note, createdAt]
+      properties:
+        id: { type: integer }
+        kind: { type: string, enum: [issue, redemption, adjustment] }
+        amountCents: { type: integer }
+        balanceAfterCents: { type: integer }
+        partnerLabel: { type: ["string", "null"] }
+        note: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+    GiftcardRedeemInput:
+      type: object
+      additionalProperties: false
+      required: [amountCents, idempotencyKey]
+      properties:
+        amountCents: { type: integer, minimum: 1, maximum: 100000 }
+        idempotencyKey: { type: string, minLength: 16, maxLength: 80 }
+        note: { type: string, maxLength: 160 }
+    GiftcardPartner:
+      type: object
+      required: [code, displayName, isMock, enabled, disclaimer]
+      properties:
+        code: { type: string }
+        displayName: { type: string }
+        isMock: { type: boolean, enum: [true] }
+        enabled: { type: boolean }
+        disclaimer: { type: string }
+    GiftcardPartnerInput:
+      type: object
+      additionalProperties: false
+      required: [enabled]
+      properties:
+        enabled: { type: boolean }
+    GiftcardAuditEntry:
+      type: object
+      required: [id, action, adminUsername, cardNumber, details, createdAt]
+      properties:
+        id: { type: integer }
+        action: { type: string }
+        adminUsername: { type: string }
+        cardNumber: { type: ["string", "null"] }
+        details: { type: object, additionalProperties: true }
+        createdAt: { type: string, format: date-time }

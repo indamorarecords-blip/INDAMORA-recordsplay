@@ -1,0 +1,40 @@
+kind = "web"
+previewPath = "/carte-cadeau/"
+title = "Carte Cadeau Solidaire — TEST"
+description = "Module de test indépendant INDAMORAPLAY pour créer et administrer des cartes cadeaux, consulter leur solde et leur historique, préparer leur impression et tester une intégration partenaire fictive."
+version = "1.0.0"
+id = "artifacts/indamora-carte-cadeau-test"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/carte-cadeau/" ]
+localPort = 26201
+
+[services.development]
+run = "pnpm --filter @workspace/indamora-carte-cadeau-test run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/indamora-carte-cadeau-test", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/indamora-carte-cadeau-test/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "26201"
+BASE_PATH = "/carte-cadeau/"
+
+[[services]]
+name = "giftcard-api"
+paths = [ "/carte-cadeau-api/" ]
+localPort = 26202
+
+[services.development]
+run = "pnpm --filter @workspace/indamora-carte-cadeau-test run dev:api"
+
+[services.env]
+PORT = "26202"
+GIFTCARD_MODE = "TEST"

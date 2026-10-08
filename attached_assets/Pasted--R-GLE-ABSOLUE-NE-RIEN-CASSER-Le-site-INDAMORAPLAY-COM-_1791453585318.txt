@@ -1,0 +1,331 @@
+🚨 RÈGLE ABSOLUE — NE RIEN CASSER
+
+Le site INDAMORAPLAY.COM fonctionne actuellement parfaitement.
+
+Tu dois considérer tout le site existant comme INTouchable.
+
+INTERDICTIONS ABSOLUES
+
+Tu ne dois en aucun cas :
+
+* modifier les pages existantes ;
+* supprimer une page ;
+* modifier le design existant ;
+* modifier le CSS existant ;
+* modifier le menu existant ;
+* modifier le footer existant ;
+* modifier les textes existants ;
+* modifier les images existantes ;
+* modifier les fonctionnalités existantes ;
+* modifier les comptes utilisateurs existants ;
+* modifier le système de paiement existant ;
+* modifier la base de données existante ;
+* remplacer une technologie existante ;
+* mettre à jour une dépendance existante sans nécessité absolue ;
+* refactoriser le code existant ;
+* renommer des fichiers existants ;
+* déplacer des fichiers existants ;
+* modifier les paramètres de production existants ;
+* modifier les variables d’environnement existantes ;
+* modifier le domaine ;
+* modifier l’hébergement ;
+* modifier les DNS ;
+* modifier quoi que ce soit qui pourrait perturber INDAMORAPLAY.COM.
+
+Ne cherche surtout pas à améliorer le site existant.
+
+Ton seul objectif est de RAJOUTER un nouveau module indépendant.
+
+⸻
+
+NOUVEAU MODULE
+
+Créer un nouveau système indépendant :
+
+INDAMORAPLAY — CARTE CADEAU SOLIDAIRE
+
+Le module doit être complètement isolé du fonctionnement actuel du site.
+
+Si possible, utiliser :
+
+/carte-cadeau
+
+pour la partie publique.
+
+Et :
+
+/carte-cadeau/admin
+
+pour l’administration.
+
+Si ces routes entrent en conflit avec le site actuel, NE MODIFIE PAS les routes existantes. Trouve une méthode d’intégration isolée.
+
+⸻
+
+MÉTHODE OBLIGATOIRE AVANT DE CODER
+
+Avant toute modification :
+
+1. Lire la structure complète du projet.
+2. Identifier la technologie utilisée.
+3. Identifier les fichiers nécessaires au fonctionnement actuel.
+4. Identifier la base de données existante.
+5. Identifier les systèmes de paiement existants.
+6. Identifier les routes existantes.
+7. Identifier les variables d’environnement existantes.
+
+NE MODIFIE RIEN pendant cette phase.
+
+Présente d’abord un rapport indiquant :
+
+* technologie utilisée ;
+* structure du projet ;
+* possibilité d’ajouter le module sans toucher à l’existant ;
+* fichiers qui devront éventuellement être créés ;
+* fichiers existants qui devront rester totalement inchangés.
+
+⸻
+
+ARCHITECTURE ISOLÉE
+
+Le nouveau système doit utiliser ses propres fichiers et, si nécessaire, sa propre base de données.
+
+Exemple :
+
+/giftcard/
+
+ou
+
+/indamoraplay-giftcard/
+
+avec :
+
+* frontend indépendant ;
+* backend indépendant ;
+* API indépendante ;
+* tables de base de données dédiées ;
+* authentification administrateur dédiée ;
+* logs dédiés.
+
+Ne réutilise pas une fonctionnalité existante si cela risque de modifier son comportement.
+
+PRÉFÈRE DUPLIQUER UNE PETITE FONCTIONNALITÉ PLUTÔT QUE MODIFIER UNE FONCTIONNALITÉ EXISTANTE.
+
+⸻
+
+BASE DE DONNÉES
+
+Si une base de données est nécessaire, créer des tables séparées avec un préfixe clair :
+
+giftcard_
+
+Exemples :
+
+giftcard_cards
+
+giftcard_transactions
+
+giftcard_partners
+
+giftcard_admins
+
+giftcard_audit_logs
+
+Ne modifie aucune table existante.
+
+⸻
+
+CARTES
+
+Créer des cartes cadeaux INDAMORAPLAY avec :
+
+* numéro unique ;
+* PIN/code secret ;
+* valeur initiale ;
+* solde ;
+* statut ;
+* date de création ;
+* date d’activation ;
+* date d’expiration facultative.
+
+Valeurs :
+
+10 €
+20 €
+25 €
+50 €
+100 €
+
+Prévoir également un montant personnalisé contrôlé par l’administrateur.
+
+⸻
+
+SÉCURITÉ
+
+Les codes doivent être impossibles à deviner.
+
+Prévoir :
+
+* génération cryptographique ;
+* hash des PIN ;
+* rate limiting ;
+* protection brute-force ;
+* idempotency keys ;
+* transactions atomiques ;
+* journal d’audit ;
+* permissions administrateur.
+
+Ne jamais stocker de données bancaires.
+
+⸻
+
+ESPACE ADMINISTRATEUR
+
+Créer un dashboard complètement indépendant.
+
+Fonctions :
+
+* créer une carte ;
+* créer plusieurs cartes ;
+* activer ;
+* désactiver ;
+* bloquer ;
+* annuler ;
+* consulter le solde ;
+* consulter les transactions ;
+* rechercher une carte ;
+* exporter CSV ;
+* gérer les partenaires ;
+* consulter les statistiques.
+
+⸻
+
+ESPACE CLIENT
+
+Créer :
+
+/carte-cadeau/solde
+
+L’utilisateur saisit :
+
+* numéro de carte ;
+* PIN.
+
+Afficher :
+
+* solde ;
+* statut ;
+* date d’expiration ;
+* historique récent.
+
+⸻
+
+PARTENAIRES
+
+Préparer une architecture permettant plus tard de connecter officiellement :
+
+* Carrefour ;
+* Fnac ;
+* Darty ;
+* Decathlon ;
+* autres partenaires.
+
+⚠️ NE CRÉE AUCUNE FAUSSE INTÉGRATION.
+
+Tant qu’aucun contrat/API officiel n’existe avec une enseigne :
+
+* ne pas afficher l’enseigne comme partenaire actif ;
+* ne pas prétendre que la carte est utilisable chez elle ;
+* ne pas tenter d’utiliser une API privée ;
+* ne pas contourner leur système.
+
+Créer uniquement un environnement de test « Mock Partner ».
+
+⸻
+
+CARTE PHYSIQUE
+
+Préparer les données nécessaires à l’impression d’une carte physique :
+
+Format :
+
+85,60 × 53,98 mm
+
+Recto :
+
+INDAMORAPLAY
+CARTE CADEAU SOLIDAIRE
+Valeur
+
+Verso :
+
+Numéro
+PIN
+QR code
+Conditions
+INDAMORAPLAY.COM
+
+Le QR code doit contenir une référence sécurisée et non le solde.
+
+⸻
+
+RÈGLE DE DÉPLOIEMENT
+
+NE PAS DÉPLOYER directement en production.
+
+Créer d’abord :
+
+TEST
+
+Puis vérifier que :
+
+* le site existant fonctionne ;
+* aucune page existante n’a changé ;
+* aucune fonctionnalité existante n’a changé ;
+* aucun paiement existant n’a changé ;
+* aucun utilisateur existant n’est affecté.
+
+Seulement après validation, préparer le déploiement du nouveau module.
+
+⸻
+
+RÈGLE EN CAS DE DOUTE
+
+Si tu dois modifier un fichier existant pour faire fonctionner le nouveau module :
+
+ARRÊTE-TOI.
+
+Ne modifie pas le fichier.
+
+Explique-moi :
+
+1. quel fichier tu voulais modifier ;
+2. pourquoi ;
+3. quelle fonctionnalité serait affectée ;
+4. quelle alternative isolée tu proposes.
+
+Je déciderai ensuite.
+
+⸻
+
+OBJECTIF FINAL
+
+Le résultat doit être :
+
+INDAMORAPLAY.COM — site actuel inchangé
+
+Nouveau module Carte Cadeau INDAMORAPLAY
+
+Le nouveau module doit être ajouté comme une extension indépendante, sans casser, remplacer ou modifier le fonctionnement actuel.
+
+La priorité numéro 1 est :
+
+🔴 PRÉSERVER 100 % DU SITE EXISTANT.
+
+La priorité numéro 2 est :
+
+🟢 AJOUTER LE SYSTÈME DE CARTE CADEAU.
+
+La priorité numéro 3 est :
+
+🟢 PRÉPARER L’ARCHITECTURE POUR LES FUTURS PARTENAIRES.

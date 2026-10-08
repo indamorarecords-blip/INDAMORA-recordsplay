@@ -3,8 +3,8 @@ name: Dependency scope
 description: Package-tool behavior and strict preservation of unrelated dependency versions.
 ---
 
-Managed package installation may target the workspace root and re-resolve unrelated transitive dependency versions. Its package-token interface does not accept pnpm filter flags.
+Managed installs can re-resolve unrelated transitives even with `pnpm --filter ... --lockfile-only`; package-manager wrappers may also reject filter flags.
 
-**Why:** Scoped installation attempts were rejected by the tool interface, and an otherwise successful installation changed an unrelated transitive version in the lockfile.
+**Why:** A filtered lockfile-only install changed an existing transitive resolution while adding a new artifact importer.
 
-**How to apply:** Declare runtime dependencies in the owning artifact. Inspect the final package importers and lockfile diff, especially when the user prohibits unrelated dependency changes. Preserve existing versions and remove any temporary root configuration or root dependency that is not needed by the project.
+**How to apply:** Declare runtime dependencies in the owning artifact. Inspect all package and snapshot deletions or edits, not just importer sections, when unrelated dependency changes are prohibited. Restore unrelated baseline versions and remove unneeded template dependencies.
