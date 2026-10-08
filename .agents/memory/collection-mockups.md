@@ -3,7 +3,7 @@ name: Mockups de la collection INDAMORA PLAY
 description: Modèles fournis, phrases officielles exactes et arrêt obligatoire si le QR ne correspond pas au brief.
 ---
 
-Utiliser uniquement les références produit fournies ; conserver leur forme, couleur, proportions et orientation lorsque possible. Les mockups restent des éléments préparatoires, sans intégration automatique à la Boutique.
+Utiliser uniquement les références produit fournies ; conserver leur forme, couleur, proportions et orientation lorsque possible. Les mockups restent des éléments préparatoires, sans intégration automatique à la Boutique publique.
 
 **Why:** L’utilisateur demande des compositions à partir de ses modèles, sans inventer ou remplacer les produits.
 
@@ -33,11 +33,11 @@ La lecture dans un mockup numérique ne certifie pas la lecture sur un produit i
 
 **How to apply:** Rapporter séparément les vérifications numériques et la validation sur échantillon réel ; ne pas présenter les maquettes comme des fichiers de fabrication certifiés.
 
-Tout le travail de mockups reste dans les fichiers de TEST, sans service payant, changement de l’application ou intégration à la Boutique publique avant validation explicite.
+Tout le travail de mockups reste en TEST, sans service payant ni intégration à la Boutique publique avant validation explicite. L’utilisateur autorise leur affichage dans la Boutique du Preview pour validation visuelle, uniquement en développement.
 
-**Why:** L’utilisateur interdit les achats et toute modification de production, de Stripe, de Gift Card, de la PWA, de l’API ou de la base de données pour ce travail.
+**Why:** L’utilisateur veut pouvoir voir la Boutique et ses produits dans le Preview avant toute intégration publique ; il interdit les achats et les changements de production, de Stripe, de Gift Card, de la PWA, de l’API ou de la base de données pour ce travail.
 
-**How to apply:** Utiliser des compositions locales et les ressources fournies ; livrer les assets séparément de l’application.
+**How to apply:** Utiliser les ressources fournies et livrer aussi les fichiers séparément. Garder l’accès Preview et ses ressources visuelles exclus du build public ; une route cachée ne suffit pas si ses images sont servies publiquement. Aucun Publish ni Deploy.
 
 Pour la livraison sur téléphone, fournir un ZIP plat avec uniquement les PNG des mockups, le QR PNG et un fichier LISEZ-MOI, avec des noms simples en ASCII. Fournir aussi des téléchargements individuels ; un chemin interne seul n’est pas une livraison.
 

@@ -1,0 +1,89 @@
+INDAMORA PLAY — Rendre la page Boutique visible dans le Preview pour validation
+
+La page de vente de la Boutique INDAMORA PLAY n’apparaît pas sur le site et je ne peux donc pas la visualiser avant de la valider.
+
+Je veux pouvoir ouvrir la page, voir le rendu réel sur mon téléphone et valider le design avant toute publication.
+
+1. Diagnostiquer pourquoi la page est invisible
+
+Vérifie :
+
+* si la page Boutique existe déjà ;
+* quelle route ou URL lui est attribuée ;
+* si elle est masquée, désactivée ou inaccessible depuis la navigation ;
+* si le composant de la page est correctement relié au site ;
+* si une erreur empêche son affichage dans le Preview.
+
+Réutilise les éléments déjà créés. Ne reconstruis pas inutilement ce qui fonctionne.
+
+2. Rendre la page accessible dans le Preview
+
+Créer ou corriger la page Boutique afin qu’elle soit visible dans le Preview Replit, sans publier le site.
+
+Je dois pouvoir :
+
+* ouvrir la page Boutique depuis le Preview ;
+* visualiser les produits et leurs prix ;
+* consulter la présentation INDAMORA PLAY ;
+* voir les images et les mockups disponibles ;
+* tester l’affichage sur mobile ;
+* parcourir le panier si celui-ci est déjà fonctionnel.
+
+Si nécessaire, ajouter un accès visible à la Boutique dans la navigation du Preview uniquement, sans modifier la navigation de production.
+
+3. Contenu à afficher
+
+Produits :
+
+* T-shirt — 15 €
+* Casquette — 15 €
+* Bob — 15 €
+* Tote bag — 15 €
+* Coque de téléphone — 15 €
+
+Afficher également la présentation déjà validée :
+
+« PLUS QU’UNE BOUTIQUE : UN GESTE POUR NOS TALENTS »
+
+Conserver l’identité visuelle officielle INDAMORA PLAY : fond sombre, style premium et streetwear, logo officiel non modifié.
+
+Utiliser les images des produits que j’ai fournies. Pour les produits dont les images ne sont pas encore disponibles, afficher un emplacement clairement identifié comme provisoire au lieu d’inventer une image.
+
+Le QR code officiel doit pointer vers :
+https://indamoraplay.com
+
+4. Paiements et livraison
+
+La page doit pouvoir être visualisée sans effectuer de paiement.
+
+* France : livraison gratuite.
+* Union européenne : 7 €.
+* Europe hors Union européenne et reste du monde : nous contacter.
+
+Stripe Checkout doit rester en mode TEST uniquement, si sa configuration est prête. Si la configuration du webhook est invalide, conserver le Checkout bloqué et afficher un message explicite. Ne pas contourner les contrôles de sécurité.
+
+5. Protection de la production
+
+La priorité est de me permettre de vérifier le rendu avant validation.
+
+* Aucun Publish.
+* Aucun Deploy.
+* Aucune mise en production.
+* Aucun paiement réel.
+* Aucune migration.
+* Ne modifier aucune clé Stripe de Premium ou des dons.
+* Ne pas modifier la PWA validée, Gift Card ou les fonctionnalités existantes.
+* Ne pas toucher aux données de production.
+
+Si une correction nécessite une modification risquée ou une modification de production, arrête-toi et demande mon autorisation.
+
+6. Résultat obligatoire
+
+À la fin, donne-moi :
+
+1. L’URL exacte pour ouvrir la page Boutique dans le Preview Replit.
+2. La confirmation que la page s’affiche réellement.
+3. La confirmation que le rendu mobile est vérifié.
+4. La liste des éléments encore provisoires ou manquants.
+
+Ne me réponds pas uniquement que la page existe dans le code. Je dois pouvoir l’ouvrir et la voir avant de valider. N’effectue aucune publication.

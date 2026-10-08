@@ -7,6 +7,7 @@ import {
   useGetStoreCheckoutStatus,
 } from '@workspace/api-client-react';
 import type { StoreSku } from '@workspace/api-client-react';
+import { getPreviewMedia, OFFICIAL_PREVIEW_QR, PREVIEW_DESIGNS } from './boutique-preview-media';
 import './boutique-page.css';
 
 type ProductInfo = { sku: StoreSku; name: string; className: string; shortName: string };
@@ -98,12 +99,17 @@ function formatEUR(cents: number): string {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(cents / 100);
 }
 
-function ProductArt({ product, index }: { product: ProductInfo; index: number }) {
+function ProductArt({ product, index, designIndex }: { product: ProductInfo; index: number; designIndex: number }) {
+  const media = getPreviewMedia(product.sku, designIndex);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => { setFailed(false); }, [media.image]);
   return <div className={`bt-product-art ${product.className}`} data-no={`IP / 0${index + 1}`} data-testid={`visual-product-${product.sku}`}>
-    <div className="bt-product-placeholder">
+    {media.image && !failed ? <img className="bt-product-image" src={media.image}
+      alt={`${product.name} — mockup ${media.label}`} loading="lazy" decoding="async"
+      onError={() => setFailed(true)} data-testid={`img-product-${product.sku}`} /> : <div className="bt-product-placeholder">
       <span>{product.name}</span>
-      <small>Photo officielle à fournir</small>
-    </div>
+      <small>Visuel provisoire — image indisponible</small>
+    </div>}
   </div>;
 }
 
@@ -158,6 +164,7 @@ export function BoutiquePage() {
   const [cart, setCart] = useState<CartLine[]>(readCart);
   const [country, setCountry] = useState('');
   const [checkoutError, setCheckoutError] = useState('');
+  const [designIndex, setDesignIndex] = useState(0);
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id') ?? '';
   const canceled = params.get('checkout') === 'cancelled';
@@ -235,6 +242,11 @@ export function BoutiquePage() {
       </div>
     </header>
 
+    <div className="bt-preview-banner bt-shell" role="status" data-testid="status-preview-only">
+      <strong>Preview TEST · aucune commande réelle</strong>
+      <span>{catalogQuery.data?.message ?? 'Les visuels sont des mockups à valider avant toute publication.'}</span>
+    </div>
+
     {returnToCheckout ? <ReturnState sessionId={sessionId} /> : <>
       {canceled && <div className="bt-shell" role="status" data-testid="status-checkout-canceled">Le paiement n’a pas été finalisé. Votre panier est conservé.</div>}
       <section className="bt-hero bt-shell" data-testid="section-boutique-hero">
@@ -251,6 +263,13 @@ export function BoutiquePage() {
           <div><div className="bt-eyebrow">La première collection</div><h2>À porter, à partager.</h2></div>
           <p className="bt-section-caption">Chaque pièce porte les couleurs d’un projet qui fait circuler les talents et les cultures.</p>
         </div>
+        <div className="bt-visual-picker">
+          <label htmlFor="boutique-preview-design">Phrase du mockup affiché</label>
+          <select id="boutique-preview-design" value={designIndex} onChange={(event) => setDesignIndex(Number(event.target.value))} data-testid="select-preview-design">
+            {PREVIEW_DESIGNS.map((design, index) => <option key={design.file} value={index}>{design.label}</option>)}
+          </select>
+          <small>Aperçu visuel uniquement : ce choix ne modifie pas le panier TEST.</small>
+        </div>
         {catalogQuery.isLoading && <ProductSkeletons />}
         {catalogQuery.error && <div className="bt-query-error" role="alert" data-testid="error-store-catalog">
           La boutique n’a pas pu charger son catalogue.
@@ -263,10 +282,13 @@ export function BoutiquePage() {
                const available = Boolean(catalogProduct);
               const quantity = cart.find((line) => line.sku === product.sku)?.quantity ?? 0;
               return <article className="bt-product" key={product.sku} data-testid={`card-product-${product.sku}`}>
-                <ProductArt product={product} index={index} />
+                <ProductArt product={product} index={index} designIndex={designIndex} />
                 <div className="bt-product-body">
                   <h3 className="bt-product-title" data-testid={`text-product-name-${product.sku}`}>{product.name}</h3>
-                  <div className="bt-product-type">Collection officielle</div>
+                  <div className="bt-product-type">Mockup pour validation</div>
+                  {getPreviewMedia(product.sku, designIndex).mockup && <a className="bt-mockup-link"
+                    href={getPreviewMedia(product.sku, designIndex).mockup} target="_blank" rel="noreferrer"
+                    data-testid={`link-mockup-${product.sku}`}>Agrandir le mockup ↗</a>}
                   <div className="bt-product-bottom">
                     <strong className="bt-price" data-testid={`text-product-price-${product.sku}`}>15 €</strong>
                     <button className="bt-add" onClick={() => addProduct(product.sku)} disabled={!available || quantity >= 20} data-testid={`button-add-${product.sku}`}>
@@ -313,6 +335,10 @@ export function BoutiquePage() {
               <div className="bt-stamp-line" />
               <p className="bt-stamp-quote">« Notre musique. Notre culture. Notre scène. »</p>
               <div className="bt-stamp-credit">INDAMORA PLAY × INDAMORA RECORDS</div>
+              <div className="bt-official-qr">
+                <img src={OFFICIAL_PREVIEW_QR} alt="QR officiel vers https://indamoraplay.com" width="132" height="132" />
+                <span>QR officiel · indamoraplay.com</span>
+              </div>
             </aside>
             <div className="bt-story-copy">
               <h3>💶 UN PRIX SIMPLE ET ACCESSIBLE</h3>

@@ -168,3 +168,17 @@ mtime_ms = 1791498125793
 storage_uri = "gcs://replit-rams-assets-kira/rams/assets/repl:ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd/5a16dbed-2658-401f-b5e8-42188f322931/df2cdecd-57c4-4334-85d5-a65ab9c626a0"
 storage_version_token = "1791498207498565"
 content_type = "image/png"
+
+[[outputs]]
+id = "60auFWm75m4-iJqVAA3RB"
+uri = "file://screenshots/boutique-preview-mobile-produits.jpg"
+type = "image"
+title = "Boutique TEST — vue mobile vérifiée"
+description = "Capture réelle du Preview : les cinq produits et les mockups fournis, sans publication ni paiement."
+logical_id = "c617986a-d4bd-4145-8d29-c3621082a5e2"
+content_hash = "sha256:9f902426ac6ccdbb4af763382c5d8b0bb0d0794f7e6db7a676d91204e3866062"
+size = 106120
+mtime_ms = 1791498889384
+storage_uri = "gcs://replit-rams-assets-kira/rams/assets/repl:ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd/c617986a-d4bd-4145-8d29-c3621082a5e2/0ee7876d-c08e-438d-9577-7fc293c7a1ac"
+storage_version_token = "1791499152134855"
+content_type = "image/jpeg"

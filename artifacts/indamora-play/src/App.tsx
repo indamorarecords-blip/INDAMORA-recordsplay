@@ -204,6 +204,10 @@ function Shell({ children }: { children: ReactNode }) {
             </div>
           </div>
         )}
+        {import.meta.env.DEV && <nav aria-label="Accès Preview TEST" className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 border-t border-border bg-muted px-4 py-2 text-xs" data-testid="nav-preview-test">
+          <Link href="/boutique" className="font-bold text-primary underline underline-offset-4" data-testid="link-preview-boutique">Boutique — Preview TEST</Link>
+          <span className="text-muted-foreground">Développement uniquement · aucune publication</span>
+        </nav>}
       </header>
       <main>{children}</main>
       <footer className="mt-24 border-t border-border bg-secondary px-5 py-10 text-secondary-foreground lg:px-8">

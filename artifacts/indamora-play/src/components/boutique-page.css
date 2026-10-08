@@ -19,6 +19,17 @@
 }
 
 .boutique * { box-sizing: border-box; }
+.bt-preview-banner { display: grid; gap: 6px; padding: 14px 16px; margin-block: 12px; border: 1px solid #f2c23066; color: #eedb9f; font-size: 12px; line-height: 1.5; }
+.bt-preview-banner strong { color: var(--bt-yellow); }
+.bt-visual-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 24px; font-size: 12px; }
+.bt-visual-picker label { font-weight: 600; }
+.bt-visual-picker select { max-width: 100%; min-width: 0; padding: 12px; border: 1px solid #ffffff45; background: #181818; color: white; }
+.bt-visual-picker small { width: 100%; color: var(--bt-muted); }
+.bt-product-image { width: 100%; height: 100%; object-fit: contain; background: white; position: absolute; inset: 0; }
+.bt-mockup-link { display: inline-block; margin-top: 10px; color: var(--bt-yellow) !important; font-size: 11px !important; text-underline-offset: 3px; }
+.bt-official-qr { display: grid; justify-items: center; gap: 12px; margin-top: 28px; }
+.bt-official-qr img { width: 132px !important; height: 132px; margin: 0 !important; }
+.bt-official-qr span { font-size: 11px; color: var(--bt-muted); }
 .boutique button, .boutique select, .boutique a { font: inherit; }
 .boutique a { color: inherit; }
 .bt-shell { width: min(1240px, calc(100% - 48px)); margin: 0 auto; }
