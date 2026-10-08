@@ -1,0 +1,59 @@
+RETRY PUBLISH — VALIDATION STRICTE AVANT PRODUCTION
+
+Le blocage de migration lié au CHECK imbriqué a été corrigé.
+
+Maintenant, relance uniquement la validation Publish sur le fork/copie de production conformément au processus normal de Replit.
+
+RÈGLES ABSOLUES :
+
+1. Ne modifie aucune autre fonctionnalité du projet.
+2. Ne touche pas à INDAMORA PLAY, RÉPERTOIRE, profils, authentification, médias, Premium, abonnements, dons, Stripe, administration ou design.
+3. Ne fais aucune écriture directe en production pendant cette étape.
+4. N'ajoute aucun DDL au démarrage de l'application ni au processus de déploiement.
+5. Ne supprime aucune donnée existante.
+6. Ne recrée pas la migration.
+7. Utilise la migration corrigée existante avec :
+   CHECK (is_mock IS TRUE)
+   et vérifie qu'aucun SQL du type CHECK (CHECK (...)) n'est généré.
+
+VALIDATION À EFFECTUER :
+
+- Recalculer le diff Publish.
+- Vérifier qu'il ne contient aucun CHECK imbriqué.
+- Vérifier qu'il n'y a aucune opération destructive inattendue.
+- Vérifier qu'il n'y a aucun warning inattendu.
+- Exécuter la migration complète dans l'environnement/fork de validation disposable.
+- Vérifier que les 6 tables de gift cards prévues sont correctement créées.
+- Vérifier leurs contraintes et index.
+- Vérifier que TRUE est accepté pour is_mock.
+- Vérifier que FALSE est rejeté lorsque la contrainte l'exige.
+- Vérifier que les données existantes restent intactes.
+- Vérifier que l'API TEST répond toujours correctement en HTTP 200.
+- Vérifier que l'application démarre normalement après migration.
+- Vérifier qu'aucune fonctionnalité existante n'est cassée.
+
+IMPORTANT :
+
+La migration en attente ajoute 6 tables de gift cards, leurs contraintes et leurs index.
+Elle ne concerne donc pas uniquement ADMIN Statistics.
+
+NE PUBLIE PAS EN PRODUCTION AUTOMATIQUEMENT après la validation.
+
+À LA FIN, DONNE-MOI UNIQUEMENT UN RAPPORT FACTUEL :
+
+A. Validation Publish : OK / ÉCHEC
+B. Diff migration : OK / PROBLÈME
+C. 6 tables gift cards : OK / PROBLÈME
+D. Contraintes : OK / PROBLÈME
+E. Index : OK / PROBLÈME
+F. Données existantes : préservées / problème
+G. API TEST : HTTP + résultat
+H. Fonctionnement application après migration
+I. Warnings éventuels
+J. Destructive changes éventuels
+
+Si tout est vert, arrête-toi et attends mon autorisation explicite avant toute publication réelle en production.
+
+NE CHANGE RIEN D'AUTRE.
+NE RECONSTRUIS PAS LE PROJET.
+NE TOUCHE PAS AUX FONCTIONNALITÉS QUI FONCTIONNENT DÉJÀ.
