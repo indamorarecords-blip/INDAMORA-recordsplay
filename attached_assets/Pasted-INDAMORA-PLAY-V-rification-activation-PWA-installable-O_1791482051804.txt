@@ -1,0 +1,284 @@
+INDAMORA PLAY — Vérification / activation PWA installable
+
+OBJECTIF UNIQUE
+
+Je veux que INDAMORA PLAY soit installable comme une PWA depuis le navigateur sur iPhone, iPad et Android, avec un fonctionnement à 0 €.
+
+⚠️ IMPORTANT : cette mission concerne UNIQUEMENT la PWA installable.
+
+⸻
+
+RÈGLE ABSOLUE : NE RIEN CASSER
+
+Avant toute modification :
+
+1. Inspecte l’application actuelle et identifie ce qui existe déjà pour la PWA :
+    * manifest.webmanifest / manifest.json
+    * service worker
+    * icônes
+    * meta tags
+    * configuration Vite/React/Next ou autre
+    * HTTPS
+    * stratégie de cache
+    * éventuel plugin PWA
+    * éventuel bouton ou composant d’installation
+2. Si la PWA est déjà correctement configurée et installable :
+    * NE MODIFIE RIEN.
+    * Fais uniquement les vérifications nécessaires.
+    * Explique exactement ce qui est déjà fonctionnel.
+3. Si quelque chose manque :
+    * ajoute UNIQUEMENT le minimum indispensable pour rendre la PWA installable.
+    * réutilise les composants, styles, logo et assets existants.
+    * ne refais pas l’architecture.
+
+⸻
+
+PRODUCTION À PRÉSERVER
+
+INDAMORA PLAY production est considérée comme STABLE et GELÉE.
+
+NE PAS modifier :
+
+* les pages existantes ;
+* les routes existantes ;
+* le design existant ;
+* les fonctionnalités existantes ;
+* les API ;
+* la base de données ;
+* l’authentification ;
+* les dépendances existantes sauf nécessité absolue ;
+* les données de production ;
+* les configurations métier ;
+* le système Gift Card ;
+* les produits Boutique ;
+* le contenu éditorial existant.
+
+NE PAS toucher à :
+
+proxy-addr@2.0.8
+
+Cette version doit rester exactement en place.
+
+⸻
+
+GIFT CARD
+
+La Gift Card est actuellement différée.
+
+NE PAS :
+
+* la développer ;
+* la modifier ;
+* l’intégrer à la PWA ;
+* ajouter de paiement ;
+* ajouter de transaction ;
+* modifier son API ;
+* la publier.
+
+⸻
+
+BOUTIQUE
+
+La Boutique n’est pas concernée par cette mission.
+
+NE PAS la modifier.
+
+⸻
+
+EXPO / REACT NATIVE
+
+Abandonner le problème Expo Go pour cette mission.
+
+NE PAS :
+
+* modifier Expo ;
+* modifier React Native ;
+* ajouter une dépendance Expo ;
+* tenter de résoudre le QR Expo ;
+* créer une nouvelle application mobile native.
+
+L’objectif est uniquement la PWA installable depuis le navigateur.
+
+⸻
+
+PWA — VÉRIFICATIONS OBLIGATOIRES
+
+Vérifie notamment :
+
+1. Web App Manifest
+
+Il doit exister un manifest valide contenant au minimum :
+
+* name : INDAMORA PLAY
+* short_name : INDAMORA PLAY
+* start_url approprié
+* display : standalone ou équivalent adapté
+* background_color cohérent avec le site
+* theme_color cohérent avec le site
+* icône adaptée au format PWA
+
+Utiliser le logo/les assets officiels déjà présents.
+
+⚠️ NE PAS redessiner le logo.
+
+Si des icônes PWA existent déjà et sont correctes, les réutiliser.
+
+⸻
+
+2. Service Worker
+
+Vérifier si un service worker existe déjà.
+
+S’il existe et fonctionne :
+
+* ne pas le remplacer inutilement.
+
+S’il manque et qu’il est réellement nécessaire pour l’installation/le fonctionnement PWA :
+
+* ajouter la solution minimale ;
+* éviter une stratégie de cache agressive pouvant servir d’anciennes versions du site ;
+* ne pas mettre en cache des données sensibles ou des réponses API dynamiques.
+
+La PWA doit pouvoir continuer à recevoir les nouvelles versions du site normalement.
+
+⸻
+
+3. HTML / META
+
+Vérifier les éléments nécessaires à l’installation PWA :
+
+* lien vers le manifest ;
+* theme-color ;
+* viewport mobile ;
+* métadonnées nécessaires selon la plateforme ;
+* configuration iOS/iPadOS permettant l’utilisation en mode standalone lorsque supportée.
+
+Ne pas supprimer ni remplacer les métadonnées existantes utiles au référencement.
+
+⸻
+
+4. HTTPS
+
+Vérifier que la PWA est servie en HTTPS.
+
+Ne pas modifier le domaine de production.
+
+⸻
+
+5. Installation mobile
+
+Vérifier la compatibilité avec :
+
+* Android + Chrome ;
+* iPhone/iPad + Safari.
+
+Le résultat attendu est :
+
+Android :
+Navigateur → menu → Ajouter à l’écran d’accueil / Installer l’application.
+
+iPhone/iPad :
+Safari → Partager → Sur l’écran d’accueil.
+
+Il n’est PAS nécessaire de publier sur Google Play ou App Store.
+
+Coût attendu : 0 €.
+
+⸻
+
+CONTRAINTES TECHNIQUES
+
+NE PAS ajouter de dépendance si la PWA peut être activée avec l’existant.
+
+NE PAS faire de migration.
+
+NE PAS modifier la base de données.
+
+NE PAS modifier les API.
+
+NE PAS modifier les routes métier.
+
+NE PAS lancer de refonte.
+
+NE PAS lancer d’export mobile natif.
+
+NE PAS lancer de publication.
+
+NE PAS lancer de Deploy/Publish automatique.
+
+NE PAS modifier la production sans mon autorisation explicite.
+
+⸻
+
+TESTS À EFFECTUER
+
+Après vérification ou correction minimale :
+
+1. vérifier que l’application démarre ;
+2. vérifier que la page principale fonctionne ;
+3. vérifier que le manifest est accessible ;
+4. vérifier que le manifest est valide ;
+5. vérifier les icônes ;
+6. vérifier le service worker s’il est présent ;
+7. vérifier que les pages existantes fonctionnent ;
+8. vérifier qu’aucune API ou fonctionnalité existante n’est cassée ;
+9. vérifier que le site reste responsive mobile ;
+10. vérifier que rien concernant Gift Card ou Boutique n’a été modifié.
+
+Si possible, effectuer uniquement des tests locaux/preview non destructifs.
+
+⸻
+
+SI UNE MODIFICATION EST NÉCESSAIRE
+
+Avant de modifier quoi que ce soit, détermine précisément :
+
+* fichier concerné ;
+* problème constaté ;
+* modification minimale proposée.
+
+Puis applique uniquement cette modification.
+
+Ne profite PAS de cette mission pour nettoyer, moderniser ou refactoriser le projet.
+
+⸻
+
+RAPPORT FINAL OBLIGATOIRE
+
+À la fin, donne-moi un rapport très clair :
+
+PWA
+
+* déjà présente : OUI/NON
+* manifest : OK/NON
+* service worker : OK/NON/NON NÉCESSAIRE
+* icônes : OK/NON
+* installation Android : OK/À TESTER
+* installation iPhone/iPad : OK/À TESTER
+* HTTPS : OK/NON
+
+MODIFICATIONS
+
+* fichiers modifiés ;
+* fichiers créés ;
+* dépendances ajoutées : OUI/NON ;
+* aucune autre partie du projet modifiée : OUI/NON.
+
+PRODUCTION
+
+Confirme explicitement :
+
+* INDAMORA PLAY existant préservé ;
+* Gift Card non modifiée ;
+* Boutique non modifiée ;
+* proxy-addr@2.0.8 préservé ;
+* base de données non modifiée ;
+* API non modifiées ;
+* aucune publication effectuée ;
+* aucun Deploy effectué.
+
+Si tout est déjà correct, le résultat attendu est simplement :
+
+« PWA déjà prête — aucune modification nécessaire. »
+
+Sinon, effectue uniquement les corrections minimales nécessaires à l’installation PWA.
