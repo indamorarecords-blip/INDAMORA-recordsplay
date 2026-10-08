@@ -1,0 +1,311 @@
+{
+  "destination": "https://indamoraplay.com",
+  "pngSize": 1480,
+  "svgDecoded": "https://indamoraplay.com",
+  "renderSize": [
+    3600,
+    2520
+  ],
+  "mockupCount": 30,
+  "qrChecks": 42,
+  "passed": 42,
+  "failed": [],
+  "checks": [
+    {
+      "mockup": "tshirts/01-im-from-central-africa.png",
+      "placement": "dos-tshirt",
+      "sizePixels": 386,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "tshirts/02-no-label-just-talent.png",
+      "placement": "dos-tshirt",
+      "sizePixels": 386,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "tshirts/03-baddie-with-roots.png",
+      "placement": "dos-tshirt",
+      "sizePixels": 386,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "tshirts/04-from-bangui-to-the-world.png",
+      "placement": "dos-tshirt",
+      "sizePixels": 386,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "tshirts/05-bangui-society.png",
+      "placement": "dos-tshirt",
+      "sizePixels": 386,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "tshirts/06-sango-society.png",
+      "placement": "dos-tshirt",
+      "sizePixels": 386,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "caps/01-im-from-central-africa.png",
+      "placement": "casquette-blanche",
+      "sizePixels": 150,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "caps/01-im-from-central-africa.png",
+      "placement": "casquette-noire",
+      "sizePixels": 163,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "caps/02-no-label-just-talent.png",
+      "placement": "casquette-blanche",
+      "sizePixels": 150,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "caps/02-no-label-just-talent.png",
+      "placement": "casquette-noire",
+      "sizePixels": 163,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "caps/03-baddie-with-roots.png",
+      "placement": "casquette-blanche",
+      "sizePixels": 150,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "caps/03-baddie-with-roots.png",
+      "placement": "casquette-noire",
+      "sizePixels": 163,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "caps/04-from-bangui-to-the-world.png",
+      "placement": "casquette-blanche",
+      "sizePixels": 150,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "caps/04-from-bangui-to-the-world.png",
+      "placement": "casquette-noire",
+      "sizePixels": 163,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "caps/05-bangui-society.png",
+      "placement": "casquette-blanche",
+      "sizePixels": 150,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "caps/05-bangui-society.png",
+      "placement": "casquette-noire",
+      "sizePixels": 163,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "caps/06-sango-society.png",
+      "placement": "casquette-blanche",
+      "sizePixels": 150,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "caps/06-sango-society.png",
+      "placement": "casquette-noire",
+      "sizePixels": 163,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "bobs/01-im-from-central-africa.png",
+      "placement": "bob-rose",
+      "sizePixels": 198,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "bobs/01-im-from-central-africa.png",
+      "placement": "bob-noir",
+      "sizePixels": 200,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "bobs/02-no-label-just-talent.png",
+      "placement": "bob-rose",
+      "sizePixels": 198,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "bobs/02-no-label-just-talent.png",
+      "placement": "bob-noir",
+      "sizePixels": 200,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "bobs/03-baddie-with-roots.png",
+      "placement": "bob-rose",
+      "sizePixels": 198,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "bobs/03-baddie-with-roots.png",
+      "placement": "bob-noir",
+      "sizePixels": 200,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "bobs/04-from-bangui-to-the-world.png",
+      "placement": "bob-rose",
+      "sizePixels": 198,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "bobs/04-from-bangui-to-the-world.png",
+      "placement": "bob-noir",
+      "sizePixels": 200,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "bobs/05-bangui-society.png",
+      "placement": "bob-rose",
+      "sizePixels": 198,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "bobs/05-bangui-society.png",
+      "placement": "bob-noir",
+      "sizePixels": 200,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "bobs/06-sango-society.png",
+      "placement": "bob-rose",
+      "sizePixels": 198,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "bobs/06-sango-society.png",
+      "placement": "bob-noir",
+      "sizePixels": 200,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "tote-bags/01-im-from-central-africa.png",
+      "placement": "tote-bag",
+      "sizePixels": 372,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "tote-bags/02-no-label-just-talent.png",
+      "placement": "tote-bag",
+      "sizePixels": 372,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "tote-bags/03-baddie-with-roots.png",
+      "placement": "tote-bag",
+      "sizePixels": 372,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "tote-bags/04-from-bangui-to-the-world.png",
+      "placement": "tote-bag",
+      "sizePixels": 372,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "tote-bags/05-bangui-society.png",
+      "placement": "tote-bag",
+      "sizePixels": 372,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "tote-bags/06-sango-society.png",
+      "placement": "tote-bag",
+      "sizePixels": 372,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "phone-cases/01-im-from-central-africa.png",
+      "placement": "coque",
+      "sizePixels": 375,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "phone-cases/02-no-label-just-talent.png",
+      "placement": "coque",
+      "sizePixels": 375,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "phone-cases/03-baddie-with-roots.png",
+      "placement": "coque",
+      "sizePixels": 375,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "phone-cases/04-from-bangui-to-the-world.png",
+      "placement": "coque",
+      "sizePixels": 375,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "phone-cases/05-bangui-society.png",
+      "placement": "coque",
+      "sizePixels": 375,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    },
+    {
+      "mockup": "phone-cases/06-sango-society.png",
+      "placement": "coque",
+      "sizePixels": 375,
+      "decoded": "https://indamoraplay.com",
+      "valid": true
+    }
+  ],
+  "digitalValidationOnly": true,
+  "physicalPrintNotTested": true
+}

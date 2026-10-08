@@ -21,8 +21,20 @@ Les six phrases officielles sont :
 
 **How to apply:** Reprendre les chaînes à l’identique, sans reformulation.
 
-Le QR fourni doit être utilisé sans remplacement, déformation ni changement de contenu. La destination attendue du brief est https://indamoraplay.com. Si le fichier ne correspond pas ou ne peut être utilisé correctement, arrêter et demander les instructions de l’utilisateur.
+L’utilisateur autorise désormais la génération locale et gratuite du QR officiel vers exactement https://indamoraplay.com. Ne plus utiliser le QR Linktree pour les nouveaux mockups. Noir sur blanc, marge de sécurité suffisante, sans logo central compromettant la lecture.
 
-**Why:** L’utilisateur interdit de générer un autre QR et exige un arrêt en cas de problème.
+**Why:** L’utilisateur a explicitement révisé l’interdiction de génération après la découverte d’un QR fourni vers une autre destination.
 
-**How to apply:** Décoder le fichier original avant de finaliser les mockups ; ne pas corriger silencieusement une destination différente.
+**How to apply:** Décoder le QR PNG et la version vectorielle rendue. Vérifier les QR réellement placés sur les produits, pas seulement un grand QR de détail à côté. Si un visuel ne peut être utilisé correctement, signaler le problème au lieu d’inventer un produit.
+
+La lecture dans un mockup numérique ne certifie pas la lecture sur un produit imprimé.
+
+**Why:** Courbure, texture, procédé et dimensions physiques peuvent rendre illisible un QR qui passe dans le rendu numérique.
+
+**How to apply:** Rapporter séparément les vérifications numériques et la validation sur échantillon réel ; ne pas présenter les maquettes comme des fichiers de fabrication certifiés.
+
+Tout le travail de mockups reste dans les fichiers de TEST, sans service payant, changement de l’application ou intégration à la Boutique publique avant validation explicite.
+
+**Why:** L’utilisateur interdit les achats et toute modification de production, de Stripe, de Gift Card, de la PWA, de l’API ou de la base de données pour ce travail.
+
+**How to apply:** Utiliser des compositions locales et les ressources fournies ; livrer les assets séparément de l’application.

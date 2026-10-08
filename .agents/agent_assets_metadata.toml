@@ -14,3 +14,59 @@ mtime_ms = 1791479945957
 storage_uri = "gcs://replit-rams-assets-kira/rams/assets/repl:ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd/d1e5054d-38e7-43db-a4b5-783c67c22215/903fc8da-8582-48f1-b63d-151dde30b193"
 storage_version_token = "1791479980368517"
 content_type = "image/png"
+
+[[outputs]]
+id = "qXEnJF5Bu6AqtxWmkCfZ6"
+uri = "file://mockups/indamora-play/resources/indamora-play-qr.png"
+type = "image"
+title = "QR officiel INDAMORA PLAY — PNG"
+description = "1480 × 1480 px. Destination décodée : https://indamoraplay.com. Noir sur blanc, marge de sécurité, sans logo central."
+logical_id = "f243d4b0-f0ed-4f9c-b2b0-83f0784679a4"
+content_hash = "sha256:50d76432fb5979b34441d339cb2e60cd22879b456c7fc146fe81d3667116a5e6"
+size = 12380
+mtime_ms = 1791496475764
+storage_uri = "gcs://replit-rams-assets-kira/rams/assets/repl:ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd/f243d4b0-f0ed-4f9c-b2b0-83f0784679a4/0a51026e-d6e0-4531-b8fe-9d30b96a2671"
+storage_version_token = "1791496995161288"
+content_type = "image/png"
+
+[[outputs]]
+id = "MjG7Le2QG3P-Y5xsx-2Zy"
+uri = "file://mockups/indamora-play/resources/indamora-play-qr.svg"
+type = "image"
+title = "QR officiel INDAMORA PLAY — SVG"
+description = "Version vectorielle. Destination vérifiée par décodage après rendu."
+logical_id = "7cea4ead-0c11-4bcc-8143-0f755820971b"
+content_hash = "sha256:533e7ad95b7405833dbf9c618f4e4401c6e37d130625715798367d0983e43006"
+size = 1615
+mtime_ms = 1791496803436
+storage_uri = "gcs://replit-rams-assets-kira/rams/assets/repl:ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd/7cea4ead-0c11-4bcc-8143-0f755820971b/09a92be6-90e9-4324-a101-d4c19567010f"
+storage_version_token = "1791496995915645"
+content_type = "image/svg+xml"
+
+[[outputs]]
+id = "53k4-1lkIEeTV5PEIPWjs"
+uri = "file://mockups/indamora-play/indamora-play-collection-mockups.pdf"
+type = "pdf"
+title = "Collection INDAMORA PLAY — 30 mockups TEST"
+description = "Catalogue de 30 planches : six phrases pour cinq catégories de produits. Maquettes numériques, sans intégration à la Boutique."
+logical_id = "51e01943-e5d4-41cc-9f0d-3e35402f6206"
+content_hash = "sha256:ebc1d7fb78a79daf66287c8d072aebd9ae0772a1d13ac00bb3eb31e1e02d67a7"
+size = 14327809
+mtime_ms = 1791496845840
+storage_uri = "gcs://replit-rams-assets-kira/rams/assets/repl:ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd/51e01943-e5d4-41cc-9f0d-3e35402f6206/04924017-640b-4169-9c5b-4690a6b81f22"
+storage_version_token = "1791496996921052"
+content_type = "application/pdf"
+
+[[outputs]]
+id = "UGLuEtUElpgeU9P9QU91M"
+uri = "file://mockups/indamora-play-collection-test.zip"
+type = "unspecified"
+title = "Pack complet INDAMORA PLAY — PNG et SVG"
+description = "30 PNG haute résolution, 30 SVG autonomes, QR officiel, catalogue PDF et rapport de vérification des 42 QR placés sur les produits. Pack TEST uniquement."
+logical_id = "856940b6-5791-433b-a873-e4eaaf3f869d"
+content_hash = "sha256:49e0b30eb6537354b3a9b7f9ad443ba380a6f1e2e242ea2d584f315bce1ae3f3"
+size = 47833238
+mtime_ms = 1791496968076
+storage_uri = "gcs://replit-rams-assets-kira/rams/assets/repl:ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd/856940b6-5791-433b-a873-e4eaaf3f869d/c78f1191-925c-4a44-ad3d-778fdffeca5b"
+storage_version_token = "1791496998206525"
+content_type = "application/octet-stream"
