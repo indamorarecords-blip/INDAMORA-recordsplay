@@ -1,11 +1,15 @@
 INDAMORA PLAY — maquettes préparatoires
 
+STATUT : BROUILLONS NON VALIDÉS — NE PAS UTILISER COMME MOCKUPS FINALISÉS.
+La finalisation est interrompue : le QR fourni se décode vers https://linktr.ee/indamorarecords.hub, et non vers https://indamoraplay.com indiqué dans le brief. Aucun remplacement ou changement du QR n’a été effectué.
+Les aplats de composition ne donnent pas encore le rendu photographique réaliste demandé.
+
 30 compositions vectorielles et PNG : 5 catégories × 6 phrases officielles.
 Les T-shirts présentent le devant et le dos dans chaque planche ; les casquettes montrent les références blanche et noire ; les bobs montrent les références rose et noire.
 
 Organisation : tshirts/, tote-bags/, caps/, bobs/, phone-cases/. Les fichiers SVG sont autonomes : les photographies, le logo et le fichier QR source sont incorporés. Les PNG sont rendus à 1800 × 1260 px.
 
-Les images originales restent inchangées. Le visuel QR source a été copié octet pour octet et incorporé sans retouche (l’image est affichée à une échelle réduite dans les composites). Il n’a pas été possible d’exécuter un scan de décodage dans cet environnement ; son URL et sa scannabilité ne sont donc pas certifiées ici.
+Les images originales restent inchangées. Le visuel QR source a été copié octet pour octet et incorporé sans retouche (l’image est affichée à une échelle réduite dans les composites). Un décodage local du fichier original a confirmé la destination Linktree mentionnée ci-dessus. La lisibilité des QR réduits dans les brouillons et à l’impression n’est pas certifiée.
 
 Les zones de composition qui recouvrent les inscriptions déjà visibles sur certains modèles servent à présenter les phrases officielles sans retoucher les photographies d’origine. Les maquettes sont des propositions graphiques ; la taille physique, les zones imprimables et la lisibilité à l’impression restent à valider sur échantillon.
 
