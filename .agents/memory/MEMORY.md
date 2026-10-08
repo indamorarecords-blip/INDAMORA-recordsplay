@@ -4,3 +4,4 @@
 - [Timestamp fingerprints](timestamp-fingerprints.md) — exact database fingerprints must retain PostgreSQL microseconds, which date serializers can hide.
 - [Traffic analytics scope](traffic-analytics-scope.md) — ADMIN-only, local GeoIP, isolated data; preserve OAuth, billing and existing product behavior.
 - [Dependency scope](dependency-scope.md) — managed installs can target the root and drift unrelated transitives; inspect and keep final changes scoped.
+- [Publish CHECK serialization](publish-check-serialization.md) — valid bare boolean predicates can be double-wrapped by the Publish diff; verify catalogs and generated SQL.
