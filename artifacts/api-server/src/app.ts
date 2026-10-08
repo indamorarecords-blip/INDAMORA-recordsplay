@@ -11,6 +11,7 @@ import {
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { WebhookHandlers } from "./webhookHandlers";
+import storeWebhookRouter from "./routes/store-webhook";
 
 const app: Express = express();
 
@@ -57,6 +58,7 @@ app.post(
     }
   },
 );
+app.use(storeWebhookRouter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(

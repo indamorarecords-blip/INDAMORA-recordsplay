@@ -7,7 +7,7 @@ import {
   GetStoreCheckoutStatusQueryParams,
   GetStoreCheckoutStatusResponse,
 } from "@workspace/api-zod";
-import { formData, stripeApi } from "../stripeClient";
+import { formData, storeStripeApi as stripeApi } from "../storeStripeClient";
 
 const router: IRouter = Router();
 
@@ -126,7 +126,7 @@ function isConfiguredTestWebhook(endpoint: StripeWebhookEndpoint): boolean {
     return (
       url.protocol === "https:" &&
       developmentHosts().has(url.hostname.toLowerCase()) &&
-      url.pathname === "/api/stripe/webhook"
+      url.pathname === "/api/store/stripe/webhook"
     );
   } catch {
     return false;
@@ -134,7 +134,7 @@ function isConfiguredTestWebhook(endpoint: StripeWebhookEndpoint): boolean {
 }
 
 async function hasConfiguredTestWebhook(): Promise<boolean> {
-  if (!process.env.STRIPE_WEBHOOK_SECRET || developmentHosts().size === 0) {
+  if (!process.env.STRIPE_STORE_TEST_WEBHOOK_SECRET?.startsWith("whsec_") || developmentHosts().size === 0) {
     return false;
   }
 

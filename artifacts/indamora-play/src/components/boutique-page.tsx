@@ -124,14 +124,14 @@ function ProductSkeletons() {
 function ReturnState({ sessionId }: { sessionId: string }) {
   const statusQuery = useGetStoreCheckoutStatus(
     { sessionId },
-    { query: { enabled: Boolean(sessionId), queryKey: getGetStoreCheckoutStatusQueryKey({ sessionId }) } },
+    { query: { enabled: Boolean(sessionId), queryKey: getGetStoreCheckoutStatusQueryKey({ sessionId }), refetchInterval: (query) => query.state.data?.status === 'pending' ? 3000 : false } },
   );
   const status = statusQuery.data?.status;
   const isPaid = status === 'paid';
   const isExpired = status === 'expired';
   const title = isPaid ? 'Merci de faire partie du mouvement.' : isExpired ? 'Cette session a expiré.' : 'Votre paiement reste à confirmer.';
   const detail = isPaid
-    ? 'Le paiement a été confirmé par Stripe. Votre soutien aide les talents à faire entendre leur voix.'
+    ? 'Stripe a confirmé ce paiement de TEST. Aucune commande réelle ni aucun débit réel ne sont créés.'
     : isExpired
       ? 'La session de paiement n’est plus active. Vous pouvez revenir à la boutique et reprendre votre commande.'
       : status === 'unpaid'

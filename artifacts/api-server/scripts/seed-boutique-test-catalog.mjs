@@ -1,6 +1,4 @@
-import { ReplitConnectors } from "@replit/connectors-sdk";
-
-const connectors = new ReplitConnectors();
+import { storeStripeApi as stripeApi } from "../src/storeStripeClient.ts";
 
 const products = [
   ["tshirt", "T-shirt INDAMORA PLAY"],
@@ -10,34 +8,14 @@ const products = [
   ["phone-case", "Coque téléphone INDAMORA PLAY"],
 ];
 
-if (process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV !== "development") {
   throw new Error("Refus : le catalogue Boutique ne peut être initialisé qu’en développement.");
 }
 
-async function stripeApi(path, { method = "GET", params, idempotencyKey } = {}) {
-  const response = await connectors.proxy("stripe", path, {
-    method,
-    headers: {
-      ...(params ? { "Content-Type": "application/x-www-form-urlencoded" } : {}),
-      ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
-    },
-    body: params?.toString(),
-  });
-  const body = await response.json().catch(() => null);
-  if (!response.ok) {
-    throw new Error(`Stripe TEST catalog setup failed with status ${response.status}.`);
-  }
-  return body;
-}
-
-const existingPrices = await stripeApi("/v1/prices?active=true&limit=100");
-if (
-  !Array.isArray(existingPrices?.data) ||
-  existingPrices.data.length === 0 ||
-  existingPrices.data.some((price) => price.livemode !== false)
-) {
+const balance = await stripeApi("/v1/balance");
+if (balance.livemode !== false) {
   throw new Error(
-    "Refus de créer des produits : le même Stripe connector n’a pas confirmé un catalogue exclusivement TEST.",
+    "Refus de créer des produits : la clé dédiée n’a pas confirmé le mode Stripe TEST.",
   );
 }
 

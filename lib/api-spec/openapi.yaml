@@ -225,6 +225,34 @@ paths:
           description: No matching INDAMORA PLAY TEST session
         "503":
           description: Stripe TEST mode is unavailable
+  /store/stripe/webhook:
+    post:
+      operationId: receiveStoreTestWebhook
+      tags: [store]
+      summary: Receive a signed Boutique-only TEST event without database writes
+      description: Development only. Uses a dedicated signature secret, the raw body, and authoritative Stripe TEST payment confirmation. Repeated deliveries have no business side effects.
+      parameters:
+        - in: header
+          name: stripe-signature
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+      responses:
+        "200":
+          description: Valid TEST event acknowledged or unrelated event ignored
+        "400":
+          description: Invalid signature or not a TEST event
+        "404":
+          description: Not available in production
+        "503":
+          description: Dedicated signature secret or Stripe TEST confirmation unavailable
   /stripe/webhook:
     post:
       operationId: receiveStripeWebhook
