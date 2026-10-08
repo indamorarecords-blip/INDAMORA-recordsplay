@@ -242,8 +242,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              additionalProperties: true
+              $ref: "#/components/schemas/StripeWebhookPayload"
       responses:
         "200":
           description: Valid TEST event acknowledged or unrelated event ignored

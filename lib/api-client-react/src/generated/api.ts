@@ -843,6 +843,78 @@ export function useGetStoreCheckoutStatus<TData = Awaited<ReturnType<typeof getS
 
 
 
+export const getReceiveStoreTestWebhookUrl = () => {
+
+
+
+
+  return `/api/store/stripe/webhook`
+}
+
+/**
+ * Development only. Uses a dedicated signature secret, the raw body, and authoritative Stripe TEST payment confirmation. Repeated deliveries have no business side effects.
+ * @summary Receive a signed Boutique-only TEST event without database writes
+ */
+export const receiveStoreTestWebhook = async (stripeWebhookPayload: StripeWebhookPayload, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getReceiveStoreTestWebhookUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(stripeWebhookPayload)
+  }
+);}
+
+
+
+
+
+export const getReceiveStoreTestWebhookMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof receiveStoreTestWebhook>>, TError,{data: BodyType<StripeWebhookPayload>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof receiveStoreTestWebhook>>, TError,{data: BodyType<StripeWebhookPayload>}, TContext> => {
+
+const mutationKey = ['receiveStoreTestWebhook'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof receiveStoreTestWebhook>>, {data: BodyType<StripeWebhookPayload>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  receiveStoreTestWebhook(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ReceiveStoreTestWebhookMutationResult = NonNullable<Awaited<ReturnType<typeof receiveStoreTestWebhook>>>
+    export type ReceiveStoreTestWebhookMutationBody = BodyType<StripeWebhookPayload>
+    export type ReceiveStoreTestWebhookMutationError = ErrorType<void>
+
+    /**
+ * @summary Receive a signed Boutique-only TEST event without database writes
+ */
+export const useReceiveStoreTestWebhook = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof receiveStoreTestWebhook>>, TError,{data: BodyType<StripeWebhookPayload>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof receiveStoreTestWebhook>>,
+        TError,
+        {data: BodyType<StripeWebhookPayload>},
+        TContext
+      > => {
+      return useMutation(getReceiveStoreTestWebhookMutationOptions(options));
+    }
+
 export const getReceiveStripeWebhookUrl = () => {
 
 

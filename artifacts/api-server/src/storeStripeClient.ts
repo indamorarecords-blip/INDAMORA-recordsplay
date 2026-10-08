@@ -11,8 +11,8 @@ function dedicatedTestKey(): string {
   if (process.env.NODE_ENV !== "development") {
     throw new StoreTestConfigurationError("La Boutique Stripe TEST est réservée au développement.");
   }
-  const key = process.env.STRIPE_STORE_TEST_SECRET_KEY?.trim();
-  if (!key || !(key.startsWith("sk_test_") || key.startsWith("rk_test_"))) {
+  const key = process.env.STRIPE_BOUTIQUE_TEST_SECRET_KEY;
+  if (!key?.startsWith("sk_test_")) {
     throw new StoreTestConfigurationError("La clé Stripe TEST dédiée à la Boutique est absente ou invalide.");
   }
   return key;

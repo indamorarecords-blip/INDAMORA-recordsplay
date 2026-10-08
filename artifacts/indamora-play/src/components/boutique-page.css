@@ -60,15 +60,9 @@
 .bt-product-art.bob { background: radial-gradient(ellipse at 50% 56%, #262626, #131313 70%); }
 .bt-product-art.tote { background: radial-gradient(ellipse at 52% 60%, #222, #131313 70%); }
 .bt-product-art.case { background: radial-gradient(ellipse at 55% 55%, #242424, #131313 70%); }
-.bt-garment { position: relative; display: grid; place-items: center; color: white; filter: drop-shadow(0 14px 17px #0008); }
-.bt-garment svg { width: 150px; height: 165px; }
-.bt-product-art.cap .bt-garment svg, .bt-product-art.bob .bt-garment svg { width: 166px; height: 130px; }
-.bt-product-art.tote .bt-garment svg { width: 145px; height: 170px; }
-.bt-product-art.case .bt-garment svg { width: 92px; height: 170px; }
-.bt-art-logo { position: absolute; width: 45px; height: 45px; object-fit: contain; top: 48%; left: 50%; transform: translate(-50%, -50%); border-radius: 50%; }
-.bt-product-art.cap .bt-art-logo, .bt-product-art.bob .bt-art-logo { top: 59%; width: 35px; height: 35px; }
-.bt-product-art.tote .bt-art-logo { top: 54%; width: 54px; height: 54px; }
-.bt-product-art.case .bt-art-logo { top: 46%; width: 42px; height: 42px; }
+.bt-product-placeholder { position: relative; display: grid; gap: 14px; text-align: center; padding: 24px; color: #fff; }
+.bt-product-placeholder span { font-size: 20px; font-weight: 600; letter-spacing: -.04em; }
+.bt-product-placeholder small { color: #ffffff80; font: 10px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .12em; }
 .bt-product-body { padding: 16px; }
 .bt-product-title { margin: 0; font-size: 17px; font-weight: 500; letter-spacing: -.04em; }
 .bt-product-type { margin-top: 5px; color: var(--bt-muted); font-size: 11px; }

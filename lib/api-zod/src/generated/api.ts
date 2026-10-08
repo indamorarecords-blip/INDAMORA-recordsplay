@@ -216,6 +216,19 @@ export const GetStoreCheckoutStatusResponse = zod.object({
 
 
 /**
+ * Development only. Uses a dedicated signature secret, the raw body, and authoritative Stripe TEST payment confirmation. Repeated deliveries have no business side effects.
+ * @summary Receive a signed Boutique-only TEST event without database writes
+ */
+export const ReceiveStoreTestWebhookHeader = zod.object({
+  "stripe-signature": zod.string()
+})
+
+export const ReceiveStoreTestWebhookBody = zod.record(zod.string(), zod.unknown())
+
+export const ReceiveStoreTestWebhookResponse = zod.unknown()
+
+
+/**
  * The raw request body is verified using the Stripe signature before processing.
  * @summary Receive a signed Stripe webhook event
  */

@@ -98,19 +98,11 @@ function formatEUR(cents: number): string {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(cents / 100);
 }
 
-function Garment({ kind }: { kind: string }) {
-  if (kind === 'tshirt') return <svg viewBox="0 0 180 190" aria-hidden="true"><path d="M53 20 75 11h30l22 9 39 23-18 31-22-12v112H54V62L32 74 14 43l39-23Z" fill="#303030" stroke="#626262" strokeWidth="2"/><path d="m75 11 15 18 15-18" fill="none" stroke="#727272" strokeWidth="3"/><path d="M55 63v108M125 63v108" stroke="#454545" strokeWidth="2"/></svg>;
-  if (kind === 'cap') return <svg viewBox="0 0 190 150" aria-hidden="true"><path d="M34 93c4-42 26-66 60-68 38-2 59 22 64 63l-36 9-87-4Z" fill="#303030" stroke="#676767" strokeWidth="2"/><path d="M35 91c29-3 57-2 91 6 16 4 29 12 30 20-25 7-89 8-123-3-12-4-16-12 2-23Z" fill="#242424" stroke="#626262" strokeWidth="2"/><path d="M94 28v66" stroke="#555" strokeWidth="2"/></svg>;
-  if (kind === 'bob') return <svg viewBox="0 0 190 150" aria-hidden="true"><path d="M48 96c1-32 10-68 47-69 39-1 49 35 50 69l-97 0Z" fill="#303030" stroke="#686868" strokeWidth="2"/><path d="M37 95c35-10 80-10 116 0 13 4 15 14 0 19-34 12-88 12-117 1-13-5-12-16 1-20Z" fill="#252525" stroke="#686868" strokeWidth="2"/><path d="M67 56c13-10 43-10 56 0" fill="none" stroke="#505050" strokeWidth="2"/></svg>;
-  if (kind === 'tote') return <svg viewBox="0 0 170 190" aria-hidden="true"><path d="M49 57c0-27 12-42 36-42s36 15 36 42" fill="none" stroke="#777" strokeWidth="8"/><path d="M29 55h112l-8 119H37L29 55Z" fill="#303030" stroke="#686868" strokeWidth="2"/><path d="M40 69h90" stroke="#484848" strokeWidth="2"/></svg>;
-  return <svg viewBox="0 0 110 190" aria-hidden="true"><rect x="11" y="7" width="88" height="176" rx="18" fill="#303030" stroke="#777" strokeWidth="3"/><rect x="17" y="17" width="76" height="156" rx="12" fill="#242424"/><rect x="42" y="11" width="26" height="4" rx="2" fill="#777"/><circle cx="55" cy="163" r="4" fill="#777"/></svg>;
-}
-
 function ProductArt({ product, index }: { product: ProductInfo; index: number }) {
   return <div className={`bt-product-art ${product.className}`} data-no={`IP / 0${index + 1}`} data-testid={`visual-product-${product.sku}`}>
-    <div className="bt-garment">
-      <Garment kind={product.className} />
-      <img className="bt-art-logo" src={OFFICIAL_LOGO_URL} alt="" aria-hidden="true" />
+    <div className="bt-product-placeholder">
+      <span>{product.name}</span>
+      <small>Photo officielle à fournir</small>
     </div>
   </div>;
 }
@@ -289,7 +281,7 @@ export function BoutiquePage() {
           <div className="bt-shipping-band" data-testid="section-shipping-rates">
             <div className="bt-ship-cell"><div className="bt-ship-place">France</div><div className="bt-ship-price">Livraison gratuite</div><div className="bt-ship-detail">Délai indicatif : 3 à 4 jours</div></div>
             <div className="bt-ship-cell"><div className="bt-ship-place">Union européenne</div><div className="bt-ship-price">7 €</div><div className="bt-ship-detail">Frais de livraison par commande<br />Délai indicatif : 3 à 4 jours</div></div>
-            <div className="bt-ship-cell"><div className="bt-ship-place">Reste du monde</div><div className="bt-ship-price">Sur demande</div><div className="bt-ship-detail">Contactez-nous avant de commander.</div><div className="bt-contact-links"><a href="https://wa.me/33780118869" target="_blank" rel="noreferrer">WhatsApp : +33 7 80 11 88 69</a><a href="mailto:indamorarecords@gmail.com">indamorarecords@gmail.com</a></div></div>
+            <div className="bt-ship-cell"><div className="bt-ship-place">Europe hors UE &amp; reste du monde</div><div className="bt-ship-price">Nous contacter</div><div className="bt-ship-detail">Contactez-nous avant de commander.</div><div className="bt-contact-links"><a href="https://wa.me/33780118869" target="_blank" rel="noreferrer">WhatsApp : +33 7 80 11 88 69</a><a href="mailto:indamorarecords@gmail.com">indamorarecords@gmail.com</a></div></div>
           </div>
         </>}
         {catalogQuery.data?.message && <p className="bt-country-note" role="status" data-testid="text-catalog-message">{catalogQuery.data.message}</p>}

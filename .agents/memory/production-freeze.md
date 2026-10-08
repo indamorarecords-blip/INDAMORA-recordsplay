@@ -18,3 +18,9 @@ La préparation de la Boutique INDAMORA PLAY est autorisée uniquement en dével
 **Why:** L’utilisateur a expressément séparé la nouvelle Boutique en TEST des parties stables du site, de Gift Card, de la PWA et d’Expo / React Native.
 
 **How to apply:** Isoler les ajouts Boutique et utiliser exclusivement des identifiants Stripe TEST dédiés stockés dans les Secrets Replit, sans modifier, remplacer ou supprimer les clés de Premium et des dons. Toute activation LIVE, publication ou modification du schéma exige une nouvelle autorisation explicite.
+
+Pour la Boutique, utiliser exclusivement les images de produits et le QR code officiel fournis par l’utilisateur. Ne pas générer de faux modèles, de faux QR codes ou de nouvelles images à leur place.
+
+**Why:** L’utilisateur a indiqué qu’il fournira ces visuels et a expressément interdit leur remplacement par des images générées.
+
+**How to apply:** Tant que les fichiers ne sont pas fournis, afficher un emplacement textuel clairement identifié, sans fabriquer de photo ou de QR provisoire.

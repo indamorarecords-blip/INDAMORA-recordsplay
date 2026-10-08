@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import test from "node:test";
 import { build } from "esbuild";
+import { createHmac } from "node:crypto";
 
 // All Stripe operations use fixtures. This test never reaches Stripe or a DB.
 test("Boutique TEST validates prices, shipping, payment proof and production isolation", async (t) => {
@@ -13,10 +14,11 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
   const skus = ["tshirt", "cap", "bob", "tote-bag", "phone-case"];
   process.env.NODE_ENV = "development";
   process.env.REPLIT_DEV_DOMAIN = "store-fixture.replit.dev";
-  process.env.STRIPE_WEBHOOK_SECRET = "fixture-only-not-a-real-secret";
+  const webhookSecret = "whsec_fixture_only_not_a_real_secret";
 
   const reset = (overrides = {}) => {
     process.env.NODE_ENV = "development";
+    process.env.STRIPE_BOUTIQUE_TEST_WEBHOOK_SECRET = webhookSecret;
     globalThis.storeFixture = {
       prices: skus.map((sku) => ({
         id: `price_test_${sku}`,
@@ -30,6 +32,7 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
       })),
       webhookReady: true,
       calls: [],
+      logs: [],
       ...overrides,
     };
   };
@@ -37,12 +40,12 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
   try {
     const stripeMock = `
       export const formData = (entries) => new URLSearchParams(Object.entries(entries).filter(([,value]) => value !== undefined).map(([key,value]) => [key,String(value)]));
-      export async function stripeApi(path, options = {}) {
+      export async function storeStripeApi(path, options = {}) {
         const fixture = globalThis.storeFixture;
         fixture.calls.push({path, options});
         if (path.startsWith("/v1/prices?")) return {data: fixture.prices, has_more:false};
         if (path.startsWith("/v1/webhook_endpoints?")) return {data: fixture.webhookReady ? [{
-          url:"https://store-fixture.replit.dev/api/stripe/webhook", status:"enabled", livemode:false,
+          url:"https://store-fixture.replit.dev/api/store/stripe/webhook", status:"enabled", livemode:false,
           enabled_events:["checkout.session.completed","checkout.session.async_payment_succeeded","checkout.session.async_payment_failed"]
         }] : []};
         if (path === "/v1/checkout/sessions" && options.method === "POST") {
@@ -66,9 +69,10 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
       }
     `;
     await build({
-      entryPoints: ["src/routes/store.ts"],
+      entryPoints: { store: "src/routes/store.ts", "store-webhook": "src/routes/store-webhook.ts" },
       absWorkingDir: new URL("..", import.meta.url).pathname,
-      outfile: join(directory, "store.mjs"),
+      outdir: directory,
+      outExtension: { ".js": ".mjs" },
       platform: "node",
       format: "esm",
       bundle: true,
@@ -76,7 +80,7 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
       plugins: [{
         name: "isolated-store-fixtures",
         setup(builder) {
-          builder.onResolve({ filter: /^\.\.\/stripeClient$/ }, () => ({ path: "stripeClient", namespace: "store-fixture" }));
+          builder.onResolve({ filter: /^\.\.\/storeStripeClient$/ }, () => ({ path: "storeStripeClient", namespace: "store-fixture" }));
           builder.onLoad({ filter: /.*/, namespace: "store-fixture" }, () => ({ contents: stripeMock, loader: "js" }));
         },
       }],
@@ -84,9 +88,11 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
     await writeFile(join(directory, "harness.mjs"), `
       import express from ${JSON.stringify(import.meta.resolve("express"))};
       import store from "./store.mjs";
+      import storeWebhook from "./store-webhook.mjs";
       const app = express();
+      app.use((req,_res,next) => {req.log = {warn(){},error(){},info(entry){globalThis.storeFixture.logs.push(entry);}}; next();});
+      app.use(storeWebhook);
       app.use(express.json());
-      app.use((req,_res,next) => {req.log = {warn(){},error(){}}; next();});
       app.use("/api", store);
       export default app;
     `);
@@ -99,6 +105,22 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items, shippingCountry, ...extra }),
       });
+    const webhook = (overrides = {}, signingSecret = webhookSecret) => {
+      const body = JSON.stringify({
+        id: "evt_store_fixture_only",
+        type: "checkout.session.completed",
+        livemode: false,
+        data: { object: { id: "cs_test_store_fixture_123", mode: "payment", metadata: { storeFlow: "indamora-play-boutique-v1" } } },
+        ...overrides,
+      });
+      const timestamp = Math.floor(Date.now() / 1000);
+      const signature = createHmac("sha256", signingSecret).update(`${timestamp}.${body}`).digest("hex");
+      return fetch(`${base}/stripe/webhook`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Stripe-Signature": `t=${timestamp},v1=${signature}` },
+        body,
+      });
+    };
 
     await t.test("catalog has exactly the five €15 products", async () => {
       reset();
@@ -129,6 +151,8 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
     await t.test("unsupported countries, invalid quantities, duplicates and client prices are refused", async () => {
       for (const [country, items, extra] of [
         ["US", [{ sku: "tshirt", quantity: 1 }], {}],
+        ["GB", [{ sku: "tshirt", quantity: 1 }], {}],
+        ["CH", [{ sku: "tshirt", quantity: 1 }], {}],
         ["FR", [{ sku: "tshirt", quantity: 0 }], {}],
         ["FR", [{ sku: "tshirt", quantity: 1 }, { sku: "tshirt", quantity: 1 }], {}],
         ["FR", [{ sku: "tshirt", quantity: 1 }], { priceId: "client-selected-price" }],
@@ -162,11 +186,43 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
       reset();
       assert.equal((await fetch(`${base}/checkout/status?sessionId=cs_live_invalid`)).status, 400);
     });
+    await t.test("dedicated webhook rejects invalid signatures and signed LIVE events", async () => {
+      reset();
+      assert.equal((await webhook({}, "whsec_wrong_fixture")).status, 400);
+      assert.equal((await webhook({ livemode: true })).status, 400);
+      assert.equal(globalThis.storeFixture.calls.length, 0);
+    });
+    await t.test("signed unrelated TEST events do not touch other payment flows", async () => {
+      reset();
+      const response = await webhook({ data: { object: { id: "cs_test_other_flow", mode: "payment", metadata: { kind: "donation" } } } });
+      assert.equal(response.status, 200);
+      assert.equal((await response.json()).ignored, true);
+      assert.equal(globalThis.storeFixture.calls.length, 0);
+    });
+    await t.test("webhook replays only verify Stripe and have no write-side business effects", async () => {
+      reset({ sessionOverride: { payment_status: "paid" } });
+      assert.equal((await webhook()).status, 200);
+      assert.equal((await webhook()).status, 200);
+      assert.ok(globalThis.storeFixture.logs.every((entry) => entry.paid === true));
+      assert.equal(globalThis.storeFixture.calls.length, 2);
+      assert.ok(globalThis.storeFixture.calls.every((call) => !call.options.method));
+    });
+    await t.test("async success requires authoritative paid status and missing webhook configuration fails closed", async () => {
+      reset();
+      assert.equal((await webhook({ type: "checkout.session.async_payment_succeeded" })).status, 503);
+      assert.equal(globalThis.storeFixture.logs.length, 0);
+      reset();
+      assert.equal((await webhook({ type: "checkout.session.async_payment_failed" })).status, 200);
+      assert.equal(globalThis.storeFixture.logs[0].paid, false);
+      delete process.env.STRIPE_BOUTIQUE_TEST_WEBHOOK_SECRET;
+      assert.equal((await webhook()).status, 503);
+    });
     await t.test("production cannot expose these TEST APIs or call Stripe", async () => {
       reset();
       process.env.NODE_ENV = "production";
       assert.equal((await fetch(`${base}/catalog`)).status, 404);
       assert.equal((await checkout("FR")).status, 404);
+      assert.equal((await webhook()).status, 404);
       assert.equal(globalThis.storeFixture.calls.length, 0);
     });
   } finally {

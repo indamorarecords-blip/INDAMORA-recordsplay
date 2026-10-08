@@ -41,7 +41,7 @@ router.post(
   },
   express.raw({ type: "application/json", limit: "128kb" }),
   async (req, res): Promise<void> => {
-    const secret = process.env.STRIPE_STORE_TEST_WEBHOOK_SECRET;
+    const secret = process.env.STRIPE_BOUTIQUE_TEST_WEBHOOK_SECRET;
     if (!secret?.startsWith("whsec_")) {
       res.status(503).json({ error: "Le webhook Boutique TEST n’est pas configuré." });
       return;
