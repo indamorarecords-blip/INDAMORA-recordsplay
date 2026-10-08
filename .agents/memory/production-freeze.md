@@ -17,4 +17,4 @@ La préparation de la Boutique INDAMORA PLAY est autorisée uniquement en dével
 
 **Why:** L’utilisateur a expressément séparé la nouvelle Boutique en TEST des parties stables du site, de Gift Card, de la PWA et d’Expo / React Native.
 
-**How to apply:** Isoler les ajouts Boutique sans remplacer la configuration Stripe existante de Premium et des dons. Toute activation LIVE, publication ou modification du schéma exige une nouvelle autorisation explicite.
+**How to apply:** Isoler les ajouts Boutique et utiliser exclusivement des identifiants Stripe TEST dédiés stockés dans les Secrets Replit, sans modifier, remplacer ou supprimer les clés de Premium et des dons. Toute activation LIVE, publication ou modification du schéma exige une nouvelle autorisation explicite.
