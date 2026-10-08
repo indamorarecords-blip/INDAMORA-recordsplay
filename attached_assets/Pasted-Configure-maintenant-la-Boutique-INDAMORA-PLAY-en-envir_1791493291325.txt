@@ -1,0 +1,136 @@
+Configure maintenant la Boutique INDAMORA PLAY en environnement TEST uniquement, tout en me permettant de visualiser et tester la page complète avant toute mise en production.
+
+1. PAGE BOUTIQUE — APERÇU
+
+Je veux pouvoir ouvrir et visualiser immédiatement la page Boutique dans le Preview Replit.
+
+Afficher une page professionnelle, mobile-first et cohérente avec INDAMORA PLAY.
+
+Conserver l’identité visuelle existante :
+
+* fond noir / sombre
+* blanc dominant
+* accents rouge, jaune, vert et bleu avec parcimonie
+* style premium, moderne, musical et streetwear
+* logo officiel INDAMORA PLAY uniquement
+* ne pas redessiner ou modifier le logo
+
+Afficher la présentation Boutique déjà validée, notamment :
+« PLUS QU’UNE BOUTIQUE : UN GESTE POUR NOS TALENTS »
+
+Présenter clairement les produits :
+
+* T-shirt — 15 €
+* Casquette — 15 €
+* Bob — 15 €
+* Tote bag — 15 €
+* Coque de téléphone — 15 €
+
+Je fournirai les images des produits et le QR code officiel.
+Utiliser exclusivement les images et le QR code que je fournis.
+Ne pas générer de faux modèles, de faux QR codes ou de nouvelles images à leur place.
+
+2. PANIER
+
+Permettre de tester le panier :
+
+* ajout d’un produit
+* quantité
+* suppression
+* sous-total
+* livraison
+* total
+* passage vers Checkout
+
+Prix :
+1 produit = 15 €
+
+3. LIVRAISON TEST
+
+France :
+0 €
+
+Union européenne :
+7 €
+
+Europe hors Union européenne :
+Nous contacter
+
+Reste du monde :
+Nous contacter
+
+Ne pas inventer de tarif pour les zones « Nous contacter ».
+
+4. STRIPE CHECKOUT — TEST UNIQUEMENT
+
+Utiliser exclusivement le Secret Replit :
+
+STRIPE_BOUTIQUE_TEST_SECRET_KEY
+
+Cette clé est déjà configurée et commence par sk_test_.
+
+Utiliser Stripe Checkout pour les paiements TEST.
+
+IMPORTANT :
+
+* aucun paiement réel
+* aucune clé sk_live_
+* ne jamais modifier les clés Premium ou dons
+* ne jamais afficher la clé secrète côté client
+* aucun stockage de carte bancaire
+* utiliser uniquement l’environnement Stripe TEST
+* conserver les moyens de paiement dynamiques Stripe
+* utiliser le webhook Stripe nécessaire au suivi du paiement TEST
+* ne considérer une commande comme payée qu’après confirmation serveur appropriée
+
+5. CE QUE JE VEUX POUVOIR TESTER
+
+Depuis le Preview Replit, je dois pouvoir :
+
+Boutique → choisir un produit → ajouter au panier → voir le panier → choisir la destination → voir les frais → voir le total → cliquer sur Checkout → arriver sur Stripe Checkout TEST.
+
+Je veux également pouvoir revenir sur le site après le test.
+
+Utiliser uniquement les moyens de paiement de test Stripe.
+
+6. SÉCURITÉ / GEL PRODUCTION
+
+NE PAS modifier :
+
+* le Stripe Premium
+* le Stripe des dons
+* la PWA actuellement validée
+* Gift Card
+* les routes publiques existantes
+* la base de données existante, sauf nécessité strictement liée au fonctionnement TEST de la Boutique
+* les données de production
+* les dépendances existantes
+
+Ne pas remplacer une configuration Stripe existante.
+
+7. ABSOLUMENT PAS DE PRODUCTION
+
+À cette étape :
+
+PAS DE Publish.
+PAS DE Deploy.
+PAS de migration.
+PAS de paiement réel.
+PAS de mise en production.
+
+Tout doit rester en TEST / Preview Replit.
+
+Avant toute action qui pourrait modifier ou publier la production, demander explicitement mon autorisation.
+
+8. RÉSULTAT ATTENDU
+
+À la fin, donne-moi simplement :
+
+1. l’URL du Preview Replit permettant de voir la page Boutique ;
+2. confirmation que la page Boutique s’affiche ;
+3. confirmation que le panier fonctionne ;
+4. confirmation que Checkout utilise uniquement Stripe TEST ;
+5. confirmation qu’aucune modification n’a été faite au Stripe Premium/dons ;
+6. confirmation qu’aucun Publish, Deploy ou paiement réel n’a été effectué.
+
+Ne lance aucune action de production.
