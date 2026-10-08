@@ -1,0 +1,12 @@
+INDAMORA PLAY — maquettes préparatoires
+
+30 compositions vectorielles et PNG : 5 catégories × 6 phrases officielles.
+Les T-shirts présentent le devant et le dos dans chaque planche ; les casquettes montrent les références blanche et noire ; les bobs montrent les références rose et noire.
+
+Organisation : tshirts/, tote-bags/, caps/, bobs/, phone-cases/. Les fichiers SVG sont autonomes : les photographies, le logo et le fichier QR source sont incorporés. Les PNG sont rendus à 1800 × 1260 px.
+
+Les images originales restent inchangées. Le visuel QR source a été copié octet pour octet et incorporé sans retouche (l’image est affichée à une échelle réduite dans les composites). Il n’a pas été possible d’exécuter un scan de décodage dans cet environnement ; son URL et sa scannabilité ne sont donc pas certifiées ici.
+
+Les zones de composition qui recouvrent les inscriptions déjà visibles sur certains modèles servent à présenter les phrases officielles sans retoucher les photographies d’origine. Les maquettes sont des propositions graphiques ; la taille physique, les zones imprimables et la lisibilité à l’impression restent à valider sur échantillon.
+
+Aucun changement à l’application, à Stripe, à la base de données, au PWA, à Gift Card, à la production ou à son code. Aucun Publish ni Deploy n’a été lancé.
