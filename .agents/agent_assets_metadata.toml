@@ -1,0 +1,16 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "K08r4qzKmcl6RuPr09nAs"
+uri = "file://outputs/mobile-test/indamora-play-expo-go-https.png"
+type = "image"
+title = "INDAMORA PLAY Mobile — QR HTTPS de TEST"
+description = "QR exps:// pour ouvrir le serveur de développement HTTPS dans Expo Go, sans publication ni modification de l’application. Android/iPhone à confirmer sur appareils réels ; le workflow Expo doit rester actif."
+logical_id = "d1e5054d-38e7-43db-a4b5-783c67c22215"
+content_hash = "sha256:cf31157495557a712f63511002f176a0cbe0b0d2046dc88d7746f064a2175624"
+size = 7404
+mtime_ms = 1791479945957
+storage_uri = "gcs://replit-rams-assets-kira/rams/assets/repl:ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd/d1e5054d-38e7-43db-a4b5-783c67c22215/903fc8da-8582-48f1-b63d-151dde30b193"
+storage_version_token = "1791479980368517"
+content_type = "image/png"
