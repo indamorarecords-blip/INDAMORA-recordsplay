@@ -1,0 +1,75 @@
+INDAMORA PLAY — Corriger et livrer le pack complet de mockups PNG
+
+Le pack complet PNG que tu as créé ne s’ouvre pas correctement sur mon téléphone. Je souhaite recevoir des fichiers accessibles, téléchargeables et vérifiés, sans devoir manipuler le code.
+
+1. Diagnostiquer le problème
+
+* Vérifier où se trouvent réellement les fichiers PNG générés.
+* Identifier pourquoi le pack actuel ne s’ouvre pas.
+* Vérifier que les images existent, ne sont pas vides et sont dans un format PNG valide.
+* Ne pas me renvoyer les mêmes liens défectueux.
+* Ne pas inventer de chemins de fichiers ou de liens de téléchargement.
+
+2. Recréer le pack complet si nécessaire
+
+Préparer un dossier contenant les mockups finalisés de tous les produits :
+
+* T-shirts — vues avant et arrière.
+* Casquettes.
+* Bobs.
+* Tote bags.
+* Coques de téléphone.
+* Variantes BANGUI SOCIETY et SANGO SOCIETY.
+* QR code officiel pointant vers https://indamoraplay.com.
+
+Utiliser les images de produits et le logo officiel que j’ai fournis. Ne pas remplacer mes modèles par des images inventées. Ne pas déformer le logo. Ne pas générer un QR code vers Linktree.
+
+Si certains fichiers sources sont manquants ou inaccessibles, me le signaler clairement plutôt que d’inventer les images.
+
+3. Formats compatibles avec mon téléphone
+
+Créer des fichiers PNG standards, en haute résolution, compatibles avec les visionneuses d’images Android et iPhone.
+
+* Un PNG indépendant par mockup.
+* Des noms de fichiers simples, sans caractères spéciaux.
+* Vérifier que chaque PNG s’ouvre correctement.
+* Vérifier que chaque image a une taille non nulle et un contenu visible.
+* Ne pas fournir uniquement des fichiers de code, des chemins internes ou des aperçus temporaires.
+
+4. Fournir un pack ZIP téléchargeable
+
+Créer également une archive :
+
+INDAMORA_PLAY_MOCKUPS_COMPLET.zip
+
+Elle doit contenir :
+
+* Tous les mockups PNG.
+* Le QR code officiel PNG.
+* Un fichier LISEZ-MOI.txt indiquant le contenu du pack.
+
+Vérifier que l’archive ZIP est valide et que les PNG peuvent être extraits et ouverts.
+
+5. Me donner des liens qui fonctionnent
+
+À la fin, fournir directement dans la réponse :
+
+1. Un lien de téléchargement du ZIP complet.
+2. Des liens individuels vers les PNG principaux.
+3. Le nombre exact de fichiers inclus.
+4. La confirmation que les fichiers ont été vérifiés.
+
+Les liens doivent pointer vers des fichiers réellement créés et accessibles depuis mon interface Replit ou mon téléphone. Si Replit ne peut pas fournir de lien de téléchargement direct, expliquer précisément où appuyer pour télécharger les fichiers depuis son interface.
+
+Ne pas me demander de copier du code ou d’utiliser le terminal.
+
+6. Protéger le projet existant
+
+Cette tâche concerne uniquement la livraison des fichiers de mockups.
+
+* Aucun Publish ou Deploy.
+* Aucune modification du site en production.
+* Aucune modification de Stripe, Premium, des dons, des webhooks, de Gift Card, de la PWA ou de la base de données.
+* Aucun service payant.
+
+Objectif : je veux pouvoir appuyer sur le lien depuis mon téléphone, télécharger le pack complet et ouvrir les images immédiatement.
