@@ -1,0 +1,119 @@
+OBJECTIF : faire fonctionner le test de INDAMORA PLAY MOBILE gratuitement, avec un budget de 0 €, sur Android et iPhone, sans publication dans les stores pour le moment.
+
+⚠️ CONSIGNE ABSOLUE : NE PAS TOUCHER AU SITE INDAMORA PLAY ACTUEL.
+
+Le site INDAMORA PLAY est actuellement stable et gelé.
+
+INTERDICTIONS
+
+Ne pas :
+
+* modifier le site web actuel ;
+* modifier les fonctionnalités existantes ;
+* modifier le design existant ;
+* modifier les routes de production ;
+* modifier les API existantes ;
+* modifier la base de données ;
+* modifier les données de production ;
+* modifier la Gift Card ;
+* modifier proxy-addr@2.0.8 ;
+* ajouter un service payant ;
+* créer un abonnement payant ;
+* acheter un domaine supplémentaire ;
+* publier sur l’App Store ;
+* publier sur Google Play ;
+* lancer Publish ;
+* lancer Deploy ;
+* effectuer une migration ;
+* modifier les dépendances existantes sauf si une modification est absolument nécessaire au fonctionnement du TEST MOBILE.
+
+OBJECTIF TECHNIQUE
+
+Le problème actuellement identifié est :
+
+* l’aperçu Replit fonctionne ;
+* le serveur Expo fonctionne ;
+* les bundles sont accessibles en HTTPS ;
+* le QR code généré utilise exp:// ;
+* la connexion HTTP correspondante sur le domaine Expo échoue avec ECONNREFUSED.
+
+Je veux que tu recherches une solution permettant de tester INDAMORA PLAY MOBILE gratuitement sur un appareil réel.
+
+IMPORTANT
+
+Ne corrige pas au hasard.
+
+Commence par déterminer si le problème vient :
+
+* du protocole exp:// ;
+* du tunnel Expo ;
+* de la configuration réseau Replit ;
+* du port utilisé ;
+* de l’URL générée dans le QR code ;
+* d’une incompatibilité entre Expo Go et l’environnement Replit ;
+* ou d’une autre cause réellement démontrée.
+
+SOLUTION GRATUITE PRIORITAIRE
+
+Cherche en priorité une solution permettant :
+
+Replit → Expo → téléphone Android/iPhone → Expo Go
+
+sans :
+
+* abonnement ;
+* serveur payant ;
+* service cloud payant ;
+* publication App Store ;
+* publication Google Play.
+
+Si une solution gratuite existe avec Expo Go, utilise-la.
+
+Si le QR exp:// généré par l’environnement actuel ne peut pas fonctionner correctement à cause des restrictions réseau de Replit, ne force pas une modification dangereuse.
+
+Dans ce cas, indique clairement la limitation et propose uniquement une alternative gratuite et sûre.
+
+PWA
+
+Vérifie également si le projet possède déjà les éléments nécessaires à une PWA.
+
+Si la PWA existe déjà ou peut être utilisée sans modifier la production, indique comment la tester gratuitement sur Android et iPhone.
+
+⚠️ Ne transforme pas le projet en PWA et ne modifie pas le site actuel sans mon autorisation.
+
+VALIDATION
+
+Je veux uniquement un diagnostic et, si possible, une correction minimale dans l’environnement MOBILE/TEST.
+
+Après toute correction autorisée, vérifier :
+
+1. Expo démarre.
+2. Metro démarre.
+3. Le bundle Android est accessible.
+4. Le bundle iOS est accessible.
+5. Le QR code généré est cohérent avec le protocole réellement accessible.
+6. Le test peut être effectué gratuitement.
+7. Aucune modification n’a été faite au site principal.
+8. Aucune modification n’a été faite à la Gift Card.
+9. Aucun paiement n’est nécessaire.
+10. Aucun Publish ou Deploy n’a été lancé.
+
+RÈGLE DE SÉCURITÉ
+
+Si la résolution nécessite de modifier le site principal, la production, les API existantes, la base de données, les dépendances critiques ou la configuration de déploiement :
+
+ARRÊTE-TOI ET DEMANDE-MOI CONFIRMATION.
+
+Ne fais aucune modification dans ce cas.
+
+À la fin, indique clairement :
+
+* cause du problème ;
+* solution gratuite possible ;
+* fichiers modifiés, s’il y en a ;
+* fichiers non modifiés ;
+* coût : 0 € ;
+* résultat du test Android ;
+* résultat du test iPhone ;
+* confirmation qu’aucun Publish/Deploy n’a été lancé ;
+* confirmation que le site INDAMORA PLAY actuel reste exactement dans son état précédent.
