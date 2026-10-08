@@ -1,0 +1,471 @@
+INDAMORA PLAY — PAGE DE VENTE + INTÉGRATION STRIPE
+
+OBJECTIF
+
+Créer / mettre en place la page de vente INDAMORA PLAY – Boutique, avec une présentation professionnelle, moderne, mobile-first et cohérente avec l’identité actuelle d’INDAMORA PLAY.
+
+La boutique doit être reliée à Stripe Checkout pour permettre les paiements en ligne.
+
+⚠️ IMPORTANT :
+
+* commencer en environnement Stripe TEST ;
+* aucun paiement réel ne doit être activé sans confirmation explicite de ma part ;
+* aucune publication ou mise en production automatique ;
+* ne pas modifier les autres parties stables du site.
+
+⸻
+
+1. TEXTE DE PRÉSENTATION DE LA BOUTIQUE
+
+Utiliser exactement ce contenu comme base éditoriale :
+
+PLUS QU’UNE BOUTIQUE : UN GESTE POUR NOS TALENTS
+
+INDAMORA PLAY est un projet porté par INDAMORA RECORDS, une association engagée dans la promotion, la diffusion et l’accompagnement de projets musicaux et artistiques, avec une attention particulière portée aux artistes émergents et indépendants.
+
+À travers INDAMORA PLAY, notre ambition est de créer un espace où les talents peuvent être découverts, écoutés, mis en lumière et valorisés, en donnant une place aux artistes et créateurs issus d’Afrique, de la diaspora et de différents horizons.
+
+Parce que derrière chaque artiste, chaque créateur et chaque projet, il y a du travail, une histoire, une identité et souvent un rêve qui mérite d’avoir une chance.
+
+🛍️ ACHETER INDAMORA PLAY, C’EST AUSSI SOUTENIR CET ÉCOSYSTÈME
+
+Les produits proposés sur cette boutique sont pensés comme des produits de soutien et d’appartenance à l’univers INDAMORA PLAY.
+
+Chaque achat contribue au développement de l’écosystème INDAMORA, notamment à la création de contenus, à la visibilité des artistes et créateurs, ainsi qu’au développement des projets culturels et artistiques portés par INDAMORA RECORDS.
+
+Notre objectif est simple : faire circuler les talents, les histoires et les cultures au-delà des frontières.
+
+🌍 De l’Afrique à la diaspora.
+De l’Europe aux États-Unis.
+Et partout où les talents veulent être entendus.
+
+💛 VOTRE ACHAT A DU SENS
+
+Vous n’achetez pas seulement un T-shirt, une casquette, un bob, un tote bag ou une coque.
+
+Vous choisissez de porter une identité.
+
+Vous choisissez de soutenir une initiative indépendante.
+
+Vous choisissez de contribuer, à votre manière, à un écosystème qui veut donner davantage de visibilité aux talents émergents.
+
+INDAMORA PLAY — La voix de nos talents.
+
+💶 UN PRIX SIMPLE ET ACCESSIBLE
+
+Chaque produit est proposé à 15 €.
+
+Pas de prix compliqué.
+Pas de formule obligatoire.
+
+Un produit → 15 €.
+
+L’idée est de permettre au plus grand nombre de participer et de soutenir le projet tout en portant l’univers INDAMORA PLAY au quotidien.
+
+🌍 ENSEMBLE, DONNONS UNE VOIX AUX TALENTS DE DEMAIN
+
+Chaque artiste mérite une chance d’être entendu.
+
+Chaque créateur mérite d’être découvert.
+
+Chaque culture mérite d’être valorisée.
+
+INDAMORA PLAY est notre façon de contribuer à cette visibilité, en créant des passerelles entre l’Afrique, la diaspora et le reste du monde.
+
+Merci à toutes celles et ceux qui portent le projet, le partagent, l’écoutent, le soutiennent et croient aux talents.
+
+INDAMORA PLAY × INDAMORA RECORDS
+La voix de nos talents.
+
+⸻
+
+2. PRODUITS À AFFICHER
+
+Pour la première version de la boutique, afficher uniquement :
+
+T-shirt INDAMORA PLAY
+
+15 €
+
+Casquette INDAMORA PLAY
+
+15 €
+
+Bob INDAMORA PLAY
+
+15 €
+
+Tote bag INDAMORA PLAY
+
+15 €
+
+Coque téléphone INDAMORA PLAY
+
+15 €
+
+Ne pas ajouter pour le moment :
+
+* cartes ;
+* stickers ;
+* packs ;
+* Gift Card ;
+* autres produits.
+
+⸻
+
+3. IDENTITÉ DES PRODUITS
+
+Utiliser le logo officiel INDAMORA PLAY déjà présent dans le projet.
+
+Ne pas redessiner, modifier ou recréer le logo.
+
+Pour les produits officiels, conserver une identité sobre et premium.
+
+Le QR code utilisé sur les produits doit pointer vers :
+
+https://indamoraplay.com
+
+⚠️ Le QR code ne doit jamais pointer vers le profil individuel d’un artiste.
+
+⸻
+
+4. LIVRAISON
+
+Afficher clairement les conditions suivantes :
+
+🇫🇷 France
+
+Livraison gratuite
+
+🇪🇺 Europe
+
+7 € de livraison
+
+Délai indicatif :
+3 à 4 jours
+
+🌍 Reste du monde
+
+Pour les commandes hors France et Europe :
+
+Contactez-nous avant de commander afin de connaître les modalités et frais de livraison.
+
+WhatsApp :
++33 7 80 11 88 69
+
+Email :
+indamorarecords@gmail.com
+
+Ne jamais inventer un tarif de livraison pour le reste du monde.
+
+⸻
+
+5. PANIER
+
+Créer un panier simple permettant :
+
+* ajouter un produit ;
+* modifier la quantité ;
+* supprimer un produit ;
+* afficher le sous-total ;
+* afficher les frais de livraison ;
+* afficher le total ;
+* passer au paiement.
+
+La boutique doit être parfaitement utilisable sur téléphone.
+
+⸻
+
+6. RÈGLE DE LIVRAISON
+
+Prévoir cette logique :
+
+France :
+0 €
+
+Europe :
+7 €
+
+Reste du monde :
+ne pas permettre un calcul automatique erroné.
+
+Afficher un message invitant le client à contacter INDAMORA RECORDS avant commande.
+
+Si la localisation/pays du client n’est pas suffisamment fiable pour déterminer la zone, demander explicitement le pays à l’étape de commande.
+
+⸻
+
+7. STRIPE
+
+Intégrer Stripe Checkout pour les paiements.
+
+IMPORTANT :
+
+Utiliser l’intégration Stripe moderne recommandée.
+
+Pour les paiements uniques de produits :
+Checkout Sessions API.
+
+Ne pas utiliser :
+
+* Charges API ;
+* ancienne intégration Card Element ;
+* système de paiement développé maison ;
+* stockage de données de carte bancaire dans notre application.
+
+Utiliser Stripe Checkout afin que les informations de paiement soient traitées par Stripe.
+
+Ne pas transmettre ni stocker de numéro de carte bancaire dans l’application.
+
+Ne pas utiliser payment_method_types en dur : laisser Stripe gérer les moyens de paiement dynamiques disponibles.
+
+⸻
+
+8. STRIPE TEST EN PREMIER
+
+Avant toute activation réelle :
+
+Configurer uniquement le mode TEST.
+
+Utiliser les variables d’environnement sécurisées pour les clés Stripe.
+
+NE JAMAIS écrire une clé secrète Stripe directement dans le code.
+
+NE JAMAIS afficher une clé secrète dans le frontend.
+
+NE JAMAIS committer de clé Stripe dans Git.
+
+Si une clé Stripe n’est pas disponible, NE PAS inventer de clé.
+
+Dans ce cas, préparer proprement l’intégration et indiquer exactement quelle variable d’environnement doit être renseignée.
+
+⸻
+
+9. WEBHOOK STRIPE
+
+Prévoir un endpoint webhook sécurisé pour Stripe.
+
+Le webhook doit :
+
+* vérifier la signature Stripe ;
+* traiter les événements de paiement pertinents ;
+* confirmer qu’un paiement est réellement payé avant de considérer une commande comme payée ;
+* éviter les doubles traitements ;
+* permettre plus tard de gérer proprement les commandes et la préparation des livraisons.
+
+Prévoir notamment les événements Checkout pertinents, dont :
+
+checkout.session.completed
+
+et les événements de paiement asynchrone lorsque nécessaire.
+
+Ne pas considérer simplement la page « paiement réussi » comme preuve suffisante d’un paiement.
+
+⸻
+
+10. COMMANDES
+
+Préparer une structure propre permettant plus tard de conserver :
+
+* numéro de commande ;
+* produits ;
+* quantités ;
+* montant ;
+* frais de livraison ;
+* total ;
+* pays ;
+* informations de livraison ;
+* statut du paiement ;
+* identifiant Stripe ;
+* date de commande.
+
+⚠️ Mais ne modifie pas la base de données existante si cela n’est pas strictement nécessaire.
+
+Si une base de données de commandes existe déjà, la réutiliser.
+
+Si aucune structure n’existe, NE PAS lancer de migration automatiquement sans mon autorisation explicite.
+
+⸻
+
+11. EMAIL DE COMMANDE
+
+Préparer l’architecture pour qu’une confirmation de commande puisse être envoyée après confirmation réelle du paiement.
+
+Ne pas inventer de service email payant.
+
+Ne pas ajouter d’abonnement payant.
+
+Si aucun système email n’existe actuellement, indiquer simplement ce qui serait nécessaire plus tard.
+
+⸻
+
+12. DESIGN
+
+La boutique doit respecter l’identité actuelle INDAMORA PLAY :
+
+* premium ;
+* moderne ;
+* musical ;
+* contemporain ;
+* africain/international sans être folklorique ;
+* mobile-first ;
+* élégant ;
+* très lisible.
+
+Palette existante à respecter :
+
+* #090909
+* #111111
+* #181818
+* #FFFFFF
+* #B8B8B8
+* #D92525
+* #F2C230
+* #168447
+* #1689C7
+
+Le noir et blanc restent dominants.
+
+Ne pas refaire le design général du site.
+
+Réutiliser les composants et styles existants lorsque possible.
+
+⸻
+
+13. PAGE MOBILE
+
+La page doit être parfaitement utilisable sur :
+
+* smartphone ;
+* tablette ;
+* ordinateur.
+
+Sur mobile :
+
+* produits clairement visibles ;
+* prix immédiatement visibles ;
+* bouton « Ajouter au panier » facilement accessible ;
+* panier facilement accessible ;
+* checkout simple ;
+* informations de livraison faciles à comprendre.
+
+⸻
+
+14. SÉCURITÉ
+
+Ne jamais exposer :
+
+* clé secrète Stripe ;
+* secrets serveur ;
+* credentials ;
+* webhook secret.
+
+Utiliser uniquement les variables d’environnement sécurisées de Replit.
+
+Ne pas stocker les données bancaires des clients.
+
+⸻
+
+15. PRODUCTION GELÉE
+
+Ceci est extrêmement important.
+
+NE PAS modifier :
+
+* les pages existantes hors Boutique ;
+* les routes existantes hors nécessité stricte ;
+* les API existantes ;
+* la base de données existante ;
+* l’authentification ;
+* les fonctionnalités existantes ;
+* le design général ;
+* Gift Card ;
+* Expo / React Native ;
+* PWA existante ;
+* Boutique déjà préparée si elle existe.
+
+Conserver impérativement :
+
+proxy-addr@2.0.8
+
+Ne pas mettre à jour ou remplacer cette version.
+
+⸻
+
+16. AUCUN PUBLISH / DEPLOY
+
+Pendant cette mission :
+
+* pas de Publish ;
+* pas de Deploy ;
+* pas de migration ;
+* pas d’export ;
+* pas de mise en production.
+
+Tout doit être testé en Preview / environnement de test.
+
+La mise en production et l’activation des paiements réels nécessiteront mon autorisation explicite.
+
+⸻
+
+17. TESTS OBLIGATOIRES
+
+Tester au minimum :
+
+1. ouverture de la page Boutique ;
+2. affichage des 5 produits ;
+3. prix à 15 € ;
+4. ajout au panier ;
+5. modification des quantités ;
+6. suppression d’un produit ;
+7. calcul du sous-total ;
+8. France = livraison 0 € ;
+9. Europe = livraison 7 € ;
+10. reste du monde = contact ;
+11. création d’une session Stripe TEST ;
+12. ouverture correcte de Stripe Checkout TEST ;
+13. retour après paiement TEST ;
+14. webhook Stripe TEST ;
+15. aucune clé secrète exposée ;
+16. aucune régression sur le reste du site.
+
+Utiliser uniquement des paiements de TEST.
+
+⸻
+
+18. RAPPORT FINAL
+
+À la fin, indique clairement :
+
+BOUTIQUE
+
+* page créée/modifiée ;
+* 5 produits affichés ;
+* panier fonctionnel ;
+* livraison France ;
+* livraison Europe ;
+* gestion reste du monde.
+
+STRIPE
+
+* intégration TEST : OUI/NON ;
+* Checkout : OUI/NON ;
+* webhook : OUI/NON ;
+* variables d’environnement nécessaires ;
+* aucun secret exposé : OUI/NON.
+
+PRODUCTION
+
+Confirmer explicitement :
+
+* site existant préservé ;
+* Gift Card non modifiée ;
+* PWA non modifiée sauf nécessité absolue ;
+* Expo/React Native non modifié ;
+* proxy-addr@2.0.8 préservé ;
+* base de données non modifiée ou préciser exactement toute modification ;
+* aucune publication ;
+* aucun Deploy ;
+* aucun paiement réel activé.
+
+Si une information ou une clé est nécessaire avant de continuer, STOPPER et me demander explicitement au lieu d’inventer une valeur.

@@ -35,11 +35,16 @@ import type {
   GetAdminAnalyticsParams,
   GetAdminUsersParams,
   GetArtistsParams,
+  GetStoreCheckoutStatusParams,
   GetSubmissionsParams,
   HealthStatus,
   PageviewInput,
   PressRequest,
   PressRequestInput,
+  StoreCatalog,
+  StoreCheckout,
+  StoreCheckoutInput,
+  StoreCheckoutStatus,
   StripeWebhookPayload,
   Submission,
   SubmissionInput,
@@ -605,6 +610,238 @@ export const useCreateBillingPortal = <TError = ErrorType<void>,
       > => {
       return useMutation(getCreateBillingPortalMutationOptions(options));
     }
+
+export const getGetStoreCatalogUrl = () => {
+
+
+
+
+  return `/api/store/catalog`
+}
+
+/**
+ * @summary Read the five-product INDAMORA PLAY storefront catalog
+ */
+export const getStoreCatalog = async ( options?: Parameters<typeof customFetch>[1]): Promise<StoreCatalog> => {
+
+  return customFetch<StoreCatalog>(getGetStoreCatalogUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetStoreCatalogQueryKey = () => {
+    return [
+    `/api/store/catalog`
+    ] as const;
+    }
+
+
+export const getGetStoreCatalogQueryOptions = <TData = Awaited<ReturnType<typeof getStoreCatalog>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStoreCatalog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetStoreCatalogQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getStoreCatalog>>> = ({ signal }) => getStoreCatalog({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getStoreCatalog>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetStoreCatalogQueryResult = NonNullable<Awaited<ReturnType<typeof getStoreCatalog>>>
+export type GetStoreCatalogQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Read the five-product INDAMORA PLAY storefront catalog
+ */
+
+export function useGetStoreCatalog<TData = Awaited<ReturnType<typeof getStoreCatalog>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStoreCatalog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetStoreCatalogQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateStoreCheckoutUrl = () => {
+
+
+
+
+  return `/api/store/checkout`
+}
+
+/**
+ * @summary Create a TEST-mode one-time Stripe Checkout for store items
+ */
+export const createStoreCheckout = async (storeCheckoutInput: StoreCheckoutInput, options?: Parameters<typeof customFetch>[1]): Promise<StoreCheckout> => {
+
+  return customFetch<StoreCheckout>(getCreateStoreCheckoutUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(storeCheckoutInput)
+  }
+);}
+
+
+
+
+
+export const getCreateStoreCheckoutMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createStoreCheckout>>, TError,{data: BodyType<StoreCheckoutInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createStoreCheckout>>, TError,{data: BodyType<StoreCheckoutInput>}, TContext> => {
+
+const mutationKey = ['createStoreCheckout'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createStoreCheckout>>, {data: BodyType<StoreCheckoutInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createStoreCheckout(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateStoreCheckoutMutationResult = NonNullable<Awaited<ReturnType<typeof createStoreCheckout>>>
+    export type CreateStoreCheckoutMutationBody = BodyType<StoreCheckoutInput>
+    export type CreateStoreCheckoutMutationError = ErrorType<void>
+
+    /**
+ * @summary Create a TEST-mode one-time Stripe Checkout for store items
+ */
+export const useCreateStoreCheckout = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createStoreCheckout>>, TError,{data: BodyType<StoreCheckoutInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createStoreCheckout>>,
+        TError,
+        {data: BodyType<StoreCheckoutInput>},
+        TContext
+      > => {
+      return useMutation(getCreateStoreCheckoutMutationOptions(options));
+    }
+
+export const getGetStoreCheckoutStatusUrl = (params: GetStoreCheckoutStatusParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/store/checkout/status?${stringifiedParams}` : `/api/store/checkout/status`
+}
+
+/**
+ * @summary Verify a completed store Checkout with Stripe, not the browser return URL
+ */
+export const getStoreCheckoutStatus = async (params: GetStoreCheckoutStatusParams, options?: Parameters<typeof customFetch>[1]): Promise<StoreCheckoutStatus> => {
+
+  return customFetch<StoreCheckoutStatus>(getGetStoreCheckoutStatusUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetStoreCheckoutStatusQueryKey = (params?: GetStoreCheckoutStatusParams,) => {
+    return [
+    `/api/store/checkout/status`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetStoreCheckoutStatusQueryOptions = <TData = Awaited<ReturnType<typeof getStoreCheckoutStatus>>, TError = ErrorType<void>>(params: GetStoreCheckoutStatusParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStoreCheckoutStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetStoreCheckoutStatusQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getStoreCheckoutStatus>>> = ({ signal }) => getStoreCheckoutStatus(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getStoreCheckoutStatus>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetStoreCheckoutStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getStoreCheckoutStatus>>>
+export type GetStoreCheckoutStatusQueryError = ErrorType<void>
+
+
+/**
+ * @summary Verify a completed store Checkout with Stripe, not the browser return URL
+ */
+
+export function useGetStoreCheckoutStatus<TData = Awaited<ReturnType<typeof getStoreCheckoutStatus>>, TError = ErrorType<void>>(
+ params: GetStoreCheckoutStatusParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getStoreCheckoutStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetStoreCheckoutStatusQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getReceiveStripeWebhookUrl = () => {
 

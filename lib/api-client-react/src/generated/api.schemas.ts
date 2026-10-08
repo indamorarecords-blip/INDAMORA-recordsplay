@@ -151,6 +151,94 @@ export interface BillingCheckout {
   url: string;
 }
 
+export type StoreSku = typeof StoreSku[keyof typeof StoreSku];
+
+
+export const StoreSku = {
+  tshirt: 'tshirt',
+  cap: 'cap',
+  bob: 'bob',
+  'tote-bag': 'tote-bag',
+  'phone-case': 'phone-case',
+} as const;
+
+export interface StoreProduct {
+  sku: StoreSku;
+  name: string;
+  priceCents: 1500;
+  available: boolean;
+}
+
+export type StoreCatalogMode = typeof StoreCatalogMode[keyof typeof StoreCatalogMode];
+
+
+export const StoreCatalogMode = {
+  test: 'test',
+} as const;
+
+export interface StoreCatalog {
+  mode: StoreCatalogMode;
+  checkoutAvailable: boolean;
+  /** @nullable */
+  message?: string | null;
+  /**
+     * @minItems 5
+     * @maxItems 5
+     */
+  products: StoreProduct[];
+}
+
+export interface StoreCheckoutItem {
+  sku: StoreSku;
+  /**
+     * @minimum 1
+     * @maximum 20
+     */
+  quantity: number;
+}
+
+export interface StoreCheckoutInput {
+  /**
+     * @minItems 1
+     * @maxItems 5
+     */
+  items: StoreCheckoutItem[];
+  /** @pattern ^[A-Z]{2}$ */
+  shippingCountry: string;
+}
+
+export type StoreCheckoutMode = typeof StoreCheckoutMode[keyof typeof StoreCheckoutMode];
+
+
+export const StoreCheckoutMode = {
+  test: 'test',
+} as const;
+
+export interface StoreCheckout {
+  /** @pattern ^cs_test_[A-Za-z0-9_]+$ */
+  sessionId: string;
+  url: string;
+  mode: StoreCheckoutMode;
+}
+
+export type StoreCheckoutStatusStatus = typeof StoreCheckoutStatusStatus[keyof typeof StoreCheckoutStatusStatus];
+
+
+export const StoreCheckoutStatusStatus = {
+  paid: 'paid',
+  pending: 'pending',
+  unpaid: 'unpaid',
+  expired: 'expired',
+} as const;
+
+export interface StoreCheckoutStatus {
+  status: StoreCheckoutStatusStatus;
+  /** @nullable */
+  amountTotalCents: number | null;
+  /** @nullable */
+  currency: string | null;
+}
+
 export interface BillingError {
   error: string;
 }
@@ -459,6 +547,14 @@ start: string;
  * @pattern ^\d{4}-\d{2}-\d{2}$
  */
 end: string;
+};
+
+export type GetStoreCheckoutStatusParams = {
+/**
+ * @minLength 10
+ * @pattern ^cs_test_[A-Za-z0-9_]+$
+ */
+sessionId: string;
 };
 
 export type GetArtistsParams = {

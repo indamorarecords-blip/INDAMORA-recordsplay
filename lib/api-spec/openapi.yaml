@@ -20,6 +20,8 @@ tags:
     description: Public press contact operations
   - name: billing
     description: INDAMORA Premium and Stripe checkout operations
+  - name: store
+    description: INDAMORA PLAY storefront and one-time TEST checkout
   - name: admin
     description: Private administration operations
   - name: Storage
@@ -163,6 +165,66 @@ paths:
           description: Authentication required
         "404":
           description: No Stripe subscription exists for this account
+  /store/catalog:
+    get:
+      operationId: getStoreCatalog
+      tags: [store]
+      summary: Read the five-product INDAMORA PLAY storefront catalog
+      responses:
+        "200":
+          description: Store catalog and TEST checkout readiness
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreCatalog"
+  /store/checkout:
+    post:
+      operationId: createStoreCheckout
+      tags: [store]
+      summary: Create a TEST-mode one-time Stripe Checkout for store items
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StoreCheckoutInput"
+      responses:
+        "200":
+          description: Secure Stripe TEST Checkout URL
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreCheckout"
+        "400":
+          description: Invalid items or unsupported shipping country
+        "503":
+          description: TEST catalog or signed TEST webhook is not ready
+  /store/checkout/status:
+    get:
+      operationId: getStoreCheckoutStatus
+      tags: [store]
+      summary: Verify a completed store Checkout with Stripe, not the browser return URL
+      parameters:
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            type: string
+            pattern: '^cs_test_[A-Za-z0-9_]+$'
+            minLength: 10
+      responses:
+        "200":
+          description: TEST Checkout payment status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreCheckoutStatus"
+        "400":
+          description: Invalid Checkout session id
+        "404":
+          description: No matching INDAMORA PLAY TEST session
+        "503":
+          description: Stripe TEST mode is unavailable
   /stripe/webhook:
     post:
       operationId: receiveStripeWebhook
@@ -701,6 +763,71 @@ components:
       required: [url]
       properties:
         url: { type: string, format: uri }
+    StoreSku:
+      type: string
+      enum: [tshirt, cap, bob, tote-bag, phone-case]
+    StoreProduct:
+      type: object
+      required: [sku, name, priceCents, available]
+      properties:
+        sku:
+          $ref: "#/components/schemas/StoreSku"
+        name: { type: string }
+        priceCents: { type: integer, const: 1500 }
+        available: { type: boolean }
+    StoreCatalog:
+      type: object
+      required: [mode, checkoutAvailable, products]
+      properties:
+        mode:
+          type: string
+          enum: [test]
+        checkoutAvailable: { type: boolean }
+        message: { type: ["string", "null"] }
+        products:
+          type: array
+          minItems: 5
+          maxItems: 5
+          items:
+            $ref: "#/components/schemas/StoreProduct"
+    StoreCheckoutItem:
+      type: object
+      required: [sku, quantity]
+      properties:
+        sku:
+          $ref: "#/components/schemas/StoreSku"
+        quantity: { type: integer, minimum: 1, maximum: 20 }
+    StoreCheckoutInput:
+      type: object
+      required: [items, shippingCountry]
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 5
+          items:
+            $ref: "#/components/schemas/StoreCheckoutItem"
+        shippingCountry:
+          type: string
+          pattern: '^[A-Z]{2}$'
+    StoreCheckout:
+      type: object
+      required: [sessionId, url, mode]
+      properties:
+        sessionId: { type: string, pattern: '^cs_test_[A-Za-z0-9_]+$' }
+        url: { type: string, format: uri }
+        mode:
+          type: string
+          enum: [test]
+    StoreCheckoutStatus:
+      type: object
+      required: [status, amountTotalCents, currency]
+      properties:
+        status:
+          type: string
+          enum: [paid, pending, unpaid, expired]
+        amountTotalCents: { type: ["integer", "null"] }
+        currency: { type: ["string", "null"] }
     BillingError:
       type: object
       required: [error]

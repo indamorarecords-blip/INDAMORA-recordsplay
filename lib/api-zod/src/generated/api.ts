@@ -147,6 +147,75 @@ export const CreateBillingPortalResponse = zod.object({
 
 
 /**
+ * @summary Read the five-product INDAMORA PLAY storefront catalog
+ */
+export const getStoreCatalogResponseProductsMin = 5;
+export const getStoreCatalogResponseProductsMax = 5;
+
+
+
+export const GetStoreCatalogResponse = zod.object({
+  "mode": zod.enum(['test']),
+  "checkoutAvailable": zod.boolean(),
+  "message": zod.string().nullish(),
+  "products": zod.array(zod.object({
+  "sku": zod.enum(['tshirt', 'cap', 'bob', 'tote-bag', 'phone-case']),
+  "name": zod.string(),
+  "priceCents": zod.literal(1500),
+  "available": zod.boolean()
+})).min(getStoreCatalogResponseProductsMin).max(getStoreCatalogResponseProductsMax)
+})
+
+
+/**
+ * @summary Create a TEST-mode one-time Stripe Checkout for store items
+ */
+export const createStoreCheckoutBodyItemsItemQuantityMax = 20;
+
+export const createStoreCheckoutBodyItemsMax = 5;
+
+export const createStoreCheckoutBodyShippingCountryRegExp = new RegExp('^[A-Z]{2}$');
+
+
+export const CreateStoreCheckoutBody = zod.object({
+  "items": zod.array(zod.object({
+  "sku": zod.enum(['tshirt', 'cap', 'bob', 'tote-bag', 'phone-case']),
+  "quantity": zod.number().int().min(1).max(createStoreCheckoutBodyItemsItemQuantityMax)
+})).min(1).max(createStoreCheckoutBodyItemsMax),
+  "shippingCountry": zod.string().regex(createStoreCheckoutBodyShippingCountryRegExp)
+})
+
+export const createStoreCheckoutResponseSessionIdRegExp = new RegExp('^cs_test_[A-Za-z0-9_]+$');
+
+
+export const CreateStoreCheckoutResponse = zod.object({
+  "sessionId": zod.string().regex(createStoreCheckoutResponseSessionIdRegExp),
+  "url": zod.string().url(),
+  "mode": zod.enum(['test'])
+})
+
+
+/**
+ * @summary Verify a completed store Checkout with Stripe, not the browser return URL
+ */
+export const getStoreCheckoutStatusQuerySessionIdMin = 10;
+
+
+export const getStoreCheckoutStatusQuerySessionIdRegExp = new RegExp('^cs_test_[A-Za-z0-9_]+$');
+
+
+export const GetStoreCheckoutStatusQueryParams = zod.object({
+  "sessionId": zod.coerce.string().min(getStoreCheckoutStatusQuerySessionIdMin).regex(getStoreCheckoutStatusQuerySessionIdRegExp)
+})
+
+export const GetStoreCheckoutStatusResponse = zod.object({
+  "status": zod.enum(['paid', 'pending', 'unpaid', 'expired']),
+  "amountTotalCents": zod.number().int().nullable(),
+  "currency": zod.string().nullable()
+})
+
+
+/**
  * The raw request body is verified using the Stripe signature before processing.
  * @summary Receive a signed Stripe webhook event
  */
