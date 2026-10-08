@@ -39,10 +39,11 @@ CREATE INDEX IF NOT EXISTS giftcard_cards_number_idx
 CREATE TABLE IF NOT EXISTS giftcard_partners (
   code TEXT PRIMARY KEY CHECK (code ~ '^[A-Z0-9_-]{2,32}$'),
   display_name TEXT NOT NULL,
-  is_mock BOOLEAN NOT NULL DEFAULT TRUE CHECK (is_mock),
+  is_mock BOOLEAN NOT NULL DEFAULT TRUE,
   enabled BOOLEAN NOT NULL DEFAULT TRUE,
   disclaimer TEXT NOT NULL,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  CONSTRAINT giftcard_partners_is_mock_check CHECK (is_mock IS TRUE)
 );
 
 CREATE TABLE IF NOT EXISTS giftcard_transactions (
