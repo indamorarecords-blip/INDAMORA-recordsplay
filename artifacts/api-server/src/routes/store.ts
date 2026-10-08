@@ -247,7 +247,7 @@ function developmentReturnBase(): string | null {
     ) {
       return null;
     }
-    return `https://${url.hostname}/indamora-play/boutique`;
+    return `https://${url.hostname}/boutique`;
   } catch {
     return null;
   }
@@ -371,7 +371,7 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
         shipping.amountCents,
     });
 
-    let expectedAmountCents = shipping.amountCents;
+    let expectedAmountCents: number = shipping.amountCents;
     input.data.items.forEach((item, index) => {
       const price = readiness.prices.get(item.sku);
       if (!price) {

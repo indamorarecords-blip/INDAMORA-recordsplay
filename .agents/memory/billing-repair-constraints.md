@@ -27,7 +27,7 @@ The owner explicitly authorized testing the opening of real LIVE Checkout sessio
 
 **How to apply:** Use a temporary production-equivalent validation process and isolated test identities rather than changing persistent development settings. Confirm actual session and price `livemode`, stop before payment, and distinguish these checks from a published-build verification.
 
-Keep webhook registration readiness as a diagnostic rather than an additional authorization requirement for opening Checkout.
+For the existing Premium flow, keep webhook registration readiness as a diagnostic rather than an additional authorization requirement for opening Checkout.
 
 **Why:** The owner specifically requested correcting the webhook-related opening blocker without weakening security. Registration discovery is not signature verification; opening an unpaid Checkout does not grant Premium, whose status is verified directly with Stripe.
 

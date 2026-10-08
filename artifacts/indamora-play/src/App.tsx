@@ -1,4 +1,4 @@
-import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { type FormEvent, type ReactNode, lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { ClerkProvider, SignIn, SignUp, useClerk, useUser } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
@@ -33,6 +33,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
 const queryClient = new QueryClient();
+const BoutiqueTestPage = import.meta.env.DEV ? lazy(() => import('./components/boutique-page')) : null;
 const ADMIN_EMAIL = 'indamorarecords@gmail.com';
 const categories = ['Musique', 'Humour', 'Cinéma et vidéos', 'Podcasts', 'Autres créations'];
 const categoryIcons = { Musique: AudioLines, Humour: Sparkles, 'Cinéma et vidéos': Disc3, Podcasts: Mic2, 'Autres créations': Sparkles };
@@ -774,7 +775,7 @@ function NotFound() {
 
 function Router() {
   const [location] = useLocation();
-  return <ErrorBoundary resetKey={location}><Shell><Switch><Route path="/" component={Home} /><Route path="/explorer" component={Explorer} /><Route path="/recherche" component={SearchPage} /><Route path="/categorie/:slug" component={CategoryPage} /><Route path="/oeuvres/:id" component={WorkPage} /><Route path="/repertoire" component={() => <Directory />} /><Route path="/artists" component={() => <Directory />} /><Route path="/artists/:id" component={ArtistProfile} /><Route path="/presse" component={Presse} /><Route path="/submit" component={Submit} /><Route path="/espace-artiste" component={ArtistSpace} /><Route path="/moderation" component={Moderation} /><Route path="/administration" component={AdminDashboard} /><Route path="/pricing" component={Pricing} /><Route path="/soutenir" component={Support} /><Route path="/inscription" component={() => <Redirect to="/sign-up" />} /><Route path="/login" component={() => <Redirect to="/sign-in" />} /><Route path="/profil" component={Profile} /><Route component={NotFound} /></Switch></Shell></ErrorBoundary>;
+  return <ErrorBoundary resetKey={location}><Shell><Switch><Route path="/" component={Home} /><Route path="/explorer" component={Explorer} /><Route path="/recherche" component={SearchPage} /><Route path="/categorie/:slug" component={CategoryPage} /><Route path="/oeuvres/:id" component={WorkPage} /><Route path="/repertoire" component={() => <Directory />} /><Route path="/artists" component={() => <Directory />} /><Route path="/artists/:id" component={ArtistProfile} /><Route path="/presse" component={Presse} /><Route path="/submit" component={Submit} /><Route path="/espace-artiste" component={ArtistSpace} /><Route path="/moderation" component={Moderation} /><Route path="/administration" component={AdminDashboard} /><Route path="/pricing" component={Pricing} /><Route path="/soutenir" component={Support} /><Route path="/inscription" component={() => <Redirect to="/sign-up" />} /><Route path="/login" component={() => <Redirect to="/sign-in" />} /><Route path="/profil" component={Profile} />{BoutiqueTestPage && <Route path="/boutique"><Suspense fallback={<div role="status" className="p-8 text-center">Chargement de la Boutique TEST…</div>}><BoutiqueTestPage /></Suspense></Route>}<Route component={NotFound} /></Switch></Shell></ErrorBoundary>;
 }
 
 function ClerkQueryClientCacheInvalidator() {

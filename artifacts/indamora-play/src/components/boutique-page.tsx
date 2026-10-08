@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'wouter';
 import {
   getGetStoreCheckoutStatusQueryKey,
   useCreateStoreCheckout,
@@ -20,6 +21,7 @@ const STORE_PRODUCTS: ProductInfo[] = [
 ];
 
 const STORAGE_KEY = 'indamora-play-boutique-cart';
+const OFFICIAL_LOGO_URL = `${import.meta.env.BASE_URL}assets/indamora-play-logo.png`;
 const EU_COUNTRIES: Record<string, string> = {
   AT: 'Autriche', BE: 'Belgique', BG: 'Bulgarie', HR: 'Croatie', CY: 'Chypre',
   CZ: 'Tchéquie', DK: 'Danemark', EE: 'Estonie', FI: 'Finlande', DE: 'Allemagne',
@@ -108,7 +110,7 @@ function ProductArt({ product, index }: { product: ProductInfo; index: number })
   return <div className={`bt-product-art ${product.className}`} data-no={`IP / 0${index + 1}`} data-testid={`visual-product-${product.sku}`}>
     <div className="bt-garment">
       <Garment kind={product.className} />
-      <img className="bt-art-logo" src="/assets/indamora-play-logo.png" alt="" aria-hidden="true" />
+      <img className="bt-art-logo" src={OFFICIAL_LOGO_URL} alt="" aria-hidden="true" />
     </div>
   </div>;
 }
@@ -150,7 +152,7 @@ function ReturnState({ sessionId }: { sessionId: string }) {
       {!statusQuery.isLoading && !statusQuery.error && <>
         <p className="bt-status-copy" data-testid="text-checkout-return-detail">{detail}</p>
         <span className="bt-status-tag" data-testid="text-checkout-status">{status ?? 'en attente de vérification'}</span>
-        <p><a href="/boutique" className="bt-status-button" data-testid="link-return-to-boutique">Retourner à la boutique</a></p>
+        <p><Link href="/boutique" className="bt-status-button" data-testid="link-return-to-boutique">Retourner à la boutique</Link></p>
       </>}
       {statusQuery.isLoading && <p className="bt-status-copy">Nous interrogeons le statut réel de la session, pas seulement l’adresse de retour.</p>}
       <div className="bt-return-foot">INDAMORA PLAY · Stripe TEST uniquement · aucun paiement réel</div>
@@ -166,7 +168,7 @@ export function BoutiquePage() {
   const [checkoutError, setCheckoutError] = useState('');
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id') ?? '';
-  const canceled = params.get('canceled') === '1';
+  const canceled = params.get('checkout') === 'cancelled';
 
   useEffect(() => {
     try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); } catch { /* Storage can be disabled. */ }
@@ -214,7 +216,8 @@ export function BoutiquePage() {
       },
     }, {
       onSuccess: (result) => {
-        if (result.mode !== 'test' || !result.url.startsWith('https://')) {
+        const checkoutUrl = new URL(result.url);
+        if (result.mode !== 'test' || !result.sessionId.startsWith('cs_test_') || checkoutUrl.protocol !== 'https:' || checkoutUrl.hostname !== 'checkout.stripe.com') {
           setCheckoutError('Le lien de paiement TEST sécurisé n’a pas pu être validé. Veuillez réessayer plus tard.');
           return;
         }
@@ -229,9 +232,9 @@ export function BoutiquePage() {
   return <main className="boutique" data-testid="page-boutique">
     <div className="bt-topline" />
     <header className="bt-masthead bt-shell">
-      <a href="/boutique" className="bt-brand" aria-label="INDAMORA PLAY Boutique" data-testid="link-boutique-logo">
-        <img src="/assets/indamora-play-logo.png" alt="INDAMORA PLAY — Notre musique. Notre culture. Notre scène." data-testid="img-official-logo" />
-      </a>
+      <Link href="/boutique" className="bt-brand" aria-label="INDAMORA PLAY Boutique" data-testid="link-boutique-logo">
+        <img src={OFFICIAL_LOGO_URL} alt="INDAMORA PLAY — Notre musique. Notre culture. Notre scène." data-testid="img-official-logo" />
+      </Link>
       <div className="bt-masthead-right">
         <span className="bt-header-note">La voix de nos talents</span>
         <a className="bt-cart-jump" href="#panier" data-testid="link-open-cart">
@@ -265,7 +268,7 @@ export function BoutiquePage() {
           <div className="bt-product-grid">
             {STORE_PRODUCTS.map((product, index) => {
               const catalogProduct = catalogProducts.get(product.sku);
-              const available = Boolean(catalogProduct?.available && catalogReady);
+               const available = Boolean(catalogProduct);
               const quantity = cart.find((line) => line.sku === product.sku)?.quantity ?? 0;
               return <article className="bt-product" key={product.sku} data-testid={`card-product-${product.sku}`}>
                 <ProductArt product={product} index={index} />
@@ -285,8 +288,8 @@ export function BoutiquePage() {
           </div>
           <div className="bt-shipping-band" data-testid="section-shipping-rates">
             <div className="bt-ship-cell"><div className="bt-ship-place">France</div><div className="bt-ship-price">Livraison gratuite</div><div className="bt-ship-detail">Délai indicatif : 3 à 4 jours</div></div>
-            <div className="bt-ship-cell"><div className="bt-ship-place">Union européenne</div><div className="bt-ship-price">7 €</div><div className="bt-ship-detail">Frais de livraison par commande</div></div>
-            <div className="bt-ship-cell"><div className="bt-ship-place">Reste du monde</div><div className="bt-ship-price">Sur demande</div><div className="bt-ship-detail">Contactez-nous avant de commander.</div></div>
+            <div className="bt-ship-cell"><div className="bt-ship-place">Union européenne</div><div className="bt-ship-price">7 €</div><div className="bt-ship-detail">Frais de livraison par commande<br />Délai indicatif : 3 à 4 jours</div></div>
+            <div className="bt-ship-cell"><div className="bt-ship-place">Reste du monde</div><div className="bt-ship-price">Sur demande</div><div className="bt-ship-detail">Contactez-nous avant de commander.</div><div className="bt-contact-links"><a href="https://wa.me/33780118869" target="_blank" rel="noreferrer">WhatsApp : +33 7 80 11 88 69</a><a href="mailto:indamorarecords@gmail.com">indamorarecords@gmail.com</a></div></div>
           </div>
         </>}
         {catalogQuery.data?.message && <p className="bt-country-note" role="status" data-testid="text-catalog-message">{catalogQuery.data.message}</p>}
@@ -314,7 +317,7 @@ export function BoutiquePage() {
               <p>INDAMORA PLAY — La voix de nos talents.</p>
             </div>
             <aside className="bt-story-stamp" data-testid="card-editorial-manifesto">
-              <img src="/assets/indamora-play-logo.png" alt="Logo officiel INDAMORA PLAY" />
+               <img src={OFFICIAL_LOGO_URL} alt="Logo officiel INDAMORA PLAY" />
               <div className="bt-stamp-line" />
               <p className="bt-stamp-quote">« Notre musique. Notre culture. Notre scène. »</p>
               <div className="bt-stamp-credit">INDAMORA PLAY × INDAMORA RECORDS</div>

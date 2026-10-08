@@ -12,3 +12,9 @@ La correction de sécurité déjà appliquée pour proxy-addr@2.0.8 doit rester 
 **Why:** L’utilisateur a demandé de conserver la version actuelle stable et gelée.
 
 **How to apply:** Avant toute action susceptible de modifier ou publier la production, demander explicitement confirmation à l’utilisateur. Ne pas considérer une ancienne autorisation de publication comme une autorisation actuelle.
+
+La préparation de la Boutique INDAMORA PLAY est autorisée uniquement en développement / Stripe TEST. Cette demande ne lève pas le gel de production et n’autorise ni paiement réel, ni Publish, ni Deploy, ni migration.
+
+**Why:** L’utilisateur a expressément séparé la nouvelle Boutique en TEST des parties stables du site, de Gift Card, de la PWA et d’Expo / React Native.
+
+**How to apply:** Isoler les ajouts Boutique sans remplacer la configuration Stripe existante de Premium et des dons. Toute activation LIVE, publication ou modification du schéma exige une nouvelle autorisation explicite.
