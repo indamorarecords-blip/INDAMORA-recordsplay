@@ -70,3 +70,101 @@ mtime_ms = 1791496968076
 storage_uri = "gcs://replit-rams-assets-kira/rams/assets/repl:ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd/856940b6-5791-433b-a873-e4eaaf3f869d/c78f1191-925c-4a44-ad3d-778fdffeca5b"
 storage_version_token = "1791496998206525"
 content_type = "application/octet-stream"
+
+[[outputs]]
+id = "cVICN-kZUa9Dx5VJTuIEa"
+uri = "file://mockups/INDAMORA_PLAY_MOCKUPS_COMPLET.zip"
+type = "unspecified"
+title = "INDAMORA_PLAY_MOCKUPS_COMPLET.zip"
+description = "Nouveau pack téléphone — 29,2 Mo. 32 fichiers à la racine : 30 mockups PNG haute résolution, le QR PNG officiel et LISEZ-MOI.txt. ZIP extrait et 31 images ouvertes sans erreur."
+logical_id = "cd9f00a9-e4ff-4c00-9c20-e4c2ff4960ed"
+content_hash = "sha256:0d6042574fd8e6e7ae56dfdab003a53f12e06ba638df4c089474457dbdf92548"
+size = 29246179
+mtime_ms = 1791497624116
+storage_uri = "gcs://replit-rams-assets-kira/rams/assets/repl:ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd/cd9f00a9-e4ff-4c00-9c20-e4c2ff4960ed/b2eb1cab-a818-4819-8129-21862d4cc741"
+storage_version_token = "1791498203088698"
+content_type = "application/octet-stream"
+
+[[outputs]]
+id = "llko25EAUqCc9LMWLl5_c"
+uri = "file://mockups/indamora-play/png-telephone/tshirt_im_from_central_africa.png"
+type = "image"
+title = "T-shirt — devant et dos — PNG"
+description = "Téléchargement individuel, 3600 × 2520 pixels. I’M FROM CENTRAL AFRICA."
+logical_id = "dc1385cc-617c-4dbb-b968-6b0446597028"
+content_hash = "sha256:5da7ffb97b42d05e28bf42bb9f5f85ffd556e0cf222d035a240046a82e50fc61"
+size = 941410
+mtime_ms = 1791498125868
+storage_uri = "gcs://replit-rams-assets-kira/rams/assets/repl:ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd/dc1385cc-617c-4dbb-b968-6b0446597028/4021c047-c038-4d2e-b84e-821f1c1aaca8"
+storage_version_token = "1791498203862391"
+content_type = "image/png"
+
+[[outputs]]
+id = "PJy3pmnN1i0sNiOvmUpph"
+uri = "file://mockups/indamora-play/png-telephone/cap_bangui_society.png"
+type = "image"
+title = "Casquettes — BANGUI SOCIETY — PNG"
+description = "Téléchargement individuel, 3600 × 2520 pixels. Modèles blanc et noir fournis."
+logical_id = "718ef8ed-06b7-4f86-bfc9-6647df336b5d"
+content_hash = "sha256:1c78495ab92794f0eb9a264382ed985a1d1b9c21724f68b6bd6dd85f6c83818a"
+size = 592502
+mtime_ms = 1791498125772
+storage_uri = "gcs://replit-rams-assets-kira/rams/assets/repl:ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd/718ef8ed-06b7-4f86-bfc9-6647df336b5d/9ca49b30-0886-4715-be7b-e7cf96b8e1c7"
+storage_version_token = "1791498204584428"
+content_type = "image/png"
+
+[[outputs]]
+id = "niytIJjEnbeMuuvhp0qQC"
+uri = "file://mockups/indamora-play/png-telephone/bob_sango_society.png"
+type = "image"
+title = "Bobs — SANGO SOCIETY — PNG"
+description = "Téléchargement individuel, 3600 × 2520 pixels. Modèles rose et noir fournis."
+logical_id = "a1adbe56-04d7-4adc-8193-1e0369e6f859"
+content_hash = "sha256:9844a0b0a1fc76d65e28e83ea0c48e4ccca0e7d54110e515439714cef85a0479"
+size = 1205514
+mtime_ms = 1791498125760
+storage_uri = "gcs://replit-rams-assets-kira/rams/assets/repl:ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd/a1adbe56-04d7-4adc-8193-1e0369e6f859/eddb06d0-a825-416a-96f0-0fa3381a6c03"
+storage_version_token = "1791498205322766"
+content_type = "image/png"
+
+[[outputs]]
+id = "wHYOLqRbF4RhlxOBSm3_r"
+uri = "file://mockups/indamora-play/png-telephone/tote_bag_im_from_central_africa.png"
+type = "image"
+title = "Tote bag — PNG"
+description = "Téléchargement individuel, 3600 × 2520 pixels. Modèle beige fourni."
+logical_id = "27447999-fca4-4929-a92c-4d2865d2711c"
+content_hash = "sha256:bd7ed54287ac68d7231a61cf51a0c4c25dc5037d4e168de8f5afab8d7f131eca"
+size = 1624858
+mtime_ms = 1791498125820
+storage_uri = "gcs://replit-rams-assets-kira/rams/assets/repl:ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd/27447999-fca4-4929-a92c-4d2865d2711c/d72d9883-f1af-4bdf-a42d-189487d4b443"
+storage_version_token = "1791498206155351"
+content_type = "image/png"
+
+[[outputs]]
+id = "lSlDtkJM534d2SztaUtwp"
+uri = "file://mockups/indamora-play/png-telephone/phone_case_im_from_central_africa.png"
+type = "image"
+title = "Coque téléphone — PNG"
+description = "Téléchargement individuel, 3600 × 2520 pixels. Modèle blanc fourni."
+logical_id = "948c102e-0019-4068-8094-b043436ed4ca"
+content_hash = "sha256:8602bb25f86bb1a6c6d05825c3afa4ab46c8e8652bdf40967bc2c1a92577d646"
+size = 515689
+mtime_ms = 1791498125803
+storage_uri = "gcs://replit-rams-assets-kira/rams/assets/repl:ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd/948c102e-0019-4068-8094-b043436ed4ca/50860b68-f967-46e2-855e-bb7b51c4f112"
+storage_version_token = "1791498206811889"
+content_type = "image/png"
+
+[[outputs]]
+id = "YMSllMzrWKOUzlDbML-6t"
+uri = "file://mockups/indamora-play/png-telephone/indamora-play-qr.png"
+type = "image"
+title = "QR officiel — PNG"
+description = "1480 × 1480 pixels. Décodé après extraction du ZIP : https://indamoraplay.com."
+logical_id = "5a16dbed-2658-401f-b5e8-42188f322931"
+content_hash = "sha256:50d76432fb5979b34441d339cb2e60cd22879b456c7fc146fe81d3667116a5e6"
+size = 12380
+mtime_ms = 1791498125793
+storage_uri = "gcs://replit-rams-assets-kira/rams/assets/repl:ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd/5a16dbed-2658-401f-b5e8-42188f322931/df2cdecd-57c4-4334-85d5-a65ab9c626a0"
+storage_version_token = "1791498207498565"
+content_type = "image/png"

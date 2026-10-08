@@ -38,3 +38,9 @@ Tout le travail de mockups reste dans les fichiers de TEST, sans service payant,
 **Why:** L’utilisateur interdit les achats et toute modification de production, de Stripe, de Gift Card, de la PWA, de l’API ou de la base de données pour ce travail.
 
 **How to apply:** Utiliser des compositions locales et les ressources fournies ; livrer les assets séparément de l’application.
+
+Pour la livraison sur téléphone, fournir un ZIP plat avec uniquement les PNG des mockups, le QR PNG et un fichier LISEZ-MOI, avec des noms simples en ASCII. Fournir aussi des téléchargements individuels ; un chemin interne seul n’est pas une livraison.
+
+**Why:** L’utilisateur n’a pas pu ouvrir le pack mixte sur son téléphone et demande des fichiers téléchargeables sans copier du code ni utiliser le terminal.
+
+**How to apply:** Extraire et décoder réellement les images du ZIP avant livraison, utiliser les cartes de téléchargement Replit et proposer la commande Download du menu de fichiers en secours. Ne pas confondre ces contrôles locaux avec un test sur son appareil réel.
