@@ -1,0 +1,92 @@
+IMPORTANT — DIAGNOSTIC UNIQUEMENT PUIS CORRECTION CIBLÉE.
+
+Je ne peux actuellement pas ouvrir INDAMORA PLAY MOBILE dans Replit.
+
+Le projet INDAMORA PLAY est actuellement considéré comme stable et gelé. Je veux donc que tu identifies précisément le problème d’ouverture de la version MOBILE et que tu le corriges, MAIS SANS TOUCHER AU RESTE DU PROJET.
+
+CONTRAINTES ABSOLUES
+
+* Ne pas modifier le site INDAMORA PLAY existant.
+* Ne pas modifier les fonctionnalités existantes.
+* Ne pas modifier le design existant.
+* Ne pas modifier les routes existantes sauf si la route MOBILE elle-même est directement responsable du problème.
+* Ne pas modifier les données de production.
+* Ne pas modifier la base de données.
+* Ne pas modifier les API existantes.
+* Ne pas modifier la Gift Card.
+* Ne pas modifier le système de paiement.
+* Ne pas modifier les dépendances ou versions de packages sauf si une dépendance est prouvée comme étant directement responsable de l’impossibilité d’ouvrir INDAMORA PLAY MOBILE.
+* Ne pas toucher à la correction proxy-addr@2.0.8.
+* Ne pas lancer Publish.
+* Ne pas lancer Deploy.
+* Ne pas effectuer de migration.
+* Ne pas effectuer de refactorisation générale.
+* Ne pas améliorer ou modifier autre chose « au passage ».
+
+1. DIAGNOSTIC
+
+Commence par rechercher précisément pourquoi INDAMORA PLAY MOBILE ne peut pas être ouvert.
+
+Vérifie notamment :
+
+* erreur de démarrage ;
+* erreur de build ;
+* erreur de routing ;
+* configuration mobile ;
+* configuration React Native / Expo / PWA selon l’architecture réellement utilisée ;
+* dépendances manquantes ;
+* variables d’environnement manquantes ;
+* problème de port ;
+* problème de serveur ;
+* problème de configuration Replit ;
+* erreur JavaScript/TypeScript ;
+* erreur liée au bundler ;
+* conflit avec une configuration existante.
+
+Ne modifie rien pendant cette phase de diagnostic.
+
+2. IDENTIFIER LA CAUSE
+
+Indique clairement :
+
+* le fichier responsable ;
+* l’erreur exacte ;
+* la cause ;
+* pourquoi INDAMORA PLAY MOBILE ne s’ouvre pas ;
+* si le problème vient du code, de la configuration Replit ou de l’environnement.
+
+3. CORRECTION MINIMALE
+
+Une fois la cause confirmée, applique uniquement la correction minimale nécessaire pour permettre l’ouverture de INDAMORA PLAY MOBILE.
+
+Ne change rien d’autre.
+
+Si plusieurs solutions sont possibles, choisir celle qui présente le moins de risques pour le projet existant.
+
+4. VALIDATION
+
+Après la correction :
+
+* vérifier que INDAMORA PLAY MOBILE démarre correctement ;
+* vérifier qu’il n’y a pas d’erreur de build ;
+* vérifier que les fonctionnalités existantes du mobile restent intactes ;
+* vérifier que le site INDAMORA PLAY principal n’a pas été modifié ;
+* vérifier que la Gift Card n’a pas été modifiée ;
+* vérifier que proxy-addr@2.0.8 est toujours présent ;
+* vérifier qu’aucune donnée de production n’a été modifiée.
+
+5. IMPORTANT
+
+Si tu constates que la correction nécessite de modifier le site principal, la production, une API existante, une base de données, une dépendance critique ou la configuration de déploiement, NE FAIS PAS cette modification.
+
+Arrête-toi et explique-moi exactement ce qui serait nécessaire avant de faire quoi que ce soit.
+
+À la fin, donne-moi :
+
+1. la cause exacte du problème ;
+2. les fichiers éventuellement modifiés ;
+3. la correction appliquée ;
+4. les tests effectués ;
+5. la confirmation que le site principal est resté inchangé ;
+6. la confirmation que la Gift Card est restée inchangée ;
+7. la confirmation qu’aucun Publish ou Deploy n’a été lancé.
