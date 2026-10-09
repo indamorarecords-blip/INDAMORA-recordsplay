@@ -252,6 +252,7 @@ export function BoutiquePage() {
   const [cartUpdateError, setCartUpdateError] = useState('');
   const cartUpdateLock = useRef(false);
   const [quote, setQuote] = useState<{ state: 'idle' | 'pending' | 'error' | 'ok'; data?: ShopQuote; key?: string; message?: string }>({ state: 'idle' });
+  const [quoteRetry, setQuoteRetry] = useState(0);
   const quoteSeq = useRef(0);
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id') ?? '';
@@ -300,7 +301,7 @@ export function BoutiquePage() {
     }, 350);
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quoteKey]);
+  }, [quoteKey, quoteRetry]);
 
   const cartCount = cart.reduce((sum, line) => sum + line.quantity, 0);
   const isFrance = country === 'FR';
@@ -540,7 +541,7 @@ export function BoutiquePage() {
             <div className="bt-total-line"><span>Livraison{country ? ` · ${selectedCountryName}` : ''}</span><strong data-testid="text-cart-shipping">{isWorld || q?.contactRequired ? 'À confirmer' : q?.shippingCents != null ? formatEUR(q.shippingCents) : quotePending ? 'Calcul…' : '—'}</strong></div>
             <div className="bt-total-line final"><span>Total</span><strong data-testid="text-cart-total">{isWorld || q?.contactRequired ? 'À confirmer' : q?.totalCents != null ? formatEUR(q.totalCents) : quotePending ? 'Calcul…' : '—'}</strong></div>
           </div>
-          {quote.state === 'error' && <p className="bt-checkout-error" role="alert" data-testid="error-quote">{quote.message ?? 'Le total n’a pas pu être calculé.'} <button className="bt-retry" onClick={() => setQuote({ state: 'idle' })} type="button">Réessayer</button></p>}
+          {quote.state === 'error' && <p className="bt-checkout-error" role="alert" data-testid="error-quote">{quote.message ?? 'Le total n’a pas pu être calculé.'} <button className="bt-retry" onClick={() => setQuoteRetry((attempt) => attempt + 1)} type="button">Réessayer</button></p>}
           {hasUnavailable && <p className="bt-checkout-error" data-testid="text-cart-unavailable">Un article de votre panier n’est plus disponible. Retirez-le pour continuer.</p>}
           {Boolean(q && cart.length && !legacyItems && !q.contactRequired && !hasUnavailable) && <p className="bt-country-note" data-testid="text-checkout-legacy">Le paiement TEST n’est pas encore activé pour ces articles.</p>}
           <button className="bt-checkout" onClick={startCheckout} disabled={!canCheckout} data-testid="button-checkout">
