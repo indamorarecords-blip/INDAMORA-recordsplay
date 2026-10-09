@@ -1,0 +1,305 @@
+INDAMORA PLAY — AJOUTER UN ESPACE ADMIN SHOP COMPLET, PRIVÉ ET AUTONOME
+
+1. OBJECTIF PRINCIPAL
+
+Je veux disposer d’un véritable espace ADMINISTRATEUR → SHOP qui me permette de gérer entièrement la Boutique INDAMORA PLAY sans avoir besoin de modifier le code.
+
+Je dois pouvoir ajouter des articles moi-même, modifier les produits, les photos, les prix, les couleurs, les variantes, les stocks et les commandes.
+
+Il s’agit uniquement d’ajouter cette fonctionnalité au site existant. Il ne faut ni refaire le site ni modifier ou casser les fonctionnalités déjà opérationnelles.
+
+Travaille exclusivement dans l’environnement de développement et Preview. La production reste gelée.
+
+2. RÈGLE ABSOLUE : L’ADMIN SHOP EST STRICTEMENT PRIVÉ
+
+L’espace de gestion doit être accessible uniquement aux comptes possédant déjà le rôle ADMINISTRATEUR autorisé.
+
+Il doit être totalement invisible pour :
+
+* Les artistes.
+* Les abonnés.
+* Les utilisateurs ordinaires.
+* Les visiteurs non connectés.
+* Tous les autres rôles ne disposant pas des permissions administrateur.
+
+Exigences de sécurité :
+
+* Ne montrer aucun lien, bouton, menu ou raccourci ADMIN SHOP aux utilisateurs non autorisés.
+* Ne pas afficher les formulaires de gestion, les stocks internes, les informations privées des commandes ou les fonctions d’administration dans les espaces ARTISTE et ABONNÉS.
+* Protéger toutes les routes, les API et les actions de gestion côté serveur.
+* Ne pas se contenter de masquer les boutons dans l’interface.
+* Refuser tout accès direct à une URL d’administration pour un compte non autorisé.
+* Ne jamais transmettre les données administratives à un utilisateur qui n’a pas les permissions nécessaires.
+* Réutiliser l’authentification, les rôles et les permissions existants.
+* Ne créer ni compte administrateur public ni mot de passe codé en dur.
+* Ne pas affaiblir la sécurité existante pour faciliter l’accès à l’administration.
+
+Avant de développer, identifie le mécanisme d’autorisation déjà utilisé par le site et réutilise-le. Si le rôle ADMINISTRATEUR n’existe pas ou si ses permissions ne peuvent pas être vérifiées de façon sûre, arrête-toi et explique le blocage avant toute modification risquée.
+
+3. ESPACE ADMIN SHOP : TABLEAU DE BORD
+
+Créer une interface d’administration claire, professionnelle, moderne et adaptée au téléphone, à la tablette et à l’ordinateur.
+
+L’administrateur doit disposer d’un tableau de bord permettant de consulter :
+
+* Le nombre de produits actifs.
+* Le nombre de produits masqués ou en brouillon.
+* Les produits en rupture de stock.
+* Les produits dont le stock est faible.
+* Les commandes et leur état réel, si cette fonctionnalité existe déjà et que les données sont disponibles.
+* Les dernières modifications effectuées dans la boutique.
+
+Les chiffres doivent provenir des données réelles. Ne pas créer de fausses statistiques ou de commandes fictives présentées comme réelles.
+
+4. AJOUTER DES PRODUITS SANS TOUCHER AU CODE
+
+Depuis l’espace ADMIN SHOP, je dois pouvoir ajouter un nouvel article avec un formulaire simple.
+
+Champs nécessaires selon le type de produit :
+
+* Nom du produit.
+* Description.
+* Catégorie.
+* Prix en euros.
+* Une ou plusieurs photos.
+* Couleurs disponibles.
+* Taille ou indication « Taille unique ».
+* Référence produit ou SKU, si utile.
+* Stock disponible.
+* Stock par couleur ou variante, si applicable.
+* Statut : brouillon, actif ou masqué.
+* Visibilité dans la boutique.
+* Informations de livraison pertinentes.
+
+Je dois pouvoir enregistrer un brouillon, prévisualiser le produit puis l’activer lorsque je le décide.
+
+Les champs obligatoires doivent être clairement indiqués. Valider les données côté serveur et empêcher les prix invalides, les stocks négatifs et les variantes incohérentes.
+
+5. MODIFIER ET GÉRER LES ARTICLES
+
+Pour chaque produit, permettre à l’administrateur de :
+
+* Modifier le nom, la description et la catégorie.
+* Changer le prix.
+* Ajouter, retirer ou remplacer des photos.
+* Modifier les couleurs et les tailles.
+* Modifier le stock.
+* Activer ou masquer le produit.
+* Enregistrer les modifications.
+* Archiver un article sans supprimer inutilement l’historique des commandes associées.
+
+Toute modification doit être enregistrée durablement et apparaître dans la Boutique TEST lorsque le produit est actif.
+
+Prévoir une confirmation avant une action destructive. Ne pas supprimer de données existantes sans autorisation explicite.
+
+6. CATALOGUE INITIAL DE LA BOUTIQUE TEST
+
+Configurer le catalogue initial ci-dessous dans l’environnement TEST, en réutilisant les produits et les photos que j’ai déjà fournis.
+
+Ne pas générer de nouvelles images. Ne pas utiliser de photos de stock, d’images fictives ou d’anciens mockups.
+
+T-shirts
+
+* Prix : 15 €.
+* Taille : unique.
+* Couleurs : rose, noir et blanc.
+* Regrouper les couleurs dans une seule fiche produit avec un sélecteur de couleur.
+* Utiliser uniquement les photos fournies qui correspondent réellement aux variantes.
+
+Bobs
+
+* Prix : 15 €.
+* Taille : unique.
+* Couleurs : blanc, noir et orange.
+* Regrouper les couleurs dans une seule fiche produit avec un sélecteur de couleur.
+* Utiliser uniquement les photos fournies qui correspondent réellement aux variantes.
+
+Tote bags
+
+* Prix : 15 €.
+* Utiliser les photos fournies.
+* Ajouter les variantes uniquement si elles correspondent à des produits réels.
+
+Hoodies / sweats
+
+* Prix : 25 €.
+* Taille : unique uniquement si cela correspond bien au produit réel.
+* Utiliser les photos fournies.
+
+Ne pas ajouter de casquettes ni de coques de téléphone.
+
+Si les produits ou les images sont déjà enregistrés, les réutiliser sans créer de doublons. Si une information ou une photo nécessaire manque, signaler ce qui manque au lieu de l’inventer.
+
+7. STOCK ET VARIANTES
+
+Le stock doit être réellement fonctionnel.
+
+* Pouvoir définir la quantité disponible pour chaque produit.
+* Si nécessaire, gérer les stocks séparément pour chaque couleur et chaque variante.
+* Empêcher la vente d’une variante épuisée.
+* Empêcher les stocks négatifs.
+* Afficher les alertes de stock faible dans l’administration.
+* Permettre de corriger manuellement le stock.
+* Conserver un historique des ajustements si l’architecture actuelle le permet sans risque.
+* Mettre à jour les disponibilités affichées dans la Boutique TEST.
+
+Ne pas inventer de quantités initiales. Si les stocks réels ne sont pas connus, prévoir un champ à renseigner par l’administrateur et ne pas déclarer artificiellement des quantités disponibles.
+
+8. PHOTOS ET FICHIERS
+
+L’administrateur doit pouvoir ajouter les photos d’un nouvel article et remplacer celles d’un produit existant.
+
+* Réutiliser le système de stockage déjà disponible.
+* Vérifier les formats et les tailles de fichiers côté serveur.
+* Afficher un aperçu avant enregistrement.
+* Préserver les photos et les produits déjà existants.
+* Ne pas exposer de clés secrètes ou d’identifiants privés.
+* Ne pas remplacer les photos officielles par des images générées.
+
+Si l’envoi de photos exige une configuration ou des autorisations supplémentaires, expliquer le blocage avant de modifier l’infrastructure.
+
+9. BOUTIQUE PUBLIQUE : DESIGN ET FONCTIONNEMENT
+
+Améliorer uniquement la présentation de la Boutique TEST, conformément à mes indications précédentes.
+
+Direction visuelle :
+
+* Streetwear moderne, féminin, audacieux et premium.
+* Ambiance « baddie streetwear ».
+* Rose plus présent et interface moins sombre.
+* Design épuré, professionnel, mobile-first.
+* Présentation claire des produits et des prix.
+* Photos produits visibles et fidèles aux fichiers fournis.
+* Pas d’accumulation de textes, de menus ou de blocs en haut de page.
+
+En-tête compact :
+
+* Logo officiel INDAMORA PLAY, sans le redessiner ni le déformer.
+* Accès au panier.
+* Titre court : « INDAMORA PLAY — SHOP ».
+
+Déplacer les textes longs de présentation de la marque plus bas dans la page ou dans une section repliable.
+
+Les produits doivent être faciles à parcourir. Les sélecteurs de couleurs doivent être compréhensibles, notamment sur téléphone. La boutique ne doit présenter que les produits actifs et disponibles selon leur état réel.
+
+Ne pas modifier les autres pages du site pour appliquer ce design.
+
+10. LIVRAISON ET CALCUL DU TOTAL
+
+Conserver les règles de livraison prévues pour la Boutique TEST :
+
+* France : livraison gratuite.
+* Union européenne : livraison à 7 €.
+* Hors Union européenne : contact nécessaire et tarif à confirmer.
+
+Calculer les sous-totaux, les frais de livraison et le total final côté serveur, à partir du panier et de la destination. Ne jamais faire confiance à un prix ou à un total fourni uniquement par le navigateur.
+
+Si la destination exige une confirmation, ne pas afficher un montant définitif inventé.
+
+11. COMMANDES ET PAIEMENTS
+
+L’administrateur doit pouvoir consulter les commandes réelles et leur état, lorsque les données correspondantes sont déjà disponibles.
+
+* Ne jamais marquer une commande comme payée uniquement sur la base d’une redirection du navigateur.
+* Vérifier les événements de paiement côté serveur au moyen du mécanisme sécurisé déjà prévu.
+* Ne jamais exposer les clés secrètes dans le navigateur ou dans les journaux.
+* Ne pas activer les paiements réels.
+* Ne pas modifier les configurations Stripe existantes.
+* Stripe Boutique reste exclusivement en TEST.
+* Si le webhook ou la configuration Stripe TEST n’est pas valide, conserver le paiement désactivé et expliquer précisément ce qui manque.
+* Ne pas mélanger les paiements de la Boutique avec Premium, les dons ou les autres fonctionnalités financières du site.
+
+Aucun achat réel ne doit pouvoir être effectué à la suite de cette intervention.
+
+12. ARCHITECTURE ET DONNÉES EXISTANTES
+
+Avant de coder :
+
+1. Examiner l’architecture existante.
+2. Identifier les routes, les composants, l’authentification, les rôles, le stockage des images et les tables déjà utilisées par la boutique.
+3. Réutiliser les structures existantes dès que possible.
+4. Vérifier les risques de régression.
+5. N’ajouter que le minimum strictement nécessaire.
+
+Ne pas recréer une deuxième boutique, une deuxième authentification ou des tables en double. Ne pas effacer, réinitialiser ou remplacer des données existantes.
+
+Toute modification de schéma, migration ou changement touchant les données persistantes doit être signalé et soumis à mon autorisation avant exécution. Si le développement est possible sans migration, privilégier cette solution.
+
+13. PROTECTION ABSOLUE DU SITE EXISTANT
+
+Ne pas modifier ni casser :
+
+* L’espace ARTISTE.
+* L’espace ABONNÉS.
+* Les connexions et comptes existants.
+* Les abonnements et fonctionnalités Premium.
+* Les dons.
+* La Gift Card, qui reste en attente.
+* La PWA déjà validée et installée.
+* Les routes publiques existantes.
+* Les configurations et clés secrètes actuelles.
+* Les fonctionnalités qui ne concernent pas directement la Boutique TEST.
+
+Conserver impérativement le correctif de sécurité proxy-addr@2.0.8.
+
+Ne pas faire de refonte générale. Ne pas supprimer des composants ou des fichiers simplement parce qu’ils ne sont pas nécessaires à la nouvelle interface ADMIN.
+
+14. TESTS OBLIGATOIRES
+
+Effectuer les tests dans l’environnement TEST / Preview.
+
+Accès et sécurité
+
+* Un administrateur autorisé peut ouvrir l’ADMIN SHOP.
+* Un artiste ne voit aucun accès de gestion.
+* Un abonné ne voit aucun accès de gestion.
+* Un utilisateur ordinaire ne voit aucun accès de gestion.
+* Les accès directs aux routes ADMIN sont refusés aux comptes non autorisés.
+* Les API et les actions serveur refusent également les accès non autorisés.
+
+Gestion des produits
+
+* Créer un produit TEST.
+* Modifier son prix et sa description.
+* Ajouter ou remplacer une photo.
+* Modifier ses variantes et ses stocks.
+* Masquer puis réactiver le produit.
+* Vérifier que les modifications apparaissent correctement dans la Boutique TEST.
+* Vérifier qu’aucun doublon n’est créé et qu’aucun stock négatif n’est possible.
+
+Non-régression
+
+* Tester la boutique sur téléphone et ordinateur.
+* Vérifier l’absence de débordement horizontal.
+* Vérifier le panier et les totaux.
+* Vérifier que les espaces ARTISTE et ABONNÉS fonctionnent comme avant.
+* Vérifier que Premium, les dons et la PWA ne sont pas affectés.
+* Vérifier que les paiements réels restent désactivés.
+* Exécuter les tests automatisés disponibles et le build.
+
+Ne pas annoncer un test comme réussi s’il n’a pas réellement été exécuté.
+
+15. INTERDICTIONS FORMELLES
+
+NE PAS PUBLIER. NE PAS DÉPLOYER. NE PAS MIGRER. NE PAS MODIFIER LA PRODUCTION. NE PAS ACTIVER DE PAIEMENT RÉEL.
+
+Ne pas remplacer les clés secrètes. Ne pas modifier les systèmes hors périmètre. Ne pas exécuter d’opération irréversible sans mon accord explicite.
+
+Si une intervention sur la production, une migration, une modification risquée de la base de données ou une configuration payante devient nécessaire, arrêter le travail et me demander mon autorisation avant d’agir.
+
+Budget disponible : 0 €. Ne pas activer d’abonnement payant ni de service payant.
+
+16. LIVRABLE FINAL ATTENDU
+
+Quand le travail est terminé, fournir un compte rendu clair contenant :
+
+* Les fonctionnalités réellement ajoutées.
+* L’URL exacte de la Boutique TEST.
+* L’URL exacte de l’ADMIN SHOP TEST.
+* La manière d’y accéder avec mon compte administrateur existant.
+* La confirmation des contrôles d’accès pour ADMINISTRATEUR, ARTISTE et ABONNÉ.
+* Les résultats des tests exécutés.
+* Les éventuels problèmes ou éléments restant à configurer.
+* La confirmation qu’aucune publication, aucun déploiement, aucune migration non autorisée et aucune modification de production n’ont été effectués.
+
+Résultat recherché : un espace ADMIN SHOP réellement opérationnel et strictement privé, me permettant de gérer moi-même la boutique, tout en conservant intact le site INDAMORA PLAY existant.
