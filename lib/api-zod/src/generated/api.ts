@@ -426,6 +426,60 @@ export const UploadShopPhotoResponse = zod.object({
 })
 
 
+export const requestShopPhotoUploadBodySizeMax = 5242880;
+
+
+
+export const RequestShopPhotoUploadBody = zod.object({
+  "contentType": zod.enum(['image/jpeg', 'image/png', 'image/webp']),
+  "size": zod.number().int().min(1).max(requestShopPhotoUploadBodySizeMax)
+})
+
+export const RequestShopPhotoUploadResponse = zod.object({
+  "reference": zod.string(),
+  "url": zod.string().url()
+})
+
+
+export const completeShopPhotoUploadBodyReferenceMax = 200;
+
+
+
+export const CompleteShopPhotoUploadBody = zod.object({
+  "reference": zod.string().max(completeShopPhotoUploadBodyReferenceMax)
+})
+
+export const completeShopPhotoUploadResponseReferenceMax = 200;
+
+export const completeShopPhotoUploadResponseCropXMin = 0;
+export const completeShopPhotoUploadResponseCropXMax = 1;
+
+export const completeShopPhotoUploadResponseCropYMin = 0;
+export const completeShopPhotoUploadResponseCropYMax = 1;
+
+export const completeShopPhotoUploadResponseCropWExclusiveMin = 0;
+export const completeShopPhotoUploadResponseCropWMax = 1;
+
+export const completeShopPhotoUploadResponseCropHExclusiveMin = 0;
+export const completeShopPhotoUploadResponseCropHMax = 1;
+
+export const completeShopPhotoUploadResponseCropRatioExclusiveMin = 0;
+export const completeShopPhotoUploadResponseCropRatioMax = 100;
+
+
+
+export const CompleteShopPhotoUploadResponse = zod.object({
+  "reference": zod.string().max(completeShopPhotoUploadResponseReferenceMax),
+  "crop": zod.object({
+  "x": zod.number().min(completeShopPhotoUploadResponseCropXMin).max(completeShopPhotoUploadResponseCropXMax),
+  "y": zod.number().min(completeShopPhotoUploadResponseCropYMin).max(completeShopPhotoUploadResponseCropYMax),
+  "w": zod.number().gt(completeShopPhotoUploadResponseCropWExclusiveMin).max(completeShopPhotoUploadResponseCropWMax),
+  "h": zod.number().gt(completeShopPhotoUploadResponseCropHExclusiveMin).max(completeShopPhotoUploadResponseCropHMax),
+  "ratio": zod.number().gt(completeShopPhotoUploadResponseCropRatioExclusiveMin).max(completeShopPhotoUploadResponseCropRatioMax)
+}).optional()
+})
+
+
 export const GetShopOrdersResponse = zod.object({
   "orders": zod.array(zod.object({
   "id": zod.string(),
@@ -672,8 +726,10 @@ export const CreateBillingPortalResponse = zod.object({
 /**
  * @summary Read the four-product INDAMORA PLAY TEST storefront catalog
  */
-export const getStoreCatalogResponseProductsMin = 4;
-export const getStoreCatalogResponseProductsMax = 4;
+export const getStoreCatalogResponseProductsItemSkuRegExp = new RegExp('^[a-z0-9_-]{1,80}$');
+export const getStoreCatalogResponseProductsItemPriceCentsMax = 1000000;
+
+export const getStoreCatalogResponseProductsMax = 1000;
 
 
 
@@ -682,29 +738,32 @@ export const GetStoreCatalogResponse = zod.object({
   "checkoutAvailable": zod.boolean(),
   "message": zod.string().nullish(),
   "products": zod.array(zod.object({
-  "sku": zod.enum(['tshirt', 'bob', 'tote-bag', 'hoodie']),
+  "sku": zod.string().regex(getStoreCatalogResponseProductsItemSkuRegExp),
   "name": zod.string(),
-  "priceCents": zod.union([zod.literal(1500),zod.literal(2500)]),
+  "priceCents": zod.number().int().min(1).max(getStoreCatalogResponseProductsItemPriceCentsMax),
   "available": zod.boolean()
-})).min(getStoreCatalogResponseProductsMin).max(getStoreCatalogResponseProductsMax)
+})).max(getStoreCatalogResponseProductsMax)
 })
 
 
 /**
  * @summary Create a TEST-mode one-time Stripe Checkout for store items
  */
+export const createStoreCheckoutBodyItemsItemSkuRegExp = new RegExp('^[a-z0-9_-]{1,80}$');
 export const createStoreCheckoutBodyItemsItemQuantityMax = 20;
 
-export const createStoreCheckoutBodyItemsMax = 8;
+export const createStoreCheckoutBodyItemsItemVariantIdRegExp = new RegExp('^[a-z0-9_-]{1,64}$');
+export const createStoreCheckoutBodyItemsMax = 100;
 
 export const createStoreCheckoutBodyShippingCountryRegExp = new RegExp('^[A-Z]{2}$');
 
 
 export const CreateStoreCheckoutBody = zod.object({
   "items": zod.array(zod.object({
-  "sku": zod.enum(['tshirt', 'bob', 'tote-bag', 'hoodie']),
+  "sku": zod.string().regex(createStoreCheckoutBodyItemsItemSkuRegExp),
   "quantity": zod.number().int().min(1).max(createStoreCheckoutBodyItemsItemQuantityMax),
-  "color": zod.enum(['rose', 'noir', 'blanc', 'orange']).optional()
+  "color": zod.enum(['rose', 'noir', 'blanc', 'orange']).optional(),
+  "variantId": zod.string().regex(createStoreCheckoutBodyItemsItemVariantIdRegExp).optional()
 })).min(1).max(createStoreCheckoutBodyItemsMax),
   "shippingCountry": zod.string().regex(createStoreCheckoutBodyShippingCountryRegExp)
 })

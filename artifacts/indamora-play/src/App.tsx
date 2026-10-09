@@ -6,7 +6,7 @@ import { frFR } from '@clerk/localizations';
 import { shadcn } from '@clerk/themes';
 import {
   ArrowRight, AudioLines, BarChart3, Check, ChevronLeft, CirclePlay, Crown, Disc3,
-  FileMusic, Headphones, HeartHandshake, History, LayoutDashboard, LoaderCircle, LockKeyhole, Menu, Mic2,
+  FileMusic, Headphones, HeartHandshake, History, LayoutDashboard, LoaderCircle, LockKeyhole, Menu, Mic2, ShoppingBag,
   Pause, Play, Plus, Search, Send, ShieldCheck, Sparkles, Star, Ticket, UserRound,
   UsersRound, Video, X, Zap, Globe, Mail, Newspaper, Briefcase, ExternalLink, MapPin
 } from 'lucide-react';
@@ -173,6 +173,7 @@ function Shell({ children }: { children: ReactNode }) {
     { href: '/repertoire', label: 'Répertoire', icon: UsersRound },
     { href: '/pricing', label: 'Premium', icon: Crown },
     { href: '/soutenir', label: 'Soutenir', icon: HeartHandshake },
+    ...(import.meta.env.DEV ? [{ href: '/boutique', label: 'SHOP', icon: ShoppingBag }] : []),
   ];
   return (
     <div className="grain min-h-[100dvh] bg-background">

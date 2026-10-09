@@ -18,17 +18,17 @@ function workspaceRoot() {
 // Importing the API in production must not inspect or initialize TEST storage.
 export const SHOP_TEST_DIR = process.env.NODE_ENV === "development" ? path.join(workspaceRoot(), ".local/shop-test") : "";
 const DEFAULT_FILE = path.join(SHOP_TEST_DIR, ".env.shop-state.store");
-type Product = ReturnType<typeof CreateShopProductResponse.parse>;
-type Reservation = { id: string; status: "pending" | "paid" | "released"; expiresAt: string; sessionId?: string; items: CartItem[] };
-type State = { version: 1; products: Product[]; history: ReturnType<typeof GetShopAdminResponse.parse>["history"]; reservations: Reservation[] };
-function validateState(input: unknown): State {
+export type Product = ReturnType<typeof CreateShopProductResponse.parse>;
+export type Reservation = { id: string; status: "pending" | "paid" | "released"; expiresAt: string; sessionId?: string; items: CartItem[]; quote?: ReturnType<typeof quoteCart> & { shippingCountry?: string } };
+export type State = { version: 1; products: Product[]; history: ReturnType<typeof GetShopAdminResponse.parse>["history"]; reservations: Reservation[] };
+export function validateState(input: unknown, mode: "test" | "live" = "test"): State {
   if (!input || typeof input !== "object") throw new Error("Invalid state");
   const value = input as State;
   const partial = GetShopAdminResponse.pick({ products: true, history: true }).parse(value);
   if (value.version !== 1 || !Array.isArray(value.reservations)) throw new Error("Invalid state");
   const reservations = value.reservations.map(r => {
     if (!r || typeof r.id !== "string" || !["pending", "paid", "released"].includes(r.status) ||
-      !Number.isFinite(Date.parse(r.expiresAt)) || (r.sessionId !== undefined && !/^cs_test_/.test(r.sessionId))) throw new Error("Invalid reservation");
+      !Number.isFinite(Date.parse(r.expiresAt)) || (r.sessionId !== undefined && !r.sessionId.startsWith(`cs_${mode}_`))) throw new Error("Invalid reservation");
     return { ...r, items: CreateShopQuoteBody.shape.items.parse(r.items) };
   });
   return { ...partial, version: 1, reservations };
@@ -101,7 +101,7 @@ export function validateProduct(input: unknown): ReturnType<typeof CreateShopPro
 
 export class ShopTestRepository {
   private queue: Promise<unknown> = Promise.resolve();
-  constructor(public readonly filename = DEFAULT_FILE) {}
+  constructor(public readonly filename = DEFAULT_FILE, protected readonly mode: "test" | "live" = "test") {}
   private assertDevelopment() {
     if (process.env.NODE_ENV !== "development") throw new ShopError("Shop TEST indisponible.", 404);
   }
@@ -185,14 +185,15 @@ export class ShopTestRepository {
         if (expectedPrices.get(line.productId) !== line.priceCents) throw new ShopError("Le prix Stripe TEST ne correspond pas au catalogue géré. Checkout bloqué.", 503);
       }
       if (quote.contactRequired) throw new ShopError("Livraison à confirmer.");
-      state.reservations.push({ id, status: "pending", expiresAt: new Date(Date.now() + 30 * 60000).toISOString(), items });
-      return quote;
+      const snapshot = { ...quote, shippingCountry: country };
+      state.reservations.push({ id, status: "pending", expiresAt: new Date(Date.now() + 30 * 60000).toISOString(), items, quote: snapshot });
+      return snapshot;
     });
   }
   async attachSession(id: string, sessionId: string) {
     await this.mutate(state => {
       const reservation = state.reservations.find(r => r.id === id && r.status === "pending");
-      if (!reservation || !sessionId.startsWith("cs_test_")) throw new ShopError("Réservation TEST invalide.");
+      if (!reservation || !sessionId.startsWith(`cs_${this.mode}_`)) throw new ShopError("Réservation Shop invalide.");
       reservation.sessionId = sessionId;
     });
   }
@@ -205,7 +206,7 @@ export class ShopTestRepository {
     });
   }
   async settleSession(sessionId: string, paid: boolean, expired: boolean) {
-    if (!sessionId.startsWith("cs_test_") || (!paid && !expired)) return;
+    if (!sessionId.startsWith(`cs_${this.mode}_`) || (!paid && !expired)) return;
     if (!(await this.read()).reservations.some(r => r.sessionId === sessionId && r.status === "pending")) return;
     await this.mutate(state => {
       const reservation = state.reservations.find(r => r.sessionId === sessionId && r.status === "pending");

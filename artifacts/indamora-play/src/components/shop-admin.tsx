@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'wouter';
-import { useUser } from '@clerk/react';
+import { useAuth, useUser } from '@clerk/react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  createShopProduct, getGetShopAdminQueryKey, updateShopProduct, uploadShopPhoto,
+  createShopProduct, getGetShopAdminQueryKey, updateShopProduct, requestShopPhotoUpload, completeShopPhotoUpload,
   useGetShopAdmin, useGetShopOrders,
 } from '@workspace/api-client-react';
 import type { ShopPhoto, ShopProduct, ShopProductInput, ShopVariant } from '@workspace/api-client-react';
@@ -69,13 +69,30 @@ function buildInput(form: FormState): { input?: ShopProductInput; errors: string
   return { errors, input: { name: form.name.trim(), description: form.description, category: form.category.trim(), priceCents, status: form.status, visible: form.visible, shippingInfo: form.shippingInfo, variants } };
 }
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result).split(',')[1] ?? '');
-    reader.onerror = () => reject(new Error('Lecture du fichier impossible.'));
-    reader.readAsDataURL(file);
-  });
+function AdminPhoto({ reference, alt }: { reference: string; alt: string }) {
+  const { getToken, userId } = useAuth();
+  const [url, setUrl] = useState('');
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    const controller = new AbortController();
+    let objectUrl = '';
+    setUrl('');
+    setFailed(false);
+    void (async () => {
+      const token = await getToken();
+      const response = await fetch(media(reference), {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        signal: controller.signal, cache: 'no-store',
+      });
+      if (!response.ok) throw new Error('Photo inaccessible.');
+      const blob = await response.blob();
+      if (controller.signal.aborted) return;
+      objectUrl = URL.createObjectURL(blob);
+      setUrl(objectUrl);
+    })().catch(() => { if (!controller.signal.aborted) setFailed(true); });
+    return () => { controller.abort(); if (objectUrl) URL.revokeObjectURL(objectUrl); };
+  }, [reference, userId, getToken]);
+  return url ? <img src={url} alt={alt} /> : <span className="sa-muted">{failed ? 'Photo inaccessible : vérifiez votre accès administrateur.' : 'Chargement de la photo…'}</span>;
 }
 
 function VariantEditor({ variant, index, canRemove, onChange, onRemove, knownRefs }: {
@@ -91,8 +108,10 @@ function VariantEditor({ variant, index, canRemove, onChange, onRemove, knownRef
     if (file.size > 5 * 1024 * 1024) { setErr('Fichier trop lourd : 5 Mo maximum.'); return; }
     setUploading(true);
     try {
-      const base64 = await fileToBase64(file);
-      const photo = await uploadShopPhoto({ contentType: file.type as 'image/jpeg', base64 });
+      const upload = await requestShopPhotoUpload({ contentType: file.type as 'image/jpeg', size: file.size });
+      const response = await fetch(upload.url, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+      if (!response.ok) throw new Error('App Storage n’a pas reçu la photo.');
+      const photo = await completeShopPhotoUpload({ reference: upload.reference });
       onChange({ ...variant, photos: [...variant.photos, { reference: photo.reference }] });
     } catch (e) { setErr(apiMessage(e, 'Le téléversement a échoué. Réessayez.')); } finally { setUploading(false); }
   }
@@ -106,7 +125,7 @@ function VariantEditor({ variant, index, canRemove, onChange, onRemove, knownRef
     {variant.stock.trim() === '' && <p className="sa-muted">{LOW_STOCK_HINT} Non disponible à l’achat tant que vide.</p>}
     <div className="sa-photos">
       {variant.photos.map((photo, pi) => <div className="sa-photo" key={`${photo.reference}-${pi}`}>
-        <img src={media(photo.reference)} alt={`Photo ${pi + 1}`} loading="lazy" />
+        <AdminPhoto reference={photo.reference} alt={`Photo ${pi + 1}`} />
         <button type="button" className="sa-btn" onClick={() => onChange({ ...variant, photos: variant.photos.filter((_, i) => i !== pi) })} data-testid={`button-remove-photo-${index}-${pi}`}>Retirer</button>
       </div>)}
     </div>

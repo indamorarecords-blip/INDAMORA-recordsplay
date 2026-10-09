@@ -13,9 +13,6 @@ export interface StoreCatalog {
   checkoutAvailable: boolean;
   /** @nullable */
   message?: string | null;
-  /**
-     * @minItems 4
-     * @maxItems 4
-     */
+  /** @maxItems 1000 */
   products: StoreProduct[];
 }

@@ -20,3 +20,4 @@
 export * from "./indamora";
 export * from "./billing";
 export * from "./analytics";
+export * from "./shop";

@@ -5,12 +5,15 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import type { StoreProductPriceCents } from './storeProductPriceCents';
 import type { StoreSku } from './storeSku';
 
 export interface StoreProduct {
   sku: StoreSku;
   name: string;
-  priceCents: StoreProductPriceCents;
+  /**
+     * @minimum 1
+     * @maximum 1000000
+     */
+  priceCents: number;
   available: boolean;
 }

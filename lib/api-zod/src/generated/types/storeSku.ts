@@ -6,12 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type StoreSku = typeof StoreSku[keyof typeof StoreSku];
-
-
-export const StoreSku = {
-  tshirt: 'tshirt',
-  bob: 'bob',
-  'tote-bag': 'tote-bag',
-  hoodie: 'hoodie',
-} as const;
+/**
+ * @pattern ^[a-z0-9_-]{1,80}$
+ */
+export type StoreSku = string;

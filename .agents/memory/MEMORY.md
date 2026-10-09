@@ -9,4 +9,5 @@
 - [Gel d’INDAMORA PLAY](production-freeze.md) — version actuelle gelée ; conserver proxy-addr@2.0.8 et demander confirmation avant toute action sur la production.
 - [Mockups de collection](collection-mockups.md) — modèles fournis et six phrases exactes ; arrêter si le QR ne correspond pas au brief.
 - [Confidentialité du workspace](workspace-server-privacy.md) — Metro peut exposer les JSON privés comme modules ; vérifier tous les serveurs et leurs caches.
-- [Inventaire Shop TEST](shop-test-inventory.md) — valider les quantités avant écriture du panier ; réservations ambiguës conservées et catalogue Stripe non modifié.
+- [Inventaire Shop TEST](shop-test-inventory.md) — valider les quantités avant écriture du panier ; conserver les réservations ambiguës et protéger Stripe hors Boutique.
+- [Migrations Shop ciblées](scoped-shop-migrations.md) — le schéma ORM partagé n'englobe pas toutes les tables ; éviter une synchronisation globale non inspectée.

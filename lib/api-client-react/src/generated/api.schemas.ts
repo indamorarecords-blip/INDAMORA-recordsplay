@@ -206,6 +206,34 @@ export interface ShopPhotoUpload {
   base64: string;
 }
 
+export type ShopPhotoRequestContentType = typeof ShopPhotoRequestContentType[keyof typeof ShopPhotoRequestContentType];
+
+
+export const ShopPhotoRequestContentType = {
+  'image/jpeg': 'image/jpeg',
+  'image/png': 'image/png',
+  'image/webp': 'image/webp',
+} as const;
+
+export interface ShopPhotoRequest {
+  contentType: ShopPhotoRequestContentType;
+  /**
+     * @minimum 1
+     * @maximum 5242880
+     */
+  size: number;
+}
+
+export interface ShopPhotoCompletion {
+  /** @maxLength 200 */
+  reference: string;
+}
+
+export interface ShopPhotoUploadUrl {
+  reference: string;
+  url: string;
+}
+
 export interface ShopQuoteInput {
   /**
      * @minItems 1
@@ -394,28 +422,19 @@ export interface BillingCheckout {
   url: string;
 }
 
-export type StoreSku = typeof StoreSku[keyof typeof StoreSku];
-
-
-export const StoreSku = {
-  tshirt: 'tshirt',
-  bob: 'bob',
-  'tote-bag': 'tote-bag',
-  hoodie: 'hoodie',
-} as const;
-
-export type StoreProductPriceCents = typeof StoreProductPriceCents[keyof typeof StoreProductPriceCents];
-
-
-export const StoreProductPriceCents = {
-  NUMBER_1500: 1500,
-  NUMBER_2500: 2500,
-} as const;
+/**
+ * @pattern ^[a-z0-9_-]{1,80}$
+ */
+export type StoreSku = string;
 
 export interface StoreProduct {
   sku: StoreSku;
   name: string;
-  priceCents: StoreProductPriceCents;
+  /**
+     * @minimum 1
+     * @maximum 1000000
+     */
+  priceCents: number;
   available: boolean;
 }
 
@@ -431,10 +450,7 @@ export interface StoreCatalog {
   checkoutAvailable: boolean;
   /** @nullable */
   message?: string | null;
-  /**
-     * @minItems 4
-     * @maxItems 4
-     */
+  /** @maxItems 1000 */
   products: StoreProduct[];
 }
 
@@ -456,12 +472,14 @@ export interface StoreCheckoutItem {
      */
   quantity: number;
   color?: StoreCheckoutItemColor;
+  /** @pattern ^[a-z0-9_-]{1,64}$ */
+  variantId?: string;
 }
 
 export interface StoreCheckoutInput {
   /**
      * @minItems 1
-     * @maxItems 8
+     * @maxItems 100
      */
   items: StoreCheckoutItem[];
   /** @pattern ^[A-Z]{2}$ */

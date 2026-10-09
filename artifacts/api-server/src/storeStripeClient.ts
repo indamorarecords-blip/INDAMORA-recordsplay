@@ -7,13 +7,14 @@ type StoreStripeOptions = {
   idempotencyKey?: string;
 };
 
-function dedicatedTestKey(): string {
-  if (process.env.NODE_ENV !== "development") {
-    throw new StoreTestConfigurationError("La Boutique Stripe TEST est réservée au développement.");
+function dedicatedKey(method: string): string {
+  const test = process.env.NODE_ENV === "development";
+  if (!test && method !== "GET" && process.env.BOUTIQUE_LIVE_ENABLED !== "true") {
+    throw new StoreTestConfigurationError("Les écritures Stripe LIVE Boutique ne sont pas autorisées.");
   }
-  const key = process.env.STRIPE_BOUTIQUE_TEST_SECRET_KEY;
-  if (!key?.startsWith("sk_test_")) {
-    throw new StoreTestConfigurationError("La clé Stripe TEST dédiée à la Boutique est absente ou invalide.");
+  const key = test ? process.env.STRIPE_BOUTIQUE_TEST_SECRET_KEY : process.env.STRIPE_BOUTIQUE_LIVE_SECRET_KEY;
+  if (!key?.startsWith(test ? "sk_test_" : "sk_live_")) {
+    throw new StoreTestConfigurationError(`La clé Stripe ${test ? "TEST" : "LIVE"} dédiée à la Boutique est absente ou invalide.`);
   }
   return key;
 }
@@ -22,7 +23,7 @@ export async function storeStripeApi<T>(
   path: string,
   options: StoreStripeOptions = {},
 ): Promise<T> {
-  const key = dedicatedTestKey();
+  const key = dedicatedKey(options.method ?? "GET");
   const url = new URL(path, "https://api.stripe.com");
   if (
     !path.startsWith("/v1/") ||
@@ -55,8 +56,8 @@ export async function storeStripeApi<T>(
     // Never surface Stripe's raw error text, headers, or credentials.
     throw new Error(`La requête Stripe Boutique TEST a échoué (HTTP ${response.status}).`);
   }
-  if ("livemode" in body && body.livemode !== false) {
-    throw new Error("Stripe n’a pas confirmé une ressource Boutique TEST.");
+  if ("livemode" in body && body.livemode !== (process.env.NODE_ENV !== "development")) {
+    throw new Error("Stripe n’a pas confirmé le bon environnement Boutique.");
   }
   return body as T;
 }

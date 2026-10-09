@@ -9,6 +9,7 @@ import { spawnSync } from "node:child_process";
 
 test("Private Shop TEST: real storage, admin guard, CRUD, stock and isolation", async t => {
   process.env.NODE_ENV = "development";
+  process.env.SHOP_TEST_PERSISTENCE = "files";
   const root = path.resolve(process.cwd(), "../..");
   const dir = await fs.mkdtemp(path.join(tmpdir(), "shop-harness-"));
   const file = path.join(root, ".local/shop-test/.env.validation-state.store");
@@ -23,6 +24,16 @@ test("Private Shop TEST: real storage, admin guard, CRUD, stock and isolation", 
       platform: "node", format: "esm", bundle: true,
       banner: { js: "import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);" },
       plugins: [{ name: "shop-fixtures", setup(builder) {
+        builder.onResolve({ filter: /shop-repository$/ }, () => ({ path: "repository-fixture", namespace: "fixture" }));
+        builder.onLoad({ filter: /repository-fixture/, namespace: "fixture" }, () => ({ contents: `
+          import {shopTest} from ${JSON.stringify(path.join(root, "artifacts/api-server/src/lib/shop-test.ts"))};
+          export const shop = shopTest; export const persistentShop = {}; export const isPersistentShop = () => false;
+        `, loader: "js", resolveDir: root }));
+        builder.onResolve({ filter: /shop-object-media$/ }, () => ({ path: "media-fixture", namespace: "fixture" }));
+        builder.onLoad({ filter: /media-fixture/, namespace: "fixture" }, () => ({ contents: `
+          export const requestPrivateShopPhoto = async () => {throw new Error("not used")};
+          export const completePrivateShopPhoto = async () => {throw new Error("not used")};
+        `, loader: "js" }));
         builder.onLoad({ filter: /\/lib\/shop-test\.ts$/ }, async args => ({
           contents: (await fs.readFile(args.path, "utf8")).replace("export const shopTest = new ShopTestRepository();", `export const shopTest = new ShopTestRepository(${JSON.stringify(fixture)});`), loader: "ts",
         }));

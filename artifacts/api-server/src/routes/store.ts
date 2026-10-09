@@ -8,7 +8,8 @@ import {
   GetStoreCheckoutStatusResponse,
 } from "@workspace/api-zod";
 import { formData, storeStripeApi as stripeApi } from "../storeStripeClient";
-import { shopTest } from "../lib/shop-test";
+import { shop as shopTest, persistentShop, isPersistentShop } from "../lib/shop-repository";
+import { settleVerifiedShopSession, shopQuoteHash } from "../lib/shop-session";
 
 const router: IRouter = Router();
 
@@ -145,6 +146,7 @@ async function hasConfiguredTestWebhook(): Promise<boolean> {
 }
 
 async function readStorePrices(): Promise<Map<string, StripePrice>> {
+  if (isPersistentShop()) return persistentShop.prices();
   const prices: StripePrice[] = [];
   let startingAfter: string | undefined;
 
@@ -206,8 +208,9 @@ async function storeReadiness(): Promise<{
 function storeMessage(
   priceCount: number,
   webhookReady: boolean,
+  expectedCount: number = STORE_PRODUCTS.length,
 ): string | null {
-  if (priceCount !== STORE_PRODUCTS.length) {
+  if (priceCount !== expectedCount || expectedCount === 0) {
     return "Le catalogue Stripe TEST des quatre articles n’est pas encore complet. Le paiement reste désactivé.";
   }
   if (!webhookReady) {
@@ -261,16 +264,21 @@ router.get("/store/catalog", async (req, res): Promise<void> => {
 
   try {
     const readiness = await storeReadiness();
+    const catalogue = isPersistentShop()
+      ? (await shopTest.read()).products.filter(p => p.status === "active" && p.visible)
+        .map(p => ({ sku: p.id, name: p.name, priceCents: p.priceCents }))
+      : STORE_PRODUCTS;
     const message = storeMessage(
       readiness.prices.size,
       readiness.webhookReady,
+      catalogue.length,
     );
     res.json(
       GetStoreCatalogResponse.parse({
         mode: "test",
         checkoutAvailable: message === null,
         message,
-        products: STORE_PRODUCTS.map((product) => ({
+        products: catalogue.map((product) => ({
           ...product,
           available: readiness.prices.has(product.sku),
         })),
@@ -283,7 +291,7 @@ router.get("/store/catalog", async (req, res): Promise<void> => {
         mode: "test",
         checkoutAvailable: false,
         message: "Le paiement TEST est temporairement indisponible.",
-        products: STORE_PRODUCTS.map((product) => ({
+        products: (isPersistentShop() ? [] : STORE_PRODUCTS).map((product) => ({
           ...product,
           available: false,
         })),
@@ -315,13 +323,16 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
 
   const seenSkus = new Set<string>();
   for (const item of input.data.items) {
+    if (!isPersistentShop() && !STORE_PRODUCTS.some(p => p.sku === item.sku)) {
+      res.status(400).json({ error: "Produit inconnu." }); return;
+    }
     const allowedColors: readonly string[] = item.sku === "tshirt"
       ? ["rose", "noir", "blanc"] : item.sku === "bob" ? ["blanc", "noir", "orange"] : [];
-    if (allowedColors.length ? !item.color || !allowedColors.includes(item.color) : item.color !== undefined) {
+    if (!isPersistentShop() && (allowedColors.length ? !item.color || !allowedColors.includes(item.color) : item.color !== undefined)) {
       res.status(400).json({ error: "La couleur du produit est invalide." });
       return;
     }
-    const variantKey = `${item.sku}:${item.color ?? ""}`;
+    const variantKey = `${item.sku}:${item.variantId ?? item.color ?? ""}`;
     if (seenSkus.has(variantKey)) {
       res.status(400).json({ error: "Une variante apparaît plusieurs fois dans le panier." });
       return;
@@ -339,9 +350,11 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
 
   try {
     const readiness = await storeReadiness();
+    const inventory = await shopTest.read();
     const message = storeMessage(
       readiness.prices.size,
       readiness.webhookReady,
+      isPersistentShop() ? inventory.products.filter(p => p.status === "active" && p.visible).length : STORE_PRODUCTS.length,
     );
     if (message) {
       res.status(503).json({ error: message });
@@ -349,14 +362,13 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
     }
 
     const orderReference = randomUUID();
-    const inventory = await shopTest.read();
     const inventoryItems = input.data.items.map(item => {
       const product = inventory.products.find(p => p.id === item.sku);
-      const variant = product?.variants.find(v => item.color ? v.id === item.color : v.id === "unique");
+      const variant = product?.variants.find(v => item.variantId ? v.id === item.variantId : item.color ? v.id === item.color : v.id === "unique");
       if (!product || !variant) throw new Error("Variante Shop TEST indisponible.");
       return { productId: product.id, variantId: variant.id, quantity: item.quantity };
     });
-    await shopTest.reserve(orderReference, inventoryItems, input.data.shippingCountry,
+    const reservedQuote = await shopTest.reserve(orderReference, inventoryItems, input.data.shippingCountry,
       new Map([...readiness.prices].map(([id, price]) => [id, price.unit_amount!])));
     reservationId = orderReference;
     const params = formData({
@@ -388,6 +400,7 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
       "payment_intent_data[metadata][shippingCents]":
         shipping.amountCents,
     });
+    if (isPersistentShop()) params.set("metadata[shopQuoteHash]", shopQuoteHash(reservedQuote));
 
     let expectedAmountCents: number = shipping.amountCents;
     input.data.items.forEach((item, index) => {
@@ -398,6 +411,10 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
       expectedAmountCents += price.unit_amount! * item.quantity;
       params.set(`line_items[${index}][price]`, price.id);
       params.set(`line_items[${index}][quantity]`, String(item.quantity));
+      // Stripe metadata supports 50 keys; the complete cart is bound by its
+      // server-owned quote digest, not a truncated client-supplied list.
+      if (isPersistentShop() && index >= 10) return;
+      params.set(`metadata[item_${index + 1}_variant]`, inventoryItems[index]!.variantId);
       if (item.color) {
         params.set(`metadata[item_${index + 1}_color]`, item.color);
         params.set(`payment_intent_data[metadata][item_${index + 1}_color]`, item.color);
@@ -520,7 +537,10 @@ router.get("/store/checkout/status", async (req, res): Promise<void> => {
       status = "pending";
     }
 
-    await shopTest.settleSession(session.id!, status === "paid", status === "expired");
+    if (!await settleVerifiedShopSession(session)) {
+      res.status(404).json({ error: "Commande Boutique introuvable. Aucun paiement de cette commande n’est confirmé." });
+      return;
+    }
     res.json(
       GetStoreCheckoutStatusResponse.parse({
         status,

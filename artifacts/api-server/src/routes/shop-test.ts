@@ -2,10 +2,15 @@ import express, { Router, type IRouter, type RequestHandler } from "express";
 import { randomUUID } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { getAuth } from "@clerk/express";
 import { requireAdmin } from "../middlewares/auth";
 import { storeStripeApi } from "../storeStripeClient";
-import { CreateShopQuoteBody, GetShopAdminResponse, GetShopCatalogResponse, CreateShopQuoteResponse, UploadShopPhotoBody, UpdateShopProductBody, GetShopOrdersResponse } from "@workspace/api-zod";
-import { shopTest, SHOP_TEST_DIR, SHOP_ORIGINALS, ShopError, quoteCart, validateProduct } from "../lib/shop-test";
+import { CreateShopQuoteBody, GetShopAdminResponse, GetShopCatalogResponse, CreateShopQuoteResponse, UploadShopPhotoBody, UpdateShopProductBody, GetShopOrdersResponse, RequestShopPhotoUploadBody, CompleteShopPhotoUploadBody, RequestShopPhotoUploadResponse } from "@workspace/api-zod";
+import { SHOP_TEST_DIR, SHOP_ORIGINALS, ShopError, quoteCart, validateProduct } from "../lib/shop-test";
+import { shop as shopTest, isPersistentShop, persistentShop } from "../lib/shop-repository";
+import { requestPrivateShopPhoto, completePrivateShopPhoto } from "../lib/shop-object-media";
+import { ObjectStorageService } from "../lib/objectStorage";
+import { settleVerifiedShopSession } from "../lib/shop-session";
 
 const router: IRouter = Router();
 const guard: RequestHandler = (req, res, next) => {
@@ -31,6 +36,7 @@ function fail(res: express.Response, error: unknown) {
 }
 async function checkPhotoReferences(variants: { photos: { reference: string }[] }[]) {
   for (const variant of variants) for (const photo of variant.photos) {
+    if (isPersistentShop()) { await persistentShop.objectPath(photo.reference); continue; }
     if (photo.reference.startsWith("upload:")) {
       const filename = uploadFilename(photo.reference);
       if (!filename) throw new ShopError("Photo inconnue.");
@@ -103,6 +109,7 @@ router.put("/shop/admin/products/:id", async (req, res) => {
 });
 router.post("/shop/admin/photos", express.json({ limit: "7mb" }), async (req, res) => {
   try {
+    if (isPersistentShop()) throw new ShopError("Utilisez le téléversement direct vers App Storage.", 409);
     const input = UploadShopPhotoBody.strict().safeParse(req.body);
     if (!input.success || !/^[A-Za-z0-9+/]+={0,2}$/.test(input.data.base64)) throw new ShopError("Envoi photo invalide.");
     const bytes = Buffer.from(input.data.base64, "base64");
@@ -115,6 +122,21 @@ router.post("/shop/admin/photos", express.json({ limit: "7mb" }), async (req, re
     catch (error) { await fs.unlink(filename).catch(() => {}); throw error; }
     finally { await handle.close(); }
     res.json({ reference });
+  } catch (error) { fail(res, error); }
+});
+router.post("/shop/admin/photos/request-url", async (req, res) => {
+  try {
+    const input = RequestShopPhotoUploadBody.strict().safeParse(req.body);
+    if (!isPersistentShop() || !input.success) throw new ShopError("Envoi persistant invalide.");
+    res.json(RequestShopPhotoUploadResponse.parse(await requestPrivateShopPhoto(input.data.contentType, input.data.size)));
+  } catch (error) { fail(res, error); }
+});
+router.post("/shop/admin/photos/complete", async (req, res) => {
+  try {
+    const input = CompleteShopPhotoUploadBody.strict().safeParse(req.body);
+    const owner = getAuth(req).userId;
+    if (!isPersistentShop() || !input.success || !owner) throw new ShopError("Envoi persistant invalide.");
+    res.json(await completePrivateShopPhoto(input.data.reference, owner, validateImage));
   } catch (error) { fail(res, error); }
 });
 router.get("/shop/catalog", async (_req, res) => {
@@ -145,6 +167,14 @@ router.get("/shop/media", async (req, res) => {
       await requireAdmin(req, res, () => { authorized = true; });
       if (!authorized) return;
     }
+    if (isPersistentShop()) {
+      const storage = new ObjectStorageService();
+      const file = await storage.getObjectEntityFile(await persistentShop.objectPath(reference));
+      res.set({ "Content-Security-Policy": "default-src 'none'; sandbox", "Cross-Origin-Resource-Policy": "same-origin" });
+      res.type(reference.endsWith(".png") ? "image/png" : reference.endsWith(".webp") ? "image/webp" : "image/jpeg");
+      file.createReadStream().on("error", () => { if (!res.headersSent) res.status(503).end(); else res.destroy(); }).pipe(res);
+      return;
+    }
     let filename: string | null = null;
     if (reference.startsWith("original:") && SHOP_ORIGINALS.includes(reference.slice(9) as typeof SHOP_ORIGINALS[number])) {
       filename = path.resolve(SHOP_TEST_DIR, "../../attached_assets", reference.slice(9));
@@ -159,14 +189,14 @@ router.get("/shop/media", async (req, res) => {
 });
 router.get("/shop/admin/orders", async (_req, res) => {
   try {
-    type Session = { id: string; livemode: boolean; metadata?: { storeFlow?: string; orderReference?: string }; payment_status?: string; status?: string; amount_total?: number; created: number };
+    type Session = { id: string; livemode: boolean; mode?: string; currency?: string; metadata?: Record<string, string>; payment_status?: string; status?: string; amount_total?: number; created: number };
     const page = await storeStripeApi<{ data: Session[] }>("/v1/checkout/sessions?limit=100");
     const sessions = page.data.filter(s => s.livemode === false && s.id.startsWith("cs_test_") && s.metadata?.storeFlow === "indamora-play-boutique-v1");
     const state = await shopTest.read();
     for (const session of sessions) {
       const pending = state.reservations.find(r => r.status === "pending" && r.id === session.metadata?.orderReference);
       if (pending && !pending.sessionId) await shopTest.attachSession(pending.id, session.id);
-      await shopTest.settleSession(session.id, session.payment_status === "paid", session.status === "expired");
+      await settleVerifiedShopSession(session);
     }
     const orders = sessions
       .map(s => ({ id: s.id, status: s.payment_status === "paid" ? "paid" : s.status === "expired" ? "expired" : "unpaid", amountCents: s.amount_total ?? null, created: s.created }));

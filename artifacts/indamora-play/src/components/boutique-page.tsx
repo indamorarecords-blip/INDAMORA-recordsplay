@@ -9,14 +9,13 @@ import {
   useGetStoreCheckoutStatus,
 } from '@workspace/api-client-react';
 import type { ShopPhoto, ShopPublicProduct, ShopPublicVariant, ShopQuote, StoreSku } from '@workspace/api-client-react';
-import { COLOR_LABELS, COLOR_SWATCH, OFFICIAL_PREVIEW_QR, PRODUCT_COLORS } from './boutique-preview-media';
+import { COLOR_LABELS, COLOR_SWATCH, OFFICIAL_PREVIEW_QR } from './boutique-preview-media';
 import type { ProductColor } from './boutique-preview-media';
 import './boutique-page.css';
 
 // Cart lines now reference dynamic ids. Older lines (sku/color) are kept until they can be resolved.
 type CartLine = { productId?: string; variantId?: string; sku?: string; color?: string; quantity: number };
 const LEGACY_DEFAULT_COLOR: Record<string, string> = { tshirt: 'rose', bob: 'noir' };
-const LEGACY_PRICES: Record<string, number> = { tshirt: 1500, bob: 1500, 'tote-bag': 1500, hoodie: 2500 };
 
 const STORAGE_KEY = 'indamora-play-boutique-cart';
 const OFFICIAL_LOGO_URL = `${import.meta.env.BASE_URL}assets/indamora-play-logo.png`;
@@ -312,20 +311,17 @@ export function BoutiquePage() {
   const hasUnavailable = cart.some((l) => { const { product, variant } = findLine(l); return !product || !variant?.available; });
   const catalogReady = Boolean(storeQuery.data?.checkoutAvailable);
   const legacyPrices = new Map((storeQuery.data?.products ?? []).map((p) => [p.sku as string, p.priceCents as number]));
-  // Stripe TEST only knows the original four SKUs and their fixed prices.
+  // Dynamic Shop identifiers and server-authoritative Stripe prices.
   const legacyItems = useMemo(() => {
     if (!q || !products.length) return null;
-    const items: Array<{ sku: StoreSku; quantity: number; color?: ProductColor }> = [];
+    const items: Array<{ sku: StoreSku; quantity: number; variantId: string }> = [];
     for (const l of cart) {
-      const sku = Object.keys(LEGACY_PRICES).find((s) => norm(l.productId ?? '') === s);
+      const sku = l.productId;
       const { variant } = findLine(l);
       if (!sku || !variant) return null;
-      const allowed = PRODUCT_COLORS[sku as StoreSku];
-      const color = allowed ? allowed.find((c) => c === norm(variant.id) || c === norm(variant.color)) : undefined;
-      if (allowed && !color) return null;
       const ql = q.lines.find((x) => x.productId === l.productId && x.variantId === l.variantId);
-      if (!ql || ql.priceCents !== LEGACY_PRICES[sku] || legacyPrices.get(sku) !== ql.priceCents) return null;
-      items.push(color ? { sku: sku as StoreSku, quantity: l.quantity, color } : { sku: sku as StoreSku, quantity: l.quantity });
+      if (!ql || legacyPrices.get(sku) !== ql.priceCents) return null;
+      items.push({ sku, quantity: l.quantity, variantId: variant.id });
     }
     return items;
     // eslint-disable-next-line react-hooks/exhaustive-deps

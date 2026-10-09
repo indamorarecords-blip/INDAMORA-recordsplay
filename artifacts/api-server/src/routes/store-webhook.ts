@@ -1,13 +1,14 @@
 import express, { Router, type IRouter } from "express";
 import { verifyStripeSignature } from "../stripeSignature";
 import { storeStripeApi } from "../storeStripeClient";
-import { shopTest } from "../lib/shop-test";
+import { settleVerifiedShopSession } from "../lib/shop-session";
 
 const router: IRouter = Router();
 const supportedEvents = new Set([
   "checkout.session.completed",
   "checkout.session.async_payment_succeeded",
   "checkout.session.async_payment_failed",
+  "checkout.session.expired",
 ]);
 
 type StoreEvent = {
@@ -30,6 +31,8 @@ type StoreSession = {
   payment_status?: string;
   status?: string;
   metadata?: Record<string, string>;
+  amount_total?: number | null;
+  currency?: string | null;
 };
 
 router.post(
@@ -102,14 +105,13 @@ router.post(
         return;
       }
 
-      // Idempotent, private Shop TEST files only; never touches any database,
-      // Premium, donations, users, or a session without a Shop reservation.
-      await shopTest.settleSession(session.id!, paid, session.status === "expired" || event.type === "checkout.session.async_payment_failed");
+      // Idempotent Shop-only settlement, no effect on other spaces or accounts.
+      const matched = await settleVerifiedShopSession(session, event.type === "checkout.session.async_payment_failed");
       req.log.info(
         { eventId: event.id, eventType: event.type, paid },
         "Boutique TEST webhook verified against Stripe",
       );
-      res.status(200).json({ received: true });
+      res.status(200).json({ received: true, ...(matched ? {} : { ignored: true }) });
     } catch {
       req.log.warn("Boutique TEST webhook Stripe confirmation unavailable");
       res.status(503).json({ error: "Vérification Stripe TEST indisponible." });

@@ -44,7 +44,10 @@ import type {
   ShopDashboard,
   ShopOrders,
   ShopPhoto,
+  ShopPhotoCompletion,
+  ShopPhotoRequest,
   ShopPhotoUpload,
+  ShopPhotoUploadUrl,
   ShopProduct,
   ShopProductInput,
   ShopProductUpdateInput,
@@ -357,6 +360,136 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
         TContext
       > => {
       return useMutation(getUploadShopPhotoMutationOptions(options));
+    }
+
+export const getRequestShopPhotoUploadUrl = () => {
+
+
+
+
+  return `/api/shop/admin/photos/request-url`
+}
+
+export const requestShopPhotoUpload = async (shopPhotoRequest: ShopPhotoRequest, options?: Parameters<typeof customFetch>[1]): Promise<ShopPhotoUploadUrl> => {
+
+  return customFetch<ShopPhotoUploadUrl>(getRequestShopPhotoUploadUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(shopPhotoRequest)
+  }
+);}
+
+
+
+
+
+export const getRequestShopPhotoUploadMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestShopPhotoUpload>>, TError,{data: BodyType<ShopPhotoRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof requestShopPhotoUpload>>, TError,{data: BodyType<ShopPhotoRequest>}, TContext> => {
+
+const mutationKey = ['requestShopPhotoUpload'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof requestShopPhotoUpload>>, {data: BodyType<ShopPhotoRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  requestShopPhotoUpload(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RequestShopPhotoUploadMutationResult = NonNullable<Awaited<ReturnType<typeof requestShopPhotoUpload>>>
+    export type RequestShopPhotoUploadMutationBody = BodyType<ShopPhotoRequest>
+    export type RequestShopPhotoUploadMutationError = ErrorType<unknown>
+
+    export const useRequestShopPhotoUpload = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestShopPhotoUpload>>, TError,{data: BodyType<ShopPhotoRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof requestShopPhotoUpload>>,
+        TError,
+        {data: BodyType<ShopPhotoRequest>},
+        TContext
+      > => {
+      return useMutation(getRequestShopPhotoUploadMutationOptions(options));
+    }
+
+export const getCompleteShopPhotoUploadUrl = () => {
+
+
+
+
+  return `/api/shop/admin/photos/complete`
+}
+
+export const completeShopPhotoUpload = async (shopPhotoCompletion: ShopPhotoCompletion, options?: Parameters<typeof customFetch>[1]): Promise<ShopPhoto> => {
+
+  return customFetch<ShopPhoto>(getCompleteShopPhotoUploadUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(shopPhotoCompletion)
+  }
+);}
+
+
+
+
+
+export const getCompleteShopPhotoUploadMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeShopPhotoUpload>>, TError,{data: BodyType<ShopPhotoCompletion>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof completeShopPhotoUpload>>, TError,{data: BodyType<ShopPhotoCompletion>}, TContext> => {
+
+const mutationKey = ['completeShopPhotoUpload'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof completeShopPhotoUpload>>, {data: BodyType<ShopPhotoCompletion>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  completeShopPhotoUpload(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CompleteShopPhotoUploadMutationResult = NonNullable<Awaited<ReturnType<typeof completeShopPhotoUpload>>>
+    export type CompleteShopPhotoUploadMutationBody = BodyType<ShopPhotoCompletion>
+    export type CompleteShopPhotoUploadMutationError = ErrorType<unknown>
+
+    export const useCompleteShopPhotoUpload = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof completeShopPhotoUpload>>, TError,{data: BodyType<ShopPhotoCompletion>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof completeShopPhotoUpload>>,
+        TError,
+        {data: BodyType<ShopPhotoCompletion>},
+        TContext
+      > => {
+      return useMutation(getCompleteShopPhotoUploadMutationOptions(options));
     }
 
 export const getGetShopOrdersUrl = () => {

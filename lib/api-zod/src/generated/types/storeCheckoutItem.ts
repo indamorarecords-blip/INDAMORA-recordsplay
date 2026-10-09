@@ -16,4 +16,6 @@ export interface StoreCheckoutItem {
      */
   quantity: number;
   color?: StoreCheckoutItemColor;
+  /** @pattern ^[a-z0-9_-]{1,64}$ */
+  variantId?: string;
 }
