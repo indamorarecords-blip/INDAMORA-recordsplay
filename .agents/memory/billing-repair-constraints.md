@@ -32,3 +32,9 @@ For the existing Premium flow, keep webhook registration readiness as a diagnost
 **Why:** The owner specifically requested correcting the webhook-related opening blocker without weakening security. Registration discovery is not signature verification; opening an unpaid Checkout does not grant Premium, whose status is verified directly with Stripe.
 
 **How to apply:** Preserve authentication, price/mode and ownership checks, duplicate-subscription prevention, signed webhook validation and server-side Premium confirmation. Do not interpret successful Checkout opening as proof of working webhook synchronization.
+
+For the isolated Boutique TEST flow, keep payments blocked after a failed test until the server has accepted a genuine signed Stripe event. Reactivation must remain TEST-only; reblock and report precisely if the authorized verification fails.
+
+**Why:** The owner explicitly requires a successful official-card TEST journey, signed event reception and secure server-side order confirmation before declaring Boutique TEST operational. The Premium-specific readiness rule above does not override this Shop requirement.
+
+**How to apply:** A correctly shaped signing secret or a Stripe-backed paid status GET is insufficient evidence of webhook validation. Each Dashboard webhook and Stripe CLI listener has its own signing secret even though both use the same prefix. Confirm an actual Stripe delivery and server response, distinguish webhook settlement from browser-return reconciliation, and verify that replay does not debit inventory twice. Never infer LIVE readiness from this TEST proof.
