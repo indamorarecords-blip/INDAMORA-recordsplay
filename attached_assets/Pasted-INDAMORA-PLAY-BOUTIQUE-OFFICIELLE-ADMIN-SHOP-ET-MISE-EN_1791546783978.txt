@@ -1,0 +1,372 @@
+INDAMORA PLAY — BOUTIQUE OFFICIELLE, ADMIN SHOP ET MISE EN PRODUCTION AVEC STRIPE
+
+OBJECTIF GÉNÉRAL
+
+Je veux finaliser, valider et mettre en production la Boutique officielle INDAMORA PLAY afin qu’elle soit accessible depuis le menu principal du site, que les clients puissent consulter les produits et acheter en ligne, et que je puisse gérer l’ensemble de la boutique depuis un espace ADMINISTRATEUR privé.
+
+Je t’autorise à préparer et effectuer la mise en production de la Boutique et des éléments strictement nécessaires à son fonctionnement commercial.
+
+La priorité est de compléter l’existant sans refaire le site, sans casser les fonctionnalités déjà opérationnelles et sans modifier les espaces qui ne concernent pas la Boutique.
+
+Avant toute intervention, examine l’architecture du projet, les routes existantes, l’authentification, les permissions, les données produits, le panier et la configuration Stripe. Réutilise les composants et systèmes déjà présents.
+
+⸻
+
+1. INTÉGRER SHOP DANS LE MENU PRINCIPAL
+
+La Boutique doit être accessible directement depuis la barre de navigation principale du site INDAMORA PLAY.
+
+* Ajouter une rubrique intitulée SHOP au menu principal.
+* Conserver toutes les autres rubriques existantes.
+* Ne supprimer, renommer ou déplacer aucun lien existant sans nécessité et sans autorisation.
+* Relier SHOP à la véritable page de la Boutique existante, en réutilisant sa route actuelle si elle existe.
+* Ne pas créer de boutique ou de route en double.
+* Rendre SHOP visible aux visiteurs, aux artistes, aux abonnés et aux utilisateurs connectés.
+* Intégrer SHOP à la navigation mobile, à la tablette et à l’ordinateur.
+* Mettre en évidence SHOP lorsque l’utilisateur se trouve dans la Boutique, si le système actuel le permet.
+* Vérifier que le menu reste lisible et utilisable sur téléphone, sans débordement horizontal.
+
+Important : SHOP est public. ADMIN SHOP ne l’est pas. Le menu public ne doit jamais afficher les fonctions d’administration.
+
+2. CRÉER UN ESPACE ADMIN SHOP STRICTEMENT PRIVÉ
+
+Je veux pouvoir gérer moi-même la Boutique sans modifier le code.
+
+Créer un espace ADMINISTRATEUR → SHOP, réservé exclusivement aux comptes disposant déjà du rôle ADMINISTRATEUR autorisé.
+
+Cet espace doit être totalement invisible et inaccessible aux :
+
+* Artistes.
+* Abonnés.
+* Utilisateurs ordinaires.
+* Visiteurs non connectés.
+* Autres rôles sans permission administrative.
+
+Sécurité obligatoire
+
+* Réutiliser l’authentification et le système de rôles existants.
+* Protéger chaque route, API et action d’administration côté serveur.
+* Ne pas se contenter de masquer les boutons dans l’interface.
+* Refuser les accès directs non autorisés aux URL d’administration.
+* Ne jamais transmettre de données privées de gestion à un utilisateur non autorisé.
+* Ne pas créer de compte administrateur public ni de mot de passe codé en dur.
+* Ne pas affaiblir la sécurité existante pour faciliter l’accès à l’administration.
+
+Si le rôle administrateur ou ses permissions ne peuvent pas être vérifiés de façon sûre, arrêter cette partie et m’expliquer le problème avant toute modification risquée.
+
+3. TABLEAU DE BORD ADMINISTRATEUR
+
+Créer une interface claire, moderne, responsive et facile à utiliser sur téléphone, tablette et ordinateur.
+
+Le tableau de bord doit présenter, à partir de données réelles :
+
+* Le nombre de produits actifs.
+* Les produits en brouillon ou masqués.
+* Les produits en rupture de stock.
+* Les produits dont le stock est faible.
+* Les commandes et leurs statuts réels, si les données sont disponibles.
+* Les dernières modifications effectuées, si cette fonction peut être ajoutée sans risque.
+
+Ne jamais inventer de statistiques ou de commandes.
+
+4. AJOUTER, MODIFIER ET GÉRER LES PRODUITS
+
+Depuis ADMIN SHOP, je dois pouvoir gérer la boutique en autonomie, sans modifier le code.
+
+Pour chaque article, prévoir les champs nécessaires :
+
+* Nom.
+* Description.
+* Catégorie.
+* Prix en euros.
+* Photos.
+* Couleurs et variantes.
+* Taille ou mention « Taille unique ».
+* Référence produit/SKU, si nécessaire.
+* Quantité en stock.
+* Stock par couleur ou variante, si applicable.
+* Statut : brouillon, actif ou masqué.
+* Visibilité dans la Boutique.
+* Informations de livraison pertinentes.
+
+Je dois pouvoir :
+
+* Ajouter un produit.
+* Modifier un produit existant.
+* Ajouter, remplacer ou retirer des photos.
+* Modifier les prix, les descriptions, les catégories, les couleurs et les tailles.
+* Gérer les stocks.
+* Enregistrer un brouillon.
+* Prévisualiser un produit.
+* Activer ou masquer un produit.
+* Archiver un article sans supprimer inutilement l’historique des commandes.
+
+Les modifications doivent être enregistrées durablement et se répercuter dans la Boutique lorsqu’un produit est actif.
+
+Ne pas créer de doublons si les produits existent déjà.
+
+5. CATALOGUE INITIAL À VALIDER
+
+Configurer le catalogue suivant à partir des produits et photos que j’ai déjà fournis.
+
+T-shirts
+
+* Prix : 15 €.
+* Taille unique.
+* Couleurs : rose, noir et blanc.
+* Une fiche produit regroupant les trois couleurs avec un sélecteur de variante.
+* Utiliser uniquement les photos fournies qui correspondent réellement aux variantes.
+
+Bobs
+
+* Prix : 15 €.
+* Taille unique.
+* Couleurs : blanc, noir et orange.
+* Une fiche produit regroupant les trois couleurs avec un sélecteur de variante.
+* Utiliser uniquement les photos fournies qui correspondent réellement aux variantes.
+
+Tote bags
+
+* Prix : 15 €.
+* Utiliser les photos fournies.
+* N’ajouter des variantes que si elles correspondent à des produits réels.
+
+Hoodies / sweats
+
+* Prix : 25 €.
+* Taille unique uniquement si cela correspond bien au produit réel.
+* Utiliser les photos fournies.
+
+Ne pas ajouter de casquettes ni de coques de téléphone.
+
+Photos : utiliser exclusivement les images fournies. Ne pas générer de nouvelles images, ne pas utiliser de photos de stock et ne pas remplacer les photos officielles par d’anciens mockups.
+
+Ne pas inventer les quantités disponibles. Si le stock réel n’est pas connu, permettre à l’administrateur de le renseigner et ne pas afficher artificiellement le produit comme disponible.
+
+6. GESTION DU STOCK
+
+Le stock doit être réellement fonctionnel.
+
+* Définir la quantité disponible de chaque produit.
+* Gérer les stocks par couleur ou variante si nécessaire.
+* Empêcher les commandes de variantes épuisées.
+* Empêcher tout stock négatif.
+* Afficher les ruptures et les alertes de stock faible dans ADMIN SHOP.
+* Permettre les corrections manuelles du stock.
+* Conserver un historique des ajustements si l’architecture actuelle le permet sans risque.
+* Maintenir la cohérence entre les stocks, les paniers et les commandes.
+
+Ne jamais annoncer un produit comme disponible sans quantité réellement disponible.
+
+7. PHOTOS ET STOCKAGE
+
+L’administrateur doit pouvoir ajouter les photos de nouveaux articles et modifier celles des produits existants.
+
+* Réutiliser le système de stockage actuel.
+* Vérifier les formats et les tailles de fichiers côté serveur.
+* Prévoir un aperçu avant enregistrement.
+* Préserver les images existantes.
+* Ne jamais exposer de clés secrètes.
+* Ne pas modifier l’infrastructure ou ajouter un service payant sans nécessité.
+
+Si une configuration supplémentaire est indispensable, m’expliquer le blocage avant de modifier l’infrastructure.
+
+8. DESIGN DE LA BOUTIQUE
+
+Améliorer uniquement la présentation de la Boutique, sans refaire le reste du site.
+
+Direction visuelle :
+
+* Streetwear moderne, féminin, audacieux et premium.
+* Ambiance « baddie streetwear ».
+* Rose plus présent, interface moins sombre.
+* Design épuré et professionnel.
+* Priorité à l’expérience mobile.
+* Photos produits fidèles aux fichiers fournis.
+* Présentation claire des prix et des variantes.
+* Pas d’accumulation de textes ou d’éléments inutiles en haut de page.
+
+En-tête compact de la Boutique
+
+Afficher :
+
+* Le logo officiel INDAMORA PLAY, sans le redessiner ni le déformer.
+* Le titre court INDAMORA PLAY — SHOP.
+* L’accès au panier.
+
+Déplacer les textes longs de présentation de la marque plus bas dans la page ou dans une section repliable.
+
+Ne pas modifier le design des autres pages pour appliquer cette présentation.
+
+9. PANIER, LIVRAISON ET CALCUL DES TOTAUX
+
+Vérifier que le panier permet :
+
+* D’ajouter un article.
+* De choisir la bonne couleur ou variante.
+* De modifier les quantités.
+* De retirer un article.
+* D’afficher le prix unitaire, le sous-total, les frais de livraison et le total final.
+
+Conserver les règles de livraison :
+
+* France : gratuite.
+* Union européenne : 7 €.
+* Hors Union européenne : contact nécessaire et tarif à confirmer.
+
+Tous les prix, stocks, frais de livraison et totaux doivent être recalculés côté serveur. Ne jamais faire confiance aux prix envoyés uniquement par le navigateur.
+
+Si la destination ou les frais ne sont pas déterminés, ne pas afficher un total définitif inventé ni autoriser le paiement d’un montant incorrect.
+
+10. RELIER LA BOUTIQUE À STRIPE
+
+Je veux que les clients puissent payer réellement en ligne une fois la configuration vérifiée.
+
+Étape A — Valider Stripe TEST
+
+Avant le passage en production :
+
+* Vérifier la clé secrète Boutique TEST déjà configurée, sans afficher sa valeur.
+* Vérifier qu’elle est bien en mode test et commence par sk_test_.
+* Vérifier la création de session Stripe Checkout côté serveur.
+* Vérifier les prix, variantes, quantités et frais de livraison.
+* Vérifier le webhook TEST et sa signature.
+* Vérifier les paiements réussis, les échecs, les annulations et les événements répétés.
+* Vérifier que le statut d’une commande est confirmé côté serveur.
+
+Le secret de signature du webhook doit être le véritable secret correspondant à l’endpoint, commençant par whsec_. Un identifiant d’endpoint ou une clé API ne le remplace pas.
+
+Si la configuration TEST n’est pas valide, ne pas contourner les vérifications.
+
+Étape B — Configurer Stripe LIVE pour la production
+
+* Utiliser des clés LIVE distinctes des clés TEST.
+* Utiliser exclusivement les secrets LIVE de l’environnement de production pour les paiements réels.
+* Vérifier que la clé publique et la clé secrète correspondent au bon environnement.
+* Configurer un webhook LIVE sur l’URL réelle de production.
+* Utiliser le secret de signature LIVE correspondant à cet endpoint.
+* Ne jamais réutiliser le secret du webhook TEST en production.
+* Ne jamais exposer les clés secrètes dans le navigateur, les réponses API ou les journaux.
+* Ne pas remplacer les configurations Stripe de Premium ou des dons.
+* Ne pas mélanger les commandes TEST et LIVE.
+
+Si une clé LIVE ou un webhook LIVE manque, m’indiquer précisément où le configurer dans Replit Secrets et dans Stripe. Ne pas inventer de secrets et ne pas afficher les valeurs sensibles.
+
+Étape C — Vérifier le traitement des commandes
+
+* Créer les sessions Checkout côté serveur.
+* Recalculer les prix et les frais de livraison côté serveur.
+* Valider la signature des webhooks.
+* Ne marquer une commande comme payée qu’après confirmation serveur authentifiée par Stripe.
+* Ne jamais considérer le simple retour sur une page de succès comme une preuve de paiement.
+* Empêcher le double traitement d’un même événement.
+* Maintenir la cohérence entre les paiements, les commandes et le stock.
+* Vérifier les commandes annulées et les paiements échoués.
+
+Utiliser les moyens de paiement de test officiels de Stripe pour simuler un achat. Ne jamais utiliser de carte bancaire réelle pour les tests.
+
+Si un contrôle critique échoue, ne pas activer les paiements LIVE avant sa résolution.
+
+11. SÉPARATION STRICTE ENTRE SHOP ET LES AUTRES ESPACES
+
+La mise en production de la Boutique ne doit pas casser ni modifier inutilement :
+
+* Les espaces ARTISTE et ABONNÉS.
+* L’authentification et les comptes existants.
+* Les abonnements Premium.
+* Les dons.
+* La PWA déjà validée et installée.
+* La Gift Card, qui reste en attente.
+* Les routes publiques existantes.
+* Les autres fonctionnalités et configurations financières du site.
+
+Conserver impérativement le correctif de sécurité proxy-addr@2.0.8.
+
+Ne pas refaire le site, ne pas réinitialiser la base de données et ne pas supprimer les données existantes.
+
+Réutiliser les structures actuelles. Toute migration ou modification de données persistantes doit être examinée avant exécution ; si elle présente un risque important ou touche des données hors périmètre, arrêter et demander mon accord.
+
+12. TESTS OBLIGATOIRES AVANT PUBLICATION
+
+Exécuter réellement les tests disponibles et corriger uniquement les problèmes relevant de la Boutique.
+
+Navigation
+
+* SHOP apparaît dans le menu principal sur ordinateur.
+* SHOP apparaît dans le menu mobile.
+* SHOP ouvre la véritable Boutique.
+* Tous les autres liens continuent de fonctionner.
+
+Produits et panier
+
+* Vérifier les produits, les photos, les prix et les variantes.
+* Vérifier l’ajout, la modification et la suppression d’articles dans le panier.
+* Vérifier les sous-totaux et la livraison.
+* Vérifier les stocks et les ruptures.
+* Vérifier que les changements de l’administration apparaissent dans la Boutique.
+
+Administration
+
+* Un administrateur autorisé accède à ADMIN SHOP.
+* Un artiste ne voit pas les fonctions d’administration.
+* Un abonné ne voit pas les fonctions d’administration.
+* Un utilisateur ordinaire ne voit pas les fonctions d’administration.
+* Les accès directs non autorisés sont refusés côté serveur.
+
+Paiement
+
+* Vérifier Stripe TEST de bout en bout.
+* Vérifier le webhook et le statut réel des commandes.
+* Vérifier les annulations et les échecs.
+* Vérifier que les paiements LIVE ne sont activés que lorsque les conditions de sécurité sont remplies.
+
+Non-régression
+
+* Vérifier l’affichage mobile et ordinateur.
+* Exécuter le build et les tests automatisés disponibles.
+* Vérifier les journaux d’erreurs pertinents.
+* Vérifier que les espaces ARTISTE, ABONNÉS, Premium, les dons et la PWA fonctionnent comme avant.
+
+Ne jamais annoncer un test comme réussi s’il n’a pas réellement été exécuté.
+
+13. MISE EN PRODUCTION
+
+Après réussite des contrôles critiques, publier la version validée de la Boutique sur le domaine public prévu.
+
+* Confirmer le bon projet et le bon environnement de production avant de publier.
+* Ne pas utiliser une URL Preview comme si elle était le domaine public officiel.
+* Vérifier que les routes, les ressources et les images fonctionnent en production.
+* Vérifier la configuration des variables d’environnement et des secrets de production.
+* Vérifier que les utilisateurs peuvent consulter la Boutique publique.
+* Vérifier que seul ADMINISTRATEUR peut accéder à ADMIN SHOP.
+* Vérifier que le paiement réel est activé uniquement si Stripe LIVE et son webhook sont valides.
+* Prévoir un retour arrière si la publication provoque une régression.
+
+L’autorisation de mise en production concerne la Boutique et ses dépendances strictement nécessaires. Elle n’autorise pas une refonte générale ni des changements sans rapport avec la Boutique.
+
+14. BUDGET ET SÉCURITÉ
+
+Budget disponible : 0 €.
+
+Ne pas souscrire à un service payant, augmenter un abonnement ou engager une dépense sans mon accord.
+
+Ne jamais afficher ou copier des clés secrètes dans le code client ou dans le compte rendu. Ne pas remplacer les clés existantes hors Boutique.
+
+15. COMPTE RENDU FINAL OBLIGATOIRE
+
+À la fin, fournir un rapport clair et fondé sur des vérifications réelles :
+
+1. URL publique exacte de la Boutique.
+2. Confirmation que SHOP apparaît dans le menu principal sur ordinateur et mobile.
+3. URL exacte d’ADMIN SHOP et confirmation que son accès est strictement réservé à ADMINISTRATEUR.
+4. Liste des fonctionnalités de gestion réellement opérationnelles.
+5. Résultats du build et des tests.
+6. État de Stripe TEST.
+7. État de Stripe LIVE et de son webhook, sans révéler les secrets.
+8. Confirmation que les commandes ne sont marquées payées qu’après validation serveur.
+9. Problèmes restants et actions précises nécessaires.
+10. Confirmation que les espaces ARTISTE, ABONNÉS, Premium, les dons, la PWA, la Gift Card et le correctif proxy-addr@2.0.8 ont été préservés.
+
+Si une condition essentielle empêche l’ouverture des paiements réels, expliquer clairement le blocage. Ne pas prétendre que la Boutique est pleinement opérationnelle si les achats réels ne peuvent pas être finalisés en sécurité.
+
+RÉSULTAT FINAL ATTENDU : une Boutique INDAMORA PLAY accessible depuis le menu SHOP, publiée sur le domaine public, fonctionnelle sur mobile et ordinateur, administrable uniquement par ADMINISTRATEUR, avec un catalogue réel, une gestion fiable des stocks et des paiements Stripe LIVE sécurisés après validation complète.
