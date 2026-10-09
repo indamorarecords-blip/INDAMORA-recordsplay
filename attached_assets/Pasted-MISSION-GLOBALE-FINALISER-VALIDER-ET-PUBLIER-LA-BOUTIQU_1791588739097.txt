@@ -1,0 +1,217 @@
+MISSION GLOBALE — FINALISER, VALIDER ET PUBLIER LA BOUTIQUE INDAMORA PLAY
+
+Tu es responsable de finaliser la boutique en ligne INDAMORA PLAY existante, de vérifier son fonctionnement de bout en bout, puis de préparer et réaliser sa publication uniquement lorsque toutes les conditions de sécurité sont satisfaites.
+
+L’objectif est de passer de l’état actuel de la Preview DEV à une boutique publique fiable, fonctionnelle, sécurisée et prête à recevoir de vraies commandes.
+
+1. RÈGLES ABSOLUES DE SÉCURITÉ
+
+Avant toute intervention :
+
+* Inspecter l’état actuel du projet, les fichiers modifiés, les tests, la configuration, les journaux et les fonctionnalités déjà réalisées.
+* Ne pas recommencer inutilement les vérifications déjà confirmées.
+* Ne pas supprimer, réécrire ou remplacer des fonctionnalités existantes sans nécessité démontrée.
+* Préserver intégralement le site existant, l’application mobile/PWA, l’authentification, les rôles, les artistes, les abonnés, Premium, les dons, les Gift Cards et les routes publiques.
+* Préserver impérativement proxy-addr@2.0.8.
+* Ne pas toucher aux secrets, endpoints ou paramètres Stripe LIVE avant la phase de préparation de production explicitement autorisée.
+* Ne jamais exposer de clé API, secret whsec_, signature, mot de passe ou donnée personnelle dans les rapports.
+* Ne jamais utiliser de service payant ni engager de dépense.
+* Ne jamais effectuer de migration de base de données en production, de paiement LIVE, de publication ou de déploiement sans autorisation explicite.
+* Ne jamais déclarer un contrôle réussi sans preuve observable.
+* Si une opération risque de casser le site, d’altérer des données, de provoquer une dépense ou de dépasser les autorisations, arrêter cette opération et expliquer précisément le blocage.
+
+Pour commencer, travailler exclusivement en DEV/Preview, en lecture seule tant que l’état actuel n’est pas établi.
+
+2. ÉTAT ACTUEL À PRENDRE EN COMPTE
+
+Les éléments suivants ont déjà été rapportés comme vérifiés en DEV :
+
+* La boutique est visible dans la Preview, sur ordinateur et mobile.
+* Les quatre catégories de produits prévues sont présentes : T-shirts, bobs, tote bags et hoodies/sweats.
+* Aucun téléphone ni casquette ne doit être ajouté.
+* Les quatre produits sont affichés à 15 € dans le catalogue DEV et Stripe TEST.
+* Chaque produit dispose de ses tailles/variantes prévues.
+* Les photos fournies et les éléments officiels de la marque doivent être conservés.
+* Livraison : France gratuite, Union européenne à 7 €, autres destinations sur demande.
+* Le checkout refuse une variante dont le stock est inconnu ou insuffisant, avant de créer une session Stripe.
+* L’accès administrateur est protégé côté serveur.
+* Des tests Shop ont déjà réussi, notamment sur le stock inconnu, la concurrence, l’idempotence, les signatures, les rôles et les stocks insuffisants.
+* Les vérifications de typecheck et de build ont réussi, avec des avertissements de source map et de taille de bundle déjà identifiés.
+* La configuration Stripe TEST comprend un endpoint Boutique actif avec les quatre événements nécessaires.
+* Une livraison Stripe a renvoyé HTTP 200 et {"received": true}.
+* Le code du webhook a été audité statiquement : vérification de signature sur le corps brut, contrôle du mode, métadonnées, session et contrôles détaillés lorsque le stockage PostgreSQL persistant est sélectionné.
+* L’environnement API DEV a été confirmé en mode développement/TEST avec SHOP_TEST_PERSISTENCE défini et PostgreSQL sélectionné.
+* L’événement historique evt_1UOheiJK2gfz9jMjnwGPB5kv n’est pas traçable dans les journaux accessibles. Sa validation cryptographique et son traitement exact restent inconnus. Ne pas prétendre le contraire et ne pas le renvoyer.
+* Huit variantes ont encore un stock réel inconnu : trois T-shirts, trois bobs, un tote bag et un hoodie. Elles doivent rester indisponibles jusqu’à confirmation des quantités.
+* Les tables Shop existent en DEV, mais la présence et la compatibilité du schéma en production ne sont pas confirmées.
+* Aucune configuration LIVE de la boutique ni aucun déploiement en production n’a été validé.
+* Le site de production doit rester intact jusqu’à autorisation explicite.
+
+Les informations ci-dessus sont un état de départ, pas une preuve automatique que la configuration est toujours identique. Confirmer uniquement les points qui ont changé ou qui restent critiques.
+
+3. PHASE A — AUDIT FINAL DE LA PREVIEW DEV
+
+Inspecter le projet actuel et produire une checklist avec trois statuts : CONFIRMÉ, À CORRIGER, BLOQUÉ.
+
+Vérifier :
+
+1. Catalogue, prix, images officielles, tailles et variantes.
+2. Panier : ajout, suppression, modification des quantités et calcul du total.
+3. Prix serveur : le montant ne doit pas pouvoir être modifié frauduleusement par le navigateur.
+4. Livraison : France gratuite, UE 7 €, autres destinations selon la règle prévue.
+5. Stock : quantité inconnue, stock nul et stock insuffisant doivent bloquer le checkout.
+6. Concurrence : deux commandes simultanées ne doivent pas provoquer de survente.
+7. Authentification et protection serveur de l’administration.
+8. Absence d’accès administrateur pour les utilisateurs non autorisés.
+9. Compatibilité mobile et PWA.
+10. Absence de régression sur Artistes, Abonnés, Premium, Dons, Gift Cards et les autres routes existantes.
+11. Typecheck, tests et builds.
+12. Sécurité du webhook et configuration Stripe TEST.
+
+Réutiliser les résultats de tests existants lorsqu’ils sont fiables et récents. N’exécuter que les tests nécessaires, dans DEV, sans paiement ni écriture imprévue.
+
+Ne pas corriger les avertissements de build hors périmètre sauf s’ils empêchent le lancement ou créent un risque démontré. Ne pas entreprendre de refonte esthétique inutile.
+
+4. PHASE B — INVENTAIRE ET VALIDATION DES STOCKS
+
+Identifier précisément les huit variantes dont le stock est inconnu.
+
+Pour chacune, fournir uniquement :
+
+* nom du produit ;
+* taille ou variante ;
+* SKU ou identifiant technique non sensible ;
+* quantité actuelle si elle est connue ;
+* état de disponibilité.
+
+Ne jamais inventer une quantité et ne jamais considérer un stock inconnu comme disponible.
+
+Demander les quantités réelles à l’administrateur. Tant qu’elles ne sont pas confirmées, conserver les variantes concernées indisponibles.
+
+Vérifier également le comportement en cas de stock nul, stock insuffisant, annulation, expiration et règlement répété.
+
+Ne modifier les quantités qu’après confirmation explicite des quantités réelles par l’administrateur.
+
+5. PHASE C — VALIDATION DU WEBHOOK ET DU CHECKOUT EN MODE TEST
+
+Avant tout nouveau test, établir le parcours exact de traitement et les éventuels effets sur la base DEV.
+
+Vérifier statiquement :
+
+* signature Stripe sur le corps brut ;
+* rejet d’une signature invalide avant toute écriture métier ;
+* sélection correcte du secret TEST ;
+* validation de livemode, de la session Checkout et des métadonnées Boutique ;
+* association session/commande ;
+* montant attendu, devise EUR, hash du devis et pays de livraison ;
+* idempotence et gestion de la concurrence ;
+* réponses HTTP et journalisation des erreurs.
+
+Le test historique sans journaux suffisants reste NON VÉRIFIÉ. Ne pas tenter de le rejouer.
+
+Avant un éventuel test Checkout TEST avec une variante dont le stock est confirmé :
+
+1. Décrire les effets possibles sur Stripe TEST et PostgreSQL DEV.
+2. Vérifier que la session ne peut pas affecter la production.
+3. Obtenir l’autorisation explicite de l’administrateur avant de lancer un paiement de test.
+4. Utiliser uniquement des données fictives et les moyens de paiement de test Stripe.
+5. Vérifier ensuite le résultat réel : session, commande, état de paiement, stock, journal et traitement des doublons.
+6. Ne jamais effectuer de paiement réel.
+
+Un HTTP 200 ou {"received": true} ne suffit pas à prouver que la commande a été correctement traitée.
+
+Si l’exécution d’un test nécessite une modification de configuration, de code ou de données, s’arrêter et demander une autorisation spécifique avant d’effectuer cette modification.
+
+6. PHASE D — PRÉPARATION DE LA PRODUCTION, SANS DÉPLOIEMENT
+
+Lorsque les contrôles DEV sont satisfaisants, préparer un rapport de production en lecture seule.
+
+Vérifier :
+
+* présence du schéma et des tables nécessaires en production, sans migration ;
+* compatibilité des migrations existantes ;
+* séparation stricte DEV/TEST et LIVE ;
+* disponibilité des variables LIVE requises, sans afficher leurs valeurs ;
+* disponibilité du secret de signature du webhook LIVE ;
+* sélection correcte du mode LIVE par le serveur ;
+* endpoint webhook LIVE et événements nécessaires ;
+* prix, devise, livraison et configuration des produits ;
+* contrôle des accès administrateur ;
+* gestion du stock et des commandes ;
+* protection des fonctionnalités existantes et de la PWA ;
+* stratégie de sauvegarde, de retour arrière et de vérification après publication.
+
+Variables de production déjà signalées comme non configurées ou non vérifiées :
+
+* STRIPE_BOUTIQUE_LIVE_SECRET_KEY
+* STRIPE_BOUTIQUE_LIVE_WEBHOOK_SECRET
+* BOUTIQUE_LIVE_ENABLED=true
+
+Ne pas créer, remplacer ou afficher leurs valeurs. Vérifier uniquement leur présence et leur état lorsque cela est autorisé.
+
+Ne pas effectuer de migration, ne pas activer les paiements LIVE, ne pas créer/modifier d’endpoint LIVE et ne pas changer les secrets pendant cette phase.
+
+Ne pas utiliser une migration DEV comme preuve que la production est prête.
+
+7. PHASE E — CONDITIONS OBLIGATOIRES AVANT PUBLICATION
+
+La publication commerciale n’est autorisée que si tous les points suivants sont confirmés :
+
+* tests et builds critiques réussis ;
+* parcours du panier et du checkout validé en DEV ;
+* webhook vérifié de manière fiable ;
+* stock des variantes proposées à la vente confirmé ;
+* contrôles de montant, devise, session et commande validés ;
+* authentification et droits administrateur validés ;
+* schéma de production examiné et plan de migration approuvé ;
+* secrets et endpoints LIVE préparés de manière sûre ;
+* sauvegarde et plan de retour arrière établis ;
+* aucune régression détectée sur les fonctionnalités existantes ;
+* autorisation explicite de l’administrateur pour chaque opération de production.
+
+Si un point critique est BLOQUÉ, ne pas contourner le blocage et ne pas publier silencieusement. Fournir la liste minimale des actions nécessaires.
+
+8. PHASE F — PLAN DE PUBLICATION
+
+Une fois les conditions satisfaites, fournir d’abord un plan d’exécution ordonné avec :
+
+1. opérations prévues ;
+2. fichiers ou tables concernés ;
+3. risques et sauvegardes ;
+4. étapes de validation ;
+5. plan de retour arrière.
+
+Attendre une autorisation explicite avant d’exécuter toute modification de production, migration, activation LIVE ou publication.
+
+Après autorisation, exécuter uniquement les opérations approuvées, dans l’ordre prévu. Ne pas élargir le périmètre en cours de route.
+
+Après publication, vérifier :
+
+* ouverture de la boutique publique ;
+* chargement des produits et prix ;
+* panier et règles de livraison ;
+* refus des variantes indisponibles ;
+* absence d’erreurs serveur ;
+* webhook LIVE et commandes ;
+* maintien du fonctionnement du reste du site et de la PWA.
+
+Aucun paiement LIVE de validation ne doit être effectué sans une autorisation distincte et explicite.
+
+9. FORMAT DU RAPPORT FINAL
+
+À chaque phase, fournir :
+
+* CONFIRMÉ : preuves observables ;
+* À CORRIGER : défauts précis ;
+* BLOQUÉ : ce qui empêche d’avancer ;
+* ACTION SUIVANTE : l’étape minimale pour continuer.
+
+Indiquer les fichiers modifiés, les tests réellement exécutés, les résultats et les effets sur les données.
+
+Ne jamais prétendre qu’un test, une sauvegarde, une migration ou une publication a été effectué si ce n’est pas le cas.
+
+INSTRUCTION IMMÉDIATE
+
+Commence maintenant par la PHASE A, en inspectant l’état actuel du projet en DEV et les résultats de tests existants.
+
+Ne publie rien, ne touche pas à la production, ne modifie aucune configuration LIVE, n’effectue aucun paiement et ne migre aucune base. Présente d’abord le tableau de validation et les blocages restants, puis attends mon accord avant toute opération risquée ou irréversible.
