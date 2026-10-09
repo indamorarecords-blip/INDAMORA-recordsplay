@@ -33,7 +33,7 @@ test("Boutique validates isolated TEST/LIVE fixtures, shipping and server paymen
         active: true,
         type: "one_time",
         currency: "eur",
-        unit_amount: sku === "hoodie" ? 2500 : 1500,
+        unit_amount: 1500,
         livemode: Boolean(overrides.live),
         metadata: { indamoraStoreSku: sku },
         product: { id: `prod_test_${sku}`, active: true, livemode: Boolean(overrides.live), metadata: { indamoraStoreSku: sku } },
@@ -97,12 +97,14 @@ test("Boutique validates isolated TEST/LIVE fixtures, shipping and server paymen
           builder.onLoad({ filter: /.*/, namespace: "shop-fixture" }, () => ({ contents: `
             export const shopTest = {
               read: async () => ({ products: ["tshirt","bob","tote-bag","hoodie"].map(id => ({ id, variants: (id === "tshirt" ? ["rose","noir","blanc"] : id === "bob" ? ["blanc","noir","orange"] : ["unique"]).map(id => ({id})) })) }),
-              reserve: async () => {}, release: async () => {}, attachSession: async () => {},
+              reserve: async () => { if (globalThis.storeFixture.reserveError) throw new ShopError(globalThis.storeFixture.reserveError.message, globalThis.storeFixture.reserveError.status); },
+              release: async () => {}, attachSession: async () => {},
               settleSession: async (...args) => {globalThis.storeFixture.settlements.push(args);}
             };
             export const shop = shopTest;
             export const persistentShop = {};
             export const isPersistentShop = () => false;
+            export class ShopError extends Error { constructor(message, status = 400) { super(message); this.status = status; } }
           `, loader: "js" }));
           builder.onResolve({ filter: /^\.\.\/storeStripeClient$/ }, () => ({ path: "storeStripeClient", namespace: "store-fixture" }));
           builder.onLoad({ filter: /.*/, namespace: "store-fixture" }, () => ({ contents: stripeMock, loader: "js" }));
@@ -146,7 +148,7 @@ test("Boutique validates isolated TEST/LIVE fixtures, shipping and server paymen
       });
     };
 
-    await t.test("catalog has four products, hoodie €25 and other products €15", async () => {
+    await t.test("catalog has four products at €15", async () => {
       reset();
       const response = await fetch(`${base}/catalog`);
       const catalog = await response.json();
@@ -154,7 +156,14 @@ test("Boutique validates isolated TEST/LIVE fixtures, shipping and server paymen
       assert.equal(catalog.mode, "test");
       assert.equal(catalog.checkoutAvailable, true);
       assert.deepEqual(catalog.products.map((product) => product.sku), skus);
-      assert.ok(catalog.products.every((product) => product.priceCents === (product.sku === "hoodie" ? 2500 : 1500)));
+      assert.ok(catalog.products.every((product) => product.priceCents === 1500));
+    });
+    await t.test("missing stock returns a safe conflict before creating a Stripe session", async () => {
+      reset({ reserveError: { message: "Stock à renseigner par l’administrateur.", status: 409 } });
+      const response = await checkout("FR", [{ sku: "tshirt", color: "rose", quantity: 1 }]);
+      assert.equal(response.status, 409);
+      assert.equal((await response.json()).error, "Une variante du panier n’est pas disponible.");
+      assert.equal(globalThis.storeFixture.calls.some((call) => call.path === "/v1/checkout/sessions"), false);
     });
     for (const [country, shipping] of [["FR", 0], ["DE", 700]]) {
       await t.test(`${country} shipping is ${shipping} cents and only server prices are used`, async () => {
@@ -201,11 +210,11 @@ test("Boutique validates isolated TEST/LIVE fixtures, shipping and server paymen
         assert.equal(globalThis.storeFixture.calls.length, 0);
       }
     });
-    await t.test("old €15 hoodie price blocks TEST checkout instead of undercharging", async () => {
+    await t.test("old €25 hoodie price blocks TEST checkout instead of overcharging", async () => {
       reset();
-      globalThis.storeFixture.prices.find(price => price.metadata.indamoraStoreSku === "hoodie").unit_amount = 1500;
+      globalThis.storeFixture.prices.find(price => price.metadata.indamoraStoreSku === "hoodie").unit_amount = 2500;
       const catalog = await (await fetch(`${base}/catalog`)).json();
-      assert.equal(catalog.products.find(product => product.sku === "hoodie").priceCents, 2500);
+      assert.equal(catalog.products.find(product => product.sku === "hoodie").priceCents, 1500);
       assert.equal(catalog.checkoutAvailable, false);
       assert.equal((await checkout("FR", [{ sku: "hoodie", quantity: 1 }])).status, 503);
       assert.ok(!globalThis.storeFixture.calls.some(call => call.options.method === "POST"));

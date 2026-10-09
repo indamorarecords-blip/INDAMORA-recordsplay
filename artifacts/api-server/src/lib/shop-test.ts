@@ -66,7 +66,7 @@ export function initialShopState(): State {
     { id: "tote-bag", name: "Tote bag INDAMORA PLAY", description: "", category: "Tote bags", priceCents: 1500, status: "active", visible: true, shippingInfo: "", variants: [
       variant("unique", "", image(originals.tote)),
     ], revision: 0, updatedAt: "" },
-    { id: "hoodie", name: "Sweat à capuche INDAMORA PLAY", description: "", category: "Sweats", priceCents: 2500, status: "active", visible: true, shippingInfo: "", variants: [
+    { id: "hoodie", name: "Sweat à capuche INDAMORA PLAY", description: "", category: "Sweats", priceCents: 1500, status: "active", visible: true, shippingInfo: "", variants: [
       { ...variant("unique", "", image(originals.hoodie)), photos: [image(originals.hoodie), image(originals.hoodie2)] },
     ], revision: 0, updatedAt: "" },
   ];

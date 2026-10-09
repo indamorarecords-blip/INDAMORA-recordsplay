@@ -459,7 +459,7 @@ export function BoutiquePage() {
             </aside>
             <div className="bt-story-copy">
               <h3>💶 UN PRIX SIMPLE ET ACCESSIBLE</h3>
-              <p>Le T-shirt, le bob et le tote bag sont proposés à 15 €, le sweat à capuche à 25 €.</p>
+              <p>Le T-shirt, le bob, le tote bag et le sweat à capuche sont proposés à 15 € chacun.</p>
               <p>Pas de prix compliqué.<br />Pas de formule obligatoire.</p>
               <p>Un produit → un prix clair.</p>
               <p>L’idée est de permettre au plus grand nombre de participer et de soutenir le projet tout en portant l’univers INDAMORA PLAY au quotidien.</p>

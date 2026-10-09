@@ -9,6 +9,7 @@ import {
 } from "@workspace/api-zod";
 import { formData, storeStripeApi as stripeApi } from "../storeStripeClient";
 import { shop as shopTest, persistentShop, isPersistentShop } from "../lib/shop-repository";
+import { ShopError } from "../lib/shop-test";
 import { settleVerifiedShopSession, shopQuoteHash } from "../lib/shop-session";
 import { shopMode, shopRoutesEnabled, shopAllowedHosts, shopReturnBase, shopWebhookSecret, SHOP_WEBHOOK_EVENTS } from "../lib/shop-runtime";
 
@@ -18,7 +19,7 @@ const STORE_PRODUCTS = [
   { sku: "tshirt", name: "T-shirt INDAMORA PLAY", priceCents: 1500 },
   { sku: "bob", name: "Bob INDAMORA PLAY", priceCents: 1500 },
   { sku: "tote-bag", name: "Tote bag INDAMORA PLAY", priceCents: 1500 },
-  { sku: "hoodie", name: "Sweat à capuche INDAMORA PLAY", priceCents: 2500 },
+  { sku: "hoodie", name: "Sweat à capuche INDAMORA PLAY", priceCents: 1500 },
 ] as const;
 
 const EUROPEAN_UNION_COUNTRIES = [
@@ -424,7 +425,19 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
         mode: shopMode(),
       }),
     );
-  } catch {
+  } catch (error) {
+    if (!stripeSessionCreated && error instanceof ShopError) {
+      if (reservationId) await shopTest.release(reservationId).catch(() => {});
+      const status = error.status === 409 ? 409 : error.status >= 500 ? 503 : 400;
+      res.status(status).json({
+        error: status === 409
+          ? "Une variante du panier n’est pas disponible."
+          : status === 503
+            ? "Le Checkout Boutique est temporairement indisponible."
+            : "Le panier n’a pas pu être réservé.",
+      });
+      return;
+    }
     // Never release a hold after Stripe might have created a payable session.
     // An ambiguous network result is held for explicit Shop reconciliation.
     if (reservationId && !stripeSessionCreated) await shopTest.release(reservationId).catch(() => {});
