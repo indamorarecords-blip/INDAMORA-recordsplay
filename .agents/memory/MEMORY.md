@@ -11,3 +11,4 @@
 - [Confidentialité du workspace](workspace-server-privacy.md) — Metro peut exposer les JSON privés comme modules ; vérifier tous les serveurs et leurs caches.
 - [Inventaire Shop TEST](shop-test-inventory.md) — valider les quantités avant écriture du panier ; conserver les réservations ambiguës et protéger Stripe hors Boutique.
 - [Migrations Shop ciblées](scoped-shop-migrations.md) — le schéma ORM partagé n'englobe pas toutes les tables ; éviter une synchronisation globale non inspectée.
+- [Idempotence Stripe](stripe-edit-idempotency.md) — inclure l'opération ou la révision ; un hash du contenu seul peut empêcher une réactivation.

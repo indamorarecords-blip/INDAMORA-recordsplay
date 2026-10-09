@@ -53,6 +53,7 @@ router.post(
     }
 
     let event: StoreEvent;
+    let validationStage = "signature";
     try {
       const signature = req.get("stripe-signature");
       if (
@@ -62,12 +63,17 @@ router.post(
       ) {
         throw new Error("Invalid signature");
       }
+      validationStage = "event";
       event = JSON.parse(req.body.toString("utf8")) as StoreEvent;
       if (!event?.id?.startsWith("evt_") || !event.type || event.livemode !== false || !event.data?.object) {
         throw new Error("Invalid TEST event");
       }
     } catch {
-      req.log.warn("Boutique TEST webhook signature or event rejected");
+      req.log.warn({
+        validationStage,
+        rawBodyPresent: Buffer.isBuffer(req.body),
+        signaturePresent: Boolean(req.get("stripe-signature")),
+      }, "Boutique TEST webhook signature or event rejected");
       res.status(400).json({ error: "Signature ou événement Boutique TEST invalide." });
       return;
     }

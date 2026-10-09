@@ -88,8 +88,10 @@ export async function writeStripeShopProduct(value: Product, existingId?: string
     "metadata[storeFlow]": FLOW, "metadata[indamoraStoreSku]": value.id, "metadata[shopConfigParts]": parts.length });
   for (let i = 0; i < 40; i++) params.set(`metadata[shopConfig${i}]`, parts[i] ?? "");
   const hash = createHash("sha256").update(params.toString()).digest("hex");
+  // A later A -> B -> A edit is a new operation, not a retry of the first A.
+  // Keep retries idempotent within one revision without replaying old responses.
   await storeStripeApi(`/v1/products/${encodeURIComponent(stripeId)}`, {
-    method: "POST", params, idempotencyKey: `shop-${shopStripeMode()}-config-${stripeId}-${hash}`,
+    method: "POST", params, idempotencyKey: `shop-${shopStripeMode()}-config-${stripeId}-r${value.revision}-${hash}`,
   });
   return stripeId;
 }

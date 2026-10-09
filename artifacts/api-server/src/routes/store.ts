@@ -135,7 +135,8 @@ function isConfiguredTestWebhook(endpoint: StripeWebhookEndpoint): boolean {
 }
 
 async function hasConfiguredTestWebhook(): Promise<boolean> {
-  if (!process.env.STRIPE_BOUTIQUE_TEST_WEBHOOK_SECRET?.startsWith("whsec_") || developmentHosts().size === 0) {
+  if (process.env.SHOP_TEST_CHECKOUT_BLOCKED === "true" ||
+      !process.env.STRIPE_BOUTIQUE_TEST_WEBHOOK_SECRET?.startsWith("whsec_") || developmentHosts().size === 0) {
     return false;
   }
 
