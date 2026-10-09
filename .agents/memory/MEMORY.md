@@ -8,3 +8,4 @@
 - [Gift Card privacy boundary](giftcard-privacy-boundary.md) — keep the artifact TEST/private; no production data, payments, or publishing without explicit approval.
 - [Gel d’INDAMORA PLAY](production-freeze.md) — version actuelle gelée ; conserver proxy-addr@2.0.8 et demander confirmation avant toute action sur la production.
 - [Mockups de collection](collection-mockups.md) — modèles fournis et six phrases exactes ; arrêter si le QR ne correspond pas au brief.
+- [Confidentialité du workspace](workspace-server-privacy.md) — Metro peut exposer les JSON privés comme modules ; vérifier tous les serveurs et leurs caches.

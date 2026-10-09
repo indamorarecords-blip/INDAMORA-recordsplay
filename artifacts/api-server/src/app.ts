@@ -59,7 +59,9 @@ app.post(
   },
 );
 app.use(storeWebhookRouter);
-app.use(express.json());
+const defaultJsonParser = express.json();
+// Parse large Shop photo bodies only AFTER its existing administrator guard.
+app.use((req, res, next) => req.path === "/api/shop/admin/photos" ? next() : defaultJsonParser(req, res, next));
 app.use(express.urlencoded({ extended: true }));
 app.use(
   clerkMiddleware((req) => ({

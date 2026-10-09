@@ -83,6 +83,13 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
       plugins: [{
         name: "isolated-store-fixtures",
         setup(builder) {
+          builder.onResolve({ filter: /\/lib\/shop-test$/ }, () => ({ path: "shop-fixture", namespace: "shop-fixture" }));
+          builder.onLoad({ filter: /.*/, namespace: "shop-fixture" }, () => ({ contents: `
+            export const shopTest = {
+              read: async () => ({ products: ["tshirt","bob","tote-bag","hoodie"].map(id => ({ id, variants: (id === "tshirt" ? ["rose","noir","blanc"] : id === "bob" ? ["blanc","noir","orange"] : ["unique"]).map(id => ({id})) })) }),
+              reserve: async () => {}, release: async () => {}, attachSession: async () => {}, settleSession: async () => {}
+            };
+          `, loader: "js" }));
           builder.onResolve({ filter: /^\.\.\/storeStripeClient$/ }, () => ({ path: "storeStripeClient", namespace: "store-fixture" }));
           builder.onLoad({ filter: /.*/, namespace: "store-fixture" }, () => ({ contents: stripeMock, loader: "js" }));
         },

@@ -165,3 +165,6 @@
   .bt-skeleton { animation: none; }
   .bt-product, .bt-cart-jump, .bt-add, .bt-checkout { transition: none; }
 }
+
+.bt-size.off { opacity: .55; text-decoration: line-through; }
+.bt-size { padding-left: 10px; }

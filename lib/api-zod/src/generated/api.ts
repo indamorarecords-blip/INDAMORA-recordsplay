@@ -8,6 +8,529 @@
 import * as zod from 'zod';
 
 
+export const getShopAdminResponseProductsItemOneNameMin = 2;
+export const getShopAdminResponseProductsItemOneNameMax = 150;
+
+export const getShopAdminResponseProductsItemOneDescriptionMax = 4000;
+
+export const getShopAdminResponseProductsItemOneCategoryMax = 80;
+
+export const getShopAdminResponseProductsItemOnePriceCentsMax = 1000000;
+
+export const getShopAdminResponseProductsItemOneShippingInfoMax = 1000;
+
+export const getShopAdminResponseProductsItemOneVariantsItemIdRegExp = new RegExp('^[a-z0-9_-]{1,64}$');
+export const getShopAdminResponseProductsItemOneVariantsItemColorMax = 60;
+
+export const getShopAdminResponseProductsItemOneVariantsItemSizeMax = 60;
+
+export const getShopAdminResponseProductsItemOneVariantsItemStockMin = 0;
+export const getShopAdminResponseProductsItemOneVariantsItemStockMax = 100000;
+
+export const getShopAdminResponseProductsItemOneVariantsItemPhotosItemReferenceMax = 200;
+
+export const getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropXMin = 0;
+export const getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropXMax = 1;
+
+export const getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropYMin = 0;
+export const getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropYMax = 1;
+
+export const getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropWExclusiveMin = 0;
+export const getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropWMax = 1;
+
+export const getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropHExclusiveMin = 0;
+export const getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropHMax = 1;
+
+export const getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropRatioExclusiveMin = 0;
+export const getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropRatioMax = 100;
+
+export const getShopAdminResponseProductsItemOneVariantsItemPhotosMax = 12;
+
+export const getShopAdminResponseProductsItemOneVariantsMax = 30;
+
+
+
+export const GetShopAdminResponse = zod.object({
+  "products": zod.array(zod.object({
+  "name": zod.string().min(getShopAdminResponseProductsItemOneNameMin).max(getShopAdminResponseProductsItemOneNameMax),
+  "description": zod.string().max(getShopAdminResponseProductsItemOneDescriptionMax),
+  "category": zod.string().min(1).max(getShopAdminResponseProductsItemOneCategoryMax),
+  "priceCents": zod.number().int().min(1).max(getShopAdminResponseProductsItemOnePriceCentsMax),
+  "status": zod.enum(['draft', 'active', 'hidden', 'archived']),
+  "visible": zod.boolean(),
+  "shippingInfo": zod.string().max(getShopAdminResponseProductsItemOneShippingInfoMax),
+  "variants": zod.array(zod.object({
+  "id": zod.string().regex(getShopAdminResponseProductsItemOneVariantsItemIdRegExp),
+  "color": zod.string().max(getShopAdminResponseProductsItemOneVariantsItemColorMax),
+  "size": zod.string().min(1).max(getShopAdminResponseProductsItemOneVariantsItemSizeMax),
+  "stock": zod.number().int().min(getShopAdminResponseProductsItemOneVariantsItemStockMin).max(getShopAdminResponseProductsItemOneVariantsItemStockMax).nullable(),
+  "photos": zod.array(zod.object({
+  "reference": zod.string().max(getShopAdminResponseProductsItemOneVariantsItemPhotosItemReferenceMax),
+  "crop": zod.object({
+  "x": zod.number().min(getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropXMin).max(getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropXMax),
+  "y": zod.number().min(getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropYMin).max(getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropYMax),
+  "w": zod.number().gt(getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropWExclusiveMin).max(getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropWMax),
+  "h": zod.number().gt(getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropHExclusiveMin).max(getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropHMax),
+  "ratio": zod.number().gt(getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropRatioExclusiveMin).max(getShopAdminResponseProductsItemOneVariantsItemPhotosItemCropRatioMax)
+}).optional()
+})).min(1).max(getShopAdminResponseProductsItemOneVariantsItemPhotosMax)
+})).min(1).max(getShopAdminResponseProductsItemOneVariantsMax)
+}).and(zod.object({
+  "id": zod.string(),
+  "revision": zod.number().int(),
+  "updatedAt": zod.string()
+}))),
+  "history": zod.array(zod.object({
+  "id": zod.string(),
+  "productId": zod.string(),
+  "at": zod.string(),
+  "action": zod.string(),
+  "detail": zod.string()
+})),
+  "active": zod.number().int(),
+  "inactive": zod.number().int(),
+  "outOfStock": zod.number().int(),
+  "lowStock": zod.number().int(),
+  "unknownStock": zod.number().int()
+})
+
+
+export const createShopProductBodyNameMin = 2;
+export const createShopProductBodyNameMax = 150;
+
+export const createShopProductBodyDescriptionMax = 4000;
+
+export const createShopProductBodyCategoryMax = 80;
+
+export const createShopProductBodyPriceCentsMax = 1000000;
+
+export const createShopProductBodyShippingInfoMax = 1000;
+
+export const createShopProductBodyVariantsItemIdRegExp = new RegExp('^[a-z0-9_-]{1,64}$');
+export const createShopProductBodyVariantsItemColorMax = 60;
+
+export const createShopProductBodyVariantsItemSizeMax = 60;
+
+export const createShopProductBodyVariantsItemStockMin = 0;
+export const createShopProductBodyVariantsItemStockMax = 100000;
+
+export const createShopProductBodyVariantsItemPhotosItemReferenceMax = 200;
+
+export const createShopProductBodyVariantsItemPhotosItemCropXMin = 0;
+export const createShopProductBodyVariantsItemPhotosItemCropXMax = 1;
+
+export const createShopProductBodyVariantsItemPhotosItemCropYMin = 0;
+export const createShopProductBodyVariantsItemPhotosItemCropYMax = 1;
+
+export const createShopProductBodyVariantsItemPhotosItemCropWExclusiveMin = 0;
+export const createShopProductBodyVariantsItemPhotosItemCropWMax = 1;
+
+export const createShopProductBodyVariantsItemPhotosItemCropHExclusiveMin = 0;
+export const createShopProductBodyVariantsItemPhotosItemCropHMax = 1;
+
+export const createShopProductBodyVariantsItemPhotosItemCropRatioExclusiveMin = 0;
+export const createShopProductBodyVariantsItemPhotosItemCropRatioMax = 100;
+
+export const createShopProductBodyVariantsItemPhotosMax = 12;
+
+export const createShopProductBodyVariantsMax = 30;
+
+
+
+export const CreateShopProductBody = zod.object({
+  "name": zod.string().min(createShopProductBodyNameMin).max(createShopProductBodyNameMax),
+  "description": zod.string().max(createShopProductBodyDescriptionMax),
+  "category": zod.string().min(1).max(createShopProductBodyCategoryMax),
+  "priceCents": zod.number().int().min(1).max(createShopProductBodyPriceCentsMax),
+  "status": zod.enum(['draft', 'active', 'hidden', 'archived']),
+  "visible": zod.boolean(),
+  "shippingInfo": zod.string().max(createShopProductBodyShippingInfoMax),
+  "variants": zod.array(zod.object({
+  "id": zod.string().regex(createShopProductBodyVariantsItemIdRegExp),
+  "color": zod.string().max(createShopProductBodyVariantsItemColorMax),
+  "size": zod.string().min(1).max(createShopProductBodyVariantsItemSizeMax),
+  "stock": zod.number().int().min(createShopProductBodyVariantsItemStockMin).max(createShopProductBodyVariantsItemStockMax).nullable(),
+  "photos": zod.array(zod.object({
+  "reference": zod.string().max(createShopProductBodyVariantsItemPhotosItemReferenceMax),
+  "crop": zod.object({
+  "x": zod.number().min(createShopProductBodyVariantsItemPhotosItemCropXMin).max(createShopProductBodyVariantsItemPhotosItemCropXMax),
+  "y": zod.number().min(createShopProductBodyVariantsItemPhotosItemCropYMin).max(createShopProductBodyVariantsItemPhotosItemCropYMax),
+  "w": zod.number().gt(createShopProductBodyVariantsItemPhotosItemCropWExclusiveMin).max(createShopProductBodyVariantsItemPhotosItemCropWMax),
+  "h": zod.number().gt(createShopProductBodyVariantsItemPhotosItemCropHExclusiveMin).max(createShopProductBodyVariantsItemPhotosItemCropHMax),
+  "ratio": zod.number().gt(createShopProductBodyVariantsItemPhotosItemCropRatioExclusiveMin).max(createShopProductBodyVariantsItemPhotosItemCropRatioMax)
+}).optional()
+})).min(1).max(createShopProductBodyVariantsItemPhotosMax)
+})).min(1).max(createShopProductBodyVariantsMax)
+})
+
+export const createShopProductResponseOneNameMin = 2;
+export const createShopProductResponseOneNameMax = 150;
+
+export const createShopProductResponseOneDescriptionMax = 4000;
+
+export const createShopProductResponseOneCategoryMax = 80;
+
+export const createShopProductResponseOnePriceCentsMax = 1000000;
+
+export const createShopProductResponseOneShippingInfoMax = 1000;
+
+export const createShopProductResponseOneVariantsItemIdRegExp = new RegExp('^[a-z0-9_-]{1,64}$');
+export const createShopProductResponseOneVariantsItemColorMax = 60;
+
+export const createShopProductResponseOneVariantsItemSizeMax = 60;
+
+export const createShopProductResponseOneVariantsItemStockMin = 0;
+export const createShopProductResponseOneVariantsItemStockMax = 100000;
+
+export const createShopProductResponseOneVariantsItemPhotosItemReferenceMax = 200;
+
+export const createShopProductResponseOneVariantsItemPhotosItemCropXMin = 0;
+export const createShopProductResponseOneVariantsItemPhotosItemCropXMax = 1;
+
+export const createShopProductResponseOneVariantsItemPhotosItemCropYMin = 0;
+export const createShopProductResponseOneVariantsItemPhotosItemCropYMax = 1;
+
+export const createShopProductResponseOneVariantsItemPhotosItemCropWExclusiveMin = 0;
+export const createShopProductResponseOneVariantsItemPhotosItemCropWMax = 1;
+
+export const createShopProductResponseOneVariantsItemPhotosItemCropHExclusiveMin = 0;
+export const createShopProductResponseOneVariantsItemPhotosItemCropHMax = 1;
+
+export const createShopProductResponseOneVariantsItemPhotosItemCropRatioExclusiveMin = 0;
+export const createShopProductResponseOneVariantsItemPhotosItemCropRatioMax = 100;
+
+export const createShopProductResponseOneVariantsItemPhotosMax = 12;
+
+export const createShopProductResponseOneVariantsMax = 30;
+
+
+
+export const CreateShopProductResponse = zod.object({
+  "name": zod.string().min(createShopProductResponseOneNameMin).max(createShopProductResponseOneNameMax),
+  "description": zod.string().max(createShopProductResponseOneDescriptionMax),
+  "category": zod.string().min(1).max(createShopProductResponseOneCategoryMax),
+  "priceCents": zod.number().int().min(1).max(createShopProductResponseOnePriceCentsMax),
+  "status": zod.enum(['draft', 'active', 'hidden', 'archived']),
+  "visible": zod.boolean(),
+  "shippingInfo": zod.string().max(createShopProductResponseOneShippingInfoMax),
+  "variants": zod.array(zod.object({
+  "id": zod.string().regex(createShopProductResponseOneVariantsItemIdRegExp),
+  "color": zod.string().max(createShopProductResponseOneVariantsItemColorMax),
+  "size": zod.string().min(1).max(createShopProductResponseOneVariantsItemSizeMax),
+  "stock": zod.number().int().min(createShopProductResponseOneVariantsItemStockMin).max(createShopProductResponseOneVariantsItemStockMax).nullable(),
+  "photos": zod.array(zod.object({
+  "reference": zod.string().max(createShopProductResponseOneVariantsItemPhotosItemReferenceMax),
+  "crop": zod.object({
+  "x": zod.number().min(createShopProductResponseOneVariantsItemPhotosItemCropXMin).max(createShopProductResponseOneVariantsItemPhotosItemCropXMax),
+  "y": zod.number().min(createShopProductResponseOneVariantsItemPhotosItemCropYMin).max(createShopProductResponseOneVariantsItemPhotosItemCropYMax),
+  "w": zod.number().gt(createShopProductResponseOneVariantsItemPhotosItemCropWExclusiveMin).max(createShopProductResponseOneVariantsItemPhotosItemCropWMax),
+  "h": zod.number().gt(createShopProductResponseOneVariantsItemPhotosItemCropHExclusiveMin).max(createShopProductResponseOneVariantsItemPhotosItemCropHMax),
+  "ratio": zod.number().gt(createShopProductResponseOneVariantsItemPhotosItemCropRatioExclusiveMin).max(createShopProductResponseOneVariantsItemPhotosItemCropRatioMax)
+}).optional()
+})).min(1).max(createShopProductResponseOneVariantsItemPhotosMax)
+})).min(1).max(createShopProductResponseOneVariantsMax)
+}).and(zod.object({
+  "id": zod.string(),
+  "revision": zod.number().int(),
+  "updatedAt": zod.string()
+}))
+
+
+export const UpdateShopProductParams = zod.object({
+  "id": zod.coerce.string()
+})
+
+export const updateShopProductBodyOneNameMin = 2;
+export const updateShopProductBodyOneNameMax = 150;
+
+export const updateShopProductBodyOneDescriptionMax = 4000;
+
+export const updateShopProductBodyOneCategoryMax = 80;
+
+export const updateShopProductBodyOnePriceCentsMax = 1000000;
+
+export const updateShopProductBodyOneShippingInfoMax = 1000;
+
+export const updateShopProductBodyOneVariantsItemIdRegExp = new RegExp('^[a-z0-9_-]{1,64}$');
+export const updateShopProductBodyOneVariantsItemColorMax = 60;
+
+export const updateShopProductBodyOneVariantsItemSizeMax = 60;
+
+export const updateShopProductBodyOneVariantsItemStockMin = 0;
+export const updateShopProductBodyOneVariantsItemStockMax = 100000;
+
+export const updateShopProductBodyOneVariantsItemPhotosItemReferenceMax = 200;
+
+export const updateShopProductBodyOneVariantsItemPhotosItemCropXMin = 0;
+export const updateShopProductBodyOneVariantsItemPhotosItemCropXMax = 1;
+
+export const updateShopProductBodyOneVariantsItemPhotosItemCropYMin = 0;
+export const updateShopProductBodyOneVariantsItemPhotosItemCropYMax = 1;
+
+export const updateShopProductBodyOneVariantsItemPhotosItemCropWExclusiveMin = 0;
+export const updateShopProductBodyOneVariantsItemPhotosItemCropWMax = 1;
+
+export const updateShopProductBodyOneVariantsItemPhotosItemCropHExclusiveMin = 0;
+export const updateShopProductBodyOneVariantsItemPhotosItemCropHMax = 1;
+
+export const updateShopProductBodyOneVariantsItemPhotosItemCropRatioExclusiveMin = 0;
+export const updateShopProductBodyOneVariantsItemPhotosItemCropRatioMax = 100;
+
+export const updateShopProductBodyOneVariantsItemPhotosMax = 12;
+
+export const updateShopProductBodyOneVariantsMax = 30;
+
+export const updateShopProductBodyTwoRevisionMin = 0;
+
+
+
+export const UpdateShopProductBody = zod.object({
+  "name": zod.string().min(updateShopProductBodyOneNameMin).max(updateShopProductBodyOneNameMax),
+  "description": zod.string().max(updateShopProductBodyOneDescriptionMax),
+  "category": zod.string().min(1).max(updateShopProductBodyOneCategoryMax),
+  "priceCents": zod.number().int().min(1).max(updateShopProductBodyOnePriceCentsMax),
+  "status": zod.enum(['draft', 'active', 'hidden', 'archived']),
+  "visible": zod.boolean(),
+  "shippingInfo": zod.string().max(updateShopProductBodyOneShippingInfoMax),
+  "variants": zod.array(zod.object({
+  "id": zod.string().regex(updateShopProductBodyOneVariantsItemIdRegExp),
+  "color": zod.string().max(updateShopProductBodyOneVariantsItemColorMax),
+  "size": zod.string().min(1).max(updateShopProductBodyOneVariantsItemSizeMax),
+  "stock": zod.number().int().min(updateShopProductBodyOneVariantsItemStockMin).max(updateShopProductBodyOneVariantsItemStockMax).nullable(),
+  "photos": zod.array(zod.object({
+  "reference": zod.string().max(updateShopProductBodyOneVariantsItemPhotosItemReferenceMax),
+  "crop": zod.object({
+  "x": zod.number().min(updateShopProductBodyOneVariantsItemPhotosItemCropXMin).max(updateShopProductBodyOneVariantsItemPhotosItemCropXMax),
+  "y": zod.number().min(updateShopProductBodyOneVariantsItemPhotosItemCropYMin).max(updateShopProductBodyOneVariantsItemPhotosItemCropYMax),
+  "w": zod.number().gt(updateShopProductBodyOneVariantsItemPhotosItemCropWExclusiveMin).max(updateShopProductBodyOneVariantsItemPhotosItemCropWMax),
+  "h": zod.number().gt(updateShopProductBodyOneVariantsItemPhotosItemCropHExclusiveMin).max(updateShopProductBodyOneVariantsItemPhotosItemCropHMax),
+  "ratio": zod.number().gt(updateShopProductBodyOneVariantsItemPhotosItemCropRatioExclusiveMin).max(updateShopProductBodyOneVariantsItemPhotosItemCropRatioMax)
+}).optional()
+})).min(1).max(updateShopProductBodyOneVariantsItemPhotosMax)
+})).min(1).max(updateShopProductBodyOneVariantsMax)
+}).and(zod.object({
+  "revision": zod.number().int().min(updateShopProductBodyTwoRevisionMin)
+}))
+
+export const updateShopProductResponseOneNameMin = 2;
+export const updateShopProductResponseOneNameMax = 150;
+
+export const updateShopProductResponseOneDescriptionMax = 4000;
+
+export const updateShopProductResponseOneCategoryMax = 80;
+
+export const updateShopProductResponseOnePriceCentsMax = 1000000;
+
+export const updateShopProductResponseOneShippingInfoMax = 1000;
+
+export const updateShopProductResponseOneVariantsItemIdRegExp = new RegExp('^[a-z0-9_-]{1,64}$');
+export const updateShopProductResponseOneVariantsItemColorMax = 60;
+
+export const updateShopProductResponseOneVariantsItemSizeMax = 60;
+
+export const updateShopProductResponseOneVariantsItemStockMin = 0;
+export const updateShopProductResponseOneVariantsItemStockMax = 100000;
+
+export const updateShopProductResponseOneVariantsItemPhotosItemReferenceMax = 200;
+
+export const updateShopProductResponseOneVariantsItemPhotosItemCropXMin = 0;
+export const updateShopProductResponseOneVariantsItemPhotosItemCropXMax = 1;
+
+export const updateShopProductResponseOneVariantsItemPhotosItemCropYMin = 0;
+export const updateShopProductResponseOneVariantsItemPhotosItemCropYMax = 1;
+
+export const updateShopProductResponseOneVariantsItemPhotosItemCropWExclusiveMin = 0;
+export const updateShopProductResponseOneVariantsItemPhotosItemCropWMax = 1;
+
+export const updateShopProductResponseOneVariantsItemPhotosItemCropHExclusiveMin = 0;
+export const updateShopProductResponseOneVariantsItemPhotosItemCropHMax = 1;
+
+export const updateShopProductResponseOneVariantsItemPhotosItemCropRatioExclusiveMin = 0;
+export const updateShopProductResponseOneVariantsItemPhotosItemCropRatioMax = 100;
+
+export const updateShopProductResponseOneVariantsItemPhotosMax = 12;
+
+export const updateShopProductResponseOneVariantsMax = 30;
+
+
+
+export const UpdateShopProductResponse = zod.object({
+  "name": zod.string().min(updateShopProductResponseOneNameMin).max(updateShopProductResponseOneNameMax),
+  "description": zod.string().max(updateShopProductResponseOneDescriptionMax),
+  "category": zod.string().min(1).max(updateShopProductResponseOneCategoryMax),
+  "priceCents": zod.number().int().min(1).max(updateShopProductResponseOnePriceCentsMax),
+  "status": zod.enum(['draft', 'active', 'hidden', 'archived']),
+  "visible": zod.boolean(),
+  "shippingInfo": zod.string().max(updateShopProductResponseOneShippingInfoMax),
+  "variants": zod.array(zod.object({
+  "id": zod.string().regex(updateShopProductResponseOneVariantsItemIdRegExp),
+  "color": zod.string().max(updateShopProductResponseOneVariantsItemColorMax),
+  "size": zod.string().min(1).max(updateShopProductResponseOneVariantsItemSizeMax),
+  "stock": zod.number().int().min(updateShopProductResponseOneVariantsItemStockMin).max(updateShopProductResponseOneVariantsItemStockMax).nullable(),
+  "photos": zod.array(zod.object({
+  "reference": zod.string().max(updateShopProductResponseOneVariantsItemPhotosItemReferenceMax),
+  "crop": zod.object({
+  "x": zod.number().min(updateShopProductResponseOneVariantsItemPhotosItemCropXMin).max(updateShopProductResponseOneVariantsItemPhotosItemCropXMax),
+  "y": zod.number().min(updateShopProductResponseOneVariantsItemPhotosItemCropYMin).max(updateShopProductResponseOneVariantsItemPhotosItemCropYMax),
+  "w": zod.number().gt(updateShopProductResponseOneVariantsItemPhotosItemCropWExclusiveMin).max(updateShopProductResponseOneVariantsItemPhotosItemCropWMax),
+  "h": zod.number().gt(updateShopProductResponseOneVariantsItemPhotosItemCropHExclusiveMin).max(updateShopProductResponseOneVariantsItemPhotosItemCropHMax),
+  "ratio": zod.number().gt(updateShopProductResponseOneVariantsItemPhotosItemCropRatioExclusiveMin).max(updateShopProductResponseOneVariantsItemPhotosItemCropRatioMax)
+}).optional()
+})).min(1).max(updateShopProductResponseOneVariantsItemPhotosMax)
+})).min(1).max(updateShopProductResponseOneVariantsMax)
+}).and(zod.object({
+  "id": zod.string(),
+  "revision": zod.number().int(),
+  "updatedAt": zod.string()
+}))
+
+
+export const uploadShopPhotoBodyBase64Min = 4;
+export const uploadShopPhotoBodyBase64Max = 6990520;
+
+
+
+export const UploadShopPhotoBody = zod.object({
+  "contentType": zod.enum(['image/jpeg', 'image/png', 'image/webp']),
+  "base64": zod.string().min(uploadShopPhotoBodyBase64Min).max(uploadShopPhotoBodyBase64Max)
+})
+
+export const uploadShopPhotoResponseReferenceMax = 200;
+
+export const uploadShopPhotoResponseCropXMin = 0;
+export const uploadShopPhotoResponseCropXMax = 1;
+
+export const uploadShopPhotoResponseCropYMin = 0;
+export const uploadShopPhotoResponseCropYMax = 1;
+
+export const uploadShopPhotoResponseCropWExclusiveMin = 0;
+export const uploadShopPhotoResponseCropWMax = 1;
+
+export const uploadShopPhotoResponseCropHExclusiveMin = 0;
+export const uploadShopPhotoResponseCropHMax = 1;
+
+export const uploadShopPhotoResponseCropRatioExclusiveMin = 0;
+export const uploadShopPhotoResponseCropRatioMax = 100;
+
+
+
+export const UploadShopPhotoResponse = zod.object({
+  "reference": zod.string().max(uploadShopPhotoResponseReferenceMax),
+  "crop": zod.object({
+  "x": zod.number().min(uploadShopPhotoResponseCropXMin).max(uploadShopPhotoResponseCropXMax),
+  "y": zod.number().min(uploadShopPhotoResponseCropYMin).max(uploadShopPhotoResponseCropYMax),
+  "w": zod.number().gt(uploadShopPhotoResponseCropWExclusiveMin).max(uploadShopPhotoResponseCropWMax),
+  "h": zod.number().gt(uploadShopPhotoResponseCropHExclusiveMin).max(uploadShopPhotoResponseCropHMax),
+  "ratio": zod.number().gt(uploadShopPhotoResponseCropRatioExclusiveMin).max(uploadShopPhotoResponseCropRatioMax)
+}).optional()
+})
+
+
+export const GetShopOrdersResponse = zod.object({
+  "orders": zod.array(zod.object({
+  "id": zod.string(),
+  "status": zod.string(),
+  "amountCents": zod.number().int().nullable(),
+  "created": zod.number().int()
+})),
+  "message": zod.string().nullable()
+})
+
+
+export const getShopCatalogResponseProductsItemVariantsItemPhotosItemReferenceMax = 200;
+
+export const getShopCatalogResponseProductsItemVariantsItemPhotosItemCropXMin = 0;
+export const getShopCatalogResponseProductsItemVariantsItemPhotosItemCropXMax = 1;
+
+export const getShopCatalogResponseProductsItemVariantsItemPhotosItemCropYMin = 0;
+export const getShopCatalogResponseProductsItemVariantsItemPhotosItemCropYMax = 1;
+
+export const getShopCatalogResponseProductsItemVariantsItemPhotosItemCropWExclusiveMin = 0;
+export const getShopCatalogResponseProductsItemVariantsItemPhotosItemCropWMax = 1;
+
+export const getShopCatalogResponseProductsItemVariantsItemPhotosItemCropHExclusiveMin = 0;
+export const getShopCatalogResponseProductsItemVariantsItemPhotosItemCropHMax = 1;
+
+export const getShopCatalogResponseProductsItemVariantsItemPhotosItemCropRatioExclusiveMin = 0;
+export const getShopCatalogResponseProductsItemVariantsItemPhotosItemCropRatioMax = 100;
+
+
+
+export const GetShopCatalogResponse = zod.object({
+  "products": zod.array(zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "description": zod.string(),
+  "category": zod.string(),
+  "priceCents": zod.number().int(),
+  "shippingInfo": zod.string(),
+  "variants": zod.array(zod.object({
+  "id": zod.string(),
+  "color": zod.string(),
+  "size": zod.string(),
+  "available": zod.boolean(),
+  "photos": zod.array(zod.object({
+  "reference": zod.string().max(getShopCatalogResponseProductsItemVariantsItemPhotosItemReferenceMax),
+  "crop": zod.object({
+  "x": zod.number().min(getShopCatalogResponseProductsItemVariantsItemPhotosItemCropXMin).max(getShopCatalogResponseProductsItemVariantsItemPhotosItemCropXMax),
+  "y": zod.number().min(getShopCatalogResponseProductsItemVariantsItemPhotosItemCropYMin).max(getShopCatalogResponseProductsItemVariantsItemPhotosItemCropYMax),
+  "w": zod.number().gt(getShopCatalogResponseProductsItemVariantsItemPhotosItemCropWExclusiveMin).max(getShopCatalogResponseProductsItemVariantsItemPhotosItemCropWMax),
+  "h": zod.number().gt(getShopCatalogResponseProductsItemVariantsItemPhotosItemCropHExclusiveMin).max(getShopCatalogResponseProductsItemVariantsItemPhotosItemCropHMax),
+  "ratio": zod.number().gt(getShopCatalogResponseProductsItemVariantsItemPhotosItemCropRatioExclusiveMin).max(getShopCatalogResponseProductsItemVariantsItemPhotosItemCropRatioMax)
+}).optional()
+}))
+}))
+}))
+})
+
+
+export const createShopQuoteBodyItemsItemProductIdMax = 80;
+
+export const createShopQuoteBodyItemsItemVariantIdMax = 64;
+
+export const createShopQuoteBodyItemsItemQuantityMax = 20;
+
+export const createShopQuoteBodyItemsMax = 100;
+
+export const createShopQuoteBodyShippingCountryRegExp = new RegExp('^[A-Z]{2}$');
+
+
+export const CreateShopQuoteBody = zod.object({
+  "items": zod.array(zod.object({
+  "productId": zod.string().max(createShopQuoteBodyItemsItemProductIdMax),
+  "variantId": zod.string().max(createShopQuoteBodyItemsItemVariantIdMax),
+  "quantity": zod.number().int().min(1).max(createShopQuoteBodyItemsItemQuantityMax)
+})).min(1).max(createShopQuoteBodyItemsMax),
+  "shippingCountry": zod.string().regex(createShopQuoteBodyShippingCountryRegExp)
+})
+
+export const createShopQuoteResponseLinesItemOneProductIdMax = 80;
+
+export const createShopQuoteResponseLinesItemOneVariantIdMax = 64;
+
+export const createShopQuoteResponseLinesItemOneQuantityMax = 20;
+
+
+
+export const CreateShopQuoteResponse = zod.object({
+  "lines": zod.array(zod.object({
+  "productId": zod.string().max(createShopQuoteResponseLinesItemOneProductIdMax),
+  "variantId": zod.string().max(createShopQuoteResponseLinesItemOneVariantIdMax),
+  "quantity": zod.number().int().min(1).max(createShopQuoteResponseLinesItemOneQuantityMax)
+}).and(zod.object({
+  "name": zod.string(),
+  "color": zod.string(),
+  "size": zod.string(),
+  "priceCents": zod.number().int(),
+  "amountCents": zod.number().int()
+}))),
+  "subtotalCents": zod.number().int(),
+  "shippingCents": zod.number().int().nullable(),
+  "totalCents": zod.number().int().nullable(),
+  "contactRequired": zod.boolean()
+})
+
+
 /**
  * @summary Record an anonymous public page visit; never returns statistics
  */

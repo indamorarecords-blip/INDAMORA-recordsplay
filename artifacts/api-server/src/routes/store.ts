@@ -8,6 +8,7 @@ import {
   GetStoreCheckoutStatusResponse,
 } from "@workspace/api-zod";
 import { formData, storeStripeApi as stripeApi } from "../storeStripeClient";
+import { shopTest } from "../lib/shop-test";
 
 const router: IRouter = Router();
 
@@ -329,6 +330,8 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
   }
 
   const baseUrl = developmentReturnBase();
+  let reservationId: string | undefined;
+  let stripeSessionCreated = false;
   if (!baseUrl) {
     res.status(503).json({ error: "Le Checkout TEST n’est pas configuré." });
     return;
@@ -346,8 +349,19 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
     }
 
     const orderReference = randomUUID();
+    const inventory = await shopTest.read();
+    const inventoryItems = input.data.items.map(item => {
+      const product = inventory.products.find(p => p.id === item.sku);
+      const variant = product?.variants.find(v => item.color ? v.id === item.color : v.id === "unique");
+      if (!product || !variant) throw new Error("Variante Shop TEST indisponible.");
+      return { productId: product.id, variantId: variant.id, quantity: item.quantity };
+    });
+    await shopTest.reserve(orderReference, inventoryItems, input.data.shippingCountry,
+      new Map([...readiness.prices].map(([id, price]) => [id, price.unit_amount!])));
+    reservationId = orderReference;
     const params = formData({
       mode: "payment",
+      expires_at: Math.floor(Date.now() / 1000) + 30 * 60 + 5,
       locale: "fr",
       customer_creation: "always",
       billing_address_collection: "auto",
@@ -406,6 +420,7 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
       );
     });
 
+    stripeSessionCreated = true;
     const session = await stripeApi<StoreCheckoutSession>(
       "/v1/checkout/sessions",
       {
@@ -434,6 +449,7 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
       res.status(502).json({ error: "Le Checkout Stripe TEST a été refusé." });
       return;
     }
+    await shopTest.attachSession(orderReference, session.id);
 
     res.json(
       CreateStoreCheckoutResponse.parse({
@@ -443,6 +459,9 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
       }),
     );
   } catch {
+    // Never release a hold after Stripe might have created a payable session.
+    // An ambiguous network result is held for explicit TEST reconciliation.
+    if (reservationId && !stripeSessionCreated) await shopTest.release(reservationId).catch(() => {});
     req.log.error("INDAMORA PLAY TEST Checkout creation failed");
     res.status(502).json({ error: "Le paiement TEST est temporairement indisponible." });
   }
@@ -501,6 +520,7 @@ router.get("/store/checkout/status", async (req, res): Promise<void> => {
       status = "pending";
     }
 
+    await shopTest.settleSession(session.id!, status === "paid", status === "expired");
     res.json(
       GetStoreCheckoutStatusResponse.parse({
         status,

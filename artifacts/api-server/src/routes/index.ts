@@ -7,6 +7,7 @@ import storageRouter from "./storage";
 import billingRouter from "./billing";
 import analyticsRouter from "./analytics";
 import storeRouter from "./store";
+import shopTestRouter from "./shop-test";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use(storageRouter);
 router.use(billingRouter);
 router.use(analyticsRouter);
 router.use(storeRouter);
+router.use(shopTestRouter);
 
 export default router;

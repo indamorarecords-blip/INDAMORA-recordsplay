@@ -5,6 +5,249 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export interface ShopCrop {
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  x: number;
+  /**
+     * @minimum 0
+     * @maximum 1
+     */
+  y: number;
+  /**
+     * @maximum 1
+     * @exclusiveMinimum 0
+     */
+  w: number;
+  /**
+     * @maximum 1
+     * @exclusiveMinimum 0
+     */
+  h: number;
+  /**
+     * @maximum 100
+     * @exclusiveMinimum 0
+     */
+  ratio: number;
+}
+
+export interface ShopPhoto {
+  /** @maxLength 200 */
+  reference: string;
+  crop?: ShopCrop;
+}
+
+export interface ShopVariant {
+  /** @pattern ^[a-z0-9_-]{1,64}$ */
+  id: string;
+  /** @maxLength 60 */
+  color: string;
+  /**
+     * @minLength 1
+     * @maxLength 60
+     */
+  size: string;
+  /**
+     * @minimum 0
+     * @maximum 100000
+     * @nullable
+     */
+  stock: number | null;
+  /**
+     * @minItems 1
+     * @maxItems 12
+     */
+  photos: ShopPhoto[];
+}
+
+export type ShopProductInputStatus = typeof ShopProductInputStatus[keyof typeof ShopProductInputStatus];
+
+
+export const ShopProductInputStatus = {
+  draft: 'draft',
+  active: 'active',
+  hidden: 'hidden',
+  archived: 'archived',
+} as const;
+
+export interface ShopProductInput {
+  /**
+     * @minLength 2
+     * @maxLength 150
+     */
+  name: string;
+  /** @maxLength 4000 */
+  description: string;
+  /**
+     * @minLength 1
+     * @maxLength 80
+     */
+  category: string;
+  /**
+     * @minimum 1
+     * @maximum 1000000
+     */
+  priceCents: number;
+  status: ShopProductInputStatus;
+  visible: boolean;
+  /** @maxLength 1000 */
+  shippingInfo: string;
+  /**
+     * @minItems 1
+     * @maxItems 30
+     */
+  variants: ShopVariant[];
+}
+
+export type ShopProduct = ShopProductInput & {
+  id: string;
+  revision: number;
+  updatedAt: string;
+};
+
+export type ShopProductUpdateInput = ShopProductInput & {
+  /** @minimum 0 */
+  revision: number;
+};
+
+export interface ShopHistoryEntry {
+  id: string;
+  productId: string;
+  at: string;
+  action: string;
+  detail: string;
+}
+
+export interface ShopCartItem {
+  /** @maxLength 80 */
+  productId: string;
+  /** @maxLength 64 */
+  variantId: string;
+  /**
+     * @minimum 1
+     * @maximum 20
+     */
+  quantity: number;
+}
+
+export type ShopReservationStatus = typeof ShopReservationStatus[keyof typeof ShopReservationStatus];
+
+
+export const ShopReservationStatus = {
+  pending: 'pending',
+  paid: 'paid',
+  released: 'released',
+} as const;
+
+export interface ShopReservation {
+  id: string;
+  status: ShopReservationStatus;
+  expiresAt: string;
+  sessionId?: string;
+  items: ShopCartItem[];
+}
+
+export interface ShopState {
+  version: 1;
+  products: ShopProduct[];
+  history: ShopHistoryEntry[];
+  reservations: ShopReservation[];
+}
+
+export interface ShopDashboard {
+  products: ShopProduct[];
+  history: ShopHistoryEntry[];
+  active: number;
+  inactive: number;
+  outOfStock: number;
+  lowStock: number;
+  unknownStock: number;
+}
+
+export interface ShopPublicVariant {
+  id: string;
+  color: string;
+  size: string;
+  available: boolean;
+  photos: ShopPhoto[];
+}
+
+export interface ShopPublicProduct {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  priceCents: number;
+  shippingInfo: string;
+  variants: ShopPublicVariant[];
+}
+
+export interface ShopPublicCatalog {
+  products: ShopPublicProduct[];
+}
+
+export type ShopPhotoUploadContentType = typeof ShopPhotoUploadContentType[keyof typeof ShopPhotoUploadContentType];
+
+
+export const ShopPhotoUploadContentType = {
+  'image/jpeg': 'image/jpeg',
+  'image/png': 'image/png',
+  'image/webp': 'image/webp',
+} as const;
+
+export interface ShopPhotoUpload {
+  contentType: ShopPhotoUploadContentType;
+  /**
+     * @minLength 4
+     * @maxLength 6990520
+     */
+  base64: string;
+}
+
+export interface ShopQuoteInput {
+  /**
+     * @minItems 1
+     * @maxItems 100
+     */
+  items: ShopCartItem[];
+  /** @pattern ^[A-Z]{2}$ */
+  shippingCountry: string;
+}
+
+export type ShopQuoteLine = ShopCartItem & {
+  name: string;
+  color: string;
+  size: string;
+  priceCents: number;
+  amountCents: number;
+};
+
+export interface ShopQuote {
+  lines: ShopQuoteLine[];
+  subtotalCents: number;
+  /** @nullable */
+  shippingCents: number | null;
+  /** @nullable */
+  totalCents: number | null;
+  contactRequired: boolean;
+}
+
+export interface ShopOrder {
+  id: string;
+  status: string;
+  /** @nullable */
+  amountCents: number | null;
+  created: number;
+}
+
+export interface ShopOrders {
+  orders: ShopOrder[];
+  /** @nullable */
+  message: string | null;
+}
+
 export interface PageviewInput {
   /**
      * @minLength 1

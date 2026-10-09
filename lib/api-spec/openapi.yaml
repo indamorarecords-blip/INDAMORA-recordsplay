@@ -27,6 +27,102 @@ tags:
   - name: Storage
     description: Object storage upload and serving endpoints.
 paths:
+  /shop/admin:
+    get:
+      operationId: getShopAdmin
+      responses:
+        "200":
+          description: Private administrator dashboard, development only
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopDashboard"
+  /shop/admin/products:
+    post:
+      operationId: createShopProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShopProductInput"
+      responses:
+        "200":
+          description: Product saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopProduct"
+  /shop/admin/products/{id}:
+    put:
+      operationId: updateShopProduct
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShopProductUpdateInput"
+      responses:
+        "200":
+          description: Product saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopProduct"
+  /shop/admin/photos:
+    post:
+      operationId: uploadShopPhoto
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShopPhotoUpload"
+      responses:
+        "200":
+          description: Image validated and privately stored
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopPhoto"
+  /shop/admin/orders:
+    get:
+      operationId: getShopOrders
+      responses:
+        "200":
+          description: Real Stripe TEST sessions only, no customer personal information
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopOrders"
+  /shop/catalog:
+    get:
+      operationId: getShopCatalog
+      responses:
+        "200":
+          description: Active customer-facing products; no internal stock counts
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopPublicCatalog"
+  /shop/quote:
+    post:
+      operationId: createShopQuote
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShopQuoteInput"
+      responses:
+        "200":
+          description: Server calculated prices, availability and shipping
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShopQuote"
   /analytics/pageviews:
     post:
       operationId: recordPageview
@@ -669,6 +765,222 @@ components:
       in: cookie
       name: __session
   schemas:
+    ShopCrop:
+      type: object
+      required: [x, y, w, h, ratio]
+      properties:
+        x: { type: number, minimum: 0, maximum: 1 }
+        y: { type: number, minimum: 0, maximum: 1 }
+        w: { type: number, exclusiveMinimum: 0, maximum: 1 }
+        h: { type: number, exclusiveMinimum: 0, maximum: 1 }
+        ratio: { type: number, exclusiveMinimum: 0, maximum: 100 }
+    ShopPhoto:
+      type: object
+      required: [reference]
+      properties:
+        reference: { type: string, maxLength: 200 }
+        crop:
+          $ref: "#/components/schemas/ShopCrop"
+    ShopVariant:
+      type: object
+      required: [id, color, size, stock, photos]
+      properties:
+        id: { type: string, pattern: '^[a-z0-9_-]{1,64}$' }
+        color: { type: string, maxLength: 60 }
+        size: { type: string, minLength: 1, maxLength: 60 }
+        stock: { type: ["integer", "null"], minimum: 0, maximum: 100000 }
+        photos:
+          type: array
+          minItems: 1
+          maxItems: 12
+          items:
+            $ref: "#/components/schemas/ShopPhoto"
+    ShopProductInput:
+      type: object
+      required: [name, description, category, priceCents, status, visible, shippingInfo, variants]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 150 }
+        description: { type: string, maxLength: 4000 }
+        category: { type: string, minLength: 1, maxLength: 80 }
+        priceCents: { type: integer, minimum: 1, maximum: 1000000 }
+        status: { type: string, enum: [draft, active, hidden, archived] }
+        visible: { type: boolean }
+        shippingInfo: { type: string, maxLength: 1000 }
+        variants:
+          type: array
+          minItems: 1
+          maxItems: 30
+          items:
+            $ref: "#/components/schemas/ShopVariant"
+    ShopProduct:
+      allOf:
+        - $ref: "#/components/schemas/ShopProductInput"
+        - type: object
+          required: [id, revision, updatedAt]
+          properties:
+            id: { type: string }
+            revision: { type: integer }
+            updatedAt: { type: string }
+    ShopProductUpdateInput:
+      allOf:
+        - $ref: "#/components/schemas/ShopProductInput"
+        - type: object
+          required: [revision]
+          properties:
+            revision: { type: integer, minimum: 0 }
+    ShopHistoryEntry:
+      type: object
+      required: [id, productId, at, action, detail]
+      properties:
+        id: { type: string }
+        productId: { type: string }
+        at: { type: string }
+        action: { type: string }
+        detail: { type: string }
+    ShopCartItem:
+      type: object
+      required: [productId, variantId, quantity]
+      properties:
+        productId: { type: string, maxLength: 80 }
+        variantId: { type: string, maxLength: 64 }
+        quantity: { type: integer, minimum: 1, maximum: 20 }
+    ShopReservation:
+      type: object
+      required: [id, status, expiresAt, items]
+      properties:
+        id: { type: string }
+        status: { type: string, enum: [pending, paid, released] }
+        expiresAt: { type: string }
+        sessionId: { type: string }
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShopCartItem"
+    ShopState:
+      type: object
+      required: [version, products, history, reservations]
+      properties:
+        version: { type: integer, const: 1 }
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShopProduct"
+        history:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShopHistoryEntry"
+        reservations:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShopReservation"
+    ShopDashboard:
+      type: object
+      required: [products, history, active, inactive, outOfStock, lowStock, unknownStock]
+      properties:
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShopProduct"
+        history:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShopHistoryEntry"
+        active: { type: integer }
+        inactive: { type: integer }
+        outOfStock: { type: integer }
+        lowStock: { type: integer }
+        unknownStock: { type: integer }
+    ShopPublicVariant:
+      type: object
+      required: [id, color, size, photos, available]
+      properties:
+        id: { type: string }
+        color: { type: string }
+        size: { type: string }
+        available: { type: boolean }
+        photos:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShopPhoto"
+    ShopPublicProduct:
+      type: object
+      required: [id, name, description, category, priceCents, shippingInfo, variants]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        category: { type: string }
+        priceCents: { type: integer }
+        shippingInfo: { type: string }
+        variants:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShopPublicVariant"
+    ShopPublicCatalog:
+      type: object
+      required: [products]
+      properties:
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShopPublicProduct"
+    ShopPhotoUpload:
+      type: object
+      required: [contentType, base64]
+      properties:
+        contentType: { type: string, enum: [image/jpeg, image/png, image/webp] }
+        base64: { type: string, minLength: 4, maxLength: 6990520 }
+    ShopQuoteInput:
+      type: object
+      required: [items, shippingCountry]
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/ShopCartItem"
+        shippingCountry: { type: string, pattern: '^[A-Z]{2}$' }
+    ShopQuoteLine:
+      allOf:
+        - $ref: "#/components/schemas/ShopCartItem"
+        - type: object
+          required: [name, color, size, priceCents, amountCents]
+          properties:
+            name: { type: string }
+            color: { type: string }
+            size: { type: string }
+            priceCents: { type: integer }
+            amountCents: { type: integer }
+    ShopQuote:
+      type: object
+      required: [lines, subtotalCents, shippingCents, totalCents, contactRequired]
+      properties:
+        lines:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShopQuoteLine"
+        subtotalCents: { type: integer }
+        shippingCents: { type: ["integer", "null"] }
+        totalCents: { type: ["integer", "null"] }
+        contactRequired: { type: boolean }
+    ShopOrder:
+      type: object
+      required: [id, status, amountCents, created]
+      properties:
+        id: { type: string }
+        status: { type: string }
+        amountCents: { type: ["integer", "null"] }
+        created: { type: integer }
+    ShopOrders:
+      type: object
+      required: [orders, message]
+      properties:
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShopOrder"
+        message: { type: ["string", "null"] }
     PageviewInput:
       type: object
       additionalProperties: false

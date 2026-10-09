@@ -19,6 +19,12 @@ La préparation de la Boutique INDAMORA PLAY est autorisée uniquement en dével
 
 **How to apply:** Isoler les ajouts Boutique et utiliser exclusivement des identifiants Stripe TEST dédiés stockés dans les Secrets Replit, sans modifier, remplacer ou supprimer les clés de Premium et des dons. Toute activation LIVE, publication ou modification du schéma exige une nouvelle autorisation explicite.
 
+L’utilisateur autorise les fichiers privés côté serveur pour ADMIN SHOP uniquement en développement / TEST, sans modifier la base, les comptes, les rôles ni l’authentification. Confirmer confidentialité et persistance avant d’y enregistrer des données. En cas de limitation, arrêter et demander son accord pour une autre solution. Les stocks initiaux inconnus doivent rester à renseigner, sans quantités inventées.
+
+**Why:** L’utilisateur a explicitement conditionné l’autorisation de stockage à ces protections, sans frais ni impact sur les données existantes.
+
+**How to apply:** Réutiliser l’administrateur déjà autorisé, préserver les photos et les données existantes, distinguer les tests exécutés des vérifications non réalisées.
+
 Pour la Boutique, utiliser exclusivement les images de produits et le QR code officiel fournis par l’utilisateur. Ne pas générer de faux modèles, de faux QR codes ou de nouvelles images à leur place.
 
 **Why:** L’utilisateur a indiqué qu’il fournira ces visuels et a expressément interdit leur remplacement par des images générées.

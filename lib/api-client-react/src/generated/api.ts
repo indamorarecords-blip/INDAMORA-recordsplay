@@ -41,6 +41,16 @@ import type {
   PageviewInput,
   PressRequest,
   PressRequestInput,
+  ShopDashboard,
+  ShopOrders,
+  ShopPhoto,
+  ShopPhotoUpload,
+  ShopProduct,
+  ShopProductInput,
+  ShopProductUpdateInput,
+  ShopPublicCatalog,
+  ShopQuote,
+  ShopQuoteInput,
   StoreCatalog,
   StoreCheckout,
   StoreCheckoutInput,
@@ -81,6 +91,480 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
   }
   return result;
 };
+
+export const getGetShopAdminUrl = () => {
+
+
+
+
+  return `/api/shop/admin`
+}
+
+export const getShopAdmin = async ( options?: Parameters<typeof customFetch>[1]): Promise<ShopDashboard> => {
+
+  return customFetch<ShopDashboard>(getGetShopAdminUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetShopAdminQueryKey = () => {
+    return [
+    `/api/shop/admin`
+    ] as const;
+    }
+
+
+export const getGetShopAdminQueryOptions = <TData = Awaited<ReturnType<typeof getShopAdmin>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getShopAdmin>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetShopAdminQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getShopAdmin>>> = ({ signal }) => getShopAdmin({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getShopAdmin>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetShopAdminQueryResult = NonNullable<Awaited<ReturnType<typeof getShopAdmin>>>
+export type GetShopAdminQueryError = ErrorType<unknown>
+
+
+
+export function useGetShopAdmin<TData = Awaited<ReturnType<typeof getShopAdmin>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getShopAdmin>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetShopAdminQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateShopProductUrl = () => {
+
+
+
+
+  return `/api/shop/admin/products`
+}
+
+export const createShopProduct = async (shopProductInput: ShopProductInput, options?: Parameters<typeof customFetch>[1]): Promise<ShopProduct> => {
+
+  return customFetch<ShopProduct>(getCreateShopProductUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(shopProductInput)
+  }
+);}
+
+
+
+
+
+export const getCreateShopProductMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createShopProduct>>, TError,{data: BodyType<ShopProductInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createShopProduct>>, TError,{data: BodyType<ShopProductInput>}, TContext> => {
+
+const mutationKey = ['createShopProduct'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createShopProduct>>, {data: BodyType<ShopProductInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createShopProduct(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateShopProductMutationResult = NonNullable<Awaited<ReturnType<typeof createShopProduct>>>
+    export type CreateShopProductMutationBody = BodyType<ShopProductInput>
+    export type CreateShopProductMutationError = ErrorType<unknown>
+
+    export const useCreateShopProduct = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createShopProduct>>, TError,{data: BodyType<ShopProductInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createShopProduct>>,
+        TError,
+        {data: BodyType<ShopProductInput>},
+        TContext
+      > => {
+      return useMutation(getCreateShopProductMutationOptions(options));
+    }
+
+export const getUpdateShopProductUrl = (id: string,) => {
+
+
+
+
+  return `/api/shop/admin/products/${id}`
+}
+
+export const updateShopProduct = async (id: string,
+    shopProductUpdateInput: ShopProductUpdateInput, options?: Parameters<typeof customFetch>[1]): Promise<ShopProduct> => {
+
+  return customFetch<ShopProduct>(getUpdateShopProductUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(shopProductUpdateInput)
+  }
+);}
+
+
+
+
+
+export const getUpdateShopProductMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateShopProduct>>, TError,{id: string;data: BodyType<ShopProductUpdateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateShopProduct>>, TError,{id: string;data: BodyType<ShopProductUpdateInput>}, TContext> => {
+
+const mutationKey = ['updateShopProduct'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateShopProduct>>, {id: string;data: BodyType<ShopProductUpdateInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateShopProduct(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateShopProductMutationResult = NonNullable<Awaited<ReturnType<typeof updateShopProduct>>>
+    export type UpdateShopProductMutationBody = BodyType<ShopProductUpdateInput>
+    export type UpdateShopProductMutationError = ErrorType<unknown>
+
+    export const useUpdateShopProduct = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateShopProduct>>, TError,{id: string;data: BodyType<ShopProductUpdateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateShopProduct>>,
+        TError,
+        {id: string;data: BodyType<ShopProductUpdateInput>},
+        TContext
+      > => {
+      return useMutation(getUpdateShopProductMutationOptions(options));
+    }
+
+export const getUploadShopPhotoUrl = () => {
+
+
+
+
+  return `/api/shop/admin/photos`
+}
+
+export const uploadShopPhoto = async (shopPhotoUpload: ShopPhotoUpload, options?: Parameters<typeof customFetch>[1]): Promise<ShopPhoto> => {
+
+  return customFetch<ShopPhoto>(getUploadShopPhotoUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(shopPhotoUpload)
+  }
+);}
+
+
+
+
+
+export const getUploadShopPhotoMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadShopPhoto>>, TError,{data: BodyType<ShopPhotoUpload>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof uploadShopPhoto>>, TError,{data: BodyType<ShopPhotoUpload>}, TContext> => {
+
+const mutationKey = ['uploadShopPhoto'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadShopPhoto>>, {data: BodyType<ShopPhotoUpload>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  uploadShopPhoto(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UploadShopPhotoMutationResult = NonNullable<Awaited<ReturnType<typeof uploadShopPhoto>>>
+    export type UploadShopPhotoMutationBody = BodyType<ShopPhotoUpload>
+    export type UploadShopPhotoMutationError = ErrorType<unknown>
+
+    export const useUploadShopPhoto = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadShopPhoto>>, TError,{data: BodyType<ShopPhotoUpload>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof uploadShopPhoto>>,
+        TError,
+        {data: BodyType<ShopPhotoUpload>},
+        TContext
+      > => {
+      return useMutation(getUploadShopPhotoMutationOptions(options));
+    }
+
+export const getGetShopOrdersUrl = () => {
+
+
+
+
+  return `/api/shop/admin/orders`
+}
+
+export const getShopOrders = async ( options?: Parameters<typeof customFetch>[1]): Promise<ShopOrders> => {
+
+  return customFetch<ShopOrders>(getGetShopOrdersUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetShopOrdersQueryKey = () => {
+    return [
+    `/api/shop/admin/orders`
+    ] as const;
+    }
+
+
+export const getGetShopOrdersQueryOptions = <TData = Awaited<ReturnType<typeof getShopOrders>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getShopOrders>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetShopOrdersQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getShopOrders>>> = ({ signal }) => getShopOrders({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getShopOrders>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetShopOrdersQueryResult = NonNullable<Awaited<ReturnType<typeof getShopOrders>>>
+export type GetShopOrdersQueryError = ErrorType<unknown>
+
+
+
+export function useGetShopOrders<TData = Awaited<ReturnType<typeof getShopOrders>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getShopOrders>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetShopOrdersQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetShopCatalogUrl = () => {
+
+
+
+
+  return `/api/shop/catalog`
+}
+
+export const getShopCatalog = async ( options?: Parameters<typeof customFetch>[1]): Promise<ShopPublicCatalog> => {
+
+  return customFetch<ShopPublicCatalog>(getGetShopCatalogUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetShopCatalogQueryKey = () => {
+    return [
+    `/api/shop/catalog`
+    ] as const;
+    }
+
+
+export const getGetShopCatalogQueryOptions = <TData = Awaited<ReturnType<typeof getShopCatalog>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getShopCatalog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetShopCatalogQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getShopCatalog>>> = ({ signal }) => getShopCatalog({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getShopCatalog>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetShopCatalogQueryResult = NonNullable<Awaited<ReturnType<typeof getShopCatalog>>>
+export type GetShopCatalogQueryError = ErrorType<unknown>
+
+
+
+export function useGetShopCatalog<TData = Awaited<ReturnType<typeof getShopCatalog>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getShopCatalog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetShopCatalogQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateShopQuoteUrl = () => {
+
+
+
+
+  return `/api/shop/quote`
+}
+
+export const createShopQuote = async (shopQuoteInput: ShopQuoteInput, options?: Parameters<typeof customFetch>[1]): Promise<ShopQuote> => {
+
+  return customFetch<ShopQuote>(getCreateShopQuoteUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(shopQuoteInput)
+  }
+);}
+
+
+
+
+
+export const getCreateShopQuoteMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createShopQuote>>, TError,{data: BodyType<ShopQuoteInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createShopQuote>>, TError,{data: BodyType<ShopQuoteInput>}, TContext> => {
+
+const mutationKey = ['createShopQuote'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createShopQuote>>, {data: BodyType<ShopQuoteInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createShopQuote(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateShopQuoteMutationResult = NonNullable<Awaited<ReturnType<typeof createShopQuote>>>
+    export type CreateShopQuoteMutationBody = BodyType<ShopQuoteInput>
+    export type CreateShopQuoteMutationError = ErrorType<unknown>
+
+    export const useCreateShopQuote = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createShopQuote>>, TError,{data: BodyType<ShopQuoteInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createShopQuote>>,
+        TError,
+        {data: BodyType<ShopQuoteInput>},
+        TContext
+      > => {
+      return useMutation(getCreateShopQuoteMutationOptions(options));
+    }
 
 export const getRecordPageviewUrl = () => {
 

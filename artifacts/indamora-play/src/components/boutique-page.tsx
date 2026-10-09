@@ -1,26 +1,22 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'wouter';
 import {
+  createShopQuote,
   getGetStoreCheckoutStatusQueryKey,
   useCreateStoreCheckout,
+  useGetShopCatalog,
   useGetStoreCatalog,
   useGetStoreCheckoutStatus,
 } from '@workspace/api-client-react';
-import type { StoreSku } from '@workspace/api-client-react';
-import { COLOR_LABELS, COLOR_SWATCH, getProductPhotos, OFFICIAL_PREVIEW_QR, PRODUCT_COLORS } from './boutique-preview-media';
-import type { ProductColor, ProductPhoto } from './boutique-preview-media';
+import type { ShopPhoto, ShopPublicProduct, ShopPublicVariant, ShopQuote, StoreSku } from '@workspace/api-client-react';
+import { COLOR_LABELS, COLOR_SWATCH, OFFICIAL_PREVIEW_QR, PRODUCT_COLORS } from './boutique-preview-media';
+import type { ProductColor } from './boutique-preview-media';
 import './boutique-page.css';
 
-type ProductInfo = { sku: StoreSku; name: string; className: string; shortName: string; priceCents: number };
-type CartLine = { sku: StoreSku; color?: ProductColor; quantity: number };
-
-const STORE_PRODUCTS: ProductInfo[] = [
-  { sku: 'tshirt', name: 'T-shirt INDAMORA PLAY', shortName: 'T-shirt', className: 'tshirt', priceCents: 1500 },
-  { sku: 'bob', name: 'Bob INDAMORA PLAY', shortName: 'Bob', className: 'bob', priceCents: 1500 },
-  { sku: 'tote-bag', name: 'Tote bag INDAMORA PLAY', shortName: 'Tote bag', className: 'tote', priceCents: 1500 },
-  { sku: 'hoodie', name: 'Sweat à capuche INDAMORA PLAY', shortName: 'Sweat à capuche', className: 'hoodie', priceCents: 2500 },
-];
-const DEFAULT_COLOR: Partial<Record<StoreSku, ProductColor>> = { tshirt: 'rose', bob: 'noir' };
+// Cart lines now reference dynamic ids. Older lines (sku/color) are kept until they can be resolved.
+type CartLine = { productId?: string; variantId?: string; sku?: string; color?: string; quantity: number };
+const LEGACY_DEFAULT_COLOR: Record<string, string> = { tshirt: 'rose', bob: 'noir' };
+const LEGACY_PRICES: Record<string, number> = { tshirt: 1500, bob: 1500, 'tote-bag': 1500, hoodie: 2500 };
 
 const STORAGE_KEY = 'indamora-play-boutique-cart';
 const OFFICIAL_LOGO_URL = `${import.meta.env.BASE_URL}assets/indamora-play-logo.png`;
@@ -82,6 +78,8 @@ const OTHER_COUNTRIES: Array<[string, string]> = [
   ['ZM', 'Zambie'], ['ZW', 'Zimbabwe'],
 ];
 
+const mediaUrl = (reference: string) => `/api/shop/media?reference=${encodeURIComponent(reference)}`;
+const norm = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 
 function readCart(): CartLine[] {
   try {
@@ -90,15 +88,14 @@ function readCart(): CartLine[] {
     const merged: CartLine[] = [];
     for (const raw of stored as Array<Partial<CartLine>>) {
       if (typeof raw !== 'object' || raw === null) continue;
-      const product = STORE_PRODUCTS.find((p) => p.sku === raw.sku);
-      if (!product || !Number.isInteger(raw.quantity) || (raw.quantity as number) <= 0) continue;
-      const allowed = PRODUCT_COLORS[product.sku];
-      let color: ProductColor | undefined;
-      if (allowed) color = raw.color && allowed.includes(raw.color) ? raw.color : DEFAULT_COLOR[product.sku];
-      const existing = merged.find((l) => l.sku === product.sku && l.color === color);
+      if (!Number.isInteger(raw.quantity) || (raw.quantity as number) <= 0) continue;
       const quantity = Math.min(raw.quantity as number, 20);
-      if (existing) existing.quantity = Math.min(20, existing.quantity + quantity);
-      else merged.push({ sku: product.sku, color, quantity });
+      const line: CartLine = raw.productId && raw.variantId
+        ? { productId: String(raw.productId), variantId: String(raw.variantId), quantity }
+        : typeof raw.sku === 'string' ? { sku: raw.sku, color: raw.color ?? LEGACY_DEFAULT_COLOR[raw.sku], quantity } : { quantity: 0 };
+      if (!line.quantity) continue;
+      const existing = merged.find((l) => l.productId === line.productId && l.variantId === line.variantId && l.sku === line.sku && l.color === line.color);
+      if (existing) existing.quantity = Math.min(20, existing.quantity + quantity); else merged.push(line);
     }
     return merged;
   } catch {
@@ -106,60 +103,103 @@ function readCart(): CartLine[] {
   }
 }
 
-const lineKey = (sku: StoreSku, color?: ProductColor) => (color ? `${sku}-${color}` : sku);
+// Resolve an older sku/color line to a catalog product/variant, only when unambiguous.
+function resolveLegacy(line: CartLine, products: ShopPublicProduct[]): CartLine {
+  if (line.productId || !line.sku) return line;
+  const sku = norm(line.sku);
+  const product = products.find((p) => norm(p.id) === sku || norm(p.id).includes(sku) || norm(p.name).includes(sku.replace('-', ' ')));
+  if (!product) return line;
+  const color = line.color ? norm(line.color) : '';
+  const variants = product.variants.filter((v) => !color || norm(v.id) === color || norm(v.color) === color || norm(v.id).includes(color));
+  if (variants.length !== 1 && !(variants.length > 1 && !color)) return line;
+  return { productId: product.id, variantId: variants[0].id, quantity: line.quantity };
+}
+
+const lineId = (line: CartLine) => line.productId ? `${line.productId}__${line.variantId}` : `legacy-${line.sku}-${line.color ?? ''}`;
 
 function formatEUR(cents: number): string {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(cents / 100);
 }
 
-function PhotoFrame({ image, alt, onError }: { image: ProductPhoto; alt: string; onError: () => void }) {
-  const crop = image.crop;
-  if (!crop) return <img className="bt-product-image" src={image.src} alt={alt} loading="lazy" decoding="async" onError={onError} />;
-  // Display-only crop: same file, window sized to its true aspect ratio, no stretching.
+function PhotoFrame({ photo, alt, onError }: { photo: ShopPhoto; alt: string; onError: () => void }) {
+  const src = mediaUrl(photo.reference);
+  const crop = photo.crop;
+  if (!crop) return <img className="bt-product-image" src={src} alt={alt} loading="lazy" decoding="async" onError={onError} />;
   return <div className="bt-crop" style={{ aspectRatio: String(crop.ratio) }}>
-    <img src={image.src} alt={alt} loading="lazy" decoding="async" onError={onError}
+    <img src={src} alt={alt} loading="lazy" decoding="async" onError={onError}
       style={{ width: `${100 / crop.w}%`, height: `${100 / crop.h}%`, left: `${-(crop.x / crop.w) * 100}%`, top: `${-(crop.y / crop.h) * 100}%` }} />
   </div>;
 }
 
-function ProductArt({ product, color, photoIndex, onPhotoChange }: {
-  product: ProductInfo;
-  color?: ProductColor;
-  photoIndex: number;
-  onPhotoChange: (index: number) => void;
-}) {
-  const photos = getProductPhotos(product.sku, color);
-  const image = photos[photoIndex] ?? photos[0];
+function swatchColor(color: string): string {
+  const key = norm(color) as ProductColor;
+  return key in COLOR_SWATCH ? COLOR_SWATCH[key] : 'linear-gradient(135deg,#F4A6C1,#fff)';
+}
+const variantLabel = (variant: ShopPublicVariant) => [variant.color, variant.size].filter(Boolean).join(' · ') || 'Standard';
+
+function ProductCard({ product, inCart, onAdd }: { product: ShopPublicProduct; inCart: (variantId: string) => number; onAdd: (variantId: string) => void }) {
+  const [variantId, setVariantId] = useState(product.variants.find((v) => v.available)?.id ?? product.variants[0]?.id ?? '');
+  const [photoIndex, setPhotoIndex] = useState(0);
   const [failed, setFailed] = useState(false);
-  useEffect(() => { setFailed(false); }, [image]);
-  const alt = `${image?.label ?? product.name} — photo fournie`;
-  return <div data-testid={`visual-product-${product.sku}`}>
-    <div className={`bt-product-art ${product.className}`}>
-    {image && !failed ? <PhotoFrame image={image} alt={alt} onError={() => setFailed(true)} /> : <div className="bt-product-placeholder">
-      <span>{product.name}</span>
-      <small>L’image fournie n’a pas pu être chargée.</small>
-    </div>}
-    {image && !failed && <span data-testid={`img-product-${product.sku}`} hidden />}
+  const variant = product.variants.find((v) => v.id === variantId) ?? product.variants[0];
+  const photos = variant?.photos ?? [];
+  const photo = photos[photoIndex] ?? photos[0];
+  useEffect(() => { setFailed(false); }, [photo?.reference]);
+  const colors = Array.from(new Set(product.variants.map((v) => v.color)));
+  const sizesForColor = product.variants.filter((v) => v.color === variant?.color);
+  const quantity = variant ? inCart(variant.id) : 0;
+  const pid = product.id;
+  const choose = (id: string) => { setVariantId(id); setPhotoIndex(0); };
+  return <article className="bt-product" data-testid={`card-product-${pid}`}>
+    <div data-testid={`visual-product-${pid}`}>
+      <div className="bt-product-art">
+        {photo && !failed ? <PhotoFrame photo={photo} alt={`${product.name} ${variant ? variantLabel(variant) : ''}`} onError={() => setFailed(true)} /> : <div className="bt-product-placeholder">
+          <span>{product.name}</span><small>Photo indisponible.</small>
+        </div>}
+      </div>
+      <div className="bt-photo-controls">
+        {photos.length > 1 && <>
+          <button type="button" aria-label={`Photo précédente de ${product.name}`} onClick={() => setPhotoIndex((photoIndex + photos.length - 1) % photos.length)} data-testid={`button-photo-prev-${pid}`}>‹</button>
+          <span aria-live="polite">{photoIndex + 1}/{photos.length}</span>
+          <button type="button" aria-label={`Photo suivante de ${product.name}`} onClick={() => setPhotoIndex((photoIndex + 1) % photos.length)} data-testid={`button-photo-next-${pid}`}>›</button>
+        </>}
+        {photo && <a href={mediaUrl(photo.reference)} target="_blank" rel="noreferrer" className="bt-photo-link" data-testid={`link-photo-${pid}`}>Photo originale ↗</a>}
+      </div>
     </div>
-    <div className="bt-photo-controls">
-      {photos.length > 1 && <>
-        <button type="button" aria-label={`Photo précédente de ${product.shortName}`}
-          onClick={() => onPhotoChange((photoIndex + photos.length - 1) % photos.length)}
-          data-testid={`button-photo-prev-${product.sku}`}>‹</button>
-        <span aria-live="polite">{photoIndex + 1}/{photos.length}</span>
-        <button type="button" aria-label={`Photo suivante de ${product.shortName}`}
-          onClick={() => onPhotoChange((photoIndex + 1) % photos.length)}
-          data-testid={`button-photo-next-${product.sku}`}>›</button>
-      </>}
-      {image && <a href={image.original} target="_blank" rel="noreferrer" className="bt-photo-link"
-        aria-label={`Voir la photo originale de ${product.shortName}`} data-testid={`link-photo-${product.sku}`}>Photo originale ↗</a>}
+    <div className="bt-product-body">
+      <h3 className="bt-product-title" data-testid={`text-product-name-${pid}`}>{product.name}</h3>
+      {product.description && <div className="bt-product-type">{product.description}</div>}
+      {colors.length > 1 || (colors[0] && colors.length === 1 && colors[0] !== '') ? <div className="bt-swatches" role="radiogroup" aria-label={`Couleur : ${product.name}`}>
+        {colors.map((color) => {
+          const target = product.variants.find((v) => v.color === color && v.available) ?? product.variants.find((v) => v.color === color)!;
+          return <button type="button" role="radio" aria-checked={color === variant?.color} key={color || 'none'}
+            className={`bt-swatch${color === variant?.color ? ' active' : ''}`} onClick={() => choose(target.id)} data-testid={`button-color-${pid}-${target.id}`}>
+            <i style={{ background: swatchColor(color) }} />{COLOR_LABELS[norm(color) as ProductColor] ?? color}
+          </button>;
+        })}
+      </div> : null}
+      {sizesForColor.length > 1 && <div className="bt-swatches bt-sizes" role="radiogroup" aria-label={`Taille : ${product.name}`}>
+        {sizesForColor.map((v) => <button type="button" role="radio" aria-checked={v.id === variant?.id} key={v.id}
+          className={`bt-swatch bt-size${v.id === variant?.id ? ' active' : ''}${v.available ? '' : ' off'}`} onClick={() => choose(v.id)} data-testid={`button-size-${pid}-${v.id}`}>
+          {v.size}{v.available ? '' : ' · indisponible'}
+        </button>)}
+      </div>}
+      {variant && sizesForColor.length === 1 && <div className="bt-color-selected" data-testid={`text-color-${pid}`}>{variantLabel(variant)}</div>}
+      <div className="bt-product-bottom">
+        <strong className="bt-price" data-testid={`text-product-price-${pid}`}>{formatEUR(product.priceCents).replace(',00', '')}</strong>
+        <button className="bt-add" onClick={() => variant && onAdd(variant.id)} disabled={!variant || !variant.available || quantity >= 20} data-testid={`button-add-${pid}`}>
+          {!variant?.available ? 'Indisponible' : quantity ? `Ajouter · ${quantity}` : 'Ajouter au panier'}
+        </button>
+      </div>
+      <div className="bt-availability" data-testid={`status-product-${pid}`}>{!variant?.available ? 'Indisponible' : quantity ? `${quantity} dans le panier TEST` : 'Article du catalogue TEST'}</div>
+      {product.shippingInfo && <div className="bt-availability">{product.shippingInfo}</div>}
     </div>
-  </div>;
+  </article>;
 }
 
 function ProductSkeletons() {
   return <div className="bt-product-grid" aria-label="Chargement de la boutique" data-testid="loading-store-catalog">
-    {STORE_PRODUCTS.map((product) => <div className="bt-product-skeleton bt-skeleton" key={product.sku} />)}
+    {[0, 1, 2, 3].map((i) => <div className="bt-product-skeleton bt-skeleton" key={i} />)}
   </div>;
 }
 
@@ -203,69 +243,108 @@ function ReturnState({ sessionId }: { sessionId: string }) {
 }
 
 export function BoutiquePage() {
-  const catalogQuery = useGetStoreCatalog();
+  const shopQuery = useGetShopCatalog();
+  const storeQuery = useGetStoreCatalog(); // Stripe TEST readiness only
   const checkout = useCreateStoreCheckout();
   const [cart, setCart] = useState<CartLine[]>(readCart);
   const [country, setCountry] = useState('');
   const [checkoutError, setCheckoutError] = useState('');
-  const [colors, setColors] = useState<Partial<Record<StoreSku, ProductColor>>>(DEFAULT_COLOR);
-  const [photoIndexes, setPhotoIndexes] = useState<Record<string, number>>({});
+  const [quote, setQuote] = useState<{ state: 'idle' | 'pending' | 'error' | 'ok'; data?: ShopQuote; key?: string; message?: string }>({ state: 'idle' });
+  const quoteSeq = useRef(0);
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id') ?? '';
   const canceled = params.get('checkout') === 'cancelled';
+  const products = useMemo(() => shopQuery.data?.products ?? [], [shopQuery.data?.products]);
+
+  // Migrate older sku/color lines once the dynamic catalog is known; unresolved lines are never dropped.
+  useEffect(() => {
+    if (!products.length) return;
+    setCart((current) => {
+      if (!current.some((l) => !l.productId)) return current;
+      const merged: CartLine[] = [];
+      for (const line of current.map((l) => resolveLegacy(l, products))) {
+        const same = line.productId ? merged.find((m) => m.productId === line.productId && m.variantId === line.variantId) : undefined;
+        if (same) same.quantity = Math.min(20, same.quantity + line.quantity); else merged.push({ ...line });
+      }
+      return merged;
+    });
+  }, [products]);
 
   useEffect(() => {
     try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); } catch { /* Storage can be disabled. */ }
   }, [cart]);
 
-  const catalogProducts = useMemo(
-    () => new Map((catalogQuery.data?.products ?? []).map((product) => [product.sku, product])),
-    [catalogQuery.data?.products],
-  );
-  const priceOf = (sku: StoreSku): number => {
-    const live = (catalogProducts.get(sku) as { priceCents?: number } | undefined)?.priceCents;
-    return live ?? STORE_PRODUCTS.find((p) => p.sku === sku)!.priceCents;
+  const findLine = (line: CartLine) => {
+    const product = products.find((p) => p.id === line.productId);
+    const variant = product?.variants.find((v) => v.id === line.variantId);
+    return { product, variant };
   };
+  const quotable = useMemo(() => cart.filter((l) => {
+    const { product, variant } = findLine(l);
+    return product && variant?.available;
+  }).map((l) => ({ productId: l.productId as string, variantId: l.variantId as string, quantity: l.quantity })),
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [cart, products]);
+  const quoteKey = `${country}|${JSON.stringify(quotable)}`;
+
+  useEffect(() => {
+    if (!country || !quotable.length) { quoteSeq.current += 1; setQuote({ state: 'idle' }); return; }
+    const seq = ++quoteSeq.current;
+    setQuote((q) => ({ ...q, state: 'pending' }));
+    const timer = window.setTimeout(() => {
+      createShopQuote({ items: quotable, shippingCountry: country })
+        .then((data) => { if (seq === quoteSeq.current) setQuote({ state: 'ok', data, key: quoteKey }); })
+        .catch((err: { data?: { error?: unknown } }) => { if (seq === quoteSeq.current) setQuote({ state: 'error', message: typeof err?.data?.error === 'string' ? err.data.error : undefined }); });
+    }, 350);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quoteKey]);
+
   const cartCount = cart.reduce((sum, line) => sum + line.quantity, 0);
-  const subtotalCents = cart.reduce((sum, line) => sum + priceOf(line.sku) * line.quantity, 0);
   const isFrance = country === 'FR';
   const isEU = Boolean(country && country in EU_COUNTRIES);
   const isWorld = Boolean(country && !isFrance && !isEU);
-  const shippingCents = isFrance ? 0 : isEU ? 700 : 0;
-  const totalCents = subtotalCents + shippingCents;
-  const catalogReady = Boolean(catalogQuery.data?.checkoutAvailable);
+  const q = quote.state === 'ok' && quote.key === quoteKey ? quote.data : undefined;
+  const quotePending = Boolean(country && quotable.length) && !q && quote.state !== 'error';
+  const hasUnavailable = cart.some((l) => { const { product, variant } = findLine(l); return !product || !variant?.available; });
+  const catalogReady = Boolean(storeQuery.data?.checkoutAvailable);
+  const legacyPrices = new Map((storeQuery.data?.products ?? []).map((p) => [p.sku as string, p.priceCents as number]));
+  // Stripe TEST only knows the original four SKUs and their fixed prices.
+  const legacyItems = useMemo(() => {
+    if (!q || !products.length) return null;
+    const items: Array<{ sku: StoreSku; quantity: number; color?: ProductColor }> = [];
+    for (const l of cart) {
+      const sku = Object.keys(LEGACY_PRICES).find((s) => norm(l.productId ?? '') === s);
+      const { variant } = findLine(l);
+      if (!sku || !variant) return null;
+      const allowed = PRODUCT_COLORS[sku as StoreSku];
+      const color = allowed ? allowed.find((c) => c === norm(variant.id) || c === norm(variant.color)) : undefined;
+      if (allowed && !color) return null;
+      const ql = q.lines.find((x) => x.productId === l.productId && x.variantId === l.variantId);
+      if (!ql || ql.priceCents !== LEGACY_PRICES[sku] || legacyPrices.get(sku) !== ql.priceCents) return null;
+      items.push(color ? { sku: sku as StoreSku, quantity: l.quantity, color } : { sku: sku as StoreSku, quantity: l.quantity });
+    }
+    return items;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q, cart, products, storeQuery.data]);
+  const canCheckout = Boolean(cart.length && country && !isWorld && q && !q.contactRequired && q.totalCents !== null && !hasUnavailable && catalogReady && legacyItems && legacyItems.length && !checkout.isPending);
   const returnToCheckout = Boolean(sessionId);
 
-  const same = (line: CartLine, sku: StoreSku, color?: ProductColor) => line.sku === sku && line.color === color;
-
-  function addProduct(sku: StoreSku, color?: ProductColor) {
-    setCart((current) => {
-      if (current.some((line) => same(line, sku, color))) {
-        return current.map((line) => same(line, sku, color) ? { ...line, quantity: Math.min(20, line.quantity + 1) } : line);
-      }
-      return [...current, { sku, color, quantity: 1 }];
-    });
+  const sameLine = (l: CartLine, productId: string, variantId: string) => l.productId === productId && l.variantId === variantId;
+  function addVariant(productId: string, variantId: string) {
+    setCart((current) => current.some((l) => sameLine(l, productId, variantId))
+      ? current.map((l) => sameLine(l, productId, variantId) ? { ...l, quantity: Math.min(20, l.quantity + 1) } : l)
+      : [...current, { productId, variantId, quantity: 1 }]);
   }
-
-  function changeQuantity(sku: StoreSku, color: ProductColor | undefined, adjustment: number) {
-    setCart((current) => current.map((line) => same(line, sku, color)
-      ? { ...line, quantity: Math.max(1, Math.min(20, line.quantity + adjustment)) }
-      : line));
+  function changeQuantity(line: CartLine, adjustment: number) {
+    setCart((current) => current.map((l) => l === line ? { ...l, quantity: Math.max(1, Math.min(20, l.quantity + adjustment)) } : l));
   }
-
-  function removeProduct(sku: StoreSku, color?: ProductColor) {
-    setCart((current) => current.filter((line) => !same(line, sku, color)));
-  }
+  function removeLine(line: CartLine) { setCart((current) => current.filter((l) => l !== line)); }
 
   function startCheckout() {
     setCheckoutError('');
-    if (!cart.length || !country || isWorld || !catalogReady || !catalogProducts.size) return;
-    checkout.mutate({
-      data: {
-        items: cart.map(({ sku, quantity, color }) => color ? { sku, quantity, color } : { sku, quantity }),
-        shippingCountry: country,
-      },
-    }, {
+    if (!canCheckout || !legacyItems) return;
+    checkout.mutate({ data: { items: legacyItems, shippingCountry: country } }, {
       onSuccess: (result) => {
         const checkoutUrl = new URL(result.url);
         if (result.mode !== 'test' || !result.sessionId.startsWith('cs_test_') || checkoutUrl.protocol !== 'https:' || checkoutUrl.hostname !== 'checkout.stripe.com') {
@@ -279,6 +358,7 @@ export function BoutiquePage() {
   }
 
   const selectedCountryName = country === 'FR' ? 'France' : EU_COUNTRIES[country] ?? OTHER_COUNTRIES.find(([code]) => code === country)?.[1];
+  const inCartFor = (productId: string) => (variantId: string) => cart.find((l) => sameLine(l, productId, variantId))?.quantity ?? 0;
 
   return <main className="boutique" data-testid="page-boutique">
     <header className="bt-masthead bt-shell">
@@ -296,57 +376,28 @@ export function BoutiquePage() {
         <h1>INDAMORA PLAY — SHOP</h1>
         <div className="bt-preview-banner" role="status" data-testid="status-preview-only">
           <strong>Preview TEST · aucune commande réelle</strong>
-          <span>{catalogQuery.data?.message ?? 'Photos fournies · validation requise avant publication.'}</span>
+          <span>{storeQuery.data?.message ?? 'Photos fournies · validation requise avant publication.'}</span>
         </div>
       </section>
 
       <section className="bt-shell bt-section" id="produits" data-testid="section-products">
-        {catalogQuery.isLoading && <ProductSkeletons />}
-        {catalogQuery.error && <div className="bt-query-error" role="alert" data-testid="error-store-catalog">
+        {shopQuery.isLoading && <ProductSkeletons />}
+        {shopQuery.error && <div className="bt-query-error" role="alert" data-testid="error-store-catalog">
           La boutique n’a pas pu charger son catalogue.
-          <button className="bt-retry" onClick={() => void catalogQuery.refetch()} data-testid="button-retry-store-catalog">Réessayer</button>
+          <button className="bt-retry" onClick={() => void shopQuery.refetch()} data-testid="button-retry-store-catalog">Réessayer</button>
         </div>}
-        {!catalogQuery.isLoading && !catalogQuery.error && <>
-          <div className="bt-product-grid">
-            {STORE_PRODUCTS.map((product) => {
-              const available = catalogProducts.has(product.sku);
-              const options = PRODUCT_COLORS[product.sku];
-              const color = options ? colors[product.sku] ?? options[0] : undefined;
-              const quantity = cart.find((line) => same(line, product.sku, color))?.quantity ?? 0;
-              const photoKey = lineKey(product.sku, color);
-              return <article className="bt-product" key={product.sku} data-testid={`card-product-${product.sku}`}>
-                <ProductArt product={product} color={color} photoIndex={photoIndexes[photoKey] ?? 0}
-                  onPhotoChange={(nextIndex) => setPhotoIndexes((current) => ({ ...current, [photoKey]: nextIndex }))} />
-                <div className="bt-product-body">
-                  <h3 className="bt-product-title" data-testid={`text-product-name-${product.sku}`}>{product.name}</h3>
-                  <div className="bt-product-type" data-testid={`text-product-size-${product.sku}`}>Taille unique</div>
-                  {options && <div className="bt-swatches" role="radiogroup" aria-label={`Couleur du ${product.shortName.toLowerCase()}`}>
-                    {options.map((option) => <button type="button" role="radio" aria-checked={option === color} key={option}
-                      className={`bt-swatch${option === color ? ' active' : ''}`}
-                      onClick={() => setColors((current) => ({ ...current, [product.sku]: option }))}
-                      data-testid={`button-color-${product.sku}-${option}`}>
-                      <i style={{ background: COLOR_SWATCH[option] }} />{COLOR_LABELS[option]}
-                    </button>)}
-                  </div>}
-                  {color && <div className="bt-color-selected" data-testid={`text-color-${product.sku}`}>Couleur : {COLOR_LABELS[color]}</div>}
-                  <div className="bt-product-bottom">
-                    <strong className="bt-price" data-testid={`text-product-price-${product.sku}`}>{formatEUR(priceOf(product.sku)).replace(',00', '')}</strong>
-                    <button className="bt-add" onClick={() => addProduct(product.sku, color)} disabled={!available || quantity >= 20} data-testid={`button-add-${product.sku}`}>
-                      {quantity ? `Ajouter · ${quantity}` : 'Ajouter au panier'}
-                    </button>
-                  </div>
-                  <div className="bt-availability" data-testid={`status-product-${product.sku}`}>{quantity ? `${quantity} dans le panier TEST` : 'Article du catalogue TEST'}</div>
-                </div>
-              </article>;
-            })}
-          </div>
+        {!shopQuery.isLoading && !shopQuery.error && <>
+          {products.length === 0 ? <div className="bt-cart-empty" data-testid="empty-catalog"><div><i className="bt-cart-empty-mark" />Le catalogue se prépare. Revenez très bientôt.</div></div> :
+            <div className="bt-product-grid">
+              {products.map((product) => <ProductCard key={product.id} product={product} inCart={inCartFor(product.id)} onAdd={(variantId) => addVariant(product.id, variantId)} />)}
+            </div>}
           <div className="bt-shipping-band" data-testid="section-shipping-rates">
             <div className="bt-ship-cell"><div className="bt-ship-place">France</div><div className="bt-ship-price">Livraison gratuite</div><div className="bt-ship-detail">Délai indicatif : 3 à 4 jours</div></div>
             <div className="bt-ship-cell"><div className="bt-ship-place">Union européenne</div><div className="bt-ship-price">7 €</div><div className="bt-ship-detail">Frais de livraison par commande<br />Délai indicatif : 3 à 4 jours</div></div>
             <div className="bt-ship-cell"><div className="bt-ship-place">Europe hors UE &amp; reste du monde</div><div className="bt-ship-price">Nous contacter</div><div className="bt-ship-detail">Contactez-nous avant de commander.</div><div className="bt-contact-links"><a href="https://wa.me/33780118869" target="_blank" rel="noreferrer">WhatsApp : +33 7 80 11 88 69</a><a href="mailto:indamorarecords@gmail.com">indamorarecords@gmail.com</a></div></div>
           </div>
         </>}
-        {catalogQuery.data?.message && <p className="bt-country-note" role="status" data-testid="text-catalog-message">{catalogQuery.data.message}</p>}
+        {storeQuery.data?.message && <p className="bt-country-note" role="status" data-testid="text-catalog-message">{storeQuery.data.message}</p>}
       </section>
 
       <section className="bt-story" data-testid="section-editorial">
@@ -397,6 +448,7 @@ export function BoutiquePage() {
         </details>
       </section>
 
+
       <section className="bt-shell bt-order-area" id="panier" data-testid="section-cart">
         <div>
           <div className="bt-eyebrow">Prendre part au mouvement</div>
@@ -412,20 +464,25 @@ export function BoutiquePage() {
           {!cart.length && <div className="bt-cart-empty" data-testid="empty-cart"><div><i className="bt-cart-empty-mark" />Votre panier attend sa première pièce.</div></div>}
           {Boolean(cart.length) && <div className="bt-cart-items">
             {cart.map((line) => {
-              const product = STORE_PRODUCTS.find((item) => item.sku === line.sku)!;
-              const key = lineKey(line.sku, line.color);
-              const label = line.color ? `${product.shortName} ${COLOR_LABELS[line.color].toLowerCase()}` : product.shortName;
+              const key = lineId(line);
+              const { product, variant } = findLine(line);
+              const ql = q?.lines.find((x) => x.productId === line.productId && x.variantId === line.variantId);
+              const name = product?.name ?? (line.sku ? `Article ${line.sku}` : 'Article');
+              const detail = variant ? variantLabel(variant) : line.color ?? '';
+              const unavailable = shopQuery.isSuccess && (!product || !variant || !variant.available);
+              const label = `${name} ${detail}`.trim();
               return <div className="bt-cart-row" key={key} data-testid={`row-cart-${key}`}>
                 <div>
-                  <div className="bt-cart-row-name">{product.name}</div>
-                  {line.color && <div className="bt-cart-row-color" data-testid={`text-cart-color-${key}`}>Couleur : {COLOR_LABELS[line.color]} · Taille unique</div>}
-                  <div className="bt-cart-row-price">{formatEUR(priceOf(line.sku) * line.quantity)}</div>
-                  <button className="bt-remove" onClick={() => removeProduct(line.sku, line.color)} data-testid={`button-remove-${key}`}>Supprimer</button>
+                  <div className="bt-cart-row-name">{name}</div>
+                  {detail && <div className="bt-cart-row-color" data-testid={`text-cart-color-${key}`}>{detail}</div>}
+                  {unavailable && <div className="bt-cart-row-color" role="status">Indisponible · à retirer ou à remplacer</div>}
+                  {product && !unavailable && <div className="bt-cart-row-price">{formatEUR((ql?.amountCents) ?? product.priceCents * line.quantity)}</div>}
+                  <button className="bt-remove" onClick={() => removeLine(line)} data-testid={`button-remove-${key}`}>Supprimer</button>
                 </div>
                 <div className="bt-cart-row-controls" aria-label={`Quantité de ${label}`}>
-                  <button className="bt-quantity" onClick={() => changeQuantity(line.sku, line.color, -1)} disabled={line.quantity <= 1} aria-label={`Réduire la quantité de ${label}`} data-testid={`button-decrease-${key}`}>−</button>
+                  <button className="bt-quantity" onClick={() => changeQuantity(line, -1)} disabled={line.quantity <= 1} aria-label={`Réduire la quantité de ${label}`} data-testid={`button-decrease-${key}`}>−</button>
                   <span className="bt-qty-number" data-testid={`text-quantity-${key}`}>{line.quantity}</span>
-                  <button className="bt-quantity" onClick={() => changeQuantity(line.sku, line.color, 1)} disabled={line.quantity >= 20} aria-label={`Augmenter la quantité de ${label}`} data-testid={`button-increase-${key}`}>+</button>
+                  <button className="bt-quantity" onClick={() => changeQuantity(line, 1)} disabled={line.quantity >= 20} aria-label={`Augmenter la quantité de ${label}`} data-testid={`button-increase-${key}`}>+</button>
                 </div>
               </div>;
             })}
@@ -450,14 +507,17 @@ export function BoutiquePage() {
             </div>}
           </div>
           <div className="bt-totals" aria-live="polite">
-            <div className="bt-total-line"><span>Sous-total</span><strong data-testid="text-cart-subtotal">{formatEUR(subtotalCents)}</strong></div>
-            <div className="bt-total-line"><span>Livraison{country ? ` · ${selectedCountryName}` : ''}</span><strong data-testid="text-cart-shipping">{isWorld ? 'À confirmer' : country ? formatEUR(shippingCents) : '—'}</strong></div>
-            <div className="bt-total-line final"><span>Total</span><strong data-testid="text-cart-total">{isWorld ? 'À confirmer' : formatEUR(totalCents)}</strong></div>
+            <div className="bt-total-line"><span>Sous-total</span><strong data-testid="text-cart-subtotal">{q ? formatEUR(q.subtotalCents) : quotePending ? 'Calcul…' : '—'}</strong></div>
+            <div className="bt-total-line"><span>Livraison{country ? ` · ${selectedCountryName}` : ''}</span><strong data-testid="text-cart-shipping">{isWorld || q?.contactRequired ? 'À confirmer' : q?.shippingCents != null ? formatEUR(q.shippingCents) : quotePending ? 'Calcul…' : '—'}</strong></div>
+            <div className="bt-total-line final"><span>Total</span><strong data-testid="text-cart-total">{isWorld || q?.contactRequired ? 'À confirmer' : q?.totalCents != null ? formatEUR(q.totalCents) : quotePending ? 'Calcul…' : '—'}</strong></div>
           </div>
-          <button className="bt-checkout" onClick={startCheckout} disabled={!cart.length || !country || isWorld || !catalogReady || checkout.isPending} data-testid="button-checkout">
-            <span>{checkout.isPending ? 'Préparation du paiement…' : isWorld ? 'Contactez-nous avant commande' : 'Continuer vers le paiement'}<small>Vérification et paiement sur Stripe TEST</small></span><span aria-hidden="true">→</span>
+          {quote.state === 'error' && <p className="bt-checkout-error" role="alert" data-testid="error-quote">{quote.message ?? 'Le total n’a pas pu être calculé.'} <button className="bt-retry" onClick={() => setQuote({ state: 'idle' })} type="button">Réessayer</button></p>}
+          {hasUnavailable && <p className="bt-checkout-error" data-testid="text-cart-unavailable">Un article de votre panier n’est plus disponible. Retirez-le pour continuer.</p>}
+          {Boolean(q && cart.length && !legacyItems && !q.contactRequired && !hasUnavailable) && <p className="bt-country-note" data-testid="text-checkout-legacy">Le paiement TEST n’est pas encore activé pour ces articles.</p>}
+          <button className="bt-checkout" onClick={startCheckout} disabled={!canCheckout} data-testid="button-checkout">
+            <span>{checkout.isPending ? 'Préparation du paiement…' : isWorld ? 'Contactez-nous pour commander' : 'Payer en mode TEST'}</span>
           </button>
-          {!catalogReady && !catalogQuery.isLoading && !catalogQuery.error && <p className="bt-checkout-error" data-testid="text-checkout-unavailable">{catalogQuery.data?.message ?? 'Le paiement TEST est momentanément indisponible.'}</p>}
+          {!catalogReady && !storeQuery.isLoading && !storeQuery.error && <p className="bt-checkout-error" data-testid="text-checkout-unavailable">{storeQuery.data?.message ?? 'Le paiement TEST est momentanément indisponible.'}</p>}
           {checkoutError && <p className="bt-checkout-error" role="alert" data-testid="error-checkout">{checkoutError}</p>}
         </aside>
       </section>

@@ -1,6 +1,7 @@
 import express, { Router, type IRouter } from "express";
 import { verifyStripeSignature } from "../stripeSignature";
 import { storeStripeApi } from "../storeStripeClient";
+import { shopTest } from "../lib/shop-test";
 
 const router: IRouter = Router();
 const supportedEvents = new Set([
@@ -27,6 +28,7 @@ type StoreSession = {
   livemode?: boolean;
   mode?: string;
   payment_status?: string;
+  status?: string;
   metadata?: Record<string, string>;
 };
 
@@ -100,8 +102,9 @@ router.post(
         return;
       }
 
-      // Deliberately read-only and idempotent: repeated deliveries never create
-      // orders, send email, grant Premium or write to any database.
+      // Idempotent, private Shop TEST files only; never touches any database,
+      // Premium, donations, users, or a session without a Shop reservation.
+      await shopTest.settleSession(session.id!, paid, session.status === "expired" || event.type === "checkout.session.async_payment_failed");
       req.log.info(
         { eventId: event.id, eventType: event.type, paid },
         "Boutique TEST webhook verified against Stripe",
