@@ -137,7 +137,7 @@ function swatchColor(color: string): string {
 }
 const variantLabel = (variant: ShopPublicVariant) => [variant.color, variant.size].filter(Boolean).join(' · ') || 'Standard';
 
-function ProductCard({ product, inCart, onAdd }: { product: ShopPublicProduct; inCart: (variantId: string) => number; onAdd: (variantId: string) => void }) {
+function ProductCard({ product, inCart, onAdd, cartUpdating }: { product: ShopPublicProduct; inCart: (variantId: string) => number; onAdd: (variantId: string) => void; cartUpdating: boolean }) {
   const [variantId, setVariantId] = useState(product.variants.find((v) => v.available)?.id ?? product.variants[0]?.id ?? '');
   const [photoIndex, setPhotoIndex] = useState(0);
   const [failed, setFailed] = useState(false);
@@ -187,7 +187,7 @@ function ProductCard({ product, inCart, onAdd }: { product: ShopPublicProduct; i
       {variant && sizesForColor.length === 1 && <div className="bt-color-selected" data-testid={`text-color-${pid}`}>{variantLabel(variant)}</div>}
       <div className="bt-product-bottom">
         <strong className="bt-price" data-testid={`text-product-price-${pid}`}>{formatEUR(product.priceCents).replace(',00', '')}</strong>
-        <button className="bt-add" onClick={() => variant && onAdd(variant.id)} disabled={!variant || !variant.available || quantity >= 20} data-testid={`button-add-${pid}`}>
+        <button className="bt-add" onClick={() => variant && onAdd(variant.id)} disabled={cartUpdating || !variant || !variant.available || quantity >= 20} data-testid={`button-add-${pid}`}>
           {!variant?.available ? 'Indisponible' : quantity ? `Ajouter · ${quantity}` : 'Ajouter au panier'}
         </button>
       </div>
@@ -249,6 +249,9 @@ export function BoutiquePage() {
   const [cart, setCart] = useState<CartLine[]>(readCart);
   const [country, setCountry] = useState('');
   const [checkoutError, setCheckoutError] = useState('');
+  const [cartUpdating, setCartUpdating] = useState(false);
+  const [cartUpdateError, setCartUpdateError] = useState('');
+  const cartUpdateLock = useRef(false);
   const [quote, setQuote] = useState<{ state: 'idle' | 'pending' | 'error' | 'ok'; data?: ShopQuote; key?: string; message?: string }>({ state: 'idle' });
   const quoteSeq = useRef(0);
   const params = new URLSearchParams(window.location.search);
@@ -327,19 +330,47 @@ export function BoutiquePage() {
     return items;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, cart, products, storeQuery.data]);
-  const canCheckout = Boolean(cart.length && country && !isWorld && q && !q.contactRequired && q.totalCents !== null && !hasUnavailable && catalogReady && legacyItems && legacyItems.length && !checkout.isPending);
+  const canCheckout = Boolean(cart.length && country && !isWorld && q && !q.contactRequired && q.totalCents !== null && !hasUnavailable && catalogReady && legacyItems && legacyItems.length && !checkout.isPending && !cartUpdating);
   const returnToCheckout = Boolean(sessionId);
 
   const sameLine = (l: CartLine, productId: string, variantId: string) => l.productId === productId && l.variantId === variantId;
+  async function validateCartUpdate(next: CartLine[]) {
+    if (cartUpdateLock.current) return;
+    cartUpdateLock.current = true;
+    setCartUpdating(true);
+    setCartUpdateError('');
+    try {
+      const items = next.filter(line => {
+        const { product, variant } = findLine(line);
+        return product && variant?.available;
+      }).map(line => ({ productId: line.productId!, variantId: line.variantId!, quantity: line.quantity }));
+      // Validate stock before committing/persisting the proposed quantities.
+      // Unknown legacy/unavailable lines are retained, never silently deleted.
+      if (items.length) await createShopQuote({ items, shippingCountry: country || 'FR' });
+      setCart(next);
+    } catch (error) {
+      const data = (error as { data?: { error?: unknown } })?.data;
+      setCartUpdateError(typeof data?.error === 'string' ? data.error : 'Modification du panier refusée : le stock n’a pas pu être vérifié.');
+    } finally {
+      cartUpdateLock.current = false;
+      setCartUpdating(false);
+    }
+  }
   function addVariant(productId: string, variantId: string) {
-    setCart((current) => current.some((l) => sameLine(l, productId, variantId))
-      ? current.map((l) => sameLine(l, productId, variantId) ? { ...l, quantity: Math.min(20, l.quantity + 1) } : l)
-      : [...current, { productId, variantId, quantity: 1 }]);
+    if (cartUpdateLock.current) return;
+    void validateCartUpdate(cart.some((l) => sameLine(l, productId, variantId))
+      ? cart.map((l) => sameLine(l, productId, variantId) ? { ...l, quantity: Math.min(20, l.quantity + 1) } : l)
+      : [...cart, { productId, variantId, quantity: 1 }]);
   }
   function changeQuantity(line: CartLine, adjustment: number) {
-    setCart((current) => current.map((l) => l === line ? { ...l, quantity: Math.max(1, Math.min(20, l.quantity + adjustment)) } : l));
+    if (cartUpdateLock.current) return;
+    void validateCartUpdate(cart.map((l) => l === line ? { ...l, quantity: Math.max(1, Math.min(20, l.quantity + adjustment)) } : l));
   }
-  function removeLine(line: CartLine) { setCart((current) => current.filter((l) => l !== line)); }
+  function removeLine(line: CartLine) {
+    if (cartUpdateLock.current) return;
+    setCartUpdateError('');
+    setCart((current) => current.filter((l) => l !== line));
+  }
 
   function startCheckout() {
     setCheckoutError('');
@@ -389,7 +420,7 @@ export function BoutiquePage() {
         {!shopQuery.isLoading && !shopQuery.error && <>
           {products.length === 0 ? <div className="bt-cart-empty" data-testid="empty-catalog"><div><i className="bt-cart-empty-mark" />Le catalogue se prépare. Revenez très bientôt.</div></div> :
             <div className="bt-product-grid">
-              {products.map((product) => <ProductCard key={product.id} product={product} inCart={inCartFor(product.id)} onAdd={(variantId) => addVariant(product.id, variantId)} />)}
+              {products.map((product) => <ProductCard key={product.id} product={product} inCart={inCartFor(product.id)} onAdd={(variantId) => addVariant(product.id, variantId)} cartUpdating={cartUpdating} />)}
             </div>}
           <div className="bt-shipping-band" data-testid="section-shipping-rates">
             <div className="bt-ship-cell"><div className="bt-ship-place">France</div><div className="bt-ship-price">Livraison gratuite</div><div className="bt-ship-detail">Délai indicatif : 3 à 4 jours</div></div>
@@ -459,7 +490,9 @@ export function BoutiquePage() {
             <span><strong>Stripe TEST uniquement.</strong> Aucun paiement réel ne sera effectué. Le règlement est traité sur la page sécurisée hébergée par Stripe ; aucune donnée de carte n’est saisie ni conservée ici.</span>
           </div>
         </div>
-        <aside className="bt-cart-panel" aria-label="Récapitulatif du panier">
+        <aside className="bt-cart-panel" aria-label="Récapitulatif du panier" aria-busy={cartUpdating}>
+          {cartUpdateError && <div className="bt-query-error" role="alert" data-testid="error-cart-update">{cartUpdateError}</div>}
+          {cartUpdating && <p role="status">Vérification du stock…</p>}
           <div className="bt-cart-heading"><h3>Votre panier</h3><span className="bt-cart-count" data-testid="text-cart-items-count">{cartCount} article{cartCount === 1 ? '' : 's'}</span></div>
           {!cart.length && <div className="bt-cart-empty" data-testid="empty-cart"><div><i className="bt-cart-empty-mark" />Votre panier attend sa première pièce.</div></div>}
           {Boolean(cart.length) && <div className="bt-cart-items">
@@ -477,12 +510,12 @@ export function BoutiquePage() {
                   {detail && <div className="bt-cart-row-color" data-testid={`text-cart-color-${key}`}>{detail}</div>}
                   {unavailable && <div className="bt-cart-row-color" role="status">Indisponible · à retirer ou à remplacer</div>}
                   {product && !unavailable && <div className="bt-cart-row-price">{formatEUR((ql?.amountCents) ?? product.priceCents * line.quantity)}</div>}
-                  <button className="bt-remove" onClick={() => removeLine(line)} data-testid={`button-remove-${key}`}>Supprimer</button>
+                  <button className="bt-remove" onClick={() => removeLine(line)} disabled={cartUpdating} data-testid={`button-remove-${key}`}>Supprimer</button>
                 </div>
                 <div className="bt-cart-row-controls" aria-label={`Quantité de ${label}`}>
-                  <button className="bt-quantity" onClick={() => changeQuantity(line, -1)} disabled={line.quantity <= 1} aria-label={`Réduire la quantité de ${label}`} data-testid={`button-decrease-${key}`}>−</button>
+                  <button className="bt-quantity" onClick={() => changeQuantity(line, -1)} disabled={cartUpdating || line.quantity <= 1} aria-label={`Réduire la quantité de ${label}`} data-testid={`button-decrease-${key}`}>−</button>
                   <span className="bt-qty-number" data-testid={`text-quantity-${key}`}>{line.quantity}</span>
-                  <button className="bt-quantity" onClick={() => changeQuantity(line, 1)} disabled={line.quantity >= 20} aria-label={`Augmenter la quantité de ${label}`} data-testid={`button-increase-${key}`}>+</button>
+                  <button className="bt-quantity" onClick={() => changeQuantity(line, 1)} disabled={cartUpdating || !variant?.available || line.quantity >= 20} aria-label={`Augmenter la quantité de ${label}`} data-testid={`button-increase-${key}`}>+</button>
                 </div>
               </div>;
             })}

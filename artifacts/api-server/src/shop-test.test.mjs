@@ -104,6 +104,7 @@ test("Private Shop TEST: real storage, admin guard, CRUD, stock and isolation", 
       const response = await request("/admin/photos","admin","POST",{contentType:"image/jpeg",base64:photo.toString("base64")});
       assert.equal(response.status,200); const reference = (await response.json()).reference;
       photoFiles.push(uploadFilename(reference));
+      assert.ok(uploadFilename(reference).endsWith(".store"), "Never give private uploads an extension that Metro can bundle or serve as an asset");
       assert.equal((await request(`/media?reference=${encodeURIComponent(reference)}`)).status,401);
       assert.equal((await request(`/media?reference=${encodeURIComponent(reference)}`,"artist")).status,403);
       assert.equal((await request(`/media?reference=${encodeURIComponent(reference)}`,"admin")).status,200);

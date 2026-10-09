@@ -76,9 +76,6 @@ export function initialShopState(): State {
 export class ShopError extends Error {
   constructor(message: string, public status = 400) { super(message); }
 }
-export function assertShopStorageWriteReady(): void {
-  throw new ShopError("Écritures Shop TEST suspendues jusqu’à la fin de la vérification de confidentialité du Preview.", 503);
-}
 
 export function validateProduct(input: unknown): ReturnType<typeof CreateShopProductBody.parse> {
   const parsed = CreateShopProductBody.strict().safeParse(input);
@@ -128,7 +125,6 @@ export class ShopTestRepository {
     } catch { throw new ShopError("Stockage Shop invalide. Écriture bloquée ; restauration administrateur nécessaire.", 503); }
   }
   private async writeUnlocked(state: State) {
-    if (this.filename === DEFAULT_FILE) assertShopStorageWriteReady();
     validateState(state);
     await fs.mkdir(path.dirname(this.filename), { recursive: true, mode: 0o700 });
     await fs.chmod(path.dirname(this.filename), 0o700);

@@ -5,7 +5,7 @@ import path from "node:path";
 import { requireAdmin } from "../middlewares/auth";
 import { storeStripeApi } from "../storeStripeClient";
 import { CreateShopQuoteBody, GetShopAdminResponse, GetShopCatalogResponse, CreateShopQuoteResponse, UploadShopPhotoBody, UpdateShopProductBody, GetShopOrdersResponse } from "@workspace/api-zod";
-import { shopTest, SHOP_TEST_DIR, SHOP_ORIGINALS, ShopError, quoteCart, validateProduct, assertShopStorageWriteReady } from "../lib/shop-test";
+import { shopTest, SHOP_TEST_DIR, SHOP_ORIGINALS, ShopError, quoteCart, validateProduct } from "../lib/shop-test";
 
 const router: IRouter = Router();
 const guard: RequestHandler = (req, res, next) => {
@@ -103,7 +103,6 @@ router.put("/shop/admin/products/:id", async (req, res) => {
 });
 router.post("/shop/admin/photos", express.json({ limit: "7mb" }), async (req, res) => {
   try {
-    assertShopStorageWriteReady();
     const input = UploadShopPhotoBody.strict().safeParse(req.body);
     if (!input.success || !/^[A-Za-z0-9+/]+={0,2}$/.test(input.data.base64)) throw new ShopError("Envoi photo invalide.");
     const bytes = Buffer.from(input.data.base64, "base64");
