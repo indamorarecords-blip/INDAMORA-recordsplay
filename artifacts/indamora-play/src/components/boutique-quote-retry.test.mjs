@@ -98,9 +98,11 @@ function harness(outcomes) {
 test('Retry sends a second quote request with unchanged cart and country', async () => {
   const h = harness([new Error('Simulated quote failure'), { totalCents: 1500 }]);
   h.render();
+  assert.equal(h.quote.state, 'pending');
   await h.flush();
   assert.equal(h.quote.state, 'error');
   h.clickRetry();
+  assert.equal(h.quote.state, 'pending');
   await h.flush();
   assert.equal(h.requests.length, 2);
   assert.deepEqual(h.requests[1], h.requests[0]);
@@ -111,12 +113,15 @@ test('Retry sends a second quote request with unchanged cart and country', async
 test('A second failure remains retryable without changing the cart', async () => {
   const h = harness([new Error('First failure'), new Error('Second failure'), { totalCents: 1500 }]);
   h.render();
+  assert.equal(h.quote.state, 'pending');
   await h.flush();
   h.clickRetry();
+  assert.equal(h.quote.state, 'pending');
   await h.flush();
   assert.equal(h.quote.state, 'error');
   assert.equal(h.requests.length, 2);
   h.clickRetry();
+  assert.equal(h.quote.state, 'pending');
   await h.flush();
   assert.equal(h.requests.length, 3);
   assert.equal(h.quote.state, 'ok');

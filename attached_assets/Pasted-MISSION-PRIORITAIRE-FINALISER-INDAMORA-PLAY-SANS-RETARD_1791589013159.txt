@@ -1,0 +1,129 @@
+MISSION PRIORITAIRE — FINALISER INDAMORA PLAY SANS RETARD
+
+Tu es responsable de terminer la Boutique INDAMORA PLAY. Le projet a déjà fait l’objet de nombreux audits. Ne recommence pas indéfiniment les mêmes vérifications et ne renvoie pas un rapport identique sans action concrète.
+
+1. OBJECTIF
+
+Finaliser tout ce qui peut l’être maintenant, corriger les problèmes confirmés, exécuter les tests pertinents et fournir un bilan final clair avec les éléments réellement terminés et les éventuels blocages impossibles à lever sans information ou autorisation supplémentaire.
+
+Travaille dans la Preview DEV uniquement :
+https://ffcca76b-ec6b-4cff-9dbf-e0a56d1dc2bd-00-392orbcamcwi3.kira.replit.dev/boutique
+
+Le site de production https://indamoraplay.com doit rester strictement intact.
+
+2. CORRIGER IMMÉDIATEMENT LE BOUTON « RÉESSAYER »
+
+La correction du bouton « Réessayer » du devis bénéficie d’une autorisation limitée en DEV.
+
+* Identifie pourquoi le clic ne relance pas la requête lorsque le panier et le pays restent identiques.
+* Corrige la cause réelle avec la modification minimale nécessaire.
+* Vérifie qu’un nouvel essai déclenche bien une nouvelle requête après un échec.
+* Vérifie les états de chargement, d’erreur et de réussite, sans créer de commande ni effectuer de paiement.
+* Exécute les tests ciblés et indique leur résultat réel.
+
+Ne te contente pas de décrire la correction : applique-la dans le périmètre autorisé et teste-la.
+
+3. TERMINER LES CONTRÔLES TECHNIQUES EN DEV
+
+Effectue les corrections DEV strictement nécessaires au bon fonctionnement de la boutique, sans élargir le périmètre aux autres fonctionnalités du site.
+
+Vérifie et teste :
+
+* le catalogue, les variantes, le panier et le calcul du devis ;
+* les frais de livraison configurés : France gratuite, Union européenne 7 €, autres destinations sur demande ;
+* les validations côté serveur, les montants en euros et les associations entre devis, commande et session Stripe ;
+* la vérification de signature des webhooks Stripe ;
+* le traitement idempotent des événements afin d’éviter les doubles règlements comptabilisés ou les doubles décréments de stock ;
+* la cohérence des statuts de commande et les erreurs de paiement ;
+* les protections administrateur côté serveur ;
+* les tests automatisés existants, le build et les tests de non-régression pertinents.
+
+Pour PostgreSQL, teste la concurrence et les règlements en environnement TEST uniquement si le scénario peut être exécuté sans toucher à des données métier réelles ni aux commandes existantes. Utilise des données de test isolées et nettoyables. Si ce n’est pas possible sans écriture persistante ou effet métier, explique précisément le blocage et prépare le test sans l’exécuter.
+
+N’envoie pas de nouvel événement sur une ancienne session déjà payée. Ne considère jamais un HTTP 200 isolé comme une preuve suffisante du règlement complet.
+
+4. STOCKS : NE RIEN INVENTER
+
+Les quantités physiques de huit variantes restent à confirmer.
+
+* Garde ces variantes indisponibles tant que les quantités réelles ne sont pas fournies.
+* Ne crée aucun stock fictif.
+* Ne rends pas ces variantes achetables pour faire passer les tests.
+* Prépare la liste exacte des variantes dont les quantités sont encore attendues.
+
+Le catalogue confirmé reste limité aux produits existants : tee-shirts, bobs, tote bags et sweats/hoodies, au prix configuré de 15 € par produit. N’ajoute ni casquettes ni coques de téléphone et ne modifie pas les prix sans autorisation.
+
+5. PRÉSERVER LE RESTE DU SITE
+
+Ne casse et ne modifie pas les fonctionnalités existantes : Artistes, Abonnés, Premium, Dons, Gift Card, comptes, rôles, authentification, routes publiques et PWA mobile.
+
+Conserve la dépendance proxy-addr@2.0.8.
+
+N’ajoute aucun service payant. Utilise uniquement les ressources déjà disponibles.
+
+6. LIMITES ABSOLUES
+
+Jusqu’à nouvelle autorisation explicite, ne fais aucune des opérations suivantes :
+
+* modification de la production ou de ses données ;
+* migration de la base de production ;
+* publication, déploiement ou changement de domaine ;
+* activation de Stripe LIVE ou paiement réel ;
+* modification de secrets, variables d’environnement ou configuration de production ;
+* suppression de données ou de commandes ;
+* changement d’endpoint Stripe existant ;
+* ajout ou modification de dépendances sans nécessité démontrée et autorisation préalable ;
+* redémarrage du serveur si cela dépasse les actions de développement déjà autorisées.
+
+Le webhook Boutique Stripe TEST existant doit être préservé. Ne touche pas au webhook distinct des dons/abonnements.
+
+Si un problème exige une opération hors périmètre, arrête uniquement cette opération, explique pourquoi et continue toutes les autres tâches autorisées.
+
+7. NE PAS RECOMMENCER LES MÊMES AUDITS
+
+Réutilise les résultats déjà obtenus. Ne répète une vérification que si un changement ou un nouveau résultat le justifie.
+
+Pour chaque problème confirmé :
+
+1. indique brièvement la cause ;
+2. applique la correction autorisée ;
+3. lance le test pertinent ;
+4. fournis le résultat observé.
+
+Ne prétends pas qu’un test a réussi s’il n’a pas réellement été exécuté.
+
+8. LIVRABLE FINAL OBLIGATOIRE
+
+À la fin, fournis un seul rapport synthétique contenant :
+
+A. Corrections appliquées
+
+* fichiers modifiés ;
+* raison de chaque modification ;
+* comportement corrigé.
+
+B. Tests réellement exécutés
+
+* commandes ou scénarios ;
+* résultats obtenus ;
+* erreurs restantes.
+
+C. État fonctionnel
+
+* catalogue et devis ;
+* panier et livraison ;
+* paiement Stripe TEST et webhook ;
+* cohérence PostgreSQL et concurrence ;
+* sécurité administrateur ;
+* build et non-régression.
+
+D. Blocages restants
+Pour chaque blocage, indique l’action exacte nécessaire, sans répéter tout l’audit.
+
+E. Prêt pour la production ?
+Réponds OUI ou NON, avec les raisons factuelles. Distingue clairement « techniquement prêt » de « autorisé à publier ».
+
+F. Prochaine action unique
+Donne la seule prochaine action nécessaire pour lever le blocage principal, s’il en reste un.
+
+Commence maintenant par la correction du bouton « Réessayer », puis traite toutes les tâches autorisées dans le même passage. Ne publie pas le site. N’attends pas une nouvelle confirmation pour les corrections DEV déjà autorisées. Ne termine pas par un simple plan : exécute les tâches autorisées et rends le rapport final.
