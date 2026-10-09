@@ -1,0 +1,149 @@
+INDAMORA PLAY — Nouvelle Boutique, nouvelles photos et validation visuelle obligatoire
+
+Je souhaite reprendre la page de vente de la Boutique INDAMORA PLAY avec les nouvelles photos des articles que je vais fournir.
+
+Cette fois, je veux voir la Boutique directement sur le site dans le Preview Replit et valider personnellement le résultat avant toute publication.
+
+Ne considère pas la tâche terminée tant que je n’ai pas pu ouvrir la page et visualiser son rendu.
+
+1. Utiliser exclusivement mes nouvelles photos
+
+Je vais fournir les nouvelles images des articles à vendre.
+
+* Utiliser mes nouvelles photos comme images principales des produits.
+* Associer chaque photo au bon article.
+* Respecter fidèlement les produits, leurs couleurs, leur apparence et leurs proportions.
+* Ne pas remplacer mes photos par des images générées, des images de stock ou d’anciens modèles.
+* Ne pas inventer de nouveaux produits.
+* Optimiser les images pour un affichage rapide sur téléphone, sans dégrader leur qualité.
+* Si une photo ne peut pas être identifiée avec certitude, me demander confirmation au lieu de deviner.
+* Conserver les fichiers originaux et ne pas les écraser.
+
+Attendre que toutes les images soient disponibles avant de finaliser l’association des photos aux produits.
+
+2. Catalogue et prix uniques
+
+Tous les articles sont proposés en taille unique.
+
+Prix unique : 15 € par article.
+
+Pour chaque produit :
+
+* afficher sa photo ;
+* afficher son nom ;
+* afficher clairement « Taille unique » ;
+* afficher le prix « 15 € » ;
+* proposer un bouton « Ajouter au panier ».
+
+Ne pas afficher de sélecteur de taille. Ne pas créer de variantes de taille. Ne pas appliquer de prix différent selon l’article.
+
+Le prix de 15 € concerne chaque article individuellement, pas le panier entier. Le total doit être calculé selon les quantités achetées.
+
+3. Présentation de la Boutique
+
+Conserver l’identité officielle INDAMORA PLAY :
+
+* design premium, moderne, musical et streetwear ;
+* fond noir ou sombre, textes blancs et accents colorés discrets ;
+* logo officiel non modifié ;
+* affichage élégant et lisible sur téléphone, tablette et ordinateur ;
+* photos suffisamment grandes pour voir les produits ;
+* navigation simple et boutons faciles à utiliser sur mobile.
+
+Afficher le titre :
+
+PLUS QU’UNE BOUTIQUE : UN GESTE POUR NOS TALENTS
+
+Conserver le texte de présentation de la Boutique déjà validé. Ne pas le remplacer par un texte générique.
+
+4. Panier et livraison
+
+Si le panier existe déjà, le corriger et le réutiliser.
+
+Il doit permettre :
+
+* d’ajouter plusieurs articles ;
+* d’augmenter ou de diminuer les quantités ;
+* de supprimer un article ;
+* de voir le sous-total ;
+* de voir les frais de livraison ;
+* de voir le total final avant Checkout.
+
+Tarifs de livraison :
+
+* France : 0 € ;
+* Union européenne : 7 € ;
+* Europe hors Union européenne : nous contacter ;
+* reste du monde : nous contacter.
+
+Ne pas inventer de tarif pour les zones où le client doit nous contacter.
+
+5. Affichage obligatoire dans le Preview
+
+C’est la partie la plus importante de cette tâche.
+
+Vérifier pourquoi la Boutique n’était pas visible auparavant et corriger le problème.
+
+Je veux pouvoir :
+
+1. ouvrir le Preview Replit ;
+2. accéder directement à la page Boutique ;
+3. voir toutes les nouvelles photos et les prix ;
+4. consulter la page sur mon téléphone ;
+5. ajouter un article au panier ;
+6. vérifier le calcul du prix et de la livraison ;
+7. parcourir la page complète avant de donner mon accord.
+
+Fournir une URL exacte, accessible et vérifiée permettant d’ouvrir la Boutique dans le Preview.
+
+Ne me donne pas seulement un chemin de fichier ou une confirmation que le code existe. Je dois pouvoir voir le résultat à l’écran.
+
+Si l’application utilise plusieurs services ou ports, identifier le bon Preview et vérifier que la page répond réellement.
+
+6. Stripe et sécurité
+
+Le Checkout doit rester en environnement TEST uniquement.
+
+* Utiliser uniquement les Secrets TEST dédiés à la Boutique.
+* Ne jamais utiliser de clé LIVE.
+* Ne pas remplacer les clés Stripe de Premium ou des dons.
+* Si le secret de signature du webhook est invalide ou absent, conserver Checkout bloqué.
+* Ne jamais contourner les vérifications de sécurité.
+* Aucun paiement réel.
+
+Je souhaite pouvoir visualiser la page même si Checkout n’est pas encore prêt. Un problème Stripe ne doit pas empêcher l’affichage du catalogue et du panier.
+
+7. Protection de la production
+
+La production INDAMORA PLAY est considérée comme stable.
+
+Ne pas modifier :
+
+* le site public en production ;
+* les routes publiques existantes, sauf autorisation préalable ;
+* la PWA déjà validée ;
+* Gift Card ;
+* Premium et les dons ;
+* les clés Stripe existantes ;
+* la base de données ou les dépendances sans nécessité démontrée.
+
+Conserver la correction de sécurité proxy-addr@2.0.8.
+
+Aucun Publish, aucun Deploy, aucune migration et aucune mise en production.
+
+Si une modification de production est nécessaire, arrêter le travail et me demander mon autorisation explicite.
+
+8. Validation finale obligatoire
+
+À la fin, fournir :
+
+* l’URL exacte du Preview de la Boutique ;
+* la confirmation que la page a été ouverte et vérifiée ;
+* la liste des produits intégrés à partir de mes photos ;
+* la confirmation que tous les articles sont en taille unique à 15 € ;
+* le résultat du test du panier ;
+* les éventuels éléments encore manquants.
+
+Ne publie rien. Attends ma validation visuelle sur le site avant toute autre étape.
+
+L’objectif est de finaliser une Boutique que je peux réellement voir, parcourir et valider sur mon téléphone avant sa mise en ligne.
