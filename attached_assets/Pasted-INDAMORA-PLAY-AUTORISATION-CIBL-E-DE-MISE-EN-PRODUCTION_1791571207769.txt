@@ -1,0 +1,81 @@
+INDAMORA PLAY — AUTORISATION CIBLÉE DE MISE EN PRODUCTION DU SHOP
+
+Je souhaite mettre la Boutique INDAMORA PLAY en production réelle, valider son fonctionnement et permettre aux clients de passer des commandes et d’effectuer de vrais paiements.
+
+Cette autorisation concerne exclusivement les changements strictement nécessaires au Shop. La protection du site publié existant reste prioritaire.
+
+1. Avant toute intervention
+
+Commence par examiner l’architecture existante et présenter un plan d’intervention précis comprenant :
+
+* les fichiers et routes qui devront être modifiés ;
+* les éventuelles tables Shop à créer et les données concernées ;
+* les changements de configuration et de secrets nécessaires ;
+* les tests prévus ;
+* les risques pour le site publié et les possibilités de retour arrière.
+
+Ne lance aucune opération tant que ce plan n’a pas été présenté. Si un changement risque d’affecter une autre fonctionnalité, arrête-toi et demande une autorisation distincte.
+
+2. Périmètre strictement autorisé après validation du plan
+
+Préparer et mettre en production uniquement les composants nécessaires à la Boutique :
+
+* catalogue et variantes des produits ;
+* stockage persistant et stocks réels ;
+* panier et calcul des frais de livraison ;
+* commandes et historique des commandes ;
+* routes Checkout et webhook Stripe Boutique ;
+* administration Shop réservée aux administrateurs autorisés ;
+* configuration des paiements LIVE, avec séparation stricte entre TEST et LIVE.
+
+Réutiliser l’architecture existante lorsque cela est possible. Ne créer aucun doublon inutile.
+
+3. Protection absolue de l’existant
+
+Ne modifier ni supprimer les espaces Artistes, Abonnés, Premium, Dons ou Cartes cadeaux, les comptes et rôles existants, ni la PWA mobile validée.
+
+Ne pas modifier les secrets Stripe Premium ou Dons. Ne pas toucher aux fonctionnalités sans rapport avec le Shop.
+
+Conserver strictement le correctif proxy-addr@2.0.8.
+
+Ne pas remplacer des données réelles par des données de test. Ne jamais inventer de quantités de stock.
+
+4. Stocks et commandes
+
+Les huit variantes officielles ont actuellement un stock inconnu (NULL). Ne les rendre vendables qu’après confirmation des quantités physiques réelles.
+
+Préserver la cohérence du stock, empêcher les quantités négatives et éviter les retraits multiples en cas de webhooks répétés.
+
+Traiter les événements de paiement et d’expiration de Checkout de manière sécurisée et idempotente. Le statut payé d’une commande doit provenir d’une vérification serveur fiable de Stripe, jamais du seul retour du navigateur.
+
+5. Stripe LIVE
+
+Ne jamais utiliser une clé TEST pour un paiement réel.
+
+Vérifier les secrets LIVE et le webhook LIVE dédiés, leur configuration dans l’environnement de production et la signature des événements. Ne jamais afficher les valeurs des secrets dans les journaux, le code ou le rapport.
+
+Si une clé, un secret, un endpoint ou une autorisation du compte Stripe manque, arrêter cette étape et indiquer précisément ce qui est nécessaire. Ne pas prétendre que les paiements réels fonctionnent sans validation effective.
+
+6. Tests et publication
+
+Exécuter les contrôles adaptés sans simuler de réussite :
+
+* builds et vérifications techniques ;
+* catalogue et accès administrateur ;
+* stocks et commandes ;
+* signatures et événements Stripe ;
+* séparation TEST/LIVE ;
+* parcours de paiement selon les moyens de test autorisés ;
+* vérification du Shop publié et des fonctions existantes essentielles.
+
+Avant le déploiement, présenter le résultat des tests et le diff exact. Si des régressions sont détectées, ne pas publier.
+
+Le déploiement en production du Shop et l’activation des paiements LIVE sont autorisés uniquement après présentation du plan, validation des contrôles nécessaires et confirmation qu’aucune autre partie du site ne sera intentionnellement modifiée.
+
+Si le système exige une permission supplémentaire pour une opération irréversible ou plus large que ce périmètre, s’arrêter et demander mon accord.
+
+7. Rapport final obligatoire
+
+Fournir l’URL publique du Shop, les changements effectivement réalisés, les tests réellement réussis ou échoués, l’état des stocks, l’état de Stripe LIVE et toute limitation restante.
+
+Ne jamais déclarer le Shop prêt à encaisser des paiements réels tant que les commandes, le webhook LIVE, le stockage persistant et le parcours client n’ont pas été validés en production.
