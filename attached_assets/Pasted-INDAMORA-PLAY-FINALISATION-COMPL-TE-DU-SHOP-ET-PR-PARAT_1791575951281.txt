@@ -1,0 +1,200 @@
+INDAMORA PLAY — FINALISATION COMPLÈTE DU SHOP ET PRÉPARATION À LA PUBLICATION
+
+OBJECTIF
+
+Finaliser la Boutique INDAMORA PLAY à partir du travail déjà réalisé, des tests précédemment réussis et du dernier diagnostic Stripe TEST.
+
+Je ne veux pas recommencer inutilement les tests déjà validés. Je veux terminer ce qui manque, corriger les blocages identifiés, vérifier le résultat et préparer une publication sûre.
+
+PRIORITÉ ABSOLUE : ne rien casser, ne pas modifier les fonctionnalités existantes hors du périmètre strict de la Boutique et préserver le site actuellement en ligne.
+
+1. AUDIT INITIAL OBLIGATOIRE
+
+Avant toute modification :
+
+* Lire l’état actuel du dépôt, les derniers commits et les changements non validés.
+* Examiner le rapport de validation et le diagnostic du webhook Stripe TEST.
+* Réutiliser les résultats des tests précédents lorsqu’ils restent pertinents et que le code concerné n’a pas changé.
+* Identifier précisément ce qui a changé depuis le dernier paiement TEST réussi.
+* Vérifier que le correctif proxy-addr@2.0.8 est toujours présent.
+* Ne pas écraser de modifications existantes ni supprimer de fichier de verrouillage Git.
+
+Produire une courte liste des blocages réels avant d’intervenir.
+
+2. RÉPARER LE CHECKOUT STRIPE TEST
+
+Le dernier diagnostic a identifié le problème suivant :
+
+* L’endpoint TEST n° 1 possède l’URL attendue, mais il lui manque l’événement checkout.session.expired.
+* L’endpoint TEST n° 2 possède une URL incorrecte et il lui manque trois événements requis.
+* Le secret de signature configuré en DEV n’a pas encore été confirmé comme correspondant à l’endpoint n° 1.
+
+Procéder dans cet ordre :
+
+1. Vérifier en lecture seule que le secret de signature TEST configuré côté serveur correspond au bon endpoint. Ne jamais afficher, journaliser, copier ou communiquer la valeur du secret.
+2. Vérifier le nom des variables d’environnement et la logique de validation dans le code.
+3. Réutiliser l’endpoint n° 1 s’il est toujours valide.
+4. Ne modifier la configuration Stripe TEST que si cette action est nécessaire et autorisée dans le périmètre de cette tâche. Ajouter uniquement l’événement manquant ; ne pas créer de doublon.
+5. Si l’accès à Stripe ou l’autorisation de modifier l’endpoint manque, s’arrêter et fournir les instructions précises pour obtenir l’autorisation. Ne pas contourner le blocage.
+6. Ne jamais toucher à Stripe LIVE, aux secrets de production, ni aux configurations Stripe Premium ou Dons.
+
+Ne pas déclarer le webhook prêt simplement parce que son URL paraît correcte. Vérifier également la signature et le traitement serveur.
+
+3. TESTER LE PARCOURS DE COMMANDE ACTUEL
+
+Après correction autorisée de la configuration TEST :
+
+* Utiliser exclusivement le mode TEST et les moyens de paiement de test officiels de Stripe.
+* Vérifier la création de session, la signature du webhook, la confirmation du paiement côté serveur et la mise à jour de la commande.
+* Vérifier que les événements répétés ne créent pas de doubles commandes ni de doubles décréments de stock.
+* Vérifier les échecs et annulations de paiement.
+* Vérifier la gestion des erreurs, des montants en centimes, de la devise EUR et des frais de livraison.
+* Vérifier qu’un client ne peut pas déclarer lui-même une commande payée.
+* Vérifier les transactions et la concurrence sur le stock sans altérer les commandes réelles.
+
+Réutiliser les tests déjà réussis et ne relancer que les contrôles nécessaires. Tout test qui écrit dans la base de données doit utiliser des données de test clairement isolées. Ne jamais modifier ni supprimer les deux commandes TEST préexistantes sans autorisation.
+
+Si un parcours complet échoue, identifier la cause et corriger uniquement le code Shop concerné, puis relancer les tests ciblés.
+
+4. STOCKS, PRIX ET LIVRAISON
+
+Produits prévus :
+
+* T-shirts : blanc, noir et rose, taille unique.
+* Bobs : blanc, noir et orange, taille unique.
+* Tote bags : taille unique.
+* Sweats à capuche : taille unique.
+
+Prix précédemment demandés :
+
+* T-shirts : 15 €.
+* Bobs : 15 €.
+* Tote bags : 15 €.
+* Sweats à capuche : 15 € selon la demande initiale.
+
+Le dernier contrôle indique toutefois que le sweat est affiché à 25 €. Ne pas modifier ce prix silencieusement : signaler l’écart et demander confirmation si le prix attendu ne peut pas être établi à partir d’une décision déjà validée.
+
+Livraison prévue :
+
+* France : gratuite.
+* Union européenne : 7 €.
+* Hors UE : demande de devis ou contact.
+
+Les huit variantes ont des quantités de stock inconnues (NULL). Ne jamais transformer ces valeurs en stock positif, inventer des quantités ou annoncer un produit disponible sans preuve.
+
+Mettre en place ou conserver un comportement sûr : toute variante dont le stock réel n’est pas confirmé reste indisponible à la vente. Préparer la méthode permettant à l’administrateur de saisir les quantités réelles, sans inventer les chiffres.
+
+Ne pas ajouter de casquettes, coques de téléphone ou autres produits non validés.
+
+5. SÉCURITÉ ET ADMINISTRATION
+
+Vérifier dans le périmètre Shop :
+
+* Routes administrateur protégées côté serveur.
+* Contrôle des rôles existants.
+* Validation des prix, quantités et identifiants côté serveur.
+* Protection des médias privés.
+* Absence de secret dans le code client, les réponses HTTP et les journaux.
+* Absence de commande marquée payée uniquement par une action du navigateur.
+* Absence de stock négatif et de décrément multiple sur les événements répétés.
+
+Tester les accès non authentifiés et, si possible sans risque, les rôles existants. Ne pas créer de compte administrateur public ni publier de mot de passe.
+
+Si des vérifications nécessitent un compte réel ou une permission non disponible, noter clairement le contrôle non réalisé.
+
+6. DESIGN ET NAVIGATION
+
+Conserver le style premium streetwear de la Boutique, avec une dominante rose maîtrisée, une interface claire et une présentation adaptée aux mobiles.
+
+Vérifier :
+
+* L’accès « Shop » dans la navigation desktop et mobile.
+* La visibilité de l’administration uniquement pour les administrateurs autorisés.
+* Les quatre fiches produits prévues et leurs variantes.
+* Les images officielles fournies, sans images de stock ou générées.
+* Le panier, les états indisponibles et les messages d’erreur.
+* Les prix et frais de livraison clairement affichés.
+* Le fonctionnement du site en vue desktop et mobile.
+
+Ne pas remplacer le logo officiel ni modifier les pages hors Shop.
+
+7. BASE DE DONNÉES ET INFRASTRUCTURE
+
+Avant toute migration, comparer le schéma DEV et le schéma de production.
+
+* Préparer une migration limitée aux tables Shop strictement nécessaires.
+* Ne pas lancer de drizzle push, push-force ou migration de production pendant cette tâche.
+* Ne toucher ni aux tables Gift Card, ni à Premium, Dons, comptes, authentification, Artistes, Abonnés ou à la PWA.
+* Ne pas modifier les secrets de production.
+* Ne pas redémarrer les workflows si ce n’est pas nécessaire.
+* Conserver les dépendances et le correctif proxy-addr@2.0.8.
+
+Documenter les changements de base de données nécessaires et les risques avant toute application en production.
+
+8. TESTS ET QUALITÉ
+
+Exécuter les vérifications DEV adaptées aux fichiers réellement modifiés :
+
+* Tests automatisés ciblés.
+* Vérification TypeScript et build concernés.
+* Vérification des routes publiques et administrateur du Shop.
+* Vérification du catalogue et des variantes.
+* Vérification du webhook TEST et du parcours de paiement.
+* Vérification de l’affichage desktop et mobile.
+* Vérification que les espaces hors Shop restent inchangés.
+
+Ne pas prétendre qu’un test est réussi s’il n’a pas été exécuté. Distinguer les tests automatisés, les tests d’intégration et les paiements TEST réellement validés.
+
+9. PRÉPARATION DE LA PUBLICATION
+
+Préparer la publication sans l’exécuter.
+
+Produire :
+
+* La liste des fichiers modifiés.
+* Le résumé des corrections.
+* Les résultats exacts des tests.
+* Les éventuels points encore bloquants.
+* Les migrations Shop nécessaires.
+* La configuration Stripe LIVE requise, sans lire ni afficher les valeurs des secrets.
+* La liste des validations manuelles nécessaires avant ouverture des ventes.
+* Un plan de retour arrière.
+
+Ne jamais utiliser Stripe TEST comme solution de repli en production.
+
+10. AUTORISATIONS ET ARRÊTS OBLIGATOIRES
+
+AUTORISÉ dans cette tâche :
+
+* Inspection du dépôt et des journaux utiles.
+* Corrections strictement limitées au code Shop en DEV.
+* Tests isolés en DEV.
+* Vérifications en lecture seule.
+* Modifications Stripe TEST strictement nécessaires, uniquement si les droits disponibles et le périmètre l’autorisent.
+
+INTERDIT sans autorisation distincte :
+
+* Publication, déploiement ou mise en production.
+* Modification du schéma ou des données de production.
+* Activation de Stripe LIVE ou encaissement réel.
+* Modification des secrets LIVE.
+* Modification des espaces Premium, Dons, Gift Card, Artistes, Abonnés, comptes ou PWA.
+* Suppression de données, commandes ou fichiers sans autorisation.
+
+Si une action dépasse le périmètre autorisé, arrêter cette action, expliquer ce qui manque et demander une autorisation spécifique.
+
+RAPPORT FINAL OBLIGATOIRE
+
+À la fin, fournir un rapport concis avec les rubriques suivantes :
+
+1. Terminé
+2. Corrections appliquées en DEV
+3. Tests réellement exécutés et résultats
+4. Paiement TEST complet : validé ou non validé
+5. Stocks et prix restant à confirmer
+6. Éléments nécessaires en production
+7. Blocages restants
+8. Publication : prête ou non prête
+9. Confirmation qu’aucune publication ni modification de production n’a été effectuée
+
+L’objectif est d’arriver au dernier point de contrôle avant publication, sans reprendre inutilement les tests déjà valides et sans compromettre le site existant.
