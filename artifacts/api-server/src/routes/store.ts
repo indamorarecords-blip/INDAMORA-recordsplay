@@ -13,10 +13,9 @@ const router: IRouter = Router();
 
 const STORE_PRODUCTS = [
   { sku: "tshirt", name: "T-shirt INDAMORA PLAY" },
-  { sku: "cap", name: "Casquette INDAMORA PLAY" },
   { sku: "bob", name: "Bob INDAMORA PLAY" },
   { sku: "tote-bag", name: "Tote bag INDAMORA PLAY" },
-  { sku: "phone-case", name: "Coque téléphone INDAMORA PLAY" },
+  { sku: "hoodie", name: "Sweat à capuche INDAMORA PLAY" },
 ] as const;
 
 const EUROPEAN_UNION_COUNTRIES = [
@@ -208,7 +207,7 @@ function storeMessage(
   webhookReady: boolean,
 ): string | null {
   if (priceCount !== STORE_PRODUCTS.length) {
-    return "Le catalogue Stripe TEST des cinq produits n’est pas encore complet.";
+    return "Le catalogue Stripe TEST des quatre articles n’est pas encore complet. Le paiement reste désactivé.";
   }
   if (!webhookReady) {
     return "Le webhook Stripe TEST signé n’est pas prêt. Le paiement reste désactivé.";

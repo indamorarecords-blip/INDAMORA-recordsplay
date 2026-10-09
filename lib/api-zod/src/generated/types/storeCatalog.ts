@@ -14,8 +14,8 @@ export interface StoreCatalog {
   /** @nullable */
   message?: string | null;
   /**
-     * @minItems 5
-     * @maxItems 5
+     * @minItems 4
+     * @maxItems 4
      */
   products: StoreProduct[];
 }

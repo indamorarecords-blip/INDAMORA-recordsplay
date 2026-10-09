@@ -11,8 +11,7 @@ export type StoreSku = typeof StoreSku[keyof typeof StoreSku];
 
 export const StoreSku = {
   tshirt: 'tshirt',
-  cap: 'cap',
   bob: 'bob',
   'tote-bag': 'tote-bag',
-  'phone-case': 'phone-case',
+  hoodie: 'hoodie',
 } as const;

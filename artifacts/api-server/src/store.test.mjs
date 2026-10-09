@@ -11,7 +11,7 @@ import { createHmac } from "node:crypto";
 test("Boutique TEST validates prices, shipping, payment proof and production isolation", async (t) => {
   const directory = await mkdtemp(join(tmpdir(), "indamora-store-"));
   let server;
-  const skus = ["tshirt", "cap", "bob", "tote-bag", "phone-case"];
+  const skus = ["tshirt", "bob", "tote-bag", "hoodie"];
   process.env.NODE_ENV = "development";
   process.env.REPLIT_DEV_DOMAIN = "store-fixture.replit.dev";
   const webhookSecret = "whsec_fixture_only_not_a_real_secret";
@@ -122,7 +122,7 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
       });
     };
 
-    await t.test("catalog has exactly the five €15 products", async () => {
+    await t.test("catalog has exactly the four photographed €15 products", async () => {
       reset();
       const response = await fetch(`${base}/catalog`);
       const catalog = await response.json();
@@ -156,6 +156,8 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
         ["FR", [{ sku: "tshirt", quantity: 0 }], {}],
         ["FR", [{ sku: "tshirt", quantity: 1 }, { sku: "tshirt", quantity: 1 }], {}],
         ["FR", [{ sku: "tshirt", quantity: 1 }], { priceId: "client-selected-price" }],
+        ["FR", [{ sku: "cap", quantity: 1 }], {}],
+        ["FR", [{ sku: "phone-case", quantity: 1 }], {}],
       ]) {
         reset();
         assert.equal((await checkout(country, items, extra)).status, 400);

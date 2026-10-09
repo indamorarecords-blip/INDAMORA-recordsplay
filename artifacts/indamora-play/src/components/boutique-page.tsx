@@ -7,7 +7,7 @@ import {
   useGetStoreCheckoutStatus,
 } from '@workspace/api-client-react';
 import type { StoreSku } from '@workspace/api-client-react';
-import { getPreviewMedia, OFFICIAL_PREVIEW_QR, PREVIEW_DESIGNS } from './boutique-preview-media';
+import { getProductPhotos, OFFICIAL_PREVIEW_QR } from './boutique-preview-media';
 import './boutique-page.css';
 
 type ProductInfo = { sku: StoreSku; name: string; className: string; shortName: string };
@@ -15,10 +15,9 @@ type CartLine = { sku: StoreSku; quantity: number };
 
 const STORE_PRODUCTS: ProductInfo[] = [
   { sku: 'tshirt', name: 'T-shirt INDAMORA PLAY', shortName: 'T-shirt', className: 'tshirt' },
-  { sku: 'cap', name: 'Casquette INDAMORA PLAY', shortName: 'Casquette', className: 'cap' },
   { sku: 'bob', name: 'Bob INDAMORA PLAY', shortName: 'Bob', className: 'bob' },
   { sku: 'tote-bag', name: 'Tote bag INDAMORA PLAY', shortName: 'Tote bag', className: 'tote' },
-  { sku: 'phone-case', name: 'Coque téléphone INDAMORA PLAY', shortName: 'Coque téléphone', className: 'case' },
+  { sku: 'hoodie', name: 'Sweat à capuche INDAMORA PLAY', shortName: 'Sweat à capuche', className: 'hoodie' },
 ];
 
 const STORAGE_KEY = 'indamora-play-boutique-cart';
@@ -99,17 +98,37 @@ function formatEUR(cents: number): string {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(cents / 100);
 }
 
-function ProductArt({ product, index, designIndex }: { product: ProductInfo; index: number; designIndex: number }) {
-  const media = getPreviewMedia(product.sku, designIndex);
+function ProductArt({ product, photoIndex, onPhotoChange }: {
+  product: ProductInfo;
+  photoIndex: number;
+  onPhotoChange: (index: number) => void;
+}) {
+  const photos = getProductPhotos(product.sku);
+  const image = photos[photoIndex] ?? photos[0];
   const [failed, setFailed] = useState(false);
-  useEffect(() => { setFailed(false); }, [media.image]);
-  return <div className={`bt-product-art ${product.className}`} data-no={`IP / 0${index + 1}`} data-testid={`visual-product-${product.sku}`}>
-    {media.image && !failed ? <img className="bt-product-image" src={media.image}
-      alt={`${product.name} — mockup ${media.label}`} loading="lazy" decoding="async"
+  useEffect(() => { setFailed(false); }, [image]);
+  return <div data-testid={`visual-product-${product.sku}`}>
+    <div className={`bt-product-art ${product.className}`}>
+    {image && !failed ? <img className="bt-product-image" src={image}
+      alt={`${product.name} — photo fournie ${photoIndex + 1}`} loading="lazy" decoding="async"
       onError={() => setFailed(true)} data-testid={`img-product-${product.sku}`} /> : <div className="bt-product-placeholder">
       <span>{product.name}</span>
-      <small>Visuel provisoire — image indisponible</small>
+      <small>L’image fournie n’a pas pu être chargée.</small>
     </div>}
+    </div>
+    <div className="bt-photo-controls">
+      {photos.length > 1 && <>
+        <button type="button" aria-label={`Photo précédente de ${product.shortName}`}
+          onClick={() => onPhotoChange((photoIndex + photos.length - 1) % photos.length)}
+          data-testid={`button-photo-prev-${product.sku}`}>‹</button>
+        <span aria-live="polite">Photo {photoIndex + 1}/{photos.length}</span>
+        <button type="button" aria-label={`Photo suivante de ${product.shortName}`}
+          onClick={() => onPhotoChange((photoIndex + 1) % photos.length)}
+          data-testid={`button-photo-next-${product.sku}`}>›</button>
+      </>}
+      <a href={image} target="_blank" rel="noreferrer" className="bt-photo-link"
+        aria-label={`Agrandir la photo de ${product.shortName}`} data-testid={`link-photo-${product.sku}`}>Agrandir ↗</a>
+    </div>
   </div>;
 }
 
@@ -164,7 +183,7 @@ export function BoutiquePage() {
   const [cart, setCart] = useState<CartLine[]>(readCart);
   const [country, setCountry] = useState('');
   const [checkoutError, setCheckoutError] = useState('');
-  const [designIndex, setDesignIndex] = useState(0);
+  const [photoIndexes, setPhotoIndexes] = useState<Partial<Record<StoreSku, number>>>({});
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id') ?? '';
   const canceled = params.get('checkout') === 'cancelled';
@@ -244,7 +263,7 @@ export function BoutiquePage() {
 
     <div className="bt-preview-banner bt-shell" role="status" data-testid="status-preview-only">
       <strong>Preview TEST · aucune commande réelle</strong>
-      <span>{catalogQuery.data?.message ?? 'Les visuels sont des mockups à valider avant toute publication.'}</span>
+      <span>{catalogQuery.data?.message ?? 'Photos fournies · validation visuelle requise avant toute publication.'}</span>
     </div>
 
     {returnToCheckout ? <ReturnState sessionId={sessionId} /> : <>
@@ -254,7 +273,7 @@ export function BoutiquePage() {
           <div className="bt-kicker">INDAMORA PLAY · Boutique</div>
           <h1>Porter nos voix.<br /><span>Soutenir nos talents.</span></h1>
           <p className="bt-hero-sub">Une pièce à porter, une scène à faire grandir. Découvrez la boutique officielle INDAMORA PLAY.</p>
-          <div className="bt-hero-meta"><span><i className="bt-dot" />5 pièces · 15 € chacune</span><span>Bangui — partout</span></div>
+          <div className="bt-hero-meta"><span><i className="bt-dot" />4 articles · 15 € chacun · taille unique</span><span>Bangui — partout</span></div>
         </div>
       </section>
 
@@ -263,13 +282,7 @@ export function BoutiquePage() {
           <div><div className="bt-eyebrow">La première collection</div><h2>À porter, à partager.</h2></div>
           <p className="bt-section-caption">Chaque pièce porte les couleurs d’un projet qui fait circuler les talents et les cultures.</p>
         </div>
-        <div className="bt-visual-picker">
-          <label htmlFor="boutique-preview-design">Phrase du mockup affiché</label>
-          <select id="boutique-preview-design" value={designIndex} onChange={(event) => setDesignIndex(Number(event.target.value))} data-testid="select-preview-design">
-            {PREVIEW_DESIGNS.map((design, index) => <option key={design.file} value={index}>{design.label}</option>)}
-          </select>
-          <small>Aperçu visuel uniquement : ce choix ne modifie pas le panier TEST.</small>
-        </div>
+        <p className="bt-photos-note">Vos photos originales, sans retouche. Les flèches parcourent les photos, sans créer de variante de produit.</p>
         {catalogQuery.isLoading && <ProductSkeletons />}
         {catalogQuery.error && <div className="bt-query-error" role="alert" data-testid="error-store-catalog">
           La boutique n’a pas pu charger son catalogue.
@@ -277,25 +290,23 @@ export function BoutiquePage() {
         </div>}
         {!catalogQuery.isLoading && !catalogQuery.error && <>
           <div className="bt-product-grid">
-            {STORE_PRODUCTS.map((product, index) => {
+            {STORE_PRODUCTS.map((product) => {
               const catalogProduct = catalogProducts.get(product.sku);
                const available = Boolean(catalogProduct);
               const quantity = cart.find((line) => line.sku === product.sku)?.quantity ?? 0;
               return <article className="bt-product" key={product.sku} data-testid={`card-product-${product.sku}`}>
-                <ProductArt product={product} index={index} designIndex={designIndex} />
+                <ProductArt product={product} photoIndex={photoIndexes[product.sku] ?? 0}
+                  onPhotoChange={(nextIndex) => setPhotoIndexes((current) => ({ ...current, [product.sku]: nextIndex }))} />
                 <div className="bt-product-body">
                   <h3 className="bt-product-title" data-testid={`text-product-name-${product.sku}`}>{product.name}</h3>
-                  <div className="bt-product-type">Mockup pour validation</div>
-                  {getPreviewMedia(product.sku, designIndex).mockup && <a className="bt-mockup-link"
-                    href={getPreviewMedia(product.sku, designIndex).mockup} target="_blank" rel="noreferrer"
-                    data-testid={`link-mockup-${product.sku}`}>Agrandir le mockup ↗</a>}
+                  <div className="bt-product-type" data-testid={`text-product-size-${product.sku}`}>Taille unique</div>
                   <div className="bt-product-bottom">
                     <strong className="bt-price" data-testid={`text-product-price-${product.sku}`}>15 €</strong>
                     <button className="bt-add" onClick={() => addProduct(product.sku)} disabled={!available || quantity >= 20} data-testid={`button-add-${product.sku}`}>
                       {quantity ? `Ajouter · ${quantity}` : 'Ajouter au panier'}
                     </button>
                   </div>
-                  <div className="bt-availability" data-testid={`status-product-${product.sku}`}>{!catalogProduct ? 'Indisponible' : !catalogProduct.available ? 'Bientôt disponible' : quantity ? `${quantity} dans le panier` : 'Disponible'}</div>
+                  <div className="bt-availability" data-testid={`status-product-${product.sku}`}>{quantity ? `${quantity} dans le panier TEST` : 'Article du catalogue TEST'}</div>
                 </div>
               </article>;
             })}
@@ -324,7 +335,7 @@ export function BoutiquePage() {
               <p>Notre objectif est simple : faire circuler les talents, les histoires et les cultures au-delà des frontières.</p>
               <p>🌍 De l’Afrique à la diaspora.<br />De l’Europe aux États-Unis.<br />Et partout où les talents veulent être entendus.</p>
               <h3>💛 VOTRE ACHAT A DU SENS</h3>
-              <p>Vous n’achetez pas seulement un T-shirt, une casquette, un bob, un tote bag ou une coque.</p>
+              <p>Vous n’achetez pas seulement un T-shirt, un bob, un tote bag ou un sweat à capuche.</p>
               <p>Vous choisissez de porter une identité.</p>
               <p>Vous choisissez de soutenir une initiative indépendante.</p>
               <p>Vous choisissez de contribuer, à votre manière, à un écosystème qui veut donner davantage de visibilité aux talents émergents.</p>

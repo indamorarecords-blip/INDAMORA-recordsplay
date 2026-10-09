@@ -169,7 +169,7 @@ paths:
     get:
       operationId: getStoreCatalog
       tags: [store]
-      summary: Read the five-product INDAMORA PLAY storefront catalog
+      summary: Read the four-product INDAMORA PLAY TEST storefront catalog
       responses:
         "200":
           description: Store catalog and TEST checkout readiness
@@ -792,7 +792,7 @@ components:
         url: { type: string, format: uri }
     StoreSku:
       type: string
-      enum: [tshirt, cap, bob, tote-bag, phone-case]
+      enum: [tshirt, bob, tote-bag, hoodie]
     StoreProduct:
       type: object
       required: [sku, name, priceCents, available]
@@ -813,8 +813,8 @@ components:
         message: { type: ["string", "null"] }
         products:
           type: array
-          minItems: 5
-          maxItems: 5
+          minItems: 4
+          maxItems: 4
           items:
             $ref: "#/components/schemas/StoreProduct"
     StoreCheckoutItem:
@@ -831,7 +831,7 @@ components:
         items:
           type: array
           minItems: 1
-          maxItems: 5
+          maxItems: 4
           items:
             $ref: "#/components/schemas/StoreCheckoutItem"
         shippingCountry:

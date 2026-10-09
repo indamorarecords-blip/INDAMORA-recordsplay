@@ -1,39 +1,25 @@
 import type { StoreSku } from '@workspace/api-client-react';
 import officialQr from '../../../../mockups/indamora-play/resources/indamora-play-qr.svg';
+import hoodieRoots from '../../../../attached_assets/IMG_3387_1791538149840.jpeg';
+import hoodieTalent from '../../../../attached_assets/IMG_3388_1791538149840.jpeg';
+import bobOrangeWhite from '../../../../attached_assets/IMG_3389_1791538149840.jpeg';
+import tshirtPink from '../../../../attached_assets/IMG_3390_1791538149840.jpeg';
+import bobBlack from '../../../../attached_assets/IMG_3391_1791538149840.jpeg';
+import tshirtAfrica from '../../../../attached_assets/IMG_3392_1791538149840.jpeg';
+import toteBag from '../../../../attached_assets/IMG_3395_1791538149840.jpeg';
+import tshirtDetails from '../../../../attached_assets/AEEDAA04-AFB7-4383-AC87-C143F64FAD76_1791538149840.png';
+import tshirtPressPlay from '../../../../attached_assets/389CB62C-81B4-4AA9-B231-E66F73DDA2EF_1791538149840.jpeg';
 
-// This module is reachable only from the development-only Boutique route.
-export const PREVIEW_DESIGNS = [
-  { file: '01-im-from-central-africa', label: 'I’M FROM CENTRAL AFRICA' },
-  { file: '02-no-label-just-talent', label: 'NO LABEL. JUST TALENT.' },
-  { file: '03-baddie-with-roots', label: 'BADDIE WITH ROOTS.' },
-  { file: '04-from-bangui-to-the-world', label: 'FROM BANGUI TO THE WORLD.' },
-  { file: '05-bangui-society', label: 'BANGUI SOCIETY' },
-  { file: '06-sango-society', label: 'SANGO SOCIETY' },
-] as const;
-
-const folders: Record<StoreSku, string> = {
-  tshirt: 'tshirts', cap: 'caps', bob: 'bobs',
-  'tote-bag': 'tote-bags', 'phone-case': 'phone-cases',
+// Original uploads, unchanged. This module is reachable only in development.
+const PRODUCT_PHOTOS: Record<StoreSku, readonly string[]> = {
+  tshirt: [tshirtPressPlay, tshirtAfrica, tshirtPink, tshirtDetails],
+  bob: [bobBlack, bobOrangeWhite],
+  'tote-bag': [toteBag],
+  hoodie: [hoodieRoots, hoodieTalent],
 };
-
-const thumbnails = import.meta.glob<string>('./boutique-preview-assets/*.webp', {
-  eager: true, query: '?url', import: 'default',
-});
-const mockups = import.meta.glob<string>([
-  '../../../../mockups/indamora-play/tshirts/*.png',
-  '../../../../mockups/indamora-play/caps/*.png',
-  '../../../../mockups/indamora-play/bobs/*.png',
-  '../../../../mockups/indamora-play/tote-bags/*.png',
-  '../../../../mockups/indamora-play/phone-cases/*.png',
-], { eager: true, query: '?url', import: 'default' });
 
 export const OFFICIAL_PREVIEW_QR = officialQr;
 
-export function getPreviewMedia(sku: StoreSku, designIndex: number) {
-  const design = PREVIEW_DESIGNS[designIndex] ?? PREVIEW_DESIGNS[0];
-  return {
-    label: design.label,
-    image: thumbnails[`./boutique-preview-assets/${sku}-${design.file}.webp`],
-    mockup: mockups[`../../../../mockups/indamora-play/${folders[sku]}/${design.file}.png`],
-  };
+export function getProductPhotos(sku: StoreSku): readonly string[] {
+  return PRODUCT_PHOTOS[sku];
 }

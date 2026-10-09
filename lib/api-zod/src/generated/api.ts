@@ -147,10 +147,10 @@ export const CreateBillingPortalResponse = zod.object({
 
 
 /**
- * @summary Read the five-product INDAMORA PLAY storefront catalog
+ * @summary Read the four-product INDAMORA PLAY TEST storefront catalog
  */
-export const getStoreCatalogResponseProductsMin = 5;
-export const getStoreCatalogResponseProductsMax = 5;
+export const getStoreCatalogResponseProductsMin = 4;
+export const getStoreCatalogResponseProductsMax = 4;
 
 
 
@@ -159,7 +159,7 @@ export const GetStoreCatalogResponse = zod.object({
   "checkoutAvailable": zod.boolean(),
   "message": zod.string().nullish(),
   "products": zod.array(zod.object({
-  "sku": zod.enum(['tshirt', 'cap', 'bob', 'tote-bag', 'phone-case']),
+  "sku": zod.enum(['tshirt', 'bob', 'tote-bag', 'hoodie']),
   "name": zod.string(),
   "priceCents": zod.literal(1500),
   "available": zod.boolean()
@@ -172,14 +172,14 @@ export const GetStoreCatalogResponse = zod.object({
  */
 export const createStoreCheckoutBodyItemsItemQuantityMax = 20;
 
-export const createStoreCheckoutBodyItemsMax = 5;
+export const createStoreCheckoutBodyItemsMax = 4;
 
 export const createStoreCheckoutBodyShippingCountryRegExp = new RegExp('^[A-Z]{2}$');
 
 
 export const CreateStoreCheckoutBody = zod.object({
   "items": zod.array(zod.object({
-  "sku": zod.enum(['tshirt', 'cap', 'bob', 'tote-bag', 'phone-case']),
+  "sku": zod.enum(['tshirt', 'bob', 'tote-bag', 'hoodie']),
   "quantity": zod.number().int().min(1).max(createStoreCheckoutBodyItemsItemQuantityMax)
 })).min(1).max(createStoreCheckoutBodyItemsMax),
   "shippingCountry": zod.string().regex(createStoreCheckoutBodyShippingCountryRegExp)

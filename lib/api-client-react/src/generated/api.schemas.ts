@@ -156,10 +156,9 @@ export type StoreSku = typeof StoreSku[keyof typeof StoreSku];
 
 export const StoreSku = {
   tshirt: 'tshirt',
-  cap: 'cap',
   bob: 'bob',
   'tote-bag': 'tote-bag',
-  'phone-case': 'phone-case',
+  hoodie: 'hoodie',
 } as const;
 
 export interface StoreProduct {
@@ -182,8 +181,8 @@ export interface StoreCatalog {
   /** @nullable */
   message?: string | null;
   /**
-     * @minItems 5
-     * @maxItems 5
+     * @minItems 4
+     * @maxItems 4
      */
   products: StoreProduct[];
 }
@@ -200,7 +199,7 @@ export interface StoreCheckoutItem {
 export interface StoreCheckoutInput {
   /**
      * @minItems 1
-     * @maxItems 5
+     * @maxItems 4
      */
   items: StoreCheckoutItem[];
   /** @pattern ^[A-Z]{2}$ */

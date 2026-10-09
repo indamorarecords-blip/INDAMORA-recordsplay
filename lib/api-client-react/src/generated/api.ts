@@ -620,7 +620,7 @@ export const getGetStoreCatalogUrl = () => {
 }
 
 /**
- * @summary Read the five-product INDAMORA PLAY storefront catalog
+ * @summary Read the four-product INDAMORA PLAY TEST storefront catalog
  */
 export const getStoreCatalog = async ( options?: Parameters<typeof customFetch>[1]): Promise<StoreCatalog> => {
 
@@ -667,7 +667,7 @@ export type GetStoreCatalogQueryError = ErrorType<unknown>
 
 
 /**
- * @summary Read the five-product INDAMORA PLAY storefront catalog
+ * @summary Read the four-product INDAMORA PLAY TEST storefront catalog
  */
 
 export function useGetStoreCatalog<TData = Awaited<ReturnType<typeof getStoreCatalog>>, TError = ErrorType<unknown>>(

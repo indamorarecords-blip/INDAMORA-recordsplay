@@ -10,7 +10,7 @@ import type { StoreCheckoutItem } from './storeCheckoutItem';
 export interface StoreCheckoutInput {
   /**
      * @minItems 1
-     * @maxItems 5
+     * @maxItems 4
      */
   items: StoreCheckoutItem[];
   /** @pattern ^[A-Z]{2}$ */
