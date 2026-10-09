@@ -1,0 +1,115 @@
+AUTORISATION GLOBALE DE FINALISATION — INDAMORA PLAY
+
+Stripe LIVE, validation complète et publication en production
+
+Je donne l’autorisation de finaliser la Boutique INDAMORA PLAY, de préparer et activer les paiements Stripe LIVE et de publier en production, à condition que toutes les vérifications de sécurité, de paiement et de données soient réussies.
+
+Ne recommence pas les anciens audits sans raison. Réutilise les résultats existants, effectue les actions concrètes nécessaires et fournis un rapport final factuel.
+
+1. INVENTAIRE OFFICIEL
+
+Le stock physique confirmé est de 50 unités pour chacune des huit variantes suivantes :
+
+* T-shirt rose : 50
+* T-shirt noir : 50
+* T-shirt blanc : 50
+* Bob blanc : 50
+* Bob noir : 50
+* Bob orange : 50
+* Tote bag, taille unique : 50
+* Hoodie, taille unique : 50
+
+Total physique annoncé : 400 unités.
+
+Le prix de chaque produit reste à 15 €.
+
+Vérifie la correspondance exacte entre ces variantes et les identifiants utilisés par la boutique. Ne crée pas de doublons et ne remplace pas aveuglément des stocks existants. Si des commandes, réservations ou décréments de stock ont déjà été enregistrés, calcule le stock disponible réel à partir des mouvements existants et demande confirmation si l’initialisation nécessite une écriture ambiguë.
+
+2. TERMINER LA BOUTIQUE
+
+* Conserver le correctif du bouton « Réessayer » déjà testé.
+* Vérifier catalogue, variantes, panier, devis, validation de commande, livraison et messages d’erreur.
+* Conserver les règles de livraison configurées : France gratuite, Union européenne à 7 €, autres destinations sur demande.
+* Empêcher tout achat dépassant le stock disponible.
+* Garantir la cohérence des montants calculés côté serveur.
+* Préserver les fonctionnalités existantes : Artistes, Abonnés, Premium, Dons, Gift Card, comptes, rôles, authentification et PWA mobile.
+* Conserver proxy-addr@2.0.8.
+* Ne pas ajouter de services payants.
+
+3. STRIPE LIVE : CONFIGURATION ET CONTRÔLES
+
+Avant toute activation LIVE :
+
+* Inspecter la configuration actuelle et distinguer clairement TEST et LIVE.
+* Vérifier que le compte Stripe est correctement configuré pour recevoir des paiements réels.
+* Vérifier les clés LIVE, les secrets webhook, les URL publiques HTTPS et les variables d’environnement côté serveur, sans jamais afficher les valeurs secrètes dans les logs ou le rapport.
+* Vérifier que le paiement LIVE utilise exclusivement les clés LIVE et que TEST reste séparé.
+* Vérifier les événements webhook nécessaires au cycle de paiement de la boutique et leur signature cryptographique.
+* Vérifier le rapprochement entre la session Stripe, la commande, le montant, la devise, le devis et la référence de commande.
+* Garantir l’idempotence : un même événement ne doit pas payer deux fois une commande ni décrémenter le stock plusieurs fois.
+* Vérifier les paiements échoués, expirés et asynchrones ainsi que les retours de paiement.
+* Vérifier les protections contre les montants manipulés côté navigateur et les commandes non autorisées.
+* Ne jamais considérer une réponse HTTP 200 comme preuve suffisante d’un règlement correctement enregistré.
+
+Ne jamais utiliser une carte réelle pour un test automatisé, ne pas créer de faux paiement LIVE et ne pas déclencher de remboursement ou de transfert réel à des fins de test. Utiliser Stripe TEST pour les essais de bout en bout et les outils de vérification disponibles pour contrôler la configuration LIVE.
+
+Si un prérequis LIVE manque, indique précisément lequel et termine toutes les autres tâches possibles sans inventer de secret, contourner une vérification ou déclarer le paiement actif sans preuve.
+
+4. BASE DE DONNÉES ET SÉCURITÉ
+
+* Vérifier le schéma et les migrations nécessaires avant toute modification.
+* Faire une sauvegarde vérifiable avant une migration de production ou toute modification irréversible.
+* Vérifier les droits d’accès et les rôles administrateur côté serveur.
+* Vérifier la cohérence PostgreSQL et la concurrence lors de commandes simultanées.
+* Ne pas exécuter de tests qui écrasent des données persistantes ou modifient des commandes existantes.
+* Ne toucher ni au webhook distinct des dons/abonnements ni aux données sans rapport avec la boutique.
+* Préserver les commandes existantes et leur historique.
+
+5. TESTS OBLIGATOIRES AVANT PUBLICATION
+
+Exécuter les tests pertinents et consigner leurs résultats réels :
+
+* tests unitaires et d’intégration ;
+* typecheck et build de production ;
+* parcours complet de commande avec paiement Stripe TEST ;
+* signature webhook valide et invalide ;
+* événements répétés et règlement idempotent ;
+* contrôle de stock et décrément concurrent PostgreSQL ;
+* livraison et calcul des montants ;
+* accès administrateur et refus des accès non autorisés ;
+* routes publiques, pages principales et PWA mobile ;
+* absence de régression sur les autres fonctionnalités du site.
+
+Corriger les défauts bloquants dans le périmètre autorisé. Ne pas masquer les échecs ni présenter des tests simulés comme des paiements réels validés.
+
+6. PUBLICATION EN PRODUCTION
+
+Je donne mon autorisation pour préparer et effectuer les migrations, configurations LIVE et opérations de publication strictement nécessaires à la boutique, uniquement après réussite des contrôles ci-dessus.
+
+Avant la publication :
+
+* confirmer la sauvegarde et le plan de retour arrière ;
+* confirmer que les migrations ont été relues et sont compatibles avec les données existantes ;
+* confirmer que les clés et secrets LIVE sont configurés sans les exposer ;
+* vérifier que les routes, webhooks et URL publiques correspondent au domaine de production ;
+* vérifier que le build de production est réussi et que les fonctionnalités existantes sont préservées.
+
+Si toutes les conditions sont réunies, effectuer la migration nécessaire, déployer la version validée, activer les paiements LIVE et vérifier le site public après déploiement.
+
+Si un contrôle critique échoue ou si une sauvegarde, un secret, une autorisation Stripe ou une validation indispensable manque, ne contourne pas le contrôle et ne publie pas une version non sécurisée. Arrête uniquement l’étape bloquée et indique l’action précise nécessaire.
+
+7. RAPPORT FINAL OBLIGATOIRE
+
+À la fin, fournir un rapport unique indiquant :
+
+1. Les fichiers et configurations modifiés.
+2. Les quantités de stock enregistrées et la méthode utilisée.
+3. Les tests réellement exécutés et leurs résultats.
+4. L’état du webhook LIVE et les preuves de vérification disponibles.
+5. L’état de la base de données et des migrations.
+6. L’état du build et du déploiement.
+7. L’URL publique vérifiée après publication.
+8. Le statut des paiements : TEST seulement ou LIVE effectivement opérationnel.
+9. Les problèmes restants et les mesures de retour arrière disponibles.
+
+Ne jamais annoncer que la boutique est publiée ou que Stripe LIVE est opérationnel sans l’avoir réellement vérifié.
