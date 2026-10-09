@@ -1,0 +1,218 @@
+INDAMORA PLAY — Refonte visuelle de la Boutique TEST et options de couleurs
+
+Je valide les produits et les photos actuellement affichés dans le Preview, mais je demande une refonte de la présentation avant toute validation finale.
+
+Je veux une Boutique plus féminine, baddie streetwear, rose, moderne et épurée. La page actuelle est trop sombre et contient trop d’éléments.
+
+Travaille exclusivement sur la Boutique TEST dans le Preview. Ne publie rien.
+
+1. Direction artistique : Baddie Streetwear
+
+Faire évoluer le design actuel vers un style :
+
+* baddie streetwear ;
+* féminin, affirmé et tendance ;
+* rose comme couleur principale, associé au noir et au blanc ;
+* moderne, propre et professionnel ;
+* visuellement attractif pour une clientèle jeune ;
+* adapté aux téléphones, tablettes et ordinateurs.
+
+Palette recommandée :
+
+* rose principal : #F4A6C1 ;
+* rose vif en accent : #FF4FA3 ;
+* noir : #111111 ;
+* blanc : #FFFFFF ;
+* rose très pâle pour certains fonds : #FFF0F5.
+
+Le rose doit apporter du caractère sans rendre les textes difficiles à lire. Conserver des contrastes accessibles.
+
+Utiliser les photos originales que j’ai fournies. Ne pas générer de nouvelles photos, ne pas remplacer les produits et ne pas modifier artificiellement leurs couleurs.
+
+2. Simplifier fortement le haut de la page
+
+La partie haute actuelle doit être retirée ou fortement simplifiée.
+
+Supprimer les éléments décoratifs, blocs, titres répétés, bandeaux et contenus superflus qui encombrent le haut de la page.
+
+Je veux arriver rapidement aux produits.
+
+Conserver uniquement :
+
+* un en-tête compact ;
+* le logo officiel INDAMORA PLAY, sans modification ;
+* un accès discret au panier ;
+* un titre court : « INDAMORA PLAY — SHOP ».
+
+Placer la présentation longue de la Boutique plus bas sur la page, dans une section discrète et repliable si cela améliore la navigation.
+
+Ne pas supprimer les fonctionnalités essentielles du site ni modifier les autres pages.
+
+3. Regrouper les trois couleurs de T-shirt dans un seul produit
+
+Les trois T-shirts de couleurs différentes doivent apparaître dans une seule fiche produit, et non comme trois produits séparés.
+
+Nom du produit : T-shirt INDAMORA PLAY
+
+Prix : 15 €
+
+Taille : Taille unique
+
+Ajouter un sélecteur de couleur avec trois options :
+
+* Rose ;
+* Noir ;
+* Blanc.
+
+Afficher les photos originales correspondant aux trois couleurs.
+
+Quand le client choisit une couleur :
+
+* mettre à jour la photo principale avec la photo correspondante ;
+* indiquer clairement la couleur sélectionnée ;
+* ajouter au panier le T-shirt dans la couleur choisie ;
+* conserver cette couleur dans le panier et dans le récapitulatif de commande.
+
+Ne pas proposer d’autres couleurs.
+
+Si les photos ne permettent pas d’identifier avec certitude une couleur, ne pas attribuer une mauvaise photo : me demander confirmation.
+
+4. Regrouper les trois couleurs de bob dans un seul produit
+
+Les trois bobs doivent apparaître dans une seule fiche produit.
+
+Nom du produit : Bob INDAMORA PLAY
+
+Prix : 15 €
+
+Taille : Taille unique
+
+Ajouter un sélecteur de couleur avec exactement ces options :
+
+* Blanc ;
+* Noir ;
+* Orange.
+
+Afficher les photos originales correspondant aux trois couleurs.
+
+Lorsque le client sélectionne une couleur :
+
+* actualiser la photo principale ;
+* afficher la couleur sélectionnée ;
+* conserver la bonne couleur dans le panier ;
+* permettre plusieurs quantités et couleurs dans une même commande.
+
+Ne pas créer trois fiches produit distinctes pour les bobs.
+
+5. Tote bag
+
+Conserver le tote bag avec :
+
+* sa photo originale ;
+* son nom ;
+* « Taille unique » ;
+* son prix de 15 € ;
+* son bouton « Ajouter au panier ».
+
+Ne pas inventer de couleur ou de variante non fournie.
+
+6. Sweats à capuche : nouveau prix
+
+Les sweats à capuche restent disponibles.
+
+Nouveau prix : 25 € par sweat.
+
+Mettre à jour partout :
+
+* la fiche produit ;
+* le prix affiché ;
+* le panier ;
+* le sous-total ;
+* le total de commande ;
+* tout récapitulatif ou résumé d’achat de la Boutique TEST.
+
+La taille reste unique si elle est bien celle prévue pour les sweats.
+
+Vérifier qu’aucun ancien prix de 15 € ne subsiste pour les sweats.
+
+Les autres articles restent à 15 €.
+
+7. Catalogue simplifié
+
+Afficher uniquement trois fiches principales :
+
+1. T-shirt INDAMORA PLAY — 15 € — choix Rose / Noir / Blanc.
+2. Bob INDAMORA PLAY — 15 € — choix Blanc / Noir / Orange.
+3. Tote bag INDAMORA PLAY — 15 €.
+4. Sweat à capuche INDAMORA PLAY — 25 €.
+
+Les choix de couleur ne doivent pas créer de nouvelles fiches produit.
+
+Ne pas afficher de casquettes ni de coques de téléphone.
+
+8. Panier et livraison
+
+Conserver le panier fonctionnel.
+
+Vérifier :
+
+* la bonne couleur du T-shirt ou du bob ;
+* le prix correspondant à chaque produit ;
+* la possibilité de commander plusieurs couleurs ;
+* la modification des quantités ;
+* la suppression d’un article ;
+* le calcul exact du sous-total ;
+* les frais de livraison ;
+* le total final.
+
+Livraison :
+
+* France : gratuite ;
+* Union européenne : 7 € ;
+* Europe hors Union européenne : nous contacter ;
+* reste du monde : nous contacter.
+
+Ne pas inventer de frais pour les destinations nécessitant un contact.
+
+9. Ce que je veux voir dans le Preview
+
+Je veux pouvoir ouvrir la Boutique sur mon téléphone et voir :
+
+* un haut de page beaucoup plus court ;
+* un design rose baddie streetwear ;
+* moins de blocs et moins de texte visible immédiatement ;
+* une fiche unique pour les T-shirts avec choix de couleur ;
+* une fiche unique pour les bobs avec choix de couleur ;
+* le tote bag à 15 € ;
+* le sweat à 25 € ;
+* un panier qui conserve les variantes et les prix corrects.
+
+Fournir l’URL exacte et fonctionnelle du Preview après les corrections.
+
+10. Protection de la production
+
+Toutes les modifications doivent rester dans la Boutique TEST.
+
+* Aucun Publish.
+* Aucun Deploy.
+* Aucune migration.
+* Aucun paiement réel.
+* Aucun changement des clés Stripe de Premium ou des dons.
+* Ne pas modifier la PWA, Gift Card ou les autres fonctionnalités existantes.
+* Conserver la correction de sécurité proxy-addr@2.0.8.
+
+Si une action risque de modifier la production, arrêter et demander mon autorisation explicite.
+
+11. Validation obligatoire
+
+Après les modifications :
+
+1. Vérifier visuellement la Boutique dans le Preview.
+2. Tester les trois couleurs des T-shirts.
+3. Tester les trois couleurs des bobs.
+4. Vérifier le prix de 15 € pour les T-shirts, bobs et tote bags.
+5. Vérifier le prix de 25 € pour les sweats.
+6. Tester le panier et les totaux.
+7. Me communiquer l’URL du Preview et la liste des tests réalisés.
+
+Ne publie rien. Je dois voir la nouvelle version sur le site avant de donner mon accord final.
