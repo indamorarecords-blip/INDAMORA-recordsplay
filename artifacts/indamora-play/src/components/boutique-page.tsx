@@ -7,18 +7,20 @@ import {
   useGetStoreCheckoutStatus,
 } from '@workspace/api-client-react';
 import type { StoreSku } from '@workspace/api-client-react';
-import { getProductPhotos, OFFICIAL_PREVIEW_QR } from './boutique-preview-media';
+import { COLOR_LABELS, COLOR_SWATCH, getProductPhotos, OFFICIAL_PREVIEW_QR, PRODUCT_COLORS } from './boutique-preview-media';
+import type { ProductColor, ProductPhoto } from './boutique-preview-media';
 import './boutique-page.css';
 
-type ProductInfo = { sku: StoreSku; name: string; className: string; shortName: string };
-type CartLine = { sku: StoreSku; quantity: number };
+type ProductInfo = { sku: StoreSku; name: string; className: string; shortName: string; priceCents: number };
+type CartLine = { sku: StoreSku; color?: ProductColor; quantity: number };
 
 const STORE_PRODUCTS: ProductInfo[] = [
-  { sku: 'tshirt', name: 'T-shirt INDAMORA PLAY', shortName: 'T-shirt', className: 'tshirt' },
-  { sku: 'bob', name: 'Bob INDAMORA PLAY', shortName: 'Bob', className: 'bob' },
-  { sku: 'tote-bag', name: 'Tote bag INDAMORA PLAY', shortName: 'Tote bag', className: 'tote' },
-  { sku: 'hoodie', name: 'Sweat à capuche INDAMORA PLAY', shortName: 'Sweat à capuche', className: 'hoodie' },
+  { sku: 'tshirt', name: 'T-shirt INDAMORA PLAY', shortName: 'T-shirt', className: 'tshirt', priceCents: 1500 },
+  { sku: 'bob', name: 'Bob INDAMORA PLAY', shortName: 'Bob', className: 'bob', priceCents: 1500 },
+  { sku: 'tote-bag', name: 'Tote bag INDAMORA PLAY', shortName: 'Tote bag', className: 'tote', priceCents: 1500 },
+  { sku: 'hoodie', name: 'Sweat à capuche INDAMORA PLAY', shortName: 'Sweat à capuche', className: 'hoodie', priceCents: 2500 },
 ];
+const DEFAULT_COLOR: Partial<Record<StoreSku, ProductColor>> = { tshirt: 'rose', bob: 'noir' };
 
 const STORAGE_KEY = 'indamora-play-boutique-cart';
 const OFFICIAL_LOGO_URL = `${import.meta.env.BASE_URL}assets/indamora-play-logo.png`;
@@ -80,54 +82,77 @@ const OTHER_COUNTRIES: Array<[string, string]> = [
   ['ZM', 'Zambie'], ['ZW', 'Zimbabwe'],
 ];
 
+
 function readCart(): CartLine[] {
   try {
     const stored: unknown = JSON.parse(window.localStorage.getItem(STORAGE_KEY) ?? '[]');
     if (!Array.isArray(stored)) return [];
-    return stored
-      .filter((line): line is CartLine => typeof line === 'object' && line !== null &&
-        STORE_PRODUCTS.some((product) => product.sku === (line as CartLine).sku) &&
-        Number.isInteger((line as CartLine).quantity) && (line as CartLine).quantity > 0)
-      .map((line) => ({ sku: line.sku, quantity: Math.min(line.quantity, 20) }));
+    const merged: CartLine[] = [];
+    for (const raw of stored as Array<Partial<CartLine>>) {
+      if (typeof raw !== 'object' || raw === null) continue;
+      const product = STORE_PRODUCTS.find((p) => p.sku === raw.sku);
+      if (!product || !Number.isInteger(raw.quantity) || (raw.quantity as number) <= 0) continue;
+      const allowed = PRODUCT_COLORS[product.sku];
+      let color: ProductColor | undefined;
+      if (allowed) color = raw.color && allowed.includes(raw.color) ? raw.color : DEFAULT_COLOR[product.sku];
+      const existing = merged.find((l) => l.sku === product.sku && l.color === color);
+      const quantity = Math.min(raw.quantity as number, 20);
+      if (existing) existing.quantity = Math.min(20, existing.quantity + quantity);
+      else merged.push({ sku: product.sku, color, quantity });
+    }
+    return merged;
   } catch {
     return [];
   }
 }
 
+const lineKey = (sku: StoreSku, color?: ProductColor) => (color ? `${sku}-${color}` : sku);
+
 function formatEUR(cents: number): string {
   return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(cents / 100);
 }
 
-function ProductArt({ product, photoIndex, onPhotoChange }: {
+function PhotoFrame({ image, alt, onError }: { image: ProductPhoto; alt: string; onError: () => void }) {
+  const crop = image.crop;
+  if (!crop) return <img className="bt-product-image" src={image.src} alt={alt} loading="lazy" decoding="async" onError={onError} />;
+  // Display-only crop: same file, window sized to its true aspect ratio, no stretching.
+  return <div className="bt-crop" style={{ aspectRatio: String(crop.ratio) }}>
+    <img src={image.src} alt={alt} loading="lazy" decoding="async" onError={onError}
+      style={{ width: `${100 / crop.w}%`, height: `${100 / crop.h}%`, left: `${-(crop.x / crop.w) * 100}%`, top: `${-(crop.y / crop.h) * 100}%` }} />
+  </div>;
+}
+
+function ProductArt({ product, color, photoIndex, onPhotoChange }: {
   product: ProductInfo;
+  color?: ProductColor;
   photoIndex: number;
   onPhotoChange: (index: number) => void;
 }) {
-  const photos = getProductPhotos(product.sku);
+  const photos = getProductPhotos(product.sku, color);
   const image = photos[photoIndex] ?? photos[0];
   const [failed, setFailed] = useState(false);
   useEffect(() => { setFailed(false); }, [image]);
+  const alt = `${image?.label ?? product.name} — photo fournie`;
   return <div data-testid={`visual-product-${product.sku}`}>
     <div className={`bt-product-art ${product.className}`}>
-    {image && !failed ? <img className="bt-product-image" src={image}
-      alt={`${product.name} — photo fournie ${photoIndex + 1}`} loading="lazy" decoding="async"
-      onError={() => setFailed(true)} data-testid={`img-product-${product.sku}`} /> : <div className="bt-product-placeholder">
+    {image && !failed ? <PhotoFrame image={image} alt={alt} onError={() => setFailed(true)} /> : <div className="bt-product-placeholder">
       <span>{product.name}</span>
       <small>L’image fournie n’a pas pu être chargée.</small>
     </div>}
+    {image && !failed && <span data-testid={`img-product-${product.sku}`} hidden />}
     </div>
     <div className="bt-photo-controls">
       {photos.length > 1 && <>
         <button type="button" aria-label={`Photo précédente de ${product.shortName}`}
           onClick={() => onPhotoChange((photoIndex + photos.length - 1) % photos.length)}
           data-testid={`button-photo-prev-${product.sku}`}>‹</button>
-        <span aria-live="polite">Photo {photoIndex + 1}/{photos.length}</span>
+        <span aria-live="polite">{photoIndex + 1}/{photos.length}</span>
         <button type="button" aria-label={`Photo suivante de ${product.shortName}`}
           onClick={() => onPhotoChange((photoIndex + 1) % photos.length)}
           data-testid={`button-photo-next-${product.sku}`}>›</button>
       </>}
-      <a href={image} target="_blank" rel="noreferrer" className="bt-photo-link"
-        aria-label={`Agrandir la photo de ${product.shortName}`} data-testid={`link-photo-${product.sku}`}>Agrandir ↗</a>
+      {image && <a href={image.original} target="_blank" rel="noreferrer" className="bt-photo-link"
+        aria-label={`Voir la photo originale de ${product.shortName}`} data-testid={`link-photo-${product.sku}`}>Photo originale ↗</a>}
     </div>
   </div>;
 }
@@ -183,7 +208,8 @@ export function BoutiquePage() {
   const [cart, setCart] = useState<CartLine[]>(readCart);
   const [country, setCountry] = useState('');
   const [checkoutError, setCheckoutError] = useState('');
-  const [photoIndexes, setPhotoIndexes] = useState<Partial<Record<StoreSku, number>>>({});
+  const [colors, setColors] = useState<Partial<Record<StoreSku, ProductColor>>>(DEFAULT_COLOR);
+  const [photoIndexes, setPhotoIndexes] = useState<Record<string, number>>({});
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id') ?? '';
   const canceled = params.get('checkout') === 'cancelled';
@@ -196,8 +222,12 @@ export function BoutiquePage() {
     () => new Map((catalogQuery.data?.products ?? []).map((product) => [product.sku, product])),
     [catalogQuery.data?.products],
   );
+  const priceOf = (sku: StoreSku): number => {
+    const live = (catalogProducts.get(sku) as { priceCents?: number } | undefined)?.priceCents;
+    return live ?? STORE_PRODUCTS.find((p) => p.sku === sku)!.priceCents;
+  };
   const cartCount = cart.reduce((sum, line) => sum + line.quantity, 0);
-  const subtotalCents = cartCount * 1500;
+  const subtotalCents = cart.reduce((sum, line) => sum + priceOf(line.sku) * line.quantity, 0);
   const isFrance = country === 'FR';
   const isEU = Boolean(country && country in EU_COUNTRIES);
   const isWorld = Boolean(country && !isFrance && !isEU);
@@ -206,22 +236,25 @@ export function BoutiquePage() {
   const catalogReady = Boolean(catalogQuery.data?.checkoutAvailable);
   const returnToCheckout = Boolean(sessionId);
 
-  function addProduct(sku: StoreSku) {
+  const same = (line: CartLine, sku: StoreSku, color?: ProductColor) => line.sku === sku && line.color === color;
+
+  function addProduct(sku: StoreSku, color?: ProductColor) {
     setCart((current) => {
-      const existing = current.find((line) => line.sku === sku);
-      if (existing) return current.map((line) => line.sku === sku ? { ...line, quantity: Math.min(20, line.quantity + 1) } : line);
-      return [...current, { sku, quantity: 1 }];
+      if (current.some((line) => same(line, sku, color))) {
+        return current.map((line) => same(line, sku, color) ? { ...line, quantity: Math.min(20, line.quantity + 1) } : line);
+      }
+      return [...current, { sku, color, quantity: 1 }];
     });
   }
 
-  function changeQuantity(sku: StoreSku, adjustment: number) {
-    setCart((current) => current.map((line) => line.sku === sku
+  function changeQuantity(sku: StoreSku, color: ProductColor | undefined, adjustment: number) {
+    setCart((current) => current.map((line) => same(line, sku, color)
       ? { ...line, quantity: Math.max(1, Math.min(20, line.quantity + adjustment)) }
       : line));
   }
 
-  function removeProduct(sku: StoreSku) {
-    setCart((current) => current.filter((line) => line.sku !== sku));
+  function removeProduct(sku: StoreSku, color?: ProductColor) {
+    setCart((current) => current.filter((line) => !same(line, sku, color)));
   }
 
   function startCheckout() {
@@ -229,7 +262,7 @@ export function BoutiquePage() {
     if (!cart.length || !country || isWorld || !catalogReady || !catalogProducts.size) return;
     checkout.mutate({
       data: {
-        items: cart.map(({ sku, quantity }) => ({ sku, quantity })),
+        items: cart.map(({ sku, quantity, color }) => color ? { sku, quantity, color } : { sku, quantity }),
         shippingCountry: country,
       },
     }, {
@@ -248,41 +281,26 @@ export function BoutiquePage() {
   const selectedCountryName = country === 'FR' ? 'France' : EU_COUNTRIES[country] ?? OTHER_COUNTRIES.find(([code]) => code === country)?.[1];
 
   return <main className="boutique" data-testid="page-boutique">
-    <div className="bt-topline" />
     <header className="bt-masthead bt-shell">
       <Link href="/boutique" className="bt-brand" aria-label="INDAMORA PLAY Boutique" data-testid="link-boutique-logo">
         <img src={OFFICIAL_LOGO_URL} alt="INDAMORA PLAY — Notre musique. Notre culture. Notre scène." data-testid="img-official-logo" />
       </Link>
-      <div className="bt-masthead-right">
-        <span className="bt-header-note">La voix de nos talents</span>
-        <a className="bt-cart-jump" href="#panier" data-testid="link-open-cart">
-          Votre panier <span className="bt-count" data-testid="text-cart-count">{cartCount}</span>
-        </a>
-      </div>
+      <a className="bt-cart-jump" href="#panier" aria-label={`Panier, ${cartCount} article${cartCount === 1 ? '' : 's'}`} data-testid="link-open-cart">
+        Panier <span className="bt-count" data-testid="text-cart-count">{cartCount}</span>
+      </a>
     </header>
 
-    <div className="bt-preview-banner bt-shell" role="status" data-testid="status-preview-only">
-      <strong>Preview TEST · aucune commande réelle</strong>
-      <span>{catalogQuery.data?.message ?? 'Photos fournies · validation visuelle requise avant toute publication.'}</span>
-    </div>
-
     {returnToCheckout ? <ReturnState sessionId={sessionId} /> : <>
-      {canceled && <div className="bt-shell" role="status" data-testid="status-checkout-canceled">Le paiement n’a pas été finalisé. Votre panier est conservé.</div>}
-      <section className="bt-hero bt-shell" data-testid="section-boutique-hero">
-        <div className="bt-hero-copy">
-          <div className="bt-kicker">INDAMORA PLAY · Boutique</div>
-          <h1>Porter nos voix.<br /><span>Soutenir nos talents.</span></h1>
-          <p className="bt-hero-sub">Une pièce à porter, une scène à faire grandir. Découvrez la boutique officielle INDAMORA PLAY.</p>
-          <div className="bt-hero-meta"><span><i className="bt-dot" />4 articles · 15 € chacun · taille unique</span><span>Bangui — partout</span></div>
+      {canceled && <div className="bt-shell bt-canceled" role="status" data-testid="status-checkout-canceled">Le paiement n’a pas été finalisé. Votre panier est conservé.</div>}
+      <section className="bt-shell bt-title-row" data-testid="section-boutique-hero">
+        <h1>INDAMORA PLAY — SHOP</h1>
+        <div className="bt-preview-banner" role="status" data-testid="status-preview-only">
+          <strong>Preview TEST · aucune commande réelle</strong>
+          <span>{catalogQuery.data?.message ?? 'Photos fournies · validation requise avant publication.'}</span>
         </div>
       </section>
 
       <section className="bt-shell bt-section" id="produits" data-testid="section-products">
-        <div className="bt-section-head">
-          <div><div className="bt-eyebrow">La première collection</div><h2>À porter, à partager.</h2></div>
-          <p className="bt-section-caption">Chaque pièce porte les couleurs d’un projet qui fait circuler les talents et les cultures.</p>
-        </div>
-        <p className="bt-photos-note">Vos photos originales, sans retouche. Les flèches parcourent les photos, sans créer de variante de produit.</p>
         {catalogQuery.isLoading && <ProductSkeletons />}
         {catalogQuery.error && <div className="bt-query-error" role="alert" data-testid="error-store-catalog">
           La boutique n’a pas pu charger son catalogue.
@@ -291,18 +309,29 @@ export function BoutiquePage() {
         {!catalogQuery.isLoading && !catalogQuery.error && <>
           <div className="bt-product-grid">
             {STORE_PRODUCTS.map((product) => {
-              const catalogProduct = catalogProducts.get(product.sku);
-               const available = Boolean(catalogProduct);
-              const quantity = cart.find((line) => line.sku === product.sku)?.quantity ?? 0;
+              const available = catalogProducts.has(product.sku);
+              const options = PRODUCT_COLORS[product.sku];
+              const color = options ? colors[product.sku] ?? options[0] : undefined;
+              const quantity = cart.find((line) => same(line, product.sku, color))?.quantity ?? 0;
+              const photoKey = lineKey(product.sku, color);
               return <article className="bt-product" key={product.sku} data-testid={`card-product-${product.sku}`}>
-                <ProductArt product={product} photoIndex={photoIndexes[product.sku] ?? 0}
-                  onPhotoChange={(nextIndex) => setPhotoIndexes((current) => ({ ...current, [product.sku]: nextIndex }))} />
+                <ProductArt product={product} color={color} photoIndex={photoIndexes[photoKey] ?? 0}
+                  onPhotoChange={(nextIndex) => setPhotoIndexes((current) => ({ ...current, [photoKey]: nextIndex }))} />
                 <div className="bt-product-body">
                   <h3 className="bt-product-title" data-testid={`text-product-name-${product.sku}`}>{product.name}</h3>
                   <div className="bt-product-type" data-testid={`text-product-size-${product.sku}`}>Taille unique</div>
+                  {options && <div className="bt-swatches" role="radiogroup" aria-label={`Couleur du ${product.shortName.toLowerCase()}`}>
+                    {options.map((option) => <button type="button" role="radio" aria-checked={option === color} key={option}
+                      className={`bt-swatch${option === color ? ' active' : ''}`}
+                      onClick={() => setColors((current) => ({ ...current, [product.sku]: option }))}
+                      data-testid={`button-color-${product.sku}-${option}`}>
+                      <i style={{ background: COLOR_SWATCH[option] }} />{COLOR_LABELS[option]}
+                    </button>)}
+                  </div>}
+                  {color && <div className="bt-color-selected" data-testid={`text-color-${product.sku}`}>Couleur : {COLOR_LABELS[color]}</div>}
                   <div className="bt-product-bottom">
-                    <strong className="bt-price" data-testid={`text-product-price-${product.sku}`}>15 €</strong>
-                    <button className="bt-add" onClick={() => addProduct(product.sku)} disabled={!available || quantity >= 20} data-testid={`button-add-${product.sku}`}>
+                    <strong className="bt-price" data-testid={`text-product-price-${product.sku}`}>{formatEUR(priceOf(product.sku)).replace(',00', '')}</strong>
+                    <button className="bt-add" onClick={() => addProduct(product.sku, color)} disabled={!available || quantity >= 20} data-testid={`button-add-${product.sku}`}>
                       {quantity ? `Ajouter · ${quantity}` : 'Ajouter au panier'}
                     </button>
                   </div>
@@ -321,9 +350,8 @@ export function BoutiquePage() {
       </section>
 
       <section className="bt-story" data-testid="section-editorial">
-        <div className="bt-shell bt-story-inner">
-          <div className="bt-eyebrow">Notre démarche</div>
-          <h2 className="bt-story-title">PLUS QU’UNE BOUTIQUE : UN GESTE POUR NOS TALENTS</h2>
+        <details className="bt-shell bt-story-inner">
+          <summary data-testid="button-toggle-editorial"><span className="bt-eyebrow">Notre démarche</span><span className="bt-story-title">PLUS QU’UNE BOUTIQUE : UN GESTE POUR NOS TALENTS</span></summary>
           <div className="bt-story-layout">
             <div className="bt-story-copy">
               <p>INDAMORA PLAY est un projet porté par INDAMORA RECORDS, une association engagée dans la promotion, la diffusion et l’accompagnement de projets musicaux et artistiques, avec une attention particulière portée aux artistes émergents et indépendants.</p>
@@ -353,9 +381,9 @@ export function BoutiquePage() {
             </aside>
             <div className="bt-story-copy">
               <h3>💶 UN PRIX SIMPLE ET ACCESSIBLE</h3>
-              <p>Chaque produit est proposé à 15 €.</p>
+              <p>Le T-shirt, le bob et le tote bag sont proposés à 15 €, le sweat à capuche à 25 €.</p>
               <p>Pas de prix compliqué.<br />Pas de formule obligatoire.</p>
-              <p>Un produit → 15 €.</p>
+              <p>Un produit → un prix clair.</p>
               <p>L’idée est de permettre au plus grand nombre de participer et de soutenir le projet tout en portant l’univers INDAMORA PLAY au quotidien.</p>
               <h3>🌍 ENSEMBLE, DONNONS UNE VOIX AUX TALENTS DE DEMAIN</h3>
               <p>Chaque artiste mérite une chance d’être entendu.</p>
@@ -366,7 +394,7 @@ export function BoutiquePage() {
               <p>INDAMORA PLAY × INDAMORA RECORDS<br />La voix de nos talents.</p>
             </div>
           </div>
-        </div>
+        </details>
       </section>
 
       <section className="bt-shell bt-order-area" id="panier" data-testid="section-cart">
@@ -385,16 +413,19 @@ export function BoutiquePage() {
           {Boolean(cart.length) && <div className="bt-cart-items">
             {cart.map((line) => {
               const product = STORE_PRODUCTS.find((item) => item.sku === line.sku)!;
-              return <div className="bt-cart-row" key={line.sku} data-testid={`row-cart-${line.sku}`}>
+              const key = lineKey(line.sku, line.color);
+              const label = line.color ? `${product.shortName} ${COLOR_LABELS[line.color].toLowerCase()}` : product.shortName;
+              return <div className="bt-cart-row" key={key} data-testid={`row-cart-${key}`}>
                 <div>
                   <div className="bt-cart-row-name">{product.name}</div>
-                  <div className="bt-cart-row-price">{formatEUR(1500 * line.quantity)}</div>
-                  <button className="bt-remove" onClick={() => removeProduct(line.sku)} data-testid={`button-remove-${line.sku}`}>Supprimer</button>
+                  {line.color && <div className="bt-cart-row-color" data-testid={`text-cart-color-${key}`}>Couleur : {COLOR_LABELS[line.color]} · Taille unique</div>}
+                  <div className="bt-cart-row-price">{formatEUR(priceOf(line.sku) * line.quantity)}</div>
+                  <button className="bt-remove" onClick={() => removeProduct(line.sku, line.color)} data-testid={`button-remove-${key}`}>Supprimer</button>
                 </div>
-                <div className="bt-cart-row-controls" aria-label={`Quantité de ${product.shortName}`}>
-                  <button className="bt-quantity" onClick={() => changeQuantity(line.sku, -1)} disabled={line.quantity <= 1} aria-label={`Réduire la quantité de ${product.shortName}`} data-testid={`button-decrease-${line.sku}`}>−</button>
-                  <span className="bt-qty-number" data-testid={`text-quantity-${line.sku}`}>{line.quantity}</span>
-                  <button className="bt-quantity" onClick={() => changeQuantity(line.sku, 1)} disabled={line.quantity >= 20} aria-label={`Augmenter la quantité de ${product.shortName}`} data-testid={`button-increase-${line.sku}`}>+</button>
+                <div className="bt-cart-row-controls" aria-label={`Quantité de ${label}`}>
+                  <button className="bt-quantity" onClick={() => changeQuantity(line.sku, line.color, -1)} disabled={line.quantity <= 1} aria-label={`Réduire la quantité de ${label}`} data-testid={`button-decrease-${key}`}>−</button>
+                  <span className="bt-qty-number" data-testid={`text-quantity-${key}`}>{line.quantity}</span>
+                  <button className="bt-quantity" onClick={() => changeQuantity(line.sku, line.color, 1)} disabled={line.quantity >= 20} aria-label={`Augmenter la quantité de ${label}`} data-testid={`button-increase-${key}`}>+</button>
                 </div>
               </div>;
             })}

@@ -32,11 +32,11 @@ La lecture dans un mockup numérique ne certifie pas la lecture sur un produit i
 
 **How to apply:** Rapporter séparément les vérifications numériques et la validation sur échantillon réel ; ne pas présenter les maquettes comme des fichiers de fabrication certifiés.
 
-Pour la Boutique TEST, les nouvelles photos originales fournies par l’utilisateur priment sur les anciens mockups. Ne pas inventer de variantes ni retoucher l’apparence des articles. Les sweats à capuche doivent être affichés : l’utilisateur l’a confirmé explicitement malgré une phrase contradictoire dans son récapitulatif.
+Pour la Boutique TEST, les nouvelles photos originales fournies par l’utilisateur priment sur les anciens mockups. Ne pas inventer de variantes ni retoucher l’apparence des articles. Les seules couleurs demandées sont Rose / Noir / Blanc pour les T-shirts et Blanc / Noir / Orange pour les bobs ; aucune couleur à inventer pour les tote bags ou sweats. Les sweats à capuche doivent être affichés : l’utilisateur l’a confirmé explicitement malgré une phrase contradictoire dans son récapitulatif.
 
 **Why:** L’utilisateur veut valider personnellement ses photos dans le Preview avant toute intégration publique.
 
-**How to apply:** Conserver les originaux intacts, distinguer la consultation de plusieurs photos d’un choix de variante, et ne pas publier sans autorisation.
+**How to apply:** Conserver les originaux intacts, distinguer la consultation de plusieurs photos d’un choix de variante, et ne pas publier sans autorisation. L’utilisateur autorise les recadrages d’affichage uniquement pour les photos composites, sans retouche ni déformation. Le dos blanc de la planche du T-shirt noir ne doit pas être présenté comme un dos noir.
 
 Tout le travail de mockups reste en TEST, sans service payant ni intégration à la Boutique publique avant validation explicite. L’utilisateur autorise leur affichage dans la Boutique du Preview pour validation visuelle, uniquement en développement.
 

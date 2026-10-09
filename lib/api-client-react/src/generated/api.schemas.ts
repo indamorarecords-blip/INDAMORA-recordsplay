@@ -161,10 +161,18 @@ export const StoreSku = {
   hoodie: 'hoodie',
 } as const;
 
+export type StoreProductPriceCents = typeof StoreProductPriceCents[keyof typeof StoreProductPriceCents];
+
+
+export const StoreProductPriceCents = {
+  NUMBER_1500: 1500,
+  NUMBER_2500: 2500,
+} as const;
+
 export interface StoreProduct {
   sku: StoreSku;
   name: string;
-  priceCents: 1500;
+  priceCents: StoreProductPriceCents;
   available: boolean;
 }
 
@@ -187,6 +195,16 @@ export interface StoreCatalog {
   products: StoreProduct[];
 }
 
+export type StoreCheckoutItemColor = typeof StoreCheckoutItemColor[keyof typeof StoreCheckoutItemColor];
+
+
+export const StoreCheckoutItemColor = {
+  rose: 'rose',
+  noir: 'noir',
+  blanc: 'blanc',
+  orange: 'orange',
+} as const;
+
 export interface StoreCheckoutItem {
   sku: StoreSku;
   /**
@@ -194,12 +212,13 @@ export interface StoreCheckoutItem {
      * @maximum 20
      */
   quantity: number;
+  color?: StoreCheckoutItemColor;
 }
 
 export interface StoreCheckoutInput {
   /**
      * @minItems 1
-     * @maxItems 4
+     * @maxItems 8
      */
   items: StoreCheckoutItem[];
   /** @pattern ^[A-Z]{2}$ */

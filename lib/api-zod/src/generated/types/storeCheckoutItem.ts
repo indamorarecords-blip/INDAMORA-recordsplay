@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { StoreCheckoutItemColor } from './storeCheckoutItemColor';
 import type { StoreSku } from './storeSku';
 
 export interface StoreCheckoutItem {
@@ -14,4 +15,5 @@ export interface StoreCheckoutItem {
      * @maximum 20
      */
   quantity: number;
+  color?: StoreCheckoutItemColor;
 }

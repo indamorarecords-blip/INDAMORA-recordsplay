@@ -12,10 +12,10 @@ import { formData, storeStripeApi as stripeApi } from "../storeStripeClient";
 const router: IRouter = Router();
 
 const STORE_PRODUCTS = [
-  { sku: "tshirt", name: "T-shirt INDAMORA PLAY" },
-  { sku: "bob", name: "Bob INDAMORA PLAY" },
-  { sku: "tote-bag", name: "Tote bag INDAMORA PLAY" },
-  { sku: "hoodie", name: "Sweat à capuche INDAMORA PLAY" },
+  { sku: "tshirt", name: "T-shirt INDAMORA PLAY", priceCents: 1500 },
+  { sku: "bob", name: "Bob INDAMORA PLAY", priceCents: 1500 },
+  { sku: "tote-bag", name: "Tote bag INDAMORA PLAY", priceCents: 1500 },
+  { sku: "hoodie", name: "Sweat à capuche INDAMORA PLAY", priceCents: 2500 },
 ] as const;
 
 const EUROPEAN_UNION_COUNTRIES = [
@@ -175,7 +175,7 @@ async function readStorePrices(): Promise<Map<string, StripePrice>> {
         price.livemode === false &&
         price.type === "one_time" &&
         price.currency === "eur" &&
-        price.unit_amount === 1500 &&
+        price.unit_amount === product.priceCents &&
         price.metadata?.indamoraStoreSku === product.sku &&
         stripeProduct?.active === true &&
         stripeProduct.livemode === false &&
@@ -271,7 +271,6 @@ router.get("/store/catalog", async (req, res): Promise<void> => {
         message,
         products: STORE_PRODUCTS.map((product) => ({
           ...product,
-          priceCents: 1500,
           available: readiness.prices.has(product.sku),
         })),
       }),
@@ -285,7 +284,6 @@ router.get("/store/catalog", async (req, res): Promise<void> => {
         message: "Le paiement TEST est temporairement indisponible.",
         products: STORE_PRODUCTS.map((product) => ({
           ...product,
-          priceCents: 1500,
           available: false,
         })),
       }),
@@ -316,11 +314,18 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
 
   const seenSkus = new Set<string>();
   for (const item of input.data.items) {
-    if (seenSkus.has(item.sku)) {
-      res.status(400).json({ error: "Un produit apparaît plusieurs fois dans le panier." });
+    const allowedColors: readonly string[] = item.sku === "tshirt"
+      ? ["rose", "noir", "blanc"] : item.sku === "bob" ? ["blanc", "noir", "orange"] : [];
+    if (allowedColors.length ? !item.color || !allowedColors.includes(item.color) : item.color !== undefined) {
+      res.status(400).json({ error: "La couleur du produit est invalide." });
       return;
     }
-    seenSkus.add(item.sku);
+    const variantKey = `${item.sku}:${item.color ?? ""}`;
+    if (seenSkus.has(variantKey)) {
+      res.status(400).json({ error: "Une variante apparaît plusieurs fois dans le panier." });
+      return;
+    }
+    seenSkus.add(variantKey);
   }
 
   const baseUrl = developmentReturnBase();
@@ -376,9 +381,13 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
       if (!price) {
         throw new Error("Catalogue TEST incomplet.");
       }
-      expectedAmountCents += 1500 * item.quantity;
+      expectedAmountCents += price.unit_amount! * item.quantity;
       params.set(`line_items[${index}][price]`, price.id);
       params.set(`line_items[${index}][quantity]`, String(item.quantity));
+      if (item.color) {
+        params.set(`metadata[item_${index + 1}_color]`, item.color);
+        params.set(`payment_intent_data[metadata][item_${index + 1}_color]`, item.color);
+      }
       params.set(
         `metadata[item_${index + 1}_sku]`,
         item.sku,

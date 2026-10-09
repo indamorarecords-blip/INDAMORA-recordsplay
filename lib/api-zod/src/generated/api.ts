@@ -161,7 +161,7 @@ export const GetStoreCatalogResponse = zod.object({
   "products": zod.array(zod.object({
   "sku": zod.enum(['tshirt', 'bob', 'tote-bag', 'hoodie']),
   "name": zod.string(),
-  "priceCents": zod.literal(1500),
+  "priceCents": zod.union([zod.literal(1500),zod.literal(2500)]),
   "available": zod.boolean()
 })).min(getStoreCatalogResponseProductsMin).max(getStoreCatalogResponseProductsMax)
 })
@@ -172,7 +172,7 @@ export const GetStoreCatalogResponse = zod.object({
  */
 export const createStoreCheckoutBodyItemsItemQuantityMax = 20;
 
-export const createStoreCheckoutBodyItemsMax = 4;
+export const createStoreCheckoutBodyItemsMax = 8;
 
 export const createStoreCheckoutBodyShippingCountryRegExp = new RegExp('^[A-Z]{2}$');
 
@@ -180,7 +180,8 @@ export const createStoreCheckoutBodyShippingCountryRegExp = new RegExp('^[A-Z]{2
 export const CreateStoreCheckoutBody = zod.object({
   "items": zod.array(zod.object({
   "sku": zod.enum(['tshirt', 'bob', 'tote-bag', 'hoodie']),
-  "quantity": zod.number().int().min(1).max(createStoreCheckoutBodyItemsItemQuantityMax)
+  "quantity": zod.number().int().min(1).max(createStoreCheckoutBodyItemsItemQuantityMax),
+  "color": zod.enum(['rose', 'noir', 'blanc', 'orange']).optional()
 })).min(1).max(createStoreCheckoutBodyItemsMax),
   "shippingCountry": zod.string().regex(createStoreCheckoutBodyShippingCountryRegExp)
 })

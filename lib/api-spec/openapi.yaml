@@ -800,7 +800,7 @@ components:
         sku:
           $ref: "#/components/schemas/StoreSku"
         name: { type: string }
-        priceCents: { type: integer, const: 1500 }
+        priceCents: { type: integer, enum: [1500, 2500] }
         available: { type: boolean }
     StoreCatalog:
       type: object
@@ -824,6 +824,7 @@ components:
         sku:
           $ref: "#/components/schemas/StoreSku"
         quantity: { type: integer, minimum: 1, maximum: 20 }
+        color: { type: string, enum: [rose, noir, blanc, orange] }
     StoreCheckoutInput:
       type: object
       required: [items, shippingCountry]
@@ -831,7 +832,7 @@ components:
         items:
           type: array
           minItems: 1
-          maxItems: 4
+          maxItems: 8
           items:
             $ref: "#/components/schemas/StoreCheckoutItem"
         shippingCountry:

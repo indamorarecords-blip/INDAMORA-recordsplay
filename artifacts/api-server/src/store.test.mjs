@@ -25,7 +25,7 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
         active: true,
         type: "one_time",
         currency: "eur",
-        unit_amount: 1500,
+        unit_amount: sku === "hoodie" ? 2500 : 1500,
         livemode: false,
         metadata: { indamoraStoreSku: sku },
         product: { id: `prod_test_${sku}`, active: true, livemode: false, metadata: { indamoraStoreSku: sku } },
@@ -51,11 +51,14 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
         if (path === "/v1/checkout/sessions" && options.method === "POST") {
           fixture.checkoutParams = Object.fromEntries(options.params);
           const params = fixture.checkoutParams;
-          const quantity = Object.entries(params).filter(([key]) => /^line_items\\[\\d+\\]\\[quantity\\]$/.test(key)).reduce((sum,[,value]) => sum + Number(value),0);
+          const subtotal = Object.entries(params).filter(([key]) => /^line_items\\[\\d+\\]\\[quantity\\]$/.test(key)).reduce((sum,[key,value]) => {
+            const priceId = params[key.replace("[quantity]", "[price]")];
+            return sum + Number(value) * fixture.prices.find(price => price.id === priceId).unit_amount;
+          },0);
           return {
             id:"cs_test_store_fixture_123", url:"https://checkout.stripe.com/c/pay/cs_test_store_fixture_123",
             mode:"payment", livemode:false, currency:"eur",
-            amount_total:quantity * 1500 + Number(params["shipping_options[0][shipping_rate_data][fixed_amount][amount]"]),
+            amount_total:subtotal + Number(params["shipping_options[0][shipping_rate_data][fixed_amount][amount]"]),
             metadata:{storeFlow:"indamora-play-boutique-v1"}, ...fixture.sessionOverride
           };
         }
@@ -100,7 +103,7 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
     server = app.listen(0, "127.0.0.1");
     await new Promise((resolve) => server.once("listening", resolve));
     const base = `http://127.0.0.1:${server.address().port}/api/store`;
-    const checkout = (shippingCountry, items = [{ sku: "tshirt", quantity: 2 }], extra = {}) =>
+    const checkout = (shippingCountry, items = [{ sku: "tshirt", color: "rose", quantity: 2 }], extra = {}) =>
       fetch(`${base}/checkout`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items, shippingCountry, ...extra }),
@@ -122,7 +125,7 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
       });
     };
 
-    await t.test("catalog has exactly the four photographed €15 products", async () => {
+    await t.test("catalog has four products, hoodie €25 and other products €15", async () => {
       reset();
       const response = await fetch(`${base}/catalog`);
       const catalog = await response.json();
@@ -130,7 +133,7 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
       assert.equal(catalog.mode, "test");
       assert.equal(catalog.checkoutAvailable, true);
       assert.deepEqual(catalog.products.map((product) => product.sku), skus);
-      assert.ok(catalog.products.every((product) => product.priceCents === 1500));
+      assert.ok(catalog.products.every((product) => product.priceCents === (product.sku === "hoodie" ? 2500 : 1500)));
     });
     for (const [country, shipping] of [["FR", 0], ["DE", 700]]) {
       await t.test(`${country} shipping is ${shipping} cents and only server prices are used`, async () => {
@@ -148,6 +151,44 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
         assert.ok(!Object.keys(params).some((key) => key.startsWith("payment_method_types")));
       });
     }
+    await t.test("different colors share a SKU but retain separate checkout lines and metadata", async () => {
+      reset();
+      const items = [
+        { sku: "tshirt", color: "rose", quantity: 1 },
+        { sku: "tshirt", color: "noir", quantity: 2 },
+        { sku: "bob", color: "orange", quantity: 1 },
+        { sku: "hoodie", quantity: 2 },
+      ];
+      assert.equal((await checkout("DE", items)).status, 200);
+      const params = globalThis.storeFixture.checkoutParams;
+      assert.equal(params["metadata[item_1_color]"], "rose");
+      assert.equal(params["metadata[item_2_color]"], "noir");
+      assert.equal(params["payment_intent_data[metadata][item_3_color]"], "orange");
+      assert.equal(params["line_items[3][price]"], "price_test_hoodie");
+      assert.equal(params["line_items[3][quantity]"], "2");
+    });
+    await t.test("missing, unsupported and duplicate colors are refused before Stripe", async () => {
+      for (const items of [
+        [{ sku: "tshirt", quantity: 1 }],
+        [{ sku: "tshirt", color: "orange", quantity: 1 }],
+        [{ sku: "bob", color: "rose", quantity: 1 }],
+        [{ sku: "hoodie", color: "blanc", quantity: 1 }],
+        [{ sku: "bob", color: "noir", quantity: 1 }, { sku: "bob", color: "noir", quantity: 1 }],
+      ]) {
+        reset();
+        assert.equal((await checkout("FR", items)).status, 400);
+        assert.equal(globalThis.storeFixture.calls.length, 0);
+      }
+    });
+    await t.test("old €15 hoodie price blocks TEST checkout instead of undercharging", async () => {
+      reset();
+      globalThis.storeFixture.prices.find(price => price.metadata.indamoraStoreSku === "hoodie").unit_amount = 1500;
+      const catalog = await (await fetch(`${base}/catalog`)).json();
+      assert.equal(catalog.products.find(product => product.sku === "hoodie").priceCents, 2500);
+      assert.equal(catalog.checkoutAvailable, false);
+      assert.equal((await checkout("FR", [{ sku: "hoodie", quantity: 1 }])).status, 503);
+      assert.ok(!globalThis.storeFixture.calls.some(call => call.options.method === "POST"));
+    });
     await t.test("unsupported countries, invalid quantities, duplicates and client prices are refused", async () => {
       for (const [country, items, extra] of [
         ["US", [{ sku: "tshirt", quantity: 1 }], {}],
