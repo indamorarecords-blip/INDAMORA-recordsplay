@@ -17,6 +17,6 @@ Les réservations de stock ne sont libérées ou consommées que sur confirmatio
 
 La gestion des produits et prix locaux ne modifie pas automatiquement le catalogue Stripe TEST. Checkout reste bloqué si ses références ou prix ne correspondent pas aux produits gérés.
 
-**Why:** L’autorisation de gestion Shop interdit de modifier la configuration Stripe existante. Les prix serveur doivent rester cohérents sans créer automatiquement des produits ou prix Stripe.
+**Why:** La gestion privée TEST n’autorisait pas la modification de Stripe. Une demande de Boutique commerciale peut autoriser sa configuration dédiée, mais jamais celle de Premium ou des dons ; un prix local divergent ne constitue pas un prix Checkout validé.
 
-**How to apply:** Expliquer cette limite dans le Preview ; demander une autorisation TEST distincte avant de configurer de nouvelles références Stripe. Aucun passage LIVE ni publication implicite.
+**How to apply:** Vérifier la portée de l’autorisation courante avant de configurer les références Boutique Stripe. Séparer strictement TEST et LIVE ; garder Checkout bloqué en cas de divergence. Aucun passage LIVE ni publication implicite.
