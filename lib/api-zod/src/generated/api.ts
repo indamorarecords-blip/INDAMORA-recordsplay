@@ -724,7 +724,7 @@ export const CreateBillingPortalResponse = zod.object({
 
 
 /**
- * @summary Read the four-product INDAMORA PLAY TEST storefront catalog
+ * @summary Read the isolated INDAMORA PLAY storefront catalog
  */
 export const getStoreCatalogResponseProductsItemSkuRegExp = new RegExp('^[a-z0-9_-]{1,80}$');
 export const getStoreCatalogResponseProductsItemPriceCentsMax = 1000000;
@@ -734,7 +734,7 @@ export const getStoreCatalogResponseProductsMax = 1000;
 
 
 export const GetStoreCatalogResponse = zod.object({
-  "mode": zod.enum(['test']),
+  "mode": zod.enum(['test', 'live']),
   "checkoutAvailable": zod.boolean(),
   "message": zod.string().nullish(),
   "products": zod.array(zod.object({
@@ -747,7 +747,7 @@ export const GetStoreCatalogResponse = zod.object({
 
 
 /**
- * @summary Create a TEST-mode one-time Stripe Checkout for store items
+ * @summary Create an environment-specific one-time Stripe Checkout for store items
  */
 export const createStoreCheckoutBodyItemsItemSkuRegExp = new RegExp('^[a-z0-9_-]{1,80}$');
 export const createStoreCheckoutBodyItemsItemQuantityMax = 20;
@@ -768,13 +768,13 @@ export const CreateStoreCheckoutBody = zod.object({
   "shippingCountry": zod.string().regex(createStoreCheckoutBodyShippingCountryRegExp)
 })
 
-export const createStoreCheckoutResponseSessionIdRegExp = new RegExp('^cs_test_[A-Za-z0-9_]+$');
+export const createStoreCheckoutResponseSessionIdRegExp = new RegExp('^cs_(test|live)_[A-Za-z0-9_]+$');
 
 
 export const CreateStoreCheckoutResponse = zod.object({
   "sessionId": zod.string().regex(createStoreCheckoutResponseSessionIdRegExp),
   "url": zod.string().url(),
-  "mode": zod.enum(['test'])
+  "mode": zod.enum(['test', 'live'])
 })
 
 
@@ -784,7 +784,7 @@ export const CreateStoreCheckoutResponse = zod.object({
 export const getStoreCheckoutStatusQuerySessionIdMin = 10;
 
 
-export const getStoreCheckoutStatusQuerySessionIdRegExp = new RegExp('^cs_test_[A-Za-z0-9_]+$');
+export const getStoreCheckoutStatusQuerySessionIdRegExp = new RegExp('^cs_(test|live)_[A-Za-z0-9_]+$');
 
 
 export const GetStoreCheckoutStatusQueryParams = zod.object({

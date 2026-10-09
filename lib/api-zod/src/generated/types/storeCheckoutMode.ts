@@ -11,4 +11,5 @@ export type StoreCheckoutMode = typeof StoreCheckoutMode[keyof typeof StoreCheck
 
 export const StoreCheckoutMode = {
   test: 'test',
+  live: 'live',
 } as const;

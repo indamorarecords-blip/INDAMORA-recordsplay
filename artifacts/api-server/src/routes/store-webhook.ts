@@ -2,14 +2,10 @@ import express, { Router, type IRouter } from "express";
 import { verifyStripeSignature } from "../stripeSignature";
 import { storeStripeApi } from "../storeStripeClient";
 import { settleVerifiedShopSession } from "../lib/shop-session";
+import { shopMode, shopWebhookEnabled, shopWebhookSecret, SHOP_WEBHOOK_EVENTS } from "../lib/shop-runtime";
 
 const router: IRouter = Router();
-const supportedEvents = new Set([
-  "checkout.session.completed",
-  "checkout.session.async_payment_succeeded",
-  "checkout.session.async_payment_failed",
-  "checkout.session.expired",
-]);
+const supportedEvents: Set<string> = new Set(SHOP_WEBHOOK_EVENTS);
 
 type StoreEvent = {
   id?: string;
@@ -38,7 +34,7 @@ type StoreSession = {
 router.post(
   "/api/store/stripe/webhook",
   (req, res, next): void => {
-    if (process.env.NODE_ENV !== "development") {
+    if (!shopWebhookEnabled()) {
       res.status(404).json({ error: "Endpoint indisponible." });
       return;
     }
@@ -46,9 +42,9 @@ router.post(
   },
   express.raw({ type: "application/json", limit: "128kb" }),
   async (req, res): Promise<void> => {
-    const secret = process.env.STRIPE_BOUTIQUE_TEST_WEBHOOK_SECRET;
+    const secret = shopWebhookSecret();
     if (!secret?.startsWith("whsec_")) {
-      res.status(503).json({ error: "Le webhook Boutique TEST n’est pas configuré." });
+      res.status(503).json({ error: "Le webhook Boutique n’est pas configuré." });
       return;
     }
 
@@ -65,16 +61,16 @@ router.post(
       }
       validationStage = "event";
       event = JSON.parse(req.body.toString("utf8")) as StoreEvent;
-      if (!event?.id?.startsWith("evt_") || !event.type || event.livemode !== false || !event.data?.object) {
-        throw new Error("Invalid TEST event");
+      if (!event?.id?.startsWith("evt_") || !event.type || event.livemode !== (shopMode() === "live") || !event.data?.object) {
+        throw new Error("Invalid Shop event");
       }
     } catch {
       req.log.warn({
         validationStage,
         rawBodyPresent: Buffer.isBuffer(req.body),
         signaturePresent: Boolean(req.get("stripe-signature")),
-      }, "Boutique TEST webhook signature or event rejected");
-      res.status(400).json({ error: "Signature ou événement Boutique TEST invalide." });
+      }, "Boutique webhook signature or event rejected");
+      res.status(400).json({ error: "Signature ou événement Boutique invalide." });
       return;
     }
 
@@ -83,12 +79,12 @@ router.post(
       !supportedEvents.has(event.type!) ||
       object.metadata?.storeFlow !== "indamora-play-boutique-v1"
     ) {
-      // Events from other TEST products must not touch Premium, donations or users.
+      // Events from other products must not touch Premium, donations or users.
       res.status(200).json({ received: true, ignored: true });
       return;
     }
-    if (!object.id?.startsWith("cs_test_") || object.mode !== "payment") {
-      res.status(400).json({ error: "Session Boutique TEST invalide." });
+    if (!object.id?.startsWith(`cs_${shopMode()}_`) || object.mode !== "payment") {
+      res.status(400).json({ error: "Session Boutique invalide." });
       return;
     }
 
@@ -98,16 +94,16 @@ router.post(
       );
       if (
         session.id !== object.id ||
-        session.livemode !== false ||
+        session.livemode !== (shopMode() === "live") ||
         session.mode !== "payment" ||
         session.metadata?.storeFlow !== "indamora-play-boutique-v1"
       ) {
-        throw new Error("Unexpected TEST session");
+        throw new Error("Unexpected Shop session");
       }
       const paid = session.payment_status === "paid";
       if (event.type === "checkout.session.async_payment_succeeded" && !paid) {
         // Stripe can retry once the authoritative session reflects payment.
-        res.status(503).json({ error: "Confirmation Stripe TEST en attente." });
+        res.status(503).json({ error: "Confirmation Stripe Boutique en attente." });
         return;
       }
 
@@ -115,12 +111,12 @@ router.post(
       const matched = await settleVerifiedShopSession(session, event.type === "checkout.session.async_payment_failed");
       req.log.info(
         { eventId: event.id, eventType: event.type, paid },
-        "Boutique TEST webhook verified against Stripe",
+        "Boutique webhook verified against Stripe",
       );
       res.status(200).json({ received: true, ...(matched ? {} : { ignored: true }) });
     } catch {
-      req.log.warn("Boutique TEST webhook Stripe confirmation unavailable");
-      res.status(503).json({ error: "Vérification Stripe TEST indisponible." });
+      req.log.warn("Boutique webhook Stripe confirmation unavailable");
+      res.status(503).json({ error: "Vérification Stripe Boutique indisponible." });
     }
   },
 );

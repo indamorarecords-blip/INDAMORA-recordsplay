@@ -1237,7 +1237,7 @@ export const getGetStoreCatalogUrl = () => {
 }
 
 /**
- * @summary Read the four-product INDAMORA PLAY TEST storefront catalog
+ * @summary Read the isolated INDAMORA PLAY storefront catalog
  */
 export const getStoreCatalog = async ( options?: Parameters<typeof customFetch>[1]): Promise<StoreCatalog> => {
 
@@ -1284,7 +1284,7 @@ export type GetStoreCatalogQueryError = ErrorType<unknown>
 
 
 /**
- * @summary Read the four-product INDAMORA PLAY TEST storefront catalog
+ * @summary Read the isolated INDAMORA PLAY storefront catalog
  */
 
 export function useGetStoreCatalog<TData = Awaited<ReturnType<typeof getStoreCatalog>>, TError = ErrorType<unknown>>(
@@ -1314,7 +1314,7 @@ export const getCreateStoreCheckoutUrl = () => {
 }
 
 /**
- * @summary Create a TEST-mode one-time Stripe Checkout for store items
+ * @summary Create an environment-specific one-time Stripe Checkout for store items
  */
 export const createStoreCheckout = async (storeCheckoutInput: StoreCheckoutInput, options?: Parameters<typeof customFetch>[1]): Promise<StoreCheckout> => {
 
@@ -1363,7 +1363,7 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
     export type CreateStoreCheckoutMutationError = ErrorType<void>
 
     /**
- * @summary Create a TEST-mode one-time Stripe Checkout for store items
+ * @summary Create an environment-specific one-time Stripe Checkout for store items
  */
 export const useCreateStoreCheckout = <TError = ErrorType<void>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createStoreCheckout>>, TError,{data: BodyType<StoreCheckoutInput>}, TContext>, request?: SecondParameter<typeof customFetch>}

@@ -8,7 +8,7 @@
 import type { StoreCheckoutMode } from './storeCheckoutMode';
 
 export interface StoreCheckout {
-  /** @pattern ^cs_test_[A-Za-z0-9_]+$ */
+  /** @pattern ^cs_(test|live)_[A-Za-z0-9_]+$ */
   sessionId: string;
   url: string;
   mode: StoreCheckoutMode;

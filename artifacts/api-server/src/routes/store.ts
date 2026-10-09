@@ -10,6 +10,7 @@ import {
 import { formData, storeStripeApi as stripeApi } from "../storeStripeClient";
 import { shop as shopTest, persistentShop, isPersistentShop } from "../lib/shop-repository";
 import { settleVerifiedShopSession, shopQuoteHash } from "../lib/shop-session";
+import { shopMode, shopRoutesEnabled, shopAllowedHosts, shopReturnBase, shopWebhookSecret, SHOP_WEBHOOK_EVENTS } from "../lib/shop-runtime";
 
 const router: IRouter = Router();
 
@@ -24,12 +25,6 @@ const EUROPEAN_UNION_COUNTRIES = [
   "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "DE", "GR", "HU",
   "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI",
   "ES", "SE",
-] as const;
-
-const REQUIRED_STORE_WEBHOOK_EVENTS = [
-  "checkout.session.completed",
-  "checkout.session.async_payment_succeeded",
-  "checkout.session.async_payment_failed",
 ] as const;
 
 type StripeProduct = {
@@ -77,45 +72,17 @@ type StripePaymentIntent = {
   livemode?: boolean;
 };
 
-function isDevelopmentTestMode(): boolean {
-  return process.env.NODE_ENV === "development";
-}
-
-function developmentHosts(): Set<string> {
-  const candidates = [
-    process.env.REPLIT_DEV_DOMAIN,
-    ...(process.env.REPLIT_DOMAINS ?? "").split(","),
-  ];
-  const hosts = new Set<string>();
-
-  for (const candidate of candidates) {
-    if (!candidate?.trim()) continue;
-    try {
-      const value = candidate.trim();
-      const url = new URL(value.includes("://") ? value : `https://${value}`);
-      const hostname = url.hostname.toLowerCase();
-      if (hostname.endsWith(".replit.dev") || hostname.endsWith(".repl.co")) {
-        hosts.add(hostname);
-      }
-    } catch {
-      // Ignore malformed, unrelated, and non-development domains.
-    }
-  }
-
-  return hosts;
-}
-
 function hasRequiredEvents(events: string[] | undefined): boolean {
   const enabled = new Set(events ?? []);
   return (
     enabled.has("*") ||
-    REQUIRED_STORE_WEBHOOK_EVENTS.every((event) => enabled.has(event))
+    SHOP_WEBHOOK_EVENTS.every((event) => enabled.has(event))
   );
 }
 
-function isConfiguredTestWebhook(endpoint: StripeWebhookEndpoint): boolean {
+function isConfiguredShopWebhook(endpoint: StripeWebhookEndpoint): boolean {
   if (
-    endpoint.livemode !== false ||
+    endpoint.livemode !== (shopMode() === "live") ||
     endpoint.status !== "enabled" ||
     !hasRequiredEvents(endpoint.enabled_events)
   ) {
@@ -126,7 +93,8 @@ function isConfiguredTestWebhook(endpoint: StripeWebhookEndpoint): boolean {
     const url = new URL(endpoint.url ?? "");
     return (
       url.protocol === "https:" &&
-      developmentHosts().has(url.hostname.toLowerCase()) &&
+      shopAllowedHosts().has(url.host.toLowerCase()) &&
+      !url.username && !url.password && !url.search && !url.hash &&
       url.pathname === "/api/store/stripe/webhook"
     );
   } catch {
@@ -134,16 +102,16 @@ function isConfiguredTestWebhook(endpoint: StripeWebhookEndpoint): boolean {
   }
 }
 
-async function hasConfiguredTestWebhook(): Promise<boolean> {
-  if (process.env.SHOP_TEST_CHECKOUT_BLOCKED === "true" ||
-      !process.env.STRIPE_BOUTIQUE_TEST_WEBHOOK_SECRET?.startsWith("whsec_") || developmentHosts().size === 0) {
+async function hasConfiguredShopWebhook(): Promise<boolean> {
+  if ((shopMode() === "test" && process.env.SHOP_TEST_CHECKOUT_BLOCKED === "true") ||
+      !shopWebhookSecret()?.startsWith("whsec_") || shopAllowedHosts().size === 0) {
     return false;
   }
 
   const endpoints = await stripeApi<StripeWebhookEndpointPage>(
     "/v1/webhook_endpoints?limit=100",
   );
-  return endpoints.data.some(isConfiguredTestWebhook);
+  return endpoints.data.some(isConfiguredShopWebhook);
 }
 
 async function readStorePrices(): Promise<Map<string, StripePrice>> {
@@ -176,13 +144,13 @@ async function readStorePrices(): Promise<Map<string, StripePrice>> {
           : undefined;
       return (
         price.active === true &&
-        price.livemode === false &&
+        price.livemode === (shopMode() === "live") &&
         price.type === "one_time" &&
         price.currency === "eur" &&
         price.unit_amount === product.priceCents &&
         price.metadata?.indamoraStoreSku === product.sku &&
         stripeProduct?.active === true &&
-        stripeProduct.livemode === false &&
+        stripeProduct.livemode === (shopMode() === "live") &&
         stripeProduct.metadata?.indamoraStoreSku === product.sku
       );
     });
@@ -196,12 +164,12 @@ async function storeReadiness(): Promise<{
   prices: Map<string, StripePrice>;
   webhookReady: boolean;
 }> {
-  if (!isDevelopmentTestMode()) {
+  if (!shopRoutesEnabled()) {
     return { prices: new Map(), webhookReady: false };
   }
   const [prices, webhookReady] = await Promise.all([
     readStorePrices(),
-    hasConfiguredTestWebhook(),
+    hasConfiguredShopWebhook(),
   ]);
   return { prices, webhookReady };
 }
@@ -212,10 +180,10 @@ function storeMessage(
   expectedCount: number = STORE_PRODUCTS.length,
 ): string | null {
   if (priceCount !== expectedCount || expectedCount === 0) {
-    return "Le catalogue Stripe TEST des quatre articles n’est pas encore complet. Le paiement reste désactivé.";
+    return `Le catalogue Stripe ${shopMode().toUpperCase()} n’est pas encore complet. Le paiement reste désactivé.`;
   }
   if (!webhookReady) {
-    return "Le webhook Stripe TEST signé n’est pas prêt. Le paiement reste désactivé.";
+    return `Le webhook Stripe ${shopMode().toUpperCase()} signé n’est pas prêt. Le paiement reste désactivé.`;
   }
   return null;
 }
@@ -237,28 +205,8 @@ function shippingForCountry(country: string): {
   return null;
 }
 
-function developmentReturnBase(): string | null {
-  const host = process.env.REPLIT_DEV_DOMAIN?.trim();
-  if (!host) return null;
-
-  try {
-    const url = new URL(host.includes("://") ? host : `https://${host}`);
-    if (
-      url.protocol !== "https:" ||
-      !(url.hostname.endsWith(".replit.dev") || url.hostname.endsWith(".repl.co")) ||
-      url.username ||
-      url.password
-    ) {
-      return null;
-    }
-    return `https://${url.hostname}/boutique`;
-  } catch {
-    return null;
-  }
-}
-
 router.get("/store/catalog", async (req, res): Promise<void> => {
-  if (!isDevelopmentTestMode()) {
+  if (!shopRoutesEnabled()) {
     res.status(404).json({ error: "Catalogue indisponible." });
     return;
   }
@@ -276,7 +224,7 @@ router.get("/store/catalog", async (req, res): Promise<void> => {
     );
     res.json(
       GetStoreCatalogResponse.parse({
-        mode: "test",
+        mode: shopMode(),
         checkoutAvailable: message === null,
         message,
         products: catalogue.map((product) => ({
@@ -286,12 +234,12 @@ router.get("/store/catalog", async (req, res): Promise<void> => {
       }),
     );
   } catch {
-    req.log.warn("INDAMORA PLAY TEST store catalog could not be verified");
+    req.log.warn("INDAMORA PLAY Shop catalog could not be verified");
     res.json(
       GetStoreCatalogResponse.parse({
-        mode: "test",
+        mode: shopMode(),
         checkoutAvailable: false,
-        message: "Le paiement TEST est temporairement indisponible.",
+        message: "Le paiement Boutique est temporairement indisponible.",
         products: (isPersistentShop() ? [] : STORE_PRODUCTS).map((product) => ({
           ...product,
           available: false,
@@ -302,7 +250,7 @@ router.get("/store/catalog", async (req, res): Promise<void> => {
 });
 
 router.post("/store/checkout", async (req, res): Promise<void> => {
-  if (!isDevelopmentTestMode()) {
+  if (!shopRoutesEnabled()) {
     res.status(404).json({ error: "Checkout indisponible." });
     return;
   }
@@ -341,11 +289,11 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
     seenSkus.add(variantKey);
   }
 
-  const baseUrl = developmentReturnBase();
+  const baseUrl = shopReturnBase();
   let reservationId: string | undefined;
   let stripeSessionCreated = false;
   if (!baseUrl) {
-    res.status(503).json({ error: "Le Checkout TEST n’est pas configuré." });
+    res.status(503).json({ error: "Le Checkout Boutique n’est pas configuré." });
     return;
   }
 
@@ -443,7 +391,7 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
       "/v1/checkout/sessions",
       {
         method: "POST",
-        idempotencyKey: `indamora-store-test-${orderReference}`,
+        idempotencyKey: `indamora-store-${shopMode()}-${orderReference}`,
         params,
       },
     );
@@ -454,8 +402,8 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
       checkoutUrl = undefined;
     }
     if (
-      !session.id?.startsWith("cs_test_") ||
-      session.livemode !== false ||
+      !session.id?.startsWith(`cs_${shopMode()}_`) ||
+      session.livemode !== (shopMode() === "live") ||
       session.mode !== "payment" ||
       session.metadata?.storeFlow !== "indamora-play-boutique-v1" ||
       session.currency !== "eur" ||
@@ -463,8 +411,8 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
       checkoutUrl?.protocol !== "https:" ||
       checkoutUrl.hostname !== "checkout.stripe.com"
     ) {
-      req.log.error("Stripe returned an unexpected INDAMORA PLAY TEST session");
-      res.status(502).json({ error: "Le Checkout Stripe TEST a été refusé." });
+      req.log.error("Stripe returned an unexpected INDAMORA PLAY Shop session");
+      res.status(502).json({ error: "Le Checkout Stripe Boutique a été refusé." });
       return;
     }
     await shopTest.attachSession(orderReference, session.id);
@@ -473,26 +421,26 @@ router.post("/store/checkout", async (req, res): Promise<void> => {
       CreateStoreCheckoutResponse.parse({
         sessionId: session.id,
         url: checkoutUrl.toString(),
-        mode: "test",
+        mode: shopMode(),
       }),
     );
   } catch {
     // Never release a hold after Stripe might have created a payable session.
-    // An ambiguous network result is held for explicit TEST reconciliation.
+    // An ambiguous network result is held for explicit Shop reconciliation.
     if (reservationId && !stripeSessionCreated) await shopTest.release(reservationId).catch(() => {});
-    req.log.error("INDAMORA PLAY TEST Checkout creation failed");
-    res.status(502).json({ error: "Le paiement TEST est temporairement indisponible." });
+    req.log.error("INDAMORA PLAY Shop Checkout creation failed");
+    res.status(502).json({ error: "Le paiement Boutique est temporairement indisponible." });
   }
 });
 
 router.get("/store/checkout/status", async (req, res): Promise<void> => {
-  if (!isDevelopmentTestMode()) {
+  if (!shopRoutesEnabled()) {
     res.status(404).json({ error: "Statut indisponible." });
     return;
   }
 
   const query = GetStoreCheckoutStatusQueryParams.safeParse(req.query);
-  if (!query.success) {
+  if (!query.success || !query.data.sessionId.startsWith(`cs_${shopMode()}_`)) {
     res.status(400).json({ error: "L’identifiant Checkout est invalide." });
     return;
   }
@@ -503,11 +451,11 @@ router.get("/store/checkout/status", async (req, res): Promise<void> => {
     );
     if (
       session.id !== query.data.sessionId ||
-      session.livemode !== false ||
+      session.livemode !== (shopMode() === "live") ||
       session.mode !== "payment" ||
       session.metadata?.storeFlow !== "indamora-play-boutique-v1"
     ) {
-      res.status(404).json({ error: "Session INDAMORA PLAY TEST introuvable." });
+      res.status(404).json({ error: "Session INDAMORA PLAY Boutique introuvable." });
       return;
     }
 
@@ -527,7 +475,7 @@ router.get("/store/checkout/status", async (req, res): Promise<void> => {
           `/v1/payment_intents/${encodeURIComponent(paymentIntentId)}`,
         );
         if (
-          paymentIntent.livemode === false &&
+          paymentIntent.livemode === (shopMode() === "live") &&
           (paymentIntent.status === "canceled" ||
             paymentIntent.status === "requires_payment_method")
         ) {
@@ -550,8 +498,8 @@ router.get("/store/checkout/status", async (req, res): Promise<void> => {
       }),
     );
   } catch {
-    req.log.warn("INDAMORA PLAY TEST Checkout status lookup failed");
-    res.status(502).json({ error: "Le statut du paiement TEST est indisponible." });
+    req.log.warn("INDAMORA PLAY Shop Checkout status lookup failed");
+    res.status(502).json({ error: "Le statut du paiement Boutique est indisponible." });
   }
 });
 

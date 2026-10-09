@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { build } from "esbuild";
 
-test("dedicated Boutique transport refuses non-TEST keys and production before any network access", async () => {
+test("dedicated Boutique transport isolates TEST/LIVE keys and blocks LIVE writes by default", async () => {
   const directory = await mkdtemp(join(tmpdir(), "boutique-client-fixture-"));
   const originalFetch = globalThis.fetch;
   let calls = 0;
@@ -25,6 +25,8 @@ test("dedicated Boutique transport refuses non-TEST keys and production before a
       return new Response(JSON.stringify({ object: "balance", livemode: false }), { status: 200 });
     };
     process.env.NODE_ENV = "development";
+    delete process.env.STRIPE_BOUTIQUE_LIVE_SECRET_KEY;
+    delete process.env.BOUTIQUE_LIVE_ENABLED;
     delete process.env.STRIPE_BOUTIQUE_TEST_SECRET_KEY;
     await assert.rejects(storeStripeApi("/v1/balance"));
     process.env.STRIPE_BOUTIQUE_TEST_SECRET_KEY = "sk_live_fixture_not_a_real_key";
@@ -42,6 +44,17 @@ test("dedicated Boutique transport refuses non-TEST keys and production before a
     assert.equal(calls, 1);
     globalThis.fetch = async () =>
       new Response(JSON.stringify({ object: "balance", livemode: true }), { status: 200 });
+    await assert.rejects(storeStripeApi("/v1/balance"));
+    process.env.NODE_ENV = "production";
+    process.env.STRIPE_BOUTIQUE_LIVE_SECRET_KEY = "sk_test_fixture_not_a_real_key";
+    await assert.rejects(storeStripeApi("/v1/balance"));
+    process.env.STRIPE_BOUTIQUE_LIVE_SECRET_KEY = "sk_live_fixture_not_a_real_key";
+    assert.equal((await storeStripeApi("/v1/balance")).livemode, true);
+    await assert.rejects(storeStripeApi("/v1/checkout/sessions", { method: "POST" }));
+    process.env.BOUTIQUE_LIVE_ENABLED = "true";
+    assert.equal((await storeStripeApi("/v1/checkout/sessions", { method: "POST" })).livemode, true);
+    globalThis.fetch = async () =>
+      new Response(JSON.stringify({ object: "balance", livemode: false }), { status: 200 });
     await assert.rejects(storeStripeApi("/v1/balance"));
   } finally {
     globalThis.fetch = originalFetch;

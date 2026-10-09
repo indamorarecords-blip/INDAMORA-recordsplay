@@ -443,6 +443,7 @@ export type StoreCatalogMode = typeof StoreCatalogMode[keyof typeof StoreCatalog
 
 export const StoreCatalogMode = {
   test: 'test',
+  live: 'live',
 } as const;
 
 export interface StoreCatalog {
@@ -491,10 +492,11 @@ export type StoreCheckoutMode = typeof StoreCheckoutMode[keyof typeof StoreCheck
 
 export const StoreCheckoutMode = {
   test: 'test',
+  live: 'live',
 } as const;
 
 export interface StoreCheckout {
-  /** @pattern ^cs_test_[A-Za-z0-9_]+$ */
+  /** @pattern ^cs_(test|live)_[A-Za-z0-9_]+$ */
   sessionId: string;
   url: string;
   mode: StoreCheckoutMode;
@@ -831,7 +833,7 @@ end: string;
 export type GetStoreCheckoutStatusParams = {
 /**
  * @minLength 10
- * @pattern ^cs_test_[A-Za-z0-9_]+$
+ * @pattern ^cs_(test|live)_[A-Za-z0-9_]+$
  */
 sessionId: string;
 };

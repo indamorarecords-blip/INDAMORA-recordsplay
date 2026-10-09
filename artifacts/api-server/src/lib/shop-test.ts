@@ -182,7 +182,7 @@ export class ShopTestRepository {
     return this.mutate(state => {
       const quote = quoteCart(state, items, country);
       for (const line of quote.lines) {
-        if (expectedPrices.get(line.productId) !== line.priceCents) throw new ShopError("Le prix Stripe TEST ne correspond pas au catalogue géré. Checkout bloqué.", 503);
+        if (expectedPrices.get(line.productId) !== line.priceCents) throw new ShopError("Le prix Stripe Boutique ne correspond pas au catalogue géré. Checkout bloqué.", 503);
       }
       if (quote.contactRequired) throw new ShopError("Livraison à confirmer.");
       const snapshot = { ...quote, shippingCountry: country };
@@ -217,7 +217,7 @@ export class ShopTestRepository {
         if (!variant || variant.stock === null || variant.stock < item.quantity) throw new ShopError("Stock incohérent : règlement TEST à rapprocher manuellement.", 409);
         variant.stock -= item.quantity;
         product!.revision += 1; product!.updatedAt = new Date().toISOString();
-        state.history.unshift({ id: randomUUID(), productId: item.productId, at: product!.updatedAt, action: "Paiement TEST confirmé", detail: `${item.variantId} : −${item.quantity}` });
+        state.history.unshift({ id: randomUUID(), productId: item.productId, at: product!.updatedAt, action: `Paiement ${this.mode.toUpperCase()} confirmé`, detail: `${item.variantId} : −${item.quantity}` });
       }
       reservation.status = paid ? "paid" : "released";
     });

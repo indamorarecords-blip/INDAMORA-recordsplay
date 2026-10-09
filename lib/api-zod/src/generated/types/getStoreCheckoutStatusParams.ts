@@ -9,7 +9,7 @@
 export type GetStoreCheckoutStatusParams = {
 /**
  * @minLength 10
- * @pattern ^cs_test_[A-Za-z0-9_]+$
+ * @pattern ^cs_(test|live)_[A-Za-z0-9_]+$
  */
 sessionId: string;
 };

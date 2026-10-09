@@ -1,4 +1,6 @@
 // Boutique-only transport. It never reads the Premium/donation connector or keys.
+import { shopMode } from "./lib/shop-runtime";
+
 export class StoreTestConfigurationError extends Error {}
 
 type StoreStripeOptions = {
@@ -8,7 +10,10 @@ type StoreStripeOptions = {
 };
 
 function dedicatedKey(method: string): string {
-  const test = process.env.NODE_ENV === "development";
+  if (process.env.NODE_ENV !== "development" && process.env.NODE_ENV !== "production") {
+    throw new StoreTestConfigurationError("Environnement Boutique non autorisé.");
+  }
+  const test = shopMode() === "test";
   if (!test && method !== "GET" && process.env.BOUTIQUE_LIVE_ENABLED !== "true") {
     throw new StoreTestConfigurationError("Les écritures Stripe LIVE Boutique ne sont pas autorisées.");
   }
@@ -49,14 +54,14 @@ export async function storeStripeApi<T>(
       signal: AbortSignal.timeout(15_000),
     });
   } catch {
-    throw new Error("Le service Stripe TEST de la Boutique est indisponible.");
+    throw new Error("Le service Stripe de la Boutique est indisponible.");
   }
   const body: unknown = await response.json().catch(() => null);
   if (!response.ok || !body || typeof body !== "object") {
     // Never surface Stripe's raw error text, headers, or credentials.
-    throw new Error(`La requête Stripe Boutique TEST a échoué (HTTP ${response.status}).`);
+    throw new Error(`La requête Stripe Boutique a échoué (HTTP ${response.status}).`);
   }
-  if ("livemode" in body && body.livemode !== (process.env.NODE_ENV !== "development")) {
+  if ("livemode" in body && body.livemode !== (shopMode() === "live")) {
     throw new Error("Stripe n’a pas confirmé le bon environnement Boutique.");
   }
   return body as T;

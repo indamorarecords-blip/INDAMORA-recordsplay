@@ -297,7 +297,7 @@ paths:
     get:
       operationId: getStoreCatalog
       tags: [store]
-      summary: Read the four-product INDAMORA PLAY TEST storefront catalog
+      summary: Read the isolated INDAMORA PLAY storefront catalog
       responses:
         "200":
           description: Store catalog and TEST checkout readiness
@@ -309,7 +309,7 @@ paths:
     post:
       operationId: createStoreCheckout
       tags: [store]
-      summary: Create a TEST-mode one-time Stripe Checkout for store items
+      summary: Create an environment-specific one-time Stripe Checkout for store items
       requestBody:
         required: true
         content:
@@ -326,7 +326,7 @@ paths:
         "400":
           description: Invalid items or unsupported shipping country
         "503":
-          description: TEST catalog or signed TEST webhook is not ready
+          description: Store catalog or signed environment-specific webhook is not ready
   /store/checkout/status:
     get:
       operationId: getStoreCheckoutStatus
@@ -338,11 +338,11 @@ paths:
           required: true
           schema:
             type: string
-            pattern: '^cs_test_[A-Za-z0-9_]+$'
+            pattern: '^cs_(test|live)_[A-Za-z0-9_]+$'
             minLength: 10
       responses:
         "200":
-          description: TEST Checkout payment status
+          description: Environment-specific Checkout payment status
           content:
             application/json:
               schema:
@@ -350,9 +350,9 @@ paths:
         "400":
           description: Invalid Checkout session id
         "404":
-          description: No matching INDAMORA PLAY TEST session
+          description: No matching INDAMORA PLAY store session in this environment
         "503":
-          description: Stripe TEST mode is unavailable
+          description: The dedicated Stripe store configuration is unavailable
   /store/stripe/webhook:
     post:
       operationId: receiveStoreTestWebhook
@@ -1169,7 +1169,7 @@ components:
       properties:
         mode:
           type: string
-          enum: [test]
+          enum: [test, live]
         checkoutAvailable: { type: boolean }
         message: { type: ["string", "null"] }
         products:
@@ -1203,11 +1203,11 @@ components:
       type: object
       required: [sessionId, url, mode]
       properties:
-        sessionId: { type: string, pattern: '^cs_test_[A-Za-z0-9_]+$' }
+        sessionId: { type: string, pattern: '^cs_(test|live)_[A-Za-z0-9_]+$' }
         url: { type: string, format: uri }
         mode:
           type: string
-          enum: [test]
+          enum: [test, live]
     StoreCheckoutStatus:
       type: object
       required: [status, amountTotalCents, currency]

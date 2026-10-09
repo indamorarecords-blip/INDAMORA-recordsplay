@@ -8,7 +8,7 @@ import { build } from "esbuild";
 import { createHmac } from "node:crypto";
 
 // All Stripe operations use fixtures. This test never reaches Stripe or a DB.
-test("Boutique TEST validates prices, shipping, payment proof and production isolation", async (t) => {
+test("Boutique validates isolated TEST/LIVE fixtures, shipping and server payment proof", async (t) => {
   const directory = await mkdtemp(join(tmpdir(), "indamora-store-"));
   let server;
   const skus = ["tshirt", "bob", "tote-bag", "hoodie"];
@@ -18,7 +18,14 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
   const webhookSecret = "whsec_fixture_only_not_a_real_secret";
 
   const reset = (overrides = {}) => {
-    process.env.NODE_ENV = "development";
+    process.env.NODE_ENV = overrides.live ? "production" : "development";
+    delete process.env.BOUTIQUE_LIVE_ENABLED;
+    delete process.env.STRIPE_BOUTIQUE_LIVE_WEBHOOK_SECRET;
+    delete process.env.SHOP_TEST_CHECKOUT_BLOCKED;
+    if (overrides.live) {
+      process.env.BOUTIQUE_LIVE_ENABLED = "true";
+      process.env.STRIPE_BOUTIQUE_LIVE_WEBHOOK_SECRET = webhookSecret;
+    }
     process.env.STRIPE_BOUTIQUE_TEST_WEBHOOK_SECRET = webhookSecret;
     globalThis.storeFixture = {
       prices: skus.map((sku) => ({
@@ -27,13 +34,14 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
         type: "one_time",
         currency: "eur",
         unit_amount: sku === "hoodie" ? 2500 : 1500,
-        livemode: false,
+        livemode: Boolean(overrides.live),
         metadata: { indamoraStoreSku: sku },
-        product: { id: `prod_test_${sku}`, active: true, livemode: false, metadata: { indamoraStoreSku: sku } },
+        product: { id: `prod_test_${sku}`, active: true, livemode: Boolean(overrides.live), metadata: { indamoraStoreSku: sku } },
       })),
       webhookReady: true,
       calls: [],
       logs: [],
+      settlements: [],
       ...overrides,
     };
   };
@@ -46,8 +54,9 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
         fixture.calls.push({path, options});
         if (path.startsWith("/v1/prices?")) return {data: fixture.prices, has_more:false};
         if (path.startsWith("/v1/webhook_endpoints?")) return {data: fixture.webhookReady ? [{
-          url:"https://store-fixture.replit.dev/api/store/stripe/webhook", status:"enabled", livemode:false,
-          enabled_events:["checkout.session.completed","checkout.session.async_payment_succeeded","checkout.session.async_payment_failed"]
+          url:fixture.webhookUrl ?? (fixture.live ? "https://indamoraplay.com/api/store/stripe/webhook" : "https://store-fixture.replit.dev/api/store/stripe/webhook"),
+          status:"enabled", livemode:Boolean(fixture.live),
+          enabled_events:fixture.webhookEvents ?? ["checkout.session.completed","checkout.session.async_payment_succeeded","checkout.session.async_payment_failed","checkout.session.expired"]
         }] : []};
         if (path === "/v1/checkout/sessions" && options.method === "POST") {
           fixture.checkoutParams = Object.fromEntries(options.params);
@@ -57,18 +66,18 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
             return sum + Number(value) * fixture.prices.find(price => price.id === priceId).unit_amount;
           },0);
           return {
-            id:"cs_test_store_fixture_123", url:"https://checkout.stripe.com/c/pay/cs_test_store_fixture_123",
-            mode:"payment", livemode:false, currency:"eur",
+            id:fixture.live ? "cs_live_store_fixture_123" : "cs_test_store_fixture_123", url:"https://checkout.stripe.com/c/pay/store_fixture",
+            mode:"payment", livemode:Boolean(fixture.live), currency:"eur",
             amount_total:subtotal + Number(params["shipping_options[0][shipping_rate_data][fixed_amount][amount]"]),
             metadata:{storeFlow:"indamora-play-boutique-v1"}, ...fixture.sessionOverride
           };
         }
         if (path.startsWith("/v1/checkout/sessions/")) return {
-          id:"cs_test_store_fixture_123", mode:"payment", livemode:false, currency:"eur", amount_total:1500,
+          id:fixture.live ? "cs_live_store_fixture_123" : "cs_test_store_fixture_123", mode:"payment", livemode:Boolean(fixture.live), currency:"eur", amount_total:1500,
           status:"complete", payment_status:"unpaid", metadata:{storeFlow:"indamora-play-boutique-v1"},
           ...fixture.sessionOverride
         };
-        if (path.startsWith("/v1/payment_intents/")) return {livemode:false, status:fixture.paymentIntentStatus ?? "processing"};
+        if (path.startsWith("/v1/payment_intents/")) return {livemode:Boolean(fixture.live), status:fixture.paymentIntentStatus ?? "processing"};
         throw new Error("Unexpected Stripe fixture request");
       }
     `;
@@ -88,7 +97,8 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
           builder.onLoad({ filter: /.*/, namespace: "shop-fixture" }, () => ({ contents: `
             export const shopTest = {
               read: async () => ({ products: ["tshirt","bob","tote-bag","hoodie"].map(id => ({ id, variants: (id === "tshirt" ? ["rose","noir","blanc"] : id === "bob" ? ["blanc","noir","orange"] : ["unique"]).map(id => ({id})) })) }),
-              reserve: async () => {}, release: async () => {}, attachSession: async () => {}, settleSession: async () => {}
+              reserve: async () => {}, release: async () => {}, attachSession: async () => {},
+              settleSession: async (...args) => {globalThis.storeFixture.settlements.push(args);}
             };
             export const shop = shopTest;
             export const persistentShop = {};
@@ -123,8 +133,8 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
       const body = JSON.stringify({
         id: "evt_store_fixture_only",
         type: "checkout.session.completed",
-        livemode: false,
-        data: { object: { id: "cs_test_store_fixture_123", mode: "payment", metadata: { storeFlow: "indamora-play-boutique-v1" } } },
+        livemode: Boolean(globalThis.storeFixture.live),
+        data: { object: { id: globalThis.storeFixture.live ? "cs_live_store_fixture_123" : "cs_test_store_fixture_123", mode: "payment", metadata: { storeFlow: "indamora-play-boutique-v1" } } },
         ...overrides,
       });
       const timestamp = Math.floor(Date.now() / 1000);
@@ -278,6 +288,53 @@ test("Boutique TEST validates prices, shipping, payment proof and production iso
       assert.equal((await checkout("FR")).status, 404);
       assert.equal((await webhook()).status, 404);
       assert.equal(globalThis.storeFixture.calls.length, 0);
+    });
+    await t.test("expiry delivery is required before enabling either Checkout mode", async () => {
+      for (const live of [false, true]) {
+        reset({ live, webhookEvents: ["checkout.session.completed", "checkout.session.async_payment_succeeded", "checkout.session.async_payment_failed"] });
+        assert.equal((await checkout("FR")).status, 503);
+        assert.equal(globalThis.storeFixture.checkoutParams, undefined);
+      }
+    });
+    await t.test("mocked LIVE checkout uses a fixed public return origin and LIVE idempotency namespace", async () => {
+      reset({ live: true });
+      const response = await checkout("FR");
+      assert.equal(response.status, 200);
+      assert.equal((await response.json()).mode, "live");
+      assert.ok(globalThis.storeFixture.checkoutParams.success_url.startsWith("https://indamoraplay.com/boutique?"));
+      const creation = globalThis.storeFixture.calls.find(call => call.options.method === "POST");
+      assert.ok(creation.options.idempotencyKey.startsWith("indamora-store-live-"));
+    });
+    await t.test("LIVE refuses a TEST price, session, status lookup and wrong webhook origin", async () => {
+      reset({ live: true });
+      globalThis.storeFixture.prices[0].livemode = false;
+      assert.equal((await checkout("FR")).status, 503);
+      reset({ live: true, sessionOverride: { id: "cs_test_other_fixture", livemode: false } });
+      assert.equal((await checkout("FR")).status, 502);
+      reset({ live: true });
+      assert.equal((await fetch(`${base}/checkout/status?sessionId=cs_test_store_fixture_123`)).status, 400);
+      assert.equal(globalThis.storeFixture.calls.length, 0);
+      reset({ live: true, webhookUrl: "https://store-fixture.replit.dev/api/store/stripe/webhook" });
+      assert.equal((await checkout("FR")).status, 503);
+    });
+    await t.test("LIVE webhook rejects signed TEST events and independently rechecks paid status", async () => {
+      reset({ live: true });
+      assert.equal((await webhook({ livemode: false })).status, 400);
+      assert.equal(globalThis.storeFixture.calls.length, 0);
+      assert.equal((await webhook({ type: "checkout.session.async_payment_succeeded" })).status, 503);
+      assert.equal(globalThis.storeFixture.settlements.length, 0);
+      reset({ live: true, sessionOverride: { payment_status: "paid" } });
+      assert.equal((await webhook()).status, 200);
+      assert.deepEqual(globalThis.storeFixture.settlements[0], ["cs_live_store_fixture_123", true, false]);
+    });
+    await t.test("pausing LIVE blocks new Checkout but preserves signed settlement and expiry handling", async () => {
+      reset({ live: true, sessionOverride: { payment_status: "paid" } });
+      delete process.env.BOUTIQUE_LIVE_ENABLED;
+      assert.equal((await checkout("FR")).status, 404);
+      assert.equal((await webhook()).status, 200);
+      reset({ live: true, sessionOverride: { status: "expired", payment_status: "unpaid" } });
+      assert.equal((await webhook({ type: "checkout.session.expired" })).status, 200);
+      assert.deepEqual(globalThis.storeFixture.settlements[0], ["cs_live_store_fixture_123", false, true]);
     });
   } finally {
     if (server) await new Promise((resolve) => server.close(resolve));

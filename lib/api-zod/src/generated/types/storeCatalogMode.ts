@@ -11,4 +11,5 @@ export type StoreCatalogMode = typeof StoreCatalogMode[keyof typeof StoreCatalog
 
 export const StoreCatalogMode = {
   test: 'test',
+  live: 'live',
 } as const;

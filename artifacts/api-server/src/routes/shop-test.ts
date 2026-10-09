@@ -11,16 +11,17 @@ import { shop as shopTest, isPersistentShop, persistentShop } from "../lib/shop-
 import { requestPrivateShopPhoto, completePrivateShopPhoto } from "../lib/shop-object-media";
 import { ObjectStorageService } from "../lib/objectStorage";
 import { settleVerifiedShopSession } from "../lib/shop-session";
+import { shopMode, shopRoutesEnabled, shopAllowedHosts } from "../lib/shop-runtime";
 
 const router: IRouter = Router();
 const guard: RequestHandler = (req, res, next) => {
-  if (process.env.NODE_ENV !== "development") { res.status(404).json({ error: "Shop TEST indisponible." }); return; }
+  if (!shopRoutesEnabled()) { res.status(404).json({ error: "Shop indisponible." }); return; }
   const origin = req.get("origin");
   if (origin) {
-    const allowedHosts = [process.env.REPLIT_DEV_DOMAIN, ...(process.env.REPLIT_DOMAINS ?? "").split(",")].filter(Boolean);
+    const allowedHosts = shopAllowedHosts();
     try {
       const url = new URL(origin);
-      if (url.protocol !== "https:" || !allowedHosts.includes(url.host)) throw new Error();
+      if (url.protocol !== "https:" || !allowedHosts.has(url.host.toLowerCase())) throw new Error();
     } catch { res.status(403).json({ error: "Origine non autorisée." }); return; }
   }
   if (req.get("sec-fetch-site") === "cross-site") { res.status(403).json({ error: "Accès intersite refusé." }); return; }
@@ -191,7 +192,8 @@ router.get("/shop/admin/orders", async (_req, res) => {
   try {
     type Session = { id: string; livemode: boolean; mode?: string; currency?: string; metadata?: Record<string, string>; payment_status?: string; status?: string; amount_total?: number; created: number };
     const page = await storeStripeApi<{ data: Session[] }>("/v1/checkout/sessions?limit=100");
-    const sessions = page.data.filter(s => s.livemode === false && s.id.startsWith("cs_test_") && s.metadata?.storeFlow === "indamora-play-boutique-v1");
+    const mode = shopMode();
+    const sessions = page.data.filter(s => s.livemode === (mode === "live") && s.id.startsWith(`cs_${mode}_`) && s.metadata?.storeFlow === "indamora-play-boutique-v1");
     const state = await shopTest.read();
     for (const session of sessions) {
       const pending = state.reservations.find(r => r.status === "pending" && r.id === session.metadata?.orderReference);
@@ -200,9 +202,11 @@ router.get("/shop/admin/orders", async (_req, res) => {
     }
     const orders = sessions
       .map(s => ({ id: s.id, status: s.payment_status === "paid" ? "paid" : s.status === "expired" ? "expired" : "unpaid", amountCents: s.amount_total ?? null, created: s.created }));
-    res.json(GetShopOrdersResponse.parse({ orders, message: orders.length ? "Sessions Stripe TEST vérifiées, aucune commande réelle." : "Aucune session de commande Boutique TEST trouvée dans les 100 dernières sessions Stripe TEST." }));
+    res.json(GetShopOrdersResponse.parse({ orders, message: orders.length
+      ? `Sessions Stripe ${mode.toUpperCase()} vérifiées.${mode === "test" ? " Aucune commande réelle." : ""}`
+      : `Aucune session de commande Boutique trouvée dans les 100 dernières sessions Stripe ${mode.toUpperCase()}.` }));
   } catch {
-    res.json(GetShopOrdersResponse.parse({ orders: [], message: "Les sessions Stripe TEST n’ont pas pu être vérifiées. Aucun paiement n’est considéré comme confirmé." }));
+    res.json(GetShopOrdersResponse.parse({ orders: [], message: "Les sessions Stripe Boutique n’ont pas pu être vérifiées. Aucun paiement n’est considéré comme confirmé." }));
   }
 });
 
