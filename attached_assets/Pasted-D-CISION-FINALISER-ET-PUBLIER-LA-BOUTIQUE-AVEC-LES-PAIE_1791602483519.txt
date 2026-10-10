@@ -1,0 +1,26 @@
+DÉCISION : FINALISER ET PUBLIER LA BOUTIQUE AVEC LES PAIEMENTS RÉELS
+
+Je confirme que je veux mettre INDAMORA PLAY en production pour que les clients puissent réellement passer et payer leurs commandes.
+
+Ne te limite plus à préparer un catalogue. Termine le parcours de commande et prépare la mise en production dès que les points bloquants sont corrigés.
+
+1. Stripe LIVE
+    * Vérifie la clé restreinte rk_live_ déjà configurée et les permissions réellement nécessaires au parcours de paiement. Ne rejette pas cette clé uniquement parce qu’elle ne commence pas par sk_live_.
+    * Identifie la cause du HTTP 403 sans afficher ni exposer la clé secrète.
+    * Configure et vérifie le webhook Stripe LIVE dédié à la boutique, avec son secret de signature dans les secrets de production.
+    * Ne modifie pas les endpoints Stripe existants des abonnements et des dons.
+2. Commandes et paiements
+    * Vérifie le parcours réel : panier, tailles et variantes, stock disponible, livraison, paiement Checkout, confirmation de commande et mise à jour du stock.
+    * Refuse les commandes en rupture de stock et empêche les doubles confirmations ou les doubles déductions de stock.
+    * Vérifie que les commandes ne sont déclarées payées qu’après validation fiable du paiement côté serveur.
+3. Avant publication
+    * Corrige les éventuels blocages et exécute les tests nécessaires sur le parcours complet, en séparant clairement les tests simulés des vérifications LIVE.
+    * Vérifie la configuration de production, la migration nécessaire, la sauvegarde et le retour arrière.
+    * Préserve le site existant, la PWA mobile, les comptes, les artistes, les abonnements, les dons et les autres fonctionnalités.
+    * Conserve les stocks physiques confirmés pour les 8 variantes, soit 50 unités chacune, sans écraser les commandes ni les mouvements de stock existants.
+4. Décision de déploiement
+    * Si tous les contrôles indispensables sont réussis, procède à la publication et au déploiement de la boutique en production, puis vérifie que le site public fonctionne.
+    * Si un blocage empêche encore un paiement fiable, indique uniquement le blocage précis, son correctif et l’action requise. Ne prétends pas que les paiements LIVE sont validés si aucun contrôle réel ne le prouve.
+    * Ne réalise aucun achat réel de test ni remboursement sans me confirmer au préalable le montant et demander mon accord.
+
+Objectif final : une boutique publiée, des clients capables de commander et de payer réellement, et des commandes correctement enregistrées.
