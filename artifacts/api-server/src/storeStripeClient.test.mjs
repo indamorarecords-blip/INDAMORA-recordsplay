@@ -30,7 +30,7 @@ test("Boutique key-prefix matrix uses fictitious keys and mocked HTTP only", asy
       ["TEST accepts sk_test_", "development", "sk_test_", true],
       ["TEST rejects sk_live_", "development", "sk_live_", false],
       ["TEST rejects rk_live_", "development", "rk_live_", false],
-      ["TEST still rejects rk_test_", "development", "rk_test_", false],
+      ["TEST accepts rk_test_", "development", "rk_test_", true],
       ["TEST rejects pk_live_", "development", "pk_live_", false],
       ["TEST rejects pk_test_", "development", "pk_test_", false],
     ];
@@ -101,16 +101,19 @@ test("dedicated Boutique transport isolates TEST/LIVE keys and blocks LIVE write
     process.env.STRIPE_BOUTIQUE_TEST_SECRET_KEY = "sk_live_fixture_not_a_real_key";
     await assert.rejects(storeStripeApi("/v1/balance"));
     process.env.STRIPE_BOUTIQUE_TEST_SECRET_KEY = "rk_test_fixture_not_a_real_key";
-    await assert.rejects(storeStripeApi("/v1/balance"));
-    process.env.STRIPE_BOUTIQUE_TEST_SECRET_KEY = "sk_test_fixture_not_a_real_key";
-    process.env.NODE_ENV = "production";
-    await assert.rejects(storeStripeApi("/v1/balance"));
-    assert.equal(calls, 0);
-    process.env.NODE_ENV = "development";
-    await assert.rejects(storeStripeApi("https://another-host.invalid/v1/balance"));
-    assert.equal(calls, 0);
     assert.equal((await storeStripeApi("/v1/balance")).livemode, false);
     assert.equal(calls, 1);
+    process.env.STRIPE_BOUTIQUE_TEST_SECRET_KEY = "sk_test_fixture_not_a_real_key";
+    assert.equal((await storeStripeApi("/v1/balance")).livemode, false);
+    assert.equal(calls, 2);
+    process.env.NODE_ENV = "production";
+    await assert.rejects(storeStripeApi("/v1/balance"));
+    assert.equal(calls, 2);
+    process.env.NODE_ENV = "development";
+    await assert.rejects(storeStripeApi("https://another-host.invalid/v1/balance"));
+    assert.equal(calls, 2);
+    assert.equal((await storeStripeApi("/v1/balance")).livemode, false);
+    assert.equal(calls, 3);
     globalThis.fetch = async () =>
       new Response(JSON.stringify({ object: "balance", livemode: true }), { status: 200 });
     await assert.rejects(storeStripeApi("/v1/balance"));

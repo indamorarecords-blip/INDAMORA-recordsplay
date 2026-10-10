@@ -18,7 +18,7 @@ function dedicatedKey(method: string): string {
     throw new StoreTestConfigurationError("Les écritures Stripe LIVE Boutique ne sont pas autorisées.");
   }
   const key = test ? process.env.STRIPE_BOUTIQUE_TEST_SECRET_KEY : process.env.STRIPE_BOUTIQUE_LIVE_SECRET_KEY;
-  const allowedPrefixes = test ? ["sk_test_"] : ["sk_live_", "rk_live_"];
+  const allowedPrefixes = test ? ["sk_test_", "rk_test_"] : ["sk_live_", "rk_live_"];
   if (!key || !allowedPrefixes.some((prefix) => key.startsWith(prefix))) {
     throw new StoreTestConfigurationError(`La clé Stripe ${test ? "TEST" : "LIVE"} dédiée à la Boutique est absente ou invalide.`);
   }
