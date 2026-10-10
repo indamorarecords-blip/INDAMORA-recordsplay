@@ -1,0 +1,149 @@
+PROMPT REPLIT — FINALISATION ET MISE EN PRODUCTION DE LA BOUTIQUE INDAMORA PLAY AVEC STRIPE LIVE
+
+OBJECTIF
+
+Je veux finaliser la boutique INDAMORA PLAY, la publier sur le site et permettre aux clients d’acheter réellement les produits avec Stripe en mode LIVE.
+
+La boutique doit fonctionner sur ordinateur, mobile et PWA/application si cette dernière utilise le même backend.
+
+Cette fois, l’objectif final est bien l’activation des paiements réels et la publication effective de la boutique, pas seulement un audit ou des tests locaux.
+
+1. PRÉSERVER L’EXISTANT
+
+Ne reconstruis pas le projet.
+
+Ne remplace aucune fonctionnalité qui fonctionne déjà.
+
+Conserve intégralement :
+
+* INDAMORA PLAY et son identité visuelle ;
+* RÉPERTOIRE et les profils ;
+* l’authentification ;
+* les médias et le lecteur ;
+* Premium, les abonnements et les dons existants ;
+* l’administration et ses permissions ;
+* le domaine officiel et le SEO ;
+* les corrections déjà validées de storeStripeClient.ts.
+
+Ne modifie que les éléments strictement nécessaires à la mise en production de la BOUTIQUE.
+
+2. FINALISER LE CATALOGUE
+
+Vérifie les produits, prix, variantes, disponibilité et stock.
+
+La boutique doit présenter les produits réellement disponibles, avec leurs prix exacts, devise, frais de livraison et conditions de vente.
+
+Ne crée pas de produits, prix, stocks ou références fictifs.
+
+Vérifie que :
+
+* chaque produit affiché peut être commandé ;
+* les quantités sont contrôlées côté serveur ;
+* les prix transmis à Stripe proviennent du catalogue serveur ;
+* les commandes ne peuvent pas contourner les règles de stock ;
+* les confirmations de commande correspondent à des paiements vérifiés.
+
+3. STRIPE LIVE — PRÉREQUIS
+
+Audite la configuration Stripe de production sans afficher ni exposer les secrets.
+
+Vérifie :
+
+* le compte Stripe LIVE réellement utilisé ;
+* les clés LIVE et leurs permissions ;
+* les produits et prix LIVE ;
+* la création de Checkout Sessions ;
+* les dépendances nécessaires aux clients, PaymentIntents et frais de livraison ;
+* l’URL HTTPS de retour et de confirmation ;
+* le webhook LIVE de la boutique ;
+* STRIPE_BOUTIQUE_LIVE_WEBHOOK_SECRET ;
+* la signature des événements ;
+* l’idempotence ;
+* la gestion des paiements réussis, échoués, annulés et remboursés ;
+* la mise à jour fiable du statut des commandes ;
+* la protection contre les doublons et les manipulations de prix.
+
+Ne réutilise jamais un identifiant de prix TEST en LIVE.
+
+Ne désactive aucune protection pour contourner un refus d’accès Stripe.
+
+Si le compte ou les permissions sont insuffisants, indique précisément le prérequis à corriger.
+
+4. WEBHOOK ET SÉCURITÉ
+
+Vérifie le webhook existant avant toute modification.
+
+S’il pointe vers un autre service ou une fonction Supabase, détermine les conséquences avant de le modifier. Ne supprime aucun flux existant sans avoir établi qu’il est inutile.
+
+Configure le webhook LIVE de la boutique avec les événements strictement nécessaires à l’implémentation.
+
+Vérifie :
+
+* la validation de signature ;
+* le rejet des événements non authentifiés ;
+* le traitement idempotent ;
+* l’absence de confirmation de paiement basée uniquement sur une redirection navigateur ;
+* l’absence de secrets dans le frontend et les journaux ;
+* l’impossibilité pour un client de modifier le prix ou de s’attribuer un paiement réussi.
+
+5. TESTS AVANT ACTIVATION
+
+Effectue d’abord tous les tests possibles en TEST :
+
+* affichage du catalogue ;
+* panier ;
+* stock et quantités ;
+* calcul du montant ;
+* livraison ;
+* création de Checkout ;
+* annulation ;
+* échec de paiement ;
+* webhook signé ;
+* confirmation et historique de commande ;
+* affichage sur ordinateur et mobile ;
+* contrôle des accès ADMIN.
+
+N’invente aucune transaction et ne présente aucun test comme un paiement réel.
+
+6. MISE EN PRODUCTION
+
+Une fois les prérequis validés :
+
+* applique uniquement les migrations indispensables, après vérification de leur diff ;
+* vérifie que le schéma et le stock sont compatibles avec la production ;
+* configure les références LIVE et le webhook LIVE ;
+* active BOUTIQUE_LIVE_ENABLED uniquement lorsque les protections sont opérationnelles ;
+* publie le code nécessaire ;
+* vérifie le site officiel après publication ;
+* vérifie que la boutique est accessible aux visiteurs et que le paiement peut démarrer ;
+* vérifie les retours de paiement et le traitement des webhooks ;
+* confirme qu’aucune régression n’a été introduite dans INDAMORA PLAY.
+
+Ne publie pas si une migration est destructive, si le diff contient des changements inattendus ou si le compte Stripe LIVE n’est pas correctement configuré.
+
+7. PAIEMENT RÉEL DE CONTRÔLE
+
+Ne réalise aucun achat réel, ne crée aucune transaction payante et ne débite aucune carte sans autorisation distincte.
+
+Pour valider la chaîne LIVE sans encaissement non autorisé, utilise les contrôles non financiers disponibles et confirme le fonctionnement technique du checkout. Si un paiement réel contrôlé est indispensable pour prouver l’encaissement de bout en bout, arrête-toi et demande mon autorisation avant de le déclencher.
+
+8. RAPPORT FINAL OBLIGATOIRE
+
+Fournis un rapport factuel indiquant :
+
+1. Catalogue et stock : OK / blocage.
+2. Produits et prix LIVE : OK / blocage.
+3. Checkout LIVE : OK / blocage.
+4. Webhook LIVE : OK / blocage.
+5. Sécurité et permissions : OK / blocage.
+6. Commandes et confirmation : OK / blocage.
+7. Migration et schéma de production : OK / blocage.
+8. Publication : effectuée / non effectuée.
+9. URL publique de la boutique.
+10. Paiements réels activés : oui / non.
+11. Paiement réel de bout en bout : vérifié / non vérifié.
+12. Modifications effectuées et éventuelles régressions.
+
+Ne prétends pas qu’un paiement réel a été vérifié si aucun encaissement réel n’a été effectué.
+
+LIVRABLE FINAL : une boutique publiée et opérationnelle avec Stripe LIVE, ou une liste précise des blocages empêchant son activation.
