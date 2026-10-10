@@ -38,3 +38,9 @@ For the isolated Boutique TEST flow, keep payments blocked after a failed test u
 **Why:** The owner explicitly requires a successful official-card TEST journey, signed event reception and secure server-side order confirmation before declaring Boutique TEST operational. The Premium-specific readiness rule above does not override this Shop requirement.
 
 **How to apply:** A correctly shaped signing secret or a Stripe-backed paid status GET is insufficient evidence of webhook validation. Each Dashboard webhook and Stripe CLI listener has its own signing secret even though both use the same prefix. Confirm an actual Stripe delivery and server response, distinguish webhook settlement from browser-return reconciliation, and verify that replay does not debit inventory twice. Never infer LIVE readiness from this TEST proof.
+
+For Boutique LIVE, use dedicated secrets only through Replit’s secure Secrets flow. Never substitute the shared Stripe connection or Premium/donations credentials, and never weaken the `sk_live_` format check. Keep LIVE disabled until the dedicated key and separate LIVE webhook secret are valid and the exact Boutique endpoint is verified.
+
+**Why:** The owner explicitly requires strict separation from TEST, Premium and donations, prohibits secret values in chat or files, and requires fail-closed LIVE behavior until all checks pass.
+
+**How to apply:** Check only secret presence/format and sanitized API outcomes. Do not display secret values, create or change endpoints while prerequisites are unverified, or publish, migrate production, or enable LIVE payments before explicit final approval.
