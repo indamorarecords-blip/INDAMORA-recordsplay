@@ -1,0 +1,31 @@
+INDAMORA PLAY — Débloquer le déploiement et finaliser la boutique LIVE
+
+La destination Stripe LIVE INDAMORA PLAY — Boutique LIVE est créée et configurée avec la bonne URL et les quatre événements. Les deux secrets Boutique LIVE sont présents dans Replit Secrets.
+
+Je veux maintenant finaliser la mise en production afin que les clients puissent passer des commandes et payer réellement.
+
+Priorité 1 — Rétablir le déploiement public
+
+1. Identifie la cause exacte du déploiement suspendu (ubb) et du 404 sur https://indamoraplay.com/boutique.
+2. Vérifie l’état du déploiement, les journaux de build, les limites ou blocages de compte dans Billing & Usage, ainsi que la configuration du domaine.
+3. Corrige uniquement la cause identifiée. Préserve le site existant, la PWA, les comptes, les artistes, les abonnements et les dons.
+4. Rétablis un déploiement sain et vérifie que /boutique répond publiquement. Ne remplace pas le site par une page temporaire et ne supprime aucune fonctionnalité existante.
+
+Priorité 2 — Préparer la production en sécurité
+
+Une fois le serveur rétabli :
+
+1. Vérifie la correspondance du secret webhook sans l’afficher. Valide la réception et la signature d’un événement compatible avec le webhook LIVE, sans effectuer d’achat réel.
+2. Vérifie dans Stripe les permissions d’écriture réellement nécessaires à la création d’une session Checkout. Ne fais aucun paiement de test LIVE.
+3. Vérifie l’existence d’une sauvegarde ou d’un point de restauration exploitable avant toute migration.
+4. Applique uniquement la migration additive Shop prévue, après validation du retour arrière.
+5. Initialise le catalogue LIVE avec les huit variantes confirmées, à raison de 50 unités par variante, sans écraser de commande ou de mouvement de stock existant.
+6. Vérifie le traitement signé et idempotent des événements et la confirmation de commande côté serveur.
+
+Priorité 3 — Activer les commandes réelles
+
+Si tous les contrôles critiques réussissent, active BOUTIQUE_LIVE_ENABLED, publie la boutique et vérifie le parcours client complet : panier, livraison, Checkout, confirmation de commande et mise à jour du stock.
+
+Ne réalise aucun achat réel ni remboursement sans mon accord préalable.
+
+Ne recommence pas les tests déjà réussis. Si un blocage persiste, indique sa cause précise et l’action exacte nécessaire. Ne déclare pas la boutique opérationnelle tant que le parcours de commande réel n’est pas vérifié.
