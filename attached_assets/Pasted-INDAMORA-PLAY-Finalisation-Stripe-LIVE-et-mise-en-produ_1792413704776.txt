@@ -1,0 +1,50 @@
+INDAMORA PLAY — Finalisation Stripe LIVE et mise en production
+
+La nouvelle destination Stripe LIVE INDAMORA PLAY — Boutique LIVE a été créée dans mon compte Stripe.
+
+URL configurée :
+https://indamoraplay.com/api/store/stripe/webhook
+
+Périmètre : Votre compte
+Style de charge utile : Instantanée (Snapshot)
+Version de l’API affichée : 2026-08-26.dahlia
+
+1. Vérifier la destination Stripe
+
+* Vérifie que la destination existe réellement en mode LIVE et que son URL correspond exactement à celle indiquée ci-dessus.
+* Vérifie que les événements suivants sont activés :
+    * checkout.session.completed
+    * checkout.session.async_payment_succeeded
+    * checkout.session.async_payment_failed
+    * checkout.session.expired
+* Vérifie que le code du webhook est compatible avec le format Snapshot et la version d’API sélectionnée.
+* Ne modifie aucune destination existante utilisée par les abonnements ou les dons.
+* Si la version ou le format du payload n’est pas compatible avec le code actuel, identifie la correction minimale nécessaire avant toute activation.
+
+2. Vérifier le secret de signature
+
+Le secret STRIPE_BOUTIQUE_LIVE_WEBHOOK_SECRET est présent dans Replit Secrets.
+
+* Vérifie sa présence et son format sans afficher sa valeur.
+* Vérifie qu’il correspond bien à la nouvelle destination LIVE créée.
+* Si ce n’est pas confirmé, indique-moi de remplacer le secret via Replit Secrets. Ne le demande jamais dans le chat.
+* Vérifie la validation de signature côté serveur avant tout traitement d’événement.
+
+3. Finaliser le parcours de commande réel
+
+* Vérifie les permissions Stripe LIVE nécessaires à Checkout et au catalogue, notamment les opérations d’écriture réellement utilisées.
+* Vérifie les migrations et le schéma de production, la sauvegarde et le retour arrière.
+* Prépare le catalogue LIVE avec les huit variantes et les stocks physiques confirmés à 50 unités par variante, soit 400 unités au total.
+* Vérifie le panier, les prix, la livraison, le paiement Checkout, le webhook signé, la confirmation de commande et la mise à jour idempotente du stock.
+* Une commande ne doit être considérée comme payée qu’après vérification fiable du paiement côté serveur.
+* Ne crée aucun paiement réel et ne procède à aucun remboursement sans mon accord préalable.
+
+4. Publication
+
+Je veux publier la boutique INDAMORA PLAY afin que les clients puissent réellement commander et payer.
+
+Ne recommence pas les tests déjà réussis. Termine les vérifications manquantes et corrige les blocages concrets. Préserve le site existant, la PWA mobile, les comptes, les artistes, les abonnements, les dons et les fonctionnalités déjà opérationnelles.
+
+Si tous les contrôles critiques sont réussis, effectue la migration nécessaire, active le parcours LIVE et publie la boutique. Vérifie ensuite le fonctionnement public de https://indamoraplay.com/boutique.
+
+Si une étape bloque encore la mise en service, donne-moi uniquement le blocage précis, sa cause vérifiée et l’action nécessaire. Ne déclare pas les paiements LIVE opérationnels sans preuve réelle. Ne désactive pas les protections de sécurité pour contourner un blocage.
