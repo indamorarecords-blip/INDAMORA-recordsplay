@@ -1,0 +1,52 @@
+INDAMORA SHOP — Débloquer la publication sans modifier les données LIVE
+
+Les validations DEV sont terminées : 53 tests réussis, typechecks et builds web/API réussis.
+
+Je veux maintenant avancer vers la publication de la boutique et l’activation des paiements, sans frais supplémentaires.
+
+1. Étudier la publication du code indépendamment de la base
+
+* Vérifie si les corrections de routage et d’affichage de /boutique peuvent être déployées sans migration ni écriture dans la base de production.
+* Vérifie les dépendances de démarrage et les éventuels changements de schéma.
+* Vérifie que le déploiement n’exécute aucun script d’initialisation, de nettoyage ou de modification de stock.
+* Vérifie que les routes ADMIN restent protégées et que le Checkout LIVE reste désactivé.
+* Si ces conditions sont réunies, prépare la publication du code web/API qui ne modifie pas les données, selon les mécanismes autorisés du projet.
+* Ne prétends pas que la boutique est publiée avant d’avoir vérifié l’URL de production.
+
+2. Garder les écritures LIVE séparées
+
+* Ne crée aucun produit Stripe LIVE.
+* Ne modifie aucune donnée de production.
+* N’initialise pas les stocks.
+* Ne change aucun secret ou webhook.
+* Ne supprime aucune donnée.
+* Ne modifie pas les abonnements ou les dons.
+
+Continue à préparer les opérations catalogue et stock en DEV avec des tests idempotents.
+
+3. Vérifier Stripe sans encaisser
+
+* Vérifie les permissions disponibles pour créer une session Checkout LIVE, sans effectuer de paiement.
+* Si une vérification nécessite un appel d’écriture Stripe, ne l’exécute pas sans autorisation.
+* Vérifie le code de signature du webhook et ses tests.
+* Indique ce qui peut être confirmé sans transaction réelle et ce qui reste non vérifié.
+
+4. Rechercher une solution de sauvegarde sans frais
+
+* Vérifie si une méthode autorisée permet d’exporter la base LIVE et de restaurer une copie dans une base distincte.
+* Ne présume pas que la base DEV est vide ou peut être écrasée.
+* Ne souscris à aucun forfait et n’ajoute aucun service payant.
+
+5. Rapport attendu
+
+Indique :
+
+1. si le code de la boutique peut être publié sans écriture de données ;
+2. si /boutique fonctionne en production après une éventuelle publication autorisée ;
+3. ce qui bloque précisément l’initialisation du catalogue et des stocks ;
+4. les permissions Stripe LIVE confirmées ;
+5. les étapes exactes encore nécessaires pour ouvrir le Checkout.
+
+Ne bloque pas les corrections sans écriture simplement parce que la sauvegarde des données reste à résoudre. En revanche, ne contourne aucune protection et ne touche pas aux données LIVE sans procédure de récupération suffisante.
+
+Budget supplémentaire : 0 €.
