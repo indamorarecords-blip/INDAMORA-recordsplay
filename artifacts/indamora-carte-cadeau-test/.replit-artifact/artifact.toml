@@ -14,14 +14,6 @@ localPort = 26201
 [services.development]
 run = "pnpm --filter @workspace/indamora-carte-cadeau-test run dev"
 
-[services.production]
-build = [ "pnpm", "--filter", "@workspace/indamora-carte-cadeau-test", "run", "build" ]
-serve = "static"
-publicDir = "artifacts/indamora-carte-cadeau-test/dist/public"
-
-[[services.production.rewrites]]
-from = "/*"
-to = "/index.html"
 
 [services.env]
 PORT = "26201"

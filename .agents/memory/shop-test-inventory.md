@@ -26,3 +26,9 @@ Le 21 octobre 2026, l’utilisateur a confirmé 50 unités physiques pour chacun
 **Why:** Ces quantités ont été explicitement confirmées par l’utilisateur et ne doivent pas être remplacées par des valeurs supposées.
 
 **How to apply:** Avant toute écriture LIVE, vérifier les identifiants de variantes, les prix de 15 €, les liens de catalogue et l’absence de doublons. Ne pas écraser les stocks, commandes ou mouvements existants.
+
+Pour le catalogue LIVE actuel, l’utilisateur exclut les casquettes et les coques de téléphone et demande d’inclure le hoodie. Ne créer aucun produit ni stock pour les catégories exclues.
+
+**Why:** L’utilisateur a corrigé explicitement la portée du catalogue avant la mise en service LIVE.
+
+**How to apply:** Limiter le catalogue aux T-shirts, bobs, tote bags et hoodie. Les 50 unités confirmées s’appliquent aux huit variantes de ces catégories ; elles ne s’étendent pas aux casquettes ou aux coques.
