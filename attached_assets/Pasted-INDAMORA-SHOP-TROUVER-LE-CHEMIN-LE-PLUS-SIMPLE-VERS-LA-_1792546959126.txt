@@ -1,0 +1,27 @@
+INDAMORA SHOP — TROUVER LE CHEMIN LE PLUS SIMPLE VERS LA MISE EN LIGNE
+
+Je souhaite terminer la boutique INDAMORA SHOP et la rendre accessible sur https://indamoraplay.com/boutique.
+
+Je ne suis pas développeuse. Ne me renvoie pas simplement vers des menus Replit sans m’expliquer exactement quoi faire.
+
+Contraintes impératives :
+
+* 0 € de dépense supplémentaire.
+* Ne pas changer de formule ni de type d’hébergement.
+* Ne pas casser INDAMORA PLAY, l’application mobile, les comptes, les abonnements Premium ou les dons.
+* Ne pas modifier les clés Stripe sans nécessité démontrée.
+* Ne pas supprimer, réinitialiser ou écraser les données existantes.
+* Aucun paiement réel pendant les tests.
+
+Travaille d’abord en lecture seule et propose un plan d’exécution concret.
+
+1. Vérifie si une republication peut être effectuée sans frais supplémentaires, à partir des informations réellement disponibles. Si tu ne peux pas le confirmer, indique précisément quelle information manque.
+2. Vérifie les possibilités de sauvegarde et de restauration réellement accessibles gratuitement. Ne déclare pas une sauvegarde valide sans avoir vérifié qu’elle peut être restaurée dans une base isolée.
+3. Prépare le déploiement de la correction de route /boutique, sans modifier la base ni activer le Checkout.
+4. Prépare séparément l’initialisation du catalogue et du stock, avec contrôles préalables, transaction et arrêt automatique si les données ne correspondent pas aux conditions attendues.
+5. Prépare les vérifications Stripe LIVE et webhook sans révéler les secrets et sans créer de paiement réel.
+6. Donne-moi ensuite une liste courte des actions à effectuer, dans l’ordre, en distinguant clairement les actions gratuites vérifiées des actions dont le coût est incertain.
+
+Ne lance aucune publication, migration, écriture en production, initialisation de stock ou activation des paiements tant que les conditions correspondantes ne sont pas vérifiées et que mon accord n’a pas été obtenu.
+
+Objectif final : une boutique publique fonctionnelle, huit produits à 15 €, stocks maîtrisés, livraison correctement calculée et paiements Stripe LIVE opérationnels. Ne prétends pas que la boutique est prête tant que chaque étape n’a pas été vérifiée.
