@@ -1,0 +1,106 @@
+OBJECTIF PRIORITAIRE : PUBLIER INDAMORA SHOP ET ACTIVER STRIPE LIVE
+
+Je veux finaliser et mettre en ligne ma boutique INDAMORA SHOP sur https://indamoraplay.com/boutique et pouvoir encaisser de vrais paiements avec Stripe LIVE.
+
+Ne te contente pas d’un audit ou d’un plan. Avance sur toutes les tâches réalisables avec les accès existants, corrige les problèmes et publie lorsque les conditions critiques sont remplies.
+
+1. Corriger la boutique en production
+
+* Vérifie pourquoi /boutique renvoie actuellement une erreur 404 en production.
+* Identifie la route correcte dans le code et corrige le routage sans casser les autres pages.
+* Préserve INDAMORA PLAY, la PWA mobile, l’authentification, les profils artistes, Premium, les dons et les Gift Cards.
+* Vérifie que le Preview DEV et la production utilisent les bonnes routes et les bonnes bases de données.
+
+2. Sécuriser les données sans frais
+
+* Vérifie les points de contrôle, le retour arrière et les options d’export disponibles pour la base concernée.
+* Ne considère pas le retour arrière du code comme une sauvegarde de la base de données.
+* Si aucune sauvegarde complète n’est disponible, vérifie les méthodes autorisées et gratuites pour protéger les données existantes.
+* Ne remplace jamais la base de production par celle de développement.
+* Ne copie jamais des données de test vers la production sans validation.
+* Ne supprime aucune donnée existante.
+
+Continue les corrections de code et les tests en DEV pendant ces vérifications.
+
+3. Préparer le catalogue
+
+Produits et prix :
+
+* T-shirt rose : 15 €
+* T-shirt noir : 15 €
+* T-shirt blanc : 15 €
+* Bob blanc : 15 €
+* Bob noir : 15 €
+* Bob orange : 15 €
+* Tote bag taille unique : 15 €
+* Hoodie taille unique : 15 €
+
+Stock physique confirmé : 50 unités de chaque variante, soit 400 unités au total.
+
+Livraison :
+
+* France métropolitaine : gratuite.
+* Union européenne : 7 €.
+* Autres destinations : contacter INDAMORA.
+
+Vérifie les identifiants des variantes, les prix Stripe existants, les références internes et les doublons avant toute initialisation. N’écrase jamais un stock ou un historique existant.
+
+4. Vérifier Stripe LIVE
+
+* Vérifie les secrets déjà configurés dans Replit sans afficher leurs valeurs.
+* Vérifie les permissions réellement nécessaires à la création de sessions Checkout LIVE.
+* Vérifie que les clés LIVE ne sont jamais utilisées en mode TEST et inversement.
+* Vérifie le webhook existant et sa signature.
+* Vérifie les montants, la devise EUR, les métadonnées et la confirmation du paiement côté serveur.
+* Préserve les paiements, abonnements et dons existants.
+* Ne crée aucun paiement réel de test sans mon autorisation.
+
+Si une permission manque, indique exactement laquelle et comment la corriger dans Stripe.
+
+5. Tester le parcours complet
+
+Teste en DEV :
+
+* affichage des produits ;
+* panier et variantes ;
+* calcul des prix et de la livraison ;
+* validation du stock côté serveur ;
+* création et confirmation de commande ;
+* double soumission et événements webhook répétés ;
+* refus des commandes invalides ;
+* sécurité des routes ADMIN ;
+* mobile et ordinateur.
+
+Relance les tests Shop, les typechecks, les builds web et API, et git diff --check.
+
+6. Publier et ouvrir
+
+Quand les contrôles critiques sont validés :
+
+* déploie les corrections de routage et d’interface ;
+* vérifie que /boutique est accessible publiquement ;
+* vérifie le catalogue et les stocks ;
+* vérifie que Stripe peut créer une session Checkout LIVE ;
+* vérifie le traitement des événements de paiement ;
+* active le Checkout public LIVE uniquement lorsque les vérifications sont satisfaisantes ;
+* vérifie le fonctionnement après déploiement.
+
+Ne modifie pas les données de production si une opération risque de les endommager et qu’aucun retour arrière fiable n’est possible. Dans ce cas, poursuis tout ce qui peut être terminé en DEV et indique uniquement le blocage qui empêche la dernière étape.
+
+7. Rapport final
+
+Indique précisément :
+
+* si /boutique est publiée ;
+* si les huit variantes sont visibles ;
+* si le stock est initialisé et vérifié ;
+* si les permissions Stripe LIVE sont suffisantes ;
+* si la création de Checkout LIVE fonctionne ;
+* si le webhook est vérifié ;
+* si le Checkout public est ouvert ;
+* les tests et builds exécutés ;
+* les éventuels blocages restants.
+
+N’affirme pas que la boutique encaisse réellement tant que le Checkout LIVE n’est pas opérationnel. Ne facture rien pour tester et ne réalise aucun paiement réel sans mon accord.
+
+Budget supplémentaire : 0 €. Aucun changement de forfait, aucune migration vers un autre hébergeur, aucun service payant.
