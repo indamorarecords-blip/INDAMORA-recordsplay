@@ -32,7 +32,7 @@ router.use("/shop", guard);
 router.use("/shop/admin", requireAdmin);
 function fail(res: express.Response, error: unknown) {
   res.status(error instanceof ShopError ? error.status : 503).json({
-    error: error instanceof ShopError ? error.message : "Le stockage privé Shop TEST est indisponible. Aucune donnée n’a été remplacée.",
+    error: error instanceof ShopError ? error.message : `Le stockage privé Shop ${shopMode().toUpperCase()} est indisponible. Aucune donnée n’a été remplacée.`,
   });
 }
 async function checkPhotoReferences(variants: { photos: { reference: string }[] }[]) {

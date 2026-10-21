@@ -210,7 +210,7 @@ function stockLabel(p: ShopProduct) {
 function OrdersPanel() {
   const orders = useGetShopOrders();
   return <div className="sa-card" data-testid="panel-orders">
-    <h2>Commandes Stripe TEST</h2>
+     <h2>Commandes Stripe</h2>
     {orders.isLoading && <div className="sa-sk" />}
     {orders.error && <div className="sa-error" role="alert">{apiMessage(orders.error, 'Les commandes n’ont pas pu être chargées.')} <button className="sa-btn" onClick={() => void orders.refetch()} data-testid="button-retry-orders">Réessayer</button></div>}
     {orders.data?.message && <p className="sa-muted" data-testid="text-orders-message">{orders.data.message}</p>}
@@ -229,7 +229,7 @@ function Dashboard() {
   const cnt = (st: string) => (d?.products ?? []).filter((p) => p.status === st).length;
   return <div className="sa-wrap">
     <div className="sa-top">
-      <div><div className="sa-eyebrow">Administration · TEST privé</div><h1>Gestion du SHOP</h1><p className="sa-muted">Les produits actifs et visibles apparaissent dans la Boutique TEST.</p></div>
+      <div><div className="sa-eyebrow">Administration privée</div><h1>Gestion du SHOP</h1><p className="sa-muted">Les produits actifs et visibles apparaissent dans la Boutique.</p></div>
       <div style={{ display: 'flex', gap: 8 }}><Link href="/boutique" className="sa-btn" data-testid="link-view-boutique">Voir la Boutique</Link>
         <button className="sa-btn primary" onClick={() => setEditing('new')} data-testid="button-new-product">Nouveau produit</button></div>
     </div>

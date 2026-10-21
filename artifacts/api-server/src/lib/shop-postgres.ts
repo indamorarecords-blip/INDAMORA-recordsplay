@@ -22,7 +22,17 @@ export class PostgresShopRepository extends ShopTestRepository {
   }
   private async load(client: PoolClient): Promise<State> {
     const links = await client.query("SELECT * FROM shop_catalog_links WHERE mode=$1 ORDER BY id", [this.mode]);
-    if (!links.rowCount) throw new ShopError("Le catalogue Shop persistant n’a pas été préparé pour cet environnement.", 503);
+    if (!links.rowCount) {
+      const [stock, history, orders] = await Promise.all([
+        client.query("SELECT 1 FROM shop_inventory WHERE mode=$1 LIMIT 1", [this.mode]),
+        client.query("SELECT 1 FROM shop_audit WHERE mode=$1 LIMIT 1", [this.mode]),
+        client.query("SELECT 1 FROM shop_orders WHERE mode=$1 LIMIT 1", [this.mode]),
+      ]);
+      if (stock.rowCount || history.rowCount || orders.rowCount) {
+        throw new ShopError("Catalogue Shop vide avec des stocks, commandes ou mouvements existants. Initialisation bloquée.", 503);
+      }
+      return validateState({ version: 1, products: [], history: [], reservations: [] }, this.mode);
+    }
     const stock = await client.query("SELECT * FROM shop_inventory WHERE mode=$1", [this.mode]);
     const products = await Promise.all(links.rows.map(async link => {
       const product = await readStripeShopProduct(link.stripe_product_id, link.id, link.revision, link.updated_at?.toISOString() ?? "");

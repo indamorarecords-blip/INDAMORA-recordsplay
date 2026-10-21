@@ -190,7 +190,7 @@ function ProductCard({ product, inCart, onAdd, cartUpdating }: { product: ShopPu
           {!variant?.available ? 'Indisponible' : quantity ? `Ajouter · ${quantity}` : 'Ajouter au panier'}
         </button>
       </div>
-      <div className="bt-availability" data-testid={`status-product-${pid}`}>{!variant?.available ? 'Indisponible' : quantity ? `${quantity} dans le panier TEST` : 'Article du catalogue TEST'}</div>
+      <div className="bt-availability" data-testid={`status-product-${pid}`}>{!variant?.available ? 'Indisponible' : quantity ? `${quantity} dans le panier` : 'Article du catalogue'}</div>
       {product.shippingInfo && <div className="bt-availability">{product.shippingInfo}</div>}
     </div>
   </article>;
@@ -210,9 +210,12 @@ function ReturnState({ sessionId }: { sessionId: string }) {
   const status = statusQuery.data?.status;
   const isPaid = status === 'paid';
   const isExpired = status === 'expired';
+  const isLiveSession = sessionId.startsWith('cs_live_');
   const title = isPaid ? 'Merci de faire partie du mouvement.' : isExpired ? 'Cette session a expiré.' : 'Votre paiement reste à confirmer.';
   const detail = isPaid
-    ? 'Stripe a confirmé ce paiement de TEST. Aucune commande réelle ni aucun débit réel ne sont créés.'
+    ? isLiveSession
+      ? 'Stripe a confirmé le règlement. Votre commande est confirmée.'
+      : 'Stripe a confirmé ce paiement de TEST. Aucune commande réelle ni aucun débit réel ne sont créés.'
     : isExpired
       ? 'La session de paiement n’est plus active. Vous pouvez revenir à la boutique et reprendre votre commande.'
       : status === 'unpaid'
@@ -236,7 +239,7 @@ function ReturnState({ sessionId }: { sessionId: string }) {
         <p><Link href="/boutique" className="bt-status-button" data-testid="link-return-to-boutique">Retourner à la boutique</Link></p>
       </>}
       {statusQuery.isLoading && <p className="bt-status-copy">Nous interrogeons le statut réel de la session, pas seulement l’adresse de retour.</p>}
-      <div className="bt-return-foot">INDAMORA PLAY · Stripe TEST uniquement · aucun paiement réel</div>
+      <div className="bt-return-foot">{`INDAMORA PLAY · Stripe ${isLiveSession ? 'LIVE' : 'TEST'}${isLiveSession ? '' : ' · aucun paiement réel'}`}</div>
     </div>
   </section>;
 }
@@ -311,6 +314,15 @@ export function BoutiquePage() {
   const quotePending = Boolean(country && quotable.length) && !q && quote.state !== 'error';
   const hasUnavailable = cart.some((l) => { const { product, variant } = findLine(l); return !product || !variant?.available; });
   const catalogReady = Boolean(storeQuery.data?.checkoutAvailable);
+  const checkoutMode = storeQuery.data?.mode;
+  const bannerTitle = checkoutMode === 'test'
+    ? 'Preview TEST · aucune commande réelle'
+    : checkoutMode === 'live'
+      ? catalogReady ? 'Boutique officielle' : 'Catalogue disponible · paiement désactivé'
+      : 'Boutique temporairement indisponible';
+  const bannerMessage = storeQuery.error
+    ? 'La Boutique n’est pas ouverte pour le moment.'
+    : storeQuery.data?.message ?? 'Les produits et disponibilités sont chargés depuis le catalogue.';
   const legacyPrices = new Map((storeQuery.data?.products ?? []).map((p) => [p.sku as string, p.priceCents as number]));
   // Dynamic Shop identifiers and server-authoritative Stripe prices.
   const legacyItems = useMemo(() => {
@@ -375,13 +387,14 @@ export function BoutiquePage() {
     checkout.mutate({ data: { items: legacyItems, shippingCountry: country } }, {
       onSuccess: (result) => {
         const checkoutUrl = new URL(result.url);
-        if (result.mode !== 'test' || !result.sessionId.startsWith('cs_test_') || checkoutUrl.protocol !== 'https:' || checkoutUrl.hostname !== 'checkout.stripe.com') {
-          setCheckoutError('Le lien de paiement TEST sécurisé n’a pas pu être validé. Veuillez réessayer plus tard.');
+        const expectedPrefix = checkoutMode === 'live' ? 'cs_live_' : checkoutMode === 'test' ? 'cs_test_' : null;
+        if (!expectedPrefix || result.mode !== checkoutMode || !result.sessionId.startsWith(expectedPrefix) || checkoutUrl.protocol !== 'https:' || checkoutUrl.hostname !== 'checkout.stripe.com') {
+          setCheckoutError('Le lien de paiement sécurisé n’a pas pu être validé. Veuillez réessayer plus tard.');
           return;
         }
         window.location.assign(result.url);
       },
-      onError: () => setCheckoutError('Le paiement TEST est temporairement indisponible. Votre panier est conservé. Réessayez dans un instant.'),
+      onError: () => setCheckoutError('Le paiement est temporairement indisponible. Votre panier est conservé. Réessayez dans un instant.'),
     });
   }
 
@@ -403,15 +416,15 @@ export function BoutiquePage() {
       <section className="bt-shell bt-title-row" data-testid="section-boutique-hero">
         <h1>INDAMORA PLAY — SHOP</h1>
         <div className="bt-preview-banner" role="status" data-testid="status-preview-only">
-          <strong>Preview TEST · aucune commande réelle</strong>
-          <span>{storeQuery.data?.message ?? 'Photos fournies · validation requise avant publication.'}</span>
+          <strong>{bannerTitle}</strong>
+          <span>{bannerMessage}</span>
         </div>
       </section>
 
       <section className="bt-shell bt-section" id="produits" data-testid="section-products">
         {shopQuery.isLoading && <ProductSkeletons />}
         {shopQuery.error && <div className="bt-query-error" role="alert" data-testid="error-store-catalog">
-          La boutique n’a pas pu charger son catalogue.
+          Le catalogue de la Boutique n’est pas accessible pour le moment.
           <button className="bt-retry" onClick={() => void shopQuery.refetch()} data-testid="button-retry-store-catalog">Réessayer</button>
         </div>}
         {!shopQuery.isLoading && !shopQuery.error && <>
@@ -484,7 +497,11 @@ export function BoutiquePage() {
           <p className="bt-order-desc">Choisissez votre pays pour voir les frais exacts. Pour les destinations hors France et Union européenne, contactez-nous avant de commander afin de connaître les modalités de livraison.</p>
           <div className="bt-test-note" data-testid="notice-stripe-test">
             <span aria-hidden="true">!</span>
-            <span><strong>Stripe TEST uniquement.</strong> Aucun paiement réel ne sera effectué. Le règlement est traité sur la page sécurisée hébergée par Stripe ; aucune donnée de carte n’est saisie ni conservée ici.</span>
+            <span>{checkoutMode === 'live'
+              ? <><strong>Paiement sécurisé Stripe.</strong> Le statut de la commande est vérifié côté serveur ; aucune donnée de carte n’est saisie ni conservée ici.</>
+              : checkoutMode === 'test'
+                ? <><strong>Stripe TEST uniquement.</strong> Aucun paiement réel ne sera effectué. Le règlement est traité sur la page sécurisée hébergée par Stripe ; aucune donnée de carte n’est saisie ni conservée ici.</>
+                : <><strong>Paiement indisponible.</strong> La Boutique n’accepte pas de commande pour le moment.</>}</span>
           </div>
         </div>
         <aside className="bt-cart-panel" aria-label="Récapitulatif du panier" aria-busy={cartUpdating}>
@@ -543,17 +560,17 @@ export function BoutiquePage() {
           </div>
           {quote.state === 'error' && <p className="bt-checkout-error" role="alert" data-testid="error-quote">{quote.message ?? 'Le total n’a pas pu être calculé.'} <button className="bt-retry" onClick={() => setQuoteRetry((attempt) => attempt + 1)} type="button">Réessayer</button></p>}
           {hasUnavailable && <p className="bt-checkout-error" data-testid="text-cart-unavailable">Un article de votre panier n’est plus disponible. Retirez-le pour continuer.</p>}
-          {Boolean(q && cart.length && !legacyItems && !q.contactRequired && !hasUnavailable) && <p className="bt-country-note" data-testid="text-checkout-legacy">Le paiement TEST n’est pas encore activé pour ces articles.</p>}
+          {Boolean(q && cart.length && !legacyItems && !q.contactRequired && !hasUnavailable) && <p className="bt-country-note" data-testid="text-checkout-legacy">Le tarif de ces articles ne peut pas être vérifié ; le paiement reste bloqué.</p>}
           <button className="bt-checkout" onClick={startCheckout} disabled={!canCheckout} data-testid="button-checkout">
-            <span>{checkout.isPending ? 'Préparation du paiement…' : isWorld ? 'Contactez-nous pour commander' : 'Payer en mode TEST'}</span>
+            <span>{checkout.isPending ? 'Préparation du paiement…' : isWorld ? 'Contactez-nous pour commander' : checkoutMode === 'test' ? 'Payer en mode TEST' : checkoutMode === 'live' && catalogReady ? 'Payer par carte' : 'Paiement indisponible'}</span>
           </button>
-          {!catalogReady && !storeQuery.isLoading && !storeQuery.error && <p className="bt-checkout-error" data-testid="text-checkout-unavailable">{storeQuery.data?.message ?? 'Le paiement TEST est momentanément indisponible.'}</p>}
+          {!catalogReady && !storeQuery.isLoading && !storeQuery.error && <p className="bt-checkout-error" data-testid="text-checkout-unavailable">{storeQuery.data?.message ?? 'Le paiement est momentanément indisponible.'}</p>}
           {checkoutError && <p className="bt-checkout-error" role="alert" data-testid="error-checkout">{checkoutError}</p>}
         </aside>
       </section>
     </>}
     <footer className="bt-footer">
-      <div className="bt-shell bt-footer-inner"><span>INDAMORA PLAY × INDAMORA RECORDS</span><span>La voix de nos talents.</span><span>Stripe TEST · aucun paiement réel</span></div>
+      <div className="bt-shell bt-footer-inner"><span>INDAMORA PLAY × INDAMORA RECORDS</span><span>La voix de nos talents.</span><span>{checkoutMode === 'live' ? 'Paiement sécurisé Stripe' : checkoutMode === 'test' ? 'Stripe TEST · aucun paiement réel' : 'Commandes temporairement indisponibles'}</span></div>
     </footer>
   </main>;
 }

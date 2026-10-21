@@ -33,8 +33,8 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
 const queryClient = new QueryClient();
-const BoutiqueTestPage = import.meta.env.DEV ? lazy(() => import('./components/boutique-page')) : null;
-const ShopAdminTestPage = import.meta.env.DEV ? lazy(() => import('./components/shop-admin')) : null;
+const BoutiqueRoutePage = lazy(() => import('./components/boutique-page'));
+const ShopAdminRoutePage = lazy(() => import('./components/shop-admin'));
 const ADMIN_EMAIL = 'indamorarecords@gmail.com';
 const categories = ['Musique', 'Humour', 'Cinéma et vidéos', 'Podcasts', 'Autres créations'];
 const categoryIcons = { Musique: AudioLines, Humour: Sparkles, 'Cinéma et vidéos': Disc3, Podcasts: Mic2, 'Autres créations': Sparkles };
@@ -173,7 +173,7 @@ function Shell({ children }: { children: ReactNode }) {
     { href: '/repertoire', label: 'Répertoire', icon: UsersRound },
     { href: '/pricing', label: 'Premium', icon: Crown },
     { href: '/soutenir', label: 'Soutenir', icon: HeartHandshake },
-    ...(import.meta.env.DEV ? [{ href: '/boutique', label: 'SHOP', icon: ShoppingBag }] : []),
+    { href: '/boutique', label: 'SHOP', icon: ShoppingBag },
   ];
   return (
     <div className="grain min-h-[100dvh] bg-background">
@@ -704,7 +704,7 @@ function AdminDashboard() {
 
   return <>
     <AdminDashboardContent />
-    {import.meta.env.DEV && isSignedIn && isAdmin && user?.primaryEmailAddress?.verification?.status === 'verified' && <div className="mx-auto max-w-7xl px-5 pb-4 lg:px-8"><Link href="/administration/shop" className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-bold hover:border-primary hover:text-primary" data-testid="link-admin-shop">SHOP (TEST)</Link></div>}
+    {isSignedIn && isAdmin && user?.primaryEmailAddress?.verification?.status === 'verified' && <div className="mx-auto max-w-7xl px-5 pb-4 lg:px-8"><Link href="/administration/shop" className="inline-flex rounded-full border border-border px-4 py-2 text-sm font-bold hover:border-primary hover:text-primary" data-testid="link-admin-shop">ADMIN SHOP</Link></div>}
     {isSignedIn && isAdmin && <div className="mx-auto max-w-7xl px-5 pb-16 lg:px-8"><AdminTraffic /><AdminUserList /><AdminContentManagement /></div>}
   </>;
 }
@@ -782,7 +782,7 @@ function NotFound() {
 
 function Router() {
   const [location] = useLocation();
-  return <ErrorBoundary resetKey={location}><Shell><Switch><Route path="/" component={Home} /><Route path="/explorer" component={Explorer} /><Route path="/recherche" component={SearchPage} /><Route path="/categorie/:slug" component={CategoryPage} /><Route path="/oeuvres/:id" component={WorkPage} /><Route path="/repertoire" component={() => <Directory />} /><Route path="/artists" component={() => <Directory />} /><Route path="/artists/:id" component={ArtistProfile} /><Route path="/presse" component={Presse} /><Route path="/submit" component={Submit} /><Route path="/espace-artiste" component={ArtistSpace} /><Route path="/moderation" component={Moderation} /><Route path="/administration" component={AdminDashboard} /><Route path="/pricing" component={Pricing} /><Route path="/soutenir" component={Support} /><Route path="/inscription" component={() => <Redirect to="/sign-up" />} /><Route path="/login" component={() => <Redirect to="/sign-in" />} /><Route path="/profil" component={Profile} />{ShopAdminTestPage && <Route path="/administration/shop"><Suspense fallback={<div role="status" className="p-8 text-center">Chargement…</div>}><ShopAdminTestPage /></Suspense></Route>}{BoutiqueTestPage && <Route path="/boutique"><Suspense fallback={<div role="status" className="p-8 text-center">Chargement de la Boutique TEST…</div>}><BoutiqueTestPage /></Suspense></Route>}<Route component={NotFound} /></Switch></Shell></ErrorBoundary>;
+  return <ErrorBoundary resetKey={location}><Shell><Switch><Route path="/" component={Home} /><Route path="/explorer" component={Explorer} /><Route path="/recherche" component={SearchPage} /><Route path="/categorie/:slug" component={CategoryPage} /><Route path="/oeuvres/:id" component={WorkPage} /><Route path="/repertoire" component={() => <Directory />} /><Route path="/artists" component={() => <Directory />} /><Route path="/artists/:id" component={ArtistProfile} /><Route path="/presse" component={Presse} /><Route path="/submit" component={Submit} /><Route path="/espace-artiste" component={ArtistSpace} /><Route path="/moderation" component={Moderation} /><Route path="/administration" component={AdminDashboard} /><Route path="/pricing" component={Pricing} /><Route path="/soutenir" component={Support} /><Route path="/inscription" component={() => <Redirect to="/sign-up" />} /><Route path="/login" component={() => <Redirect to="/sign-in" />} /><Route path="/profil" component={Profile} /><Route path="/administration/shop"><Suspense fallback={<div role="status" className="p-8 text-center">Chargement…</div>}><ShopAdminRoutePage /></Suspense></Route><Route path="/boutique"><Suspense fallback={<div role="status" className="p-8 text-center">Chargement de la Boutique…</div>}><BoutiqueRoutePage /></Suspense></Route><Route component={NotFound} /></Switch></Shell></ErrorBoundary>;
 }
 
 function ClerkQueryClientCacheInvalidator() {
