@@ -136,7 +136,7 @@ function swatchColor(color: string): string {
 }
 const variantLabel = (variant: ShopPublicVariant) => [variant.color, variant.size].filter(Boolean).join(' · ') || 'Standard';
 
-function ProductCard({ product, inCart, onAdd, cartUpdating }: { product: ShopPublicProduct; inCart: (variantId: string) => number; onAdd: (variantId: string) => void; cartUpdating: boolean }) {
+function ProductCard({ product, inCart, onAdd, cartUpdating, checkoutEnabled }: { product: ShopPublicProduct; inCart: (variantId: string) => number; onAdd: (variantId: string) => void; cartUpdating: boolean; checkoutEnabled: boolean }) {
   const [variantId, setVariantId] = useState(product.variants.find((v) => v.available)?.id ?? product.variants[0]?.id ?? '');
   const [photoIndex, setPhotoIndex] = useState(0);
   const [failed, setFailed] = useState(false);
@@ -186,9 +186,11 @@ function ProductCard({ product, inCart, onAdd, cartUpdating }: { product: ShopPu
       {variant && sizesForColor.length === 1 && <div className="bt-color-selected" data-testid={`text-color-${pid}`}>{variantLabel(variant)}</div>}
       <div className="bt-product-bottom">
         <strong className="bt-price" data-testid={`text-product-price-${pid}`}>{formatEUR(product.priceCents).replace(',00', '')}</strong>
-        <button className="bt-add" onClick={() => variant && onAdd(variant.id)} disabled={cartUpdating || !variant || !variant.available || quantity >= 20} data-testid={`button-add-${pid}`}>
-          {!variant?.available ? 'Indisponible' : quantity ? `Ajouter · ${quantity}` : 'Ajouter au panier'}
-        </button>
+        {checkoutEnabled
+          ? <button className="bt-add" onClick={() => variant && onAdd(variant.id)} disabled={cartUpdating || !variant || !variant.available || quantity >= 20} data-testid={`button-add-${pid}`}>
+              {!variant?.available ? 'Indisponible' : quantity ? `Ajouter · ${quantity}` : 'Ajouter au panier'}
+            </button>
+          : <span className="bt-add-disabled" role="status" data-testid={`status-checkout-disabled-${pid}`}>Paiement désactivé</span>}
       </div>
       <div className="bt-availability" data-testid={`status-product-${pid}`}>{!variant?.available ? 'Indisponible' : quantity ? `${quantity} dans le panier` : 'Article du catalogue'}</div>
       {product.shippingInfo && <div className="bt-availability">{product.shippingInfo}</div>}
@@ -246,7 +248,7 @@ function ReturnState({ sessionId }: { sessionId: string }) {
 
 export function BoutiquePage() {
   const shopQuery = useGetShopCatalog();
-  const storeQuery = useGetStoreCatalog(); // Stripe TEST readiness only
+  const storeQuery = useGetStoreCatalog(); // Payment readiness; product catalog remains independently readable.
   const checkout = useCreateStoreCheckout();
   const [cart, setCart] = useState<CartLine[]>(readCart);
   const [country, setCountry] = useState('');
@@ -261,6 +263,7 @@ export function BoutiquePage() {
   const sessionId = params.get('session_id') ?? '';
   const canceled = params.get('checkout') === 'cancelled';
   const products = useMemo(() => shopQuery.data?.products ?? [], [shopQuery.data?.products]);
+  const catalogReady = Boolean(storeQuery.data?.checkoutAvailable);
 
   // Migrate older sku/color lines once the dynamic catalog is known; unresolved lines are never dropped.
   useEffect(() => {
@@ -294,7 +297,7 @@ export function BoutiquePage() {
   const quoteKey = `${country}|${JSON.stringify(quotable)}`;
 
   useEffect(() => {
-    if (!country || !quotable.length) { quoteSeq.current += 1; setQuote({ state: 'idle' }); return; }
+    if (!catalogReady || !country || !quotable.length) { quoteSeq.current += 1; setQuote({ state: 'idle' }); return; }
     const seq = ++quoteSeq.current;
     setQuote((q) => ({ ...q, state: 'pending' }));
     const timer = window.setTimeout(() => {
@@ -304,24 +307,39 @@ export function BoutiquePage() {
     }, 350);
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quoteKey, quoteRetry]);
+  }, [quoteKey, quoteRetry, catalogReady]);
 
   const cartCount = cart.reduce((sum, line) => sum + line.quantity, 0);
   const isFrance = country === 'FR';
   const isEU = Boolean(country && country in EU_COUNTRIES);
   const isWorld = Boolean(country && !isFrance && !isEU);
   const q = quote.state === 'ok' && quote.key === quoteKey ? quote.data : undefined;
-  const quotePending = Boolean(country && quotable.length) && !q && quote.state !== 'error';
+  const quotePending = catalogReady && Boolean(country && quotable.length) && !q && quote.state !== 'error';
   const hasUnavailable = cart.some((l) => { const { product, variant } = findLine(l); return !product || !variant?.available; });
-  const catalogReady = Boolean(storeQuery.data?.checkoutAvailable);
   const checkoutMode = storeQuery.data?.mode;
   const bannerTitle = checkoutMode === 'test'
     ? 'Preview TEST · aucune commande réelle'
-    : checkoutMode === 'live'
-      ? catalogReady ? 'Boutique officielle' : 'Catalogue disponible · paiement désactivé'
-      : 'Boutique temporairement indisponible';
-  const bannerMessage = storeQuery.error
-    ? 'La Boutique n’est pas ouverte pour le moment.'
+    : shopQuery.error
+      ? shopQuery.error.status === 503 ? 'Catalogue indisponible · configuration requise' : 'Catalogue temporairement indisponible'
+      : shopQuery.isSuccess && products.length === 0
+        ? 'Catalogue consultable · aucun produit publié'
+        : checkoutMode === 'live'
+          ? catalogReady ? 'Boutique officielle' : 'Catalogue disponible · paiement désactivé'
+          : shopQuery.isSuccess
+            ? 'Catalogue disponible · paiement désactivé'
+            : 'Boutique temporairement indisponible';
+  const bannerMessage = shopQuery.error
+    ? shopQuery.error.status === 503
+      ? 'Le stockage ou la configuration du catalogue Shop est indisponible. Aucun produit ou prix de démonstration n’est utilisé.'
+      : 'Une erreur temporaire empêche le chargement du catalogue. Réessayez.'
+    : storeQuery.error
+    ? shopQuery.isSuccess
+      ? products.length
+        ? 'Les produits du catalogue sont consultables. Le paiement et l’ajout au panier restent désactivés tant que Checkout n’est pas validé.'
+        : 'Aucun produit actif n’est publié dans ce catalogue. Aucune donnée TEST ou de démonstration n’est affichée.'
+      : 'Le catalogue n’a pas pu être chargé. Vérifiez la disponibilité du service puis réessayez.'
+    : shopQuery.isSuccess && products.length === 0
+      ? 'Aucun produit actif n’est publié dans ce catalogue. Aucune donnée TEST ou de démonstration n’est affichée.'
     : storeQuery.data?.message ?? 'Les produits et disponibilités sont chargés depuis le catalogue.';
   const legacyPrices = new Map((storeQuery.data?.products ?? []).map((p) => [p.sku as string, p.priceCents as number]));
   // Dynamic Shop identifiers and server-authoritative Stripe prices.
@@ -428,9 +446,9 @@ export function BoutiquePage() {
           <button className="bt-retry" onClick={() => void shopQuery.refetch()} data-testid="button-retry-store-catalog">Réessayer</button>
         </div>}
         {!shopQuery.isLoading && !shopQuery.error && <>
-          {products.length === 0 ? <div className="bt-cart-empty" data-testid="empty-catalog"><div><i className="bt-cart-empty-mark" />Le catalogue se prépare. Revenez très bientôt.</div></div> :
+          {products.length === 0 ? <div className="bt-cart-empty" data-testid="empty-catalog"><div><i className="bt-cart-empty-mark" />Aucun produit actif n’est actuellement publié dans ce catalogue.</div></div> :
             <div className="bt-product-grid">
-              {products.map((product) => <ProductCard key={product.id} product={product} inCart={inCartFor(product.id)} onAdd={(variantId) => addVariant(product.id, variantId)} cartUpdating={cartUpdating} />)}
+              {products.map((product) => <ProductCard key={product.id} product={product} inCart={inCartFor(product.id)} onAdd={(variantId) => addVariant(product.id, variantId)} cartUpdating={cartUpdating} checkoutEnabled={catalogReady} />)}
             </div>}
           <div className="bt-shipping-band" data-testid="section-shipping-rates">
             <div className="bt-ship-cell"><div className="bt-ship-place">France</div><div className="bt-ship-price">Livraison gratuite</div><div className="bt-ship-detail">Délai indicatif : 3 à 4 jours</div></div>

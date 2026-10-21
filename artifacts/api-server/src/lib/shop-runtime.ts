@@ -22,17 +22,32 @@ export function shopAdminSetupRoutesEnabled(env: NodeJS.ProcessEnv = process.env
     (env.NODE_ENV === "production" && env.BOUTIQUE_LIVE_CATALOG_SETUP_ENABLED === "true");
 }
 
-function isShopAdminPath(pathname: string): boolean {
+function shopRouteSegments(pathname: string): string[] {
   const segments = pathname.split(/[?#]/, 1)[0].split("/").filter(Boolean);
   const shopIndex = segments.lastIndexOf("shop");
-  const routeSegments = shopIndex >= 0 ? segments.slice(shopIndex + 1) : segments;
-  return routeSegments[0] === "admin";
+  return shopIndex >= 0 ? segments.slice(shopIndex + 1) : segments;
+}
+
+function isShopAdminPath(pathname: string): boolean {
+  return shopRouteSegments(pathname)[0] === "admin";
 }
 
 export function shopRouteAccessEnabled(pathname: string, env: NodeJS.ProcessEnv = process.env): boolean {
   return isShopAdminPath(pathname)
     ? shopAdminSetupRoutesEnabled(env)
     : shopRoutesEnabled(env);
+}
+
+export function shopPublicReadAccessEnabled(
+  method: string,
+  pathname: string,
+  env: NodeJS.ProcessEnv = process.env,
+): boolean {
+  if (method.toUpperCase() !== "GET" || env.NODE_ENV !== "production" || shopRoutesEnabled(env)) {
+    return false;
+  }
+  const segments = shopRouteSegments(pathname);
+  return segments.length === 1 && (segments[0] === "catalog" || segments[0] === "media");
 }
 
 export function shopWebhookSecret(env: NodeJS.ProcessEnv = process.env): string | undefined {

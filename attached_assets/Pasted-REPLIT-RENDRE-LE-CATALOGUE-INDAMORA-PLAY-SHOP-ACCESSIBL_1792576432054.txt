@@ -1,0 +1,120 @@
+REPLIT — RENDRE LE CATALOGUE INDAMORA PLAY — SHOP ACCESSIBLE
+
+Objectif
+
+Rendre le catalogue de la boutique accessible aux visiteurs sur le site officiel INDAMORA PLAY, sur ordinateur, mobile et PWA/application utilisant le même backend.
+
+Actuellement, la page affiche :
+
+* « Boutique temporairement indisponible »
+* « La Boutique n’est pas ouverte pour le moment. »
+* « Le catalogue de la Boutique n’est pas accessible pour le moment. »
+* Un bouton « Réessayer ».
+
+La page existe déjà. Je veux corriger le blocage du catalogue, pas reconstruire la boutique.
+
+1. Diagnostiquer avant de modifier
+
+Identifier précisément pourquoi le catalogue ne se charge pas :
+
+* route API du catalogue ;
+* variable d’environnement ou configuration manquante ;
+* confusion entre catalogue TEST et LIVE ;
+* dépendance involontaire à BOUTIQUE_LIVE_ENABLED ;
+* erreur de permissions ou d’authentification ;
+* connexion à la base de données ;
+* produits absents ou requête incorrecte ;
+* erreur frontend ou réponse API inattendue.
+
+Consulter les journaux et les réponses HTTP sans exposer de secrets.
+
+Ne pas masquer l’erreur avec de faux produits ou des données de démonstration.
+
+2. Séparer catalogue et paiements
+
+Le catalogue public doit pouvoir être consulté indépendamment de l’activation des paiements LIVE.
+
+* La désactivation des paiements ne doit pas, à elle seule, rendre le catalogue inaccessible.
+* Utiliser les véritables produits du catalogue prévu pour INDAMORA PLAY — SHOP.
+* Ne jamais exposer les clés Stripe ou les informations privées.
+* Ne jamais utiliser de prix TEST comme prix de production.
+* Ne jamais créer de commande ou de paiement pendant le chargement du catalogue.
+
+Si les paiements LIVE ne sont pas encore opérationnels, afficher les produits et leurs prix réels, mais désactiver clairement le passage au paiement jusqu’à ce qu’il soit sécurisé.
+
+3. Affichage attendu
+
+Afficher les produits réellement configurés et disponibles, avec :
+
+* photo du produit ;
+* nom ;
+* prix et devise ;
+* variantes disponibles, si configurées ;
+* stock ou disponibilité, selon les données existantes ;
+* bouton de consultation du produit ;
+* bouton d’ajout au panier uniquement si le parcours de commande est correctement opérationnel.
+
+Conserver la page, son identité visuelle et les textes déjà validés :
+
+« INDAMORA PLAY — Notre musique. Notre culture. Notre scène. »
+
+« PLUS QU’UNE BOUTIQUE : UN GESTE POUR NOS TALENTS »
+
+« Votre soutien commence ici. »
+
+Conserver également le choix du pays pour les frais de livraison, et vérifier que les tarifs affichés correspondent à la configuration réelle.
+
+Ne pas inventer de produits, de stocks, de frais de livraison ou de prix.
+
+4. Réessayer et gérer les erreurs
+
+Corriger le bouton « Réessayer » pour qu’il relance réellement la requête du catalogue.
+
+Prévoir des messages distincts selon la situation :
+
+* catalogue chargé ;
+* catalogue réellement vide ;
+* erreur temporaire du serveur ;
+* configuration manquante ;
+* paiement indisponible alors que le catalogue reste consultable.
+
+Ne pas afficher « catalogue indisponible » pour masquer une erreur Stripe si le catalogue peut être chargé séparément.
+
+5. Préserver le projet
+
+Ne reconstruis pas INDAMORA PLAY.
+
+Ne modifie pas les fonctionnalités existantes de RÉPERTOIRE, des profils, de l’authentification, des médias, de Premium, des abonnements, des dons, de l’administration, du SEO ou du domaine.
+
+Ne supprime aucune donnée et ne modifie aucun secret.
+
+Ne lance aucune migration ni publication sans avoir identifié les changements nécessaires et vérifié leur impact.
+
+6. Tests obligatoires
+
+Tester :
+
+1. Le chargement du catalogue via l’API.
+2. L’affichage des produits sur ordinateur.
+3. L’affichage sur mobile et PWA.
+4. Le comportement de « Réessayer ».
+5. Le catalogue lorsque les paiements LIVE sont désactivés.
+6. Les prix, devises, stocks et frais de livraison.
+7. Le panier et le checkout, sans paiement réel.
+8. L’absence de fausses données et de régression des autres fonctionnalités.
+
+7. Rapport final
+
+Indiquer :
+
+* la cause exacte du blocage ;
+* les fichiers éventuellement modifiés ;
+* le résultat de l’API catalogue ;
+* le nombre de produits réellement chargés ;
+* le fonctionnement sur ordinateur et mobile ;
+* l’état distinct du catalogue et des paiements LIVE ;
+* les tests réussis et ceux qui restent bloqués.
+
+Commence par le diagnostic, effectue uniquement les corrections nécessaires, puis teste et reteste.
+
+Le résultat attendu est un catalogue réellement accessible, même si l’activation des paiements nécessite encore une étape séparée.

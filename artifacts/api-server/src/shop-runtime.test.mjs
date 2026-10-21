@@ -34,6 +34,14 @@ test("Shop runtime boundaries are fail-closed without changing environment setti
     assert.equal(runtime.shopRouteAccessEnabled("/catalog", catalogSetup), false);
     assert.equal(runtime.shopRouteAccessEnabled("/api/shop/quote", catalogSetup), false);
     assert.equal(runtime.shopRouteAccessEnabled("/shop-admin", catalogSetup), false);
+    assert.equal(runtime.shopPublicReadAccessEnabled("GET", "/api/shop/catalog", live), true);
+    assert.equal(runtime.shopPublicReadAccessEnabled("GET", "/api/shop/media?reference=public-image", live), true);
+    assert.equal(runtime.shopPublicReadAccessEnabled("POST", "/api/shop/catalog", live), false);
+    assert.equal(runtime.shopPublicReadAccessEnabled("POST", "/api/shop/quote", live), false);
+    assert.equal(runtime.shopPublicReadAccessEnabled("GET", "/api/shop/admin/products", live), false);
+    assert.equal(runtime.shopPublicReadAccessEnabled("GET", "/api/shop/catalog/123", live), false);
+    assert.equal(runtime.shopPublicReadAccessEnabled("GET", "/api/shop/catalog", { ...live, BOUTIQUE_LIVE_ENABLED: "true" }), false);
+    assert.equal(runtime.shopPublicReadAccessEnabled("GET", "/api/shop/catalog", dev), false);
     assert.equal(runtime.shopAdminSetupRoutesEnabled({
       NODE_ENV: "test", BOUTIQUE_LIVE_CATALOG_SETUP_ENABLED: "true",
     }), false);

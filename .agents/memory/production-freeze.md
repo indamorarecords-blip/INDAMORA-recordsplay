@@ -19,6 +19,12 @@ La Boutique officielle et ses dépendances strictement nécessaires peuvent fair
 
 **How to apply:** Confirmer l’autorisation du présent travail, sans réutiliser une ancienne autorisation de publication. Utiliser des secrets Boutique dédiés et séparés TEST/LIVE, sans remplacer ceux de Premium ou des dons. Ne pas activer LIVE ni proposer Publish si un contrôle critique échoue. Examiner les migrations avant exécution ; demander accord si le risque est important ou hors Shop. Gift Card reste en attente.
 
+La lecture publique du catalogue Shop doit être indépendante du verrou `BOUTIQUE_LIVE_ENABLED`, en n’ouvrant que les lectures publiques de catalogue et médias. Les devis, mutations, routes ADMIN et Checkout restent sous leurs contrôles existants. Ne jamais alimenter le catalogue LIVE avec des produits ou prix TEST/fictifs ; si les lignes LIVE manquent, afficher un état vide honnête et demander l’autorisation requise avant toute écriture.
+
+**Why:** L’utilisateur a demandé que le catalogue puisse rester consultable sans paiements LIVE, tout en interdisant les données inventées et l’usage de prix TEST en production.
+
+**How to apply:** Garder le verrou de paiement fermé tant que Checkout n’est pas validé, limiter l’accès public à GET catalogue/médias, et vérifier l’existence des vrais produits LIVE avant publication. Ne pas créer de produits, prix ou stocks de production sans autorisation explicite.
+
 L’utilisateur autorise les fichiers privés côté serveur pour ADMIN SHOP uniquement en développement / TEST, sans modifier la base, les comptes, les rôles ni l’authentification. Confirmer confidentialité et persistance avant d’y enregistrer des données. En cas de limitation, arrêter et demander son accord pour une autre solution. Les stocks initiaux inconnus doivent rester à renseigner, sans quantités inventées.
 
 **Why:** L’utilisateur a explicitement conditionné l’autorisation de stockage à ces protections, sans frais ni impact sur les données existantes.

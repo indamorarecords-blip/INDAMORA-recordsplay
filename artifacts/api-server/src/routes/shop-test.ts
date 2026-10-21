@@ -11,11 +11,15 @@ import { shop as shopTest, isPersistentShop, persistentShop } from "../lib/shop-
 import { requestPrivateShopPhoto, completePrivateShopPhoto } from "../lib/shop-object-media";
 import { ObjectStorageService } from "../lib/objectStorage";
 import { settleVerifiedShopSession } from "../lib/shop-session";
-import { shopMode, shopRouteAccessEnabled, shopAllowedHosts } from "../lib/shop-runtime";
+import { shopMode, shopRouteAccessEnabled, shopPublicReadAccessEnabled, shopAllowedHosts } from "../lib/shop-runtime";
 
 const router: IRouter = Router();
 const guard: RequestHandler = (req, res, next) => {
-  if (!shopRouteAccessEnabled(req.originalUrl)) { res.status(404).json({ error: "Shop indisponible." }); return; }
+  if (!shopRouteAccessEnabled(req.originalUrl) &&
+      !shopPublicReadAccessEnabled(req.method, req.originalUrl)) {
+    res.status(404).json({ error: "Shop indisponible." });
+    return;
+  }
   const origin = req.get("origin");
   if (origin) {
     const allowedHosts = shopAllowedHosts();
