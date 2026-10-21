@@ -1,0 +1,90 @@
+INDAMORA SHOP — Sauvegarde LIVE et poursuite jusqu’à l’ouverture
+
+Je confirme que la prochaine étape est d’établir une sauvegarde de production restaurable sans frais, puis de poursuivre la finalisation d’INDAMORA SHOP jusqu’à sa publication et à sa préparation pour les paiements Stripe LIVE.
+
+1. Sauvegarde et retour arrière
+
+* Identifie une méthode réellement disponible avec le plan Replit actuel et les accès existants, sans achat ni changement de forfait.
+* Vérifie si un export PostgreSQL complet ou ciblé sur les données Shop est possible.
+* Protège la sauvegarde : aucun secret dans les fichiers, aucun dépôt Git, aucune sauvegarde publique ou non chiffrée dans un espace partagé.
+* Teste la restauration dans une base PostgreSQL isolée, sans modifier la production.
+* Vérifie l’intégrité des données restaurées et documente la procédure de retour arrière.
+* Détermine séparément si une restauration vers la base Replit de production est possible avec les droits disponibles.
+* Si l’accès SQL est en lecture seule, cherche une méthode autorisée utilisant les outils ou permissions déjà disponibles. Ne contourne pas les restrictions.
+
+Ne prétends pas qu’une sauvegarde est restaurable si le test de restauration n’a pas réussi. Si une étape est impossible, explique précisément pourquoi et indique l’action minimale requise.
+
+2. Continuer le travail pendant les vérifications
+
+Ne suspends pas toutes les tâches pendant la recherche de sauvegarde.
+
+En parallèle, continue en DEV :
+
+* vérifier le code de la boutique et les routes ;
+* corriger les erreurs restantes ;
+* maintenir les tests Shop, les typechecks et les builds au vert ;
+* vérifier la séparation des accès ADMIN, de la préparation du catalogue et du Checkout public ;
+* préparer un plan d’initialisation idempotent des huit variantes ;
+* préparer les contrôles de stock, de prix, de livraison, de commandes et de webhook.
+
+La production doit rester inchangée pendant ces préparatifs.
+
+3. Catalogue à préparer
+
+Prix : 15 € par article.
+
+Stock physique confirmé :
+
+* T-shirt rose : 50
+* T-shirt noir : 50
+* T-shirt blanc : 50
+* Bob blanc : 50
+* Bob noir : 50
+* Bob orange : 50
+* Tote bag, taille unique : 50
+* Hoodie, taille unique : 50
+
+Total physique confirmé : 400 unités.
+
+Livraison : France gratuite, Union européenne 7 €, autres destinations sur demande.
+
+Vérifie les identifiants réels des variantes et les objets Stripe existants avant toute création. Préserve les commandes, les mouvements de stock et les journaux d’audit. Ne réinitialise jamais un stock existant à 50 lors d’un redémarrage ou d’un déploiement.
+
+4. Stripe LIVE et webhook
+
+Vérifie avec les accès autorisés :
+
+* la validité des secrets LIVE, sans révéler leurs valeurs ;
+* les permissions nécessaires à la création de sessions Checkout ;
+* les produits et prix éventuellement déjà présents ;
+* la configuration du webhook existant ;
+* le traitement des signatures, l’idempotence et la confirmation des paiements.
+
+N’interprète pas une connexion Stripe TEST comme une preuve d’accès LIVE. N’effectue aucun paiement réel.
+
+5. Publication et ouverture
+
+Dès que la récupération est vérifiée et que les contrôles critiques sont réussis :
+
+1. Déploie les corrections nécessaires avec le mécanisme Replit existant, sans coût supplémentaire.
+2. Vérifie que https://indamoraplay.com/boutique ne renvoie plus une 404 et que la page fonctionne sur mobile et ordinateur.
+3. Initialise le catalogue et les stocks selon la procédure sûre validée.
+4. Vérifie les prix, les frais de livraison, le panier et les commandes.
+5. Vérifie le Checkout Stripe LIVE et le webhook.
+6. Active le Checkout public uniquement lorsque les contrôles essentiels sont satisfaits.
+7. Vérifie les logs et les routes après ouverture.
+8. Confirme séparément ce qui est publié, ce qui est techniquement prêt à encaisser et ce qui n’a pas été testé par une transaction réelle.
+
+Si une sauvegarde restaurable ne peut pas être établie, ne fais aucune écriture risquée en production. Termine les travaux DEV et les contrôles en lecture seule, puis indique le blocage exact.
+
+6. Contraintes finales
+
+* Budget supplémentaire : 0 €.
+* Aucun paiement réel sans autorisation distincte.
+* Aucun changement des abonnements ou des dons.
+* Aucun changement des fonctionnalités mobiles existantes.
+* Aucun secret exposé.
+* Aucun contournement des permissions.
+* Aucun faux stock ou faux statut de paiement.
+
+Ne t’arrête pas à la sauvegarde : poursuis toutes les étapes réalisables jusqu’à l’ouverture effective de la boutique. Ne demande une intervention que si elle est réellement indispensable, et précise alors exactement laquelle.
