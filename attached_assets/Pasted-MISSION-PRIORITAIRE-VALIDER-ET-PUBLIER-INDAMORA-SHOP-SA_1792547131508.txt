@@ -1,0 +1,74 @@
+MISSION PRIORITAIRE — VALIDER ET PUBLIER INDAMORA SHOP SANS TOUCHER À L’EXISTANT
+
+Je veux que la boutique INDAMORA SHOP soit finalisée, validée et publiée sur :
+
+https://indamoraplay.com/boutique
+
+1. RÈGLE ABSOLUE : PRÉSERVER TOUT CE QUI FONCTIONNE
+
+La priorité est de protéger la production actuelle.
+
+* Ne remplace pas INDAMORA PLAY par un autre projet.
+* Ne modifie pas la page d’accueil, le design général, la navigation existante ni les pages déjà opérationnelles, sauf changement strictement indispensable et isolé pour accéder à la boutique.
+* Ne touche pas aux comptes, à l’authentification, aux profils artistes, aux abonnements Premium, aux dons, aux paiements existants, à l’application mobile ou aux autres API.
+* Ne supprime aucune donnée et ne réinitialise aucune base.
+* Ne modifie aucune clé Stripe ni aucun webhook existant sans nécessité démontrée.
+* Ne change pas le type d’hébergement et ne souscris à aucun service payant.
+* Budget supplémentaire strict : 0 €.
+
+2. FINALISER LA BOUTIQUE DE FAÇON ISOLÉE
+
+Travaille uniquement sur les composants, routes, API, tables et configurations propres à INDAMORA SHOP.
+
+Produits attendus, à 15 € chacun :
+
+1. T-shirt rose — 50 unités
+2. T-shirt noir — 50 unités
+3. T-shirt blanc — 50 unités
+4. Bob blanc — 50 unités
+5. Bob noir — 50 unités
+6. Bob orange — 50 unités
+7. Tote bag — 50 unités
+8. Hoodie — 50 unités
+
+Livraison :
+
+* France métropolitaine : gratuite
+* Union européenne : 7 €
+* Autres destinations : contacter INDAMORA
+
+N’enregistre pas ces stocks si cela risque d’écraser des données existantes. Vérifie d’abord l’état réel des tables concernées et applique une initialisation idempotente avec des contrôles stricts.
+
+3. TESTS ET VALIDATION
+
+Avant toute publication :
+
+* Vérifie les tests, les builds Web/API et les types.
+* Vérifie les routes publiques de la boutique et ses API.
+* Vérifie le panier, les prix, les quantités, la livraison et les erreurs.
+* Vérifie la séparation des droits ADMIN et publics.
+* Vérifie que les fonctions existantes restent intactes.
+* Vérifie Stripe LIVE et le webhook sans divulguer les secrets ni effectuer de paiement réel.
+* N’active pas le Checkout LIVE tant que les contrôles nécessaires ne sont pas satisfaisants.
+
+4. PUBLICATION
+
+Prépare la publication la plus limitée possible pour rendre la boutique accessible sur le domaine existant.
+
+Avant de publier, confirme que la publication ne nécessite ni mise à niveau payante ni dépense supplémentaire. Si le coût ne peut pas être vérifié, ne lance pas l’opération.
+
+Ne réalise aucune migration, écriture de production, initialisation de stock, modification Stripe ou publication sans m’avoir expliqué l’action et obtenu mon accord explicite.
+
+5. COMPTE RENDU FINAL
+
+Ne me renvoie pas un diagnostic général déjà fourni.
+
+Indique uniquement :
+
+* Ce qui est corrigé et testé.
+* Ce qui est réellement publié en production.
+* Ce qui reste nécessaire pour afficher les produits.
+* Si les paiements réels sont validés.
+* Le prochain blocage précis, s’il en reste un.
+
+Résultat attendu : une boutique INDAMORA SHOP fonctionnelle, publiée sur le site existant, sans régression sur les services actuels et sans dépense supplémentaire. Ne déclare jamais la mission terminée sans vérification réelle.
