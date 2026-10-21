@@ -207,17 +207,12 @@ function shippingForCountry(country: string): {
 }
 
 router.get("/store/catalog", async (req, res): Promise<void> => {
-  if (!shopRoutesEnabled()) {
-    res.status(404).json({ error: "Catalogue indisponible." });
-    return;
-  }
-
   try {
     const readiness = await storeReadiness();
     const catalogue = isPersistentShop()
       ? (await shopTest.read()).products.filter(p => p.status === "active" && p.visible)
         .map(p => ({ sku: p.id, name: p.name, priceCents: p.priceCents }))
-      : STORE_PRODUCTS;
+      : shopMode() === "live" ? [] : STORE_PRODUCTS;
     const message = storeMessage(
       readiness.prices.size,
       readiness.webhookReady,
@@ -241,7 +236,7 @@ router.get("/store/catalog", async (req, res): Promise<void> => {
         mode: shopMode(),
         checkoutAvailable: false,
         message: "Le paiement Boutique est temporairement indisponible.",
-        products: (isPersistentShop() ? [] : STORE_PRODUCTS).map((product) => ({
+        products: (isPersistentShop() || shopMode() === "live" ? [] : STORE_PRODUCTS).map((product) => ({
           ...product,
           available: false,
         })),

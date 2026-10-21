@@ -23,7 +23,7 @@ test("Boutique validates isolated TEST/LIVE fixtures, shipping and server paymen
     delete process.env.STRIPE_BOUTIQUE_LIVE_WEBHOOK_SECRET;
     delete process.env.SHOP_TEST_CHECKOUT_BLOCKED;
     if (overrides.live) {
-      process.env.BOUTIQUE_LIVE_ENABLED = "true";
+      if (overrides.checkoutEnabled !== false) process.env.BOUTIQUE_LIVE_ENABLED = "true";
       process.env.STRIPE_BOUTIQUE_LIVE_WEBHOOK_SECRET = webhookSecret;
     }
     process.env.STRIPE_BOUTIQUE_TEST_WEBHOOK_SECRET = webhookSecret;
@@ -290,12 +290,17 @@ test("Boutique validates isolated TEST/LIVE fixtures, shipping and server paymen
       delete process.env.STRIPE_BOUTIQUE_TEST_WEBHOOK_SECRET;
       assert.equal((await webhook()).status, 503);
     });
-    await t.test("production cannot expose these TEST APIs or call Stripe", async () => {
-      reset();
-      process.env.NODE_ENV = "production";
-      assert.equal((await fetch(`${base}/catalog`)).status, 404);
+    await t.test("LIVE catalogue stays public but empty and payment-disabled until persistent LIVE products exist", async () => {
+      reset({ live: true, checkoutEnabled: false });
+      const response = await fetch(`${base}/catalog`);
+      const catalog = await response.json();
+      assert.equal(response.status, 200);
+      assert.equal(catalog.mode, "live");
+      assert.equal(catalog.checkoutAvailable, false);
+      assert.deepEqual(catalog.products, []);
+      assert.match(catalog.message, /LIVE.*paiement reste désactivé/i);
+      assert.equal(globalThis.storeFixture.calls.length, 0);
       assert.equal((await checkout("FR")).status, 404);
-      assert.equal((await webhook()).status, 404);
       assert.equal(globalThis.storeFixture.calls.length, 0);
     });
     await t.test("expiry delivery is required before enabling either Checkout mode", async () => {
