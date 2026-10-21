@@ -1,0 +1,35 @@
+OBJECTIF : FINALISER ET METTRE EN LIGNE INDAMORA SHOP
+
+Je veux terminer la boutique sur mon site existant : https://indamoraplay.com/boutique
+
+Je ne suis pas développeuse. Prends en charge les vérifications techniques et guide-moi uniquement lorsqu’une action de ma part est indispensable.
+
+Mes exigences impératives :
+
+* Budget supplémentaire : 0 €. Aucun achat de crédits, aucune mise à niveau payante, aucun changement d’hébergement susceptible d’augmenter les coûts.
+* Conserver le nom INDAMORA PLAY, le domaine existant, l’application mobile, les comptes, les profils artistes, les abonnements Premium, les dons et les autres fonctions déjà opérationnelles.
+* Ne supprimer ni ne réinitialiser aucune donnée de production.
+* Ne jamais afficher de faux produits, de faux stocks ou de fausses commandes.
+* Ne pas modifier les clés Stripe existantes sans nécessité démontrée.
+* Ne pas effectuer de véritable paiement.
+
+Travail demandé :
+
+1. Vérifie l’état actuel du site en production et de la boutique en développement.
+2. Vérifie les erreurs, les tests, le build, les routes API, le catalogue, le stock, les paramètres Stripe LIVE et le webhook.
+3. Prépare la publication du code de la boutique en préservant les fonctions existantes.
+4. Avant toute publication, vérifie que l’opération peut être réalisée dans l’allocation incluse sans frais supplémentaires. Si ce n’est pas vérifiable, arrête-toi et indique-moi précisément ce qui bloque.
+5. Vérifie si les huit produits prévus à 15 € chacun sont correctement configurés : T-shirts rose, noir et blanc ; bobs blanc, noir et orange ; tote bag ; hoodie. Stock prévu : 50 unités par produit, sans écraser un stock ou un historique existant. Livraison gratuite en France métropolitaine, 7 € dans l’UE et contact pour les autres destinations.
+6. Vérifie les autorisations réelles de la clé Stripe LIVE et la configuration du webhook sans divulguer de secret.
+7. N’active pas le paiement public avant d’avoir confirmé que le catalogue, le stock, les commandes, le calcul des frais de livraison, Stripe LIVE et la confirmation des commandes fonctionnent correctement.
+8. Si une étape nécessite mon accord, demande-le avant d’agir.
+
+À la fin, fournis un compte rendu simple :
+
+* Ce qui est terminé.
+* Ce qui reste à faire.
+* Si la boutique est réellement accessible en production.
+* Si les paiements réels sont prêts.
+* Tout risque de coût ou toute action nécessitant mon accord.
+
+Ne prétends jamais qu’une action est terminée si elle n’a pas été exécutée et vérifiée.
