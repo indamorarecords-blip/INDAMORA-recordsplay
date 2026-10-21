@@ -25,6 +25,18 @@ test("Shop runtime boundaries are fail-closed without changing environment setti
     assert.equal(runtime.shopRoutesEnabled(live), false);
     assert.equal(runtime.shopRoutesEnabled({ NODE_ENV: "test", BOUTIQUE_LIVE_ENABLED: "true" }), false);
     assert.equal(runtime.shopRoutesEnabled({ ...live, BOUTIQUE_LIVE_ENABLED: "true" }), true);
+    const catalogSetup = { ...live, BOUTIQUE_LIVE_CATALOG_SETUP_ENABLED: "true" };
+    assert.equal(runtime.shopAdminSetupRoutesEnabled(live), false);
+    assert.equal(runtime.shopAdminSetupRoutesEnabled(catalogSetup), true);
+    assert.equal(runtime.shopRoutesEnabled(catalogSetup), false, "catalog setup never opens public routes");
+    assert.equal(runtime.shopRouteAccessEnabled("/admin/products", catalogSetup), true);
+    assert.equal(runtime.shopRouteAccessEnabled("/api/shop/admin/products", catalogSetup), true);
+    assert.equal(runtime.shopRouteAccessEnabled("/catalog", catalogSetup), false);
+    assert.equal(runtime.shopRouteAccessEnabled("/api/shop/quote", catalogSetup), false);
+    assert.equal(runtime.shopRouteAccessEnabled("/shop-admin", catalogSetup), false);
+    assert.equal(runtime.shopAdminSetupRoutesEnabled({
+      NODE_ENV: "test", BOUTIQUE_LIVE_CATALOG_SETUP_ENABLED: "true",
+    }), false);
     assert.equal(runtime.shopWebhookSecret(live), undefined);
     assert.equal(runtime.shopWebhookEnabled(live), false);
     assert.equal(runtime.shopWebhookEnabled({ ...live, STRIPE_BOUTIQUE_LIVE_WEBHOOK_SECRET: "whsec_live_fixture" }), true);

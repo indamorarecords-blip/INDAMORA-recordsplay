@@ -1,0 +1,48 @@
+INDAMORA SHOP — Préparation LIVE sans ouverture prématurée des paiements
+
+Le déploiement est rétabli. Le site et /boutique répondent HTTP 200, les builds réussissent et les tables Shop existent déjà.
+
+Je veux terminer la mise en service sur le projet existant, sans migration d’hébergeur et avec un budget supplémentaire de 0 €.
+
+1. Sécuriser les données
+
+* Vérifie quelles sauvegardes de production sont disponibles gratuitement et comment restaurer les données.
+* N’effectue aucune opération destructive.
+* Si aucune sauvegarde restaurable n’est disponible, indique la méthode de sauvegarde sans frais avant de modifier les données Shop.
+
+2. Préparer le catalogue sans ouvrir Checkout
+
+* Prévois un chemin de préparation ADMIN Shop réservé côté serveur, distinct de Checkout public.
+* Ne désactive pas les contrôles d’autorisation existants et ne rends aucune route ADMIN accessible aux visiteurs.
+* Maintiens BOUTIQUE_LIVE_ENABLED désactivé pour les clients tant que les contrôles critiques ne sont pas réussis.
+* Vérifie que l’administrateur peut préparer le catalogue LIVE sans autoriser les paiements publics.
+
+3. Initialiser les huit variantes
+
+Les stocks physiques confirmés sont de 50 unités par variante :
+
+* T-shirt rose : 50
+* T-shirt noir : 50
+* T-shirt blanc : 50
+* Bob blanc : 50
+* Bob noir : 50
+* Bob orange : 50
+* Tote bag taille unique : 50
+* Hoodie taille unique : 50
+
+Soit 400 unités au total. Vérifie les identifiants exacts des variantes, les prix à 15 €, les liens de catalogue et l’absence de doublons avant toute écriture. Ne crée pas de faux produits Stripe et n’écrase aucun historique.
+
+4. Vérifier Stripe LIVE
+
+* Vérifie les permissions requises par le parcours réel de Checkout.
+* Vérifie que le secret de signature correspond à la destination LIVE configurée, sans afficher sa valeur.
+* Prépare un test de réception et de vérification de signature sans paiement réel.
+* Ne modifie pas les webhooks existants des abonnements et des dons.
+
+5. Rapport et activation
+
+Effectue uniquement les contrôles et préparations possibles sans frais ni risque. Présente les résultats de chaque étape et les éventuels blocages.
+
+N’active pas Checkout LIVE et ne lance aucun achat réel sans mon autorisation explicite. Lorsque le catalogue, les stocks, le webhook et la sécurité sont prêts, demande mon accord pour l’ouverture finale des paiements.
+
+Préserve le site existant, la PWA, les comptes, les artistes, les abonnements et les dons.

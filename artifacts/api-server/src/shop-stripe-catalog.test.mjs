@@ -25,7 +25,7 @@ test("Stripe Shop reactivation is a new revision; retries remain idempotent", as
             metadata:{storeFlow:"indamora-play-boutique-v1",indamoraStoreSku:"qa"},default_price:price};
           const replies = new Map();
           export const formData = data => new URLSearchParams(Object.entries(data).map(([k,v])=>[k,String(v)]));
-          export async function storeStripeApi(url, options) {
+          async function request(url, options) {
             if (url.startsWith("/v1/prices?")) return {data:[price],has_more:false};
             if (options?.method === "POST") {
               if (replies.has(options.idempotencyKey)) return structuredClone(replies.get(options.idempotencyKey));
@@ -39,6 +39,8 @@ test("Stripe Shop reactivation is a new revision; retries remain idempotent", as
             }
             return structuredClone(product);
           }
+          export async function storeStripeApi(url, options) { return request(url, options); }
+          export async function storeStripeCatalogSetupApi(url, options) { return request(url, options); }
         ` }));
       } }],
     });

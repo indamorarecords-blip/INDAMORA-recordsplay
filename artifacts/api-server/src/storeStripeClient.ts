@@ -9,12 +9,15 @@ type StoreStripeOptions = {
   idempotencyKey?: string;
 };
 
-function dedicatedKey(method: string): string {
+function dedicatedKey(method: string, allowCatalogSetupWrite = false): string {
   if (process.env.NODE_ENV !== "development" && process.env.NODE_ENV !== "production") {
     throw new StoreTestConfigurationError("Environnement Boutique non autorisé.");
   }
   const test = shopMode() === "test";
-  if (!test && method !== "GET" && process.env.BOUTIQUE_LIVE_ENABLED !== "true") {
+  const catalogSetupWriteAllowed =
+    allowCatalogSetupWrite && process.env.BOUTIQUE_LIVE_CATALOG_SETUP_ENABLED === "true";
+  if (!test && method !== "GET" &&
+      process.env.BOUTIQUE_LIVE_ENABLED !== "true" && !catalogSetupWriteAllowed) {
     throw new StoreTestConfigurationError("Les écritures Stripe LIVE Boutique ne sont pas autorisées.");
   }
   const key = test ? process.env.STRIPE_BOUTIQUE_TEST_SECRET_KEY : process.env.STRIPE_BOUTIQUE_LIVE_SECRET_KEY;
@@ -25,11 +28,12 @@ function dedicatedKey(method: string): string {
   return key;
 }
 
-export async function storeStripeApi<T>(
+async function requestStripe<T>(
   path: string,
   options: StoreStripeOptions = {},
+  allowCatalogSetupWrite = false,
 ): Promise<T> {
-  const key = dedicatedKey(options.method ?? "GET");
+  const key = dedicatedKey(options.method ?? "GET", allowCatalogSetupWrite);
   const url = new URL(path, "https://api.stripe.com");
   if (
     !path.startsWith("/v1/") ||
@@ -66,6 +70,23 @@ export async function storeStripeApi<T>(
     throw new Error("Stripe n’a pas confirmé le bon environnement Boutique.");
   }
   return body as T;
+}
+
+export function storeStripeApi<T>(
+  path: string,
+  options: StoreStripeOptions = {},
+): Promise<T> {
+  return requestStripe(path, options);
+}
+
+// This transport is reserved for server-side, authenticated Shop catalog
+// administration. Checkout continues to use storeStripeApi and its stricter
+// BOUTIQUE_LIVE_ENABLED gate.
+export function storeStripeCatalogSetupApi<T>(
+  path: string,
+  options: StoreStripeOptions = {},
+): Promise<T> {
+  return requestStripe(path, options, true);
 }
 
 export function formData(

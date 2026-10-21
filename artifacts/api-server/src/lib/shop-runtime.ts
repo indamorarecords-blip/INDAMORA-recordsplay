@@ -17,6 +17,24 @@ export function shopRoutesEnabled(env: NodeJS.ProcessEnv = process.env): boolean
     (env.NODE_ENV === "production" && env.BOUTIQUE_LIVE_ENABLED === "true");
 }
 
+export function shopAdminSetupRoutesEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  return env.NODE_ENV === "development" ||
+    (env.NODE_ENV === "production" && env.BOUTIQUE_LIVE_CATALOG_SETUP_ENABLED === "true");
+}
+
+function isShopAdminPath(pathname: string): boolean {
+  const segments = pathname.split(/[?#]/, 1)[0].split("/").filter(Boolean);
+  const shopIndex = segments.lastIndexOf("shop");
+  const routeSegments = shopIndex >= 0 ? segments.slice(shopIndex + 1) : segments;
+  return routeSegments[0] === "admin";
+}
+
+export function shopRouteAccessEnabled(pathname: string, env: NodeJS.ProcessEnv = process.env): boolean {
+  return isShopAdminPath(pathname)
+    ? shopAdminSetupRoutesEnabled(env)
+    : shopRoutesEnabled(env);
+}
+
 export function shopWebhookSecret(env: NodeJS.ProcessEnv = process.env): string | undefined {
   return shopMode(env) === "test"
     ? env.STRIPE_BOUTIQUE_TEST_WEBHOOK_SECRET

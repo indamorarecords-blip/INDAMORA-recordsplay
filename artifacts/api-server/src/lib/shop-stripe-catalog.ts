@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { storeStripeApi, formData } from "../storeStripeClient";
+import { storeStripeApi, storeStripeCatalogSetupApi, formData } from "../storeStripeClient";
 import { validateProduct, ShopError, type Product } from "./shop-test";
 
 export type CataloguePrice = { id: string; active: boolean; livemode: boolean; currency: string; type: string; unit_amount: number };
@@ -61,7 +61,7 @@ export async function writeStripeShopProduct(value: Product, existingId?: string
     if (matches.length > 1) throw new ShopError("Plusieurs références Stripe correspondent au même article. Import arrêté.", 409);
     stripeId = matches[0]?.id;
     if (!stripeId) {
-      const created = await storeStripeApi<CatalogueProduct>("/v1/products", {
+      const created = await storeStripeCatalogSetupApi<CatalogueProduct>("/v1/products", {
         method: "POST", idempotencyKey: `shop-${shopStripeMode()}-product-${value.id}`,
         params: formData({ name: value.name, "metadata[storeFlow]": FLOW, "metadata[indamoraStoreSku]": value.id }),
       });
@@ -74,7 +74,7 @@ export async function writeStripeShopProduct(value: Product, existingId?: string
   const matching = prices.data.filter(p => p.livemode === (shopStripeMode() === "live") &&
     p.unit_amount === value.priceCents && p.currency === "eur" && p.type === "one_time");
   if (matching.length > 1) throw new ShopError("Plusieurs prix Stripe identiques. Vérification manuelle nécessaire.", 409);
-  const price = matching[0] ?? await storeStripeApi<CataloguePrice>("/v1/prices", {
+  const price = matching[0] ?? await storeStripeCatalogSetupApi<CataloguePrice>("/v1/prices", {
     method: "POST", idempotencyKey: `shop-${shopStripeMode()}-price-${value.id}-${value.priceCents}`,
     params: formData({ product: stripeId, unit_amount: value.priceCents, currency: "eur",
       "metadata[indamoraStoreSku]": value.id, "metadata[storeFlow]": FLOW }),
@@ -90,7 +90,7 @@ export async function writeStripeShopProduct(value: Product, existingId?: string
   const hash = createHash("sha256").update(params.toString()).digest("hex");
   // A later A -> B -> A edit is a new operation, not a retry of the first A.
   // Keep retries idempotent within one revision without replaying old responses.
-  await storeStripeApi(`/v1/products/${encodeURIComponent(stripeId)}`, {
+  await storeStripeCatalogSetupApi(`/v1/products/${encodeURIComponent(stripeId)}`, {
     method: "POST", params, idempotencyKey: `shop-${shopStripeMode()}-config-${stripeId}-r${value.revision}-${hash}`,
   });
   return stripeId;
