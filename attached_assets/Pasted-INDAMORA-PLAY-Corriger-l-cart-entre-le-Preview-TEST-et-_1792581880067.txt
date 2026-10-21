@@ -1,0 +1,81 @@
+INDAMORA PLAY — Corriger l’écart entre le Preview TEST et le site LIVE
+
+Je veux finaliser la mise en ligne de INDAMORA SHOP sur https://indamoraplay.com/boutique.
+
+1. Objectif prioritaire
+
+Dans le Preview Replit, les produits s’affichent, les visiteurs peuvent les ajouter au panier et parcourir le processus de commande. En revanche, sur le site publié, la boutique affiche « Boutique temporairement indisponible » et les produits n’apparaissent pas.
+
+Les dernières vérifications indiquent que les routes /api/shop/catalog et /api/store/catalog répondent actuellement 404 en production.
+
+Identifie la cause exacte et corrige le problème pour que le Shop fonctionne aussi sur le site LIVE. Ne te contente pas de modifier l’apparence de la page ou de masquer le message d’erreur.
+
+2. Corrections à effectuer
+
+* Corriger les routes API, leur enregistrement et leur disponibilité dans le déploiement Autoscale existant.
+* Vérifier que la page /boutique appelle la bonne route et gère correctement les réponses du serveur.
+* Conserver un catalogue LIVE vide tant que les produits et prix LIVE ne sont pas configurés.
+* Ne jamais afficher de produits fictifs, de données de démonstration ou de produits du Preview comme s’ils étaient disponibles en LIVE.
+* Conserver le panier et préparer leur fonctionnement avec le catalogue LIVE réel.
+* Vérifier que le service statique Gift Card TEST ne soit plus exposé publiquement par le build de production, tout en préservant les fonctionnalités DEV/TEST.
+* Vérifier les autres routes, la navigation et les fonctions existantes d’INDAMORA PLAY.
+
+3. Catalogue prévu
+
+Les produits souhaités sont :
+
+* T-shirt rose
+* T-shirt noir
+* T-shirt blanc
+* Bob blanc
+* Bob noir
+* Bob orange
+* Tote bag
+* Hoodie
+
+Prix prévu : 15 € par variante.
+
+Stock prévu : 50 unités par variante, soit 400 unités au total, sous réserve d’une configuration LIVE validée.
+
+Ne pas ajouter de casquettes ni de coques de téléphone.
+
+Ne crée aucun stock et n’écris aucune donnée en production à cette étape.
+
+4. Sécurité et préservation
+
+* Conserver le projet INDAMORA PLAY, le domaine indamoraplay.com et le déploiement Autoscale existant.
+* Ne modifier aucune fonction existante de connexion, d’inscription, de profils artistes, de Premium, de dons ou de paiement.
+* Ne modifier ni supprimer les clés et secrets Stripe existants, les webhooks, leurs URL ou les autres intégrations de paiement.
+* Ne lancer aucune migration de base de données.
+* Ne créer aucun produit ni prix Stripe LIVE.
+* Ne modifier aucun stock ni effectuer d’écriture en base de production.
+* Ne créer aucune session Checkout LIVE et ne réaliser aucun paiement réel.
+* Garder BOUTIQUE_LIVE_ENABLED et BOUTIQUE_LIVE_CATALOG_SETUP_ENABLED désactivés.
+* Ne pas changer de type de déploiement et ne pas effectuer de nettoyage destructif.
+
+5. Vérifications obligatoires
+
+Avant toute publication :
+
+* Exécuter les tests Shop, le typecheck et les builds web/API.
+* Vérifier que les routes API existent et que le catalogue vide LIVE est correctement géré.
+* Vérifier que le panier ne permet pas de payer des produits fictifs.
+* Vérifier que les fonctions existantes ne sont pas affectées.
+* Confirmer le périmètre exact du code qui sera publié.
+* Présenter l’action finale de publication et les éventuels frais Autoscale avant de l’exécuter.
+
+Après publication autorisée :
+
+* Vérifier les routes API directement sur le domaine public.
+* Vérifier /boutique sur le site LIVE.
+* Vérifier le comportement du catalogue vide, sans produits fictifs ni Checkout ouvert.
+* Vérifier la route publique Gift Card et les fonctions existantes.
+* Fournir les résultats réels des tests et les éventuelles erreurs restantes.
+
+6. Autorisation et limite
+
+La republication du code Shop déjà autorisée est limitée aux corrections décrites ci-dessus. Avant d’exécuter la publication, confirme explicitement si le retrait du service statique Gift Card TEST est inclus dans cette même publication et présente les frais Autoscale possibles. Attends ma confirmation si le périmètre ou le coût diffère de ce qui a été annoncé.
+
+Ne prétends jamais qu’une correction est publiée si elle ne l’est pas.
+
+Priorité : faire fonctionner correctement la boutique sur le domaine public, sans casser INDAMORA PLAY et sans activer les paiements réels prématurément.
