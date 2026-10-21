@@ -1,0 +1,365 @@
+MISSION COMPLÈTE — FINALISATION ET OUVERTURE D’INDAMORA SHOP EN PRODUCTION
+
+Tu es responsable de finaliser, sécuriser, tester et mettre en production la boutique INDAMORA SHOP intégrée à INDAMORA PLAY.
+
+Objectif final : la boutique doit être publiquement accessible, afficher les vrais produits, permettre les commandes et être techniquement prête à encaisser de vrais paiements avec Stripe LIVE.
+
+Ne te limite pas à un audit ou à une liste de recommandations. Exécute les étapes réalisables avec les accès disponibles, corrige les problèmes dans le code, relance les tests et poursuis jusqu’à l’ouverture si toutes les conditions de sécurité sont satisfaites.
+
+Ne prétends jamais qu’une étape est terminée sans preuve vérifiable.
+
+1. Règles impératives du projet
+
+* Budget supplémentaire : 0 €. Aucun changement de forfait Replit, achat de crédits ou service payant.
+* Conserver Replit, le domaine https://indamoraplay.com et la boutique https://indamoraplay.com/boutique.
+* Conserver le nom INDAMORA PLAY et l’identité visuelle existante.
+* Ne pas casser la PWA mobile, l’authentification, les comptes utilisateurs, les rôles, les profils artistes, les abonnements Premium, les dons, les Gift Cards ou les autres fonctionnalités.
+* Préserver proxy-addr@2.0.8.
+* Ne pas supprimer ni réinitialiser les commandes, les comptes, les stocks, les mouvements de stock, les journaux d’audit ou les données historiques.
+* Ne pas afficher de fausses commandes, de faux avis, de faux compteurs, de faux stocks ou de faux produits.
+* Ne jamais exposer une clé secrète dans le code client, le dépôt Git, les logs ou les rapports.
+* Ne jamais demander à l’utilisateur de copier une clé secrète dans le chat.
+* Ne jamais utiliser un paiement réel pour tester sans autorisation explicite préalable.
+* Ne pas considérer un test simulé ou un test Stripe TEST comme une preuve de paiement LIVE fonctionnel.
+* Si un blocage nécessite une action humaine, précise l’action exacte à effectuer, puis reprends le travail dès que le blocage est levé.
+
+2. Étape 1 — État initial et protection
+
+Avant toute modification :
+
+1. Vérifie le dépôt Git, la branche active, les fichiers modifiés et les éventuels travaux non commités.
+2. Vérifie l’état du déploiement existant, du domaine, de la base de données et des workflows.
+3. Vérifie les routes publiques, les routes ADMIN et les verrous de sécurité existants.
+4. Vérifie la présence des tables Shop et leur schéma réel.
+5. Vérifie les variables d’environnement nécessaires, sans révéler leurs valeurs.
+6. Identifie les dépendances entre la boutique, Stripe, les abonnements, les dons et les autres fonctionnalités.
+7. Établis une liste des modifications prévues et des risques éventuels.
+
+Ne supprime pas de fichiers ou de données pour nettoyer le projet.
+
+3. Étape 2 — Sauvegarde et restauration
+
+Avant toute écriture de données en production :
+
+1. Recherche une méthode de sauvegarde réellement disponible sans coût supplémentaire.
+2. Vérifie si un export PostgreSQL est possible avec les accès existants.
+3. Si possible, chiffre la sauvegarde et conserve-la hors du workspace partagé et du dépôt Git.
+4. Teste la restauration dans une base PostgreSQL locale jetable ou un environnement isolé, sans modifier la production.
+5. Vérifie si la restauration vers la base Replit est possible avec les droits disponibles.
+6. Vérifie l’intégrité des données restaurées.
+
+Ne prétends pas qu’une sauvegarde est restaurable si seul l’export a été effectué.
+
+Si aucune sauvegarde restaurable ne peut être garantie, ne réalise aucune écriture destructive ou difficilement réversible en production. Continue les vérifications en lecture seule et explique le blocage.
+
+N’ajoute aucun service payant pour contourner cette limitation.
+
+4. Étape 3 — Finalisation du code Shop
+
+Inspecte et corrige les fichiers concernés, notamment :
+
+* shop-runtime.ts
+* routes/shop-test.ts
+* storeStripeClient.ts
+* shop-stripe-catalog.ts
+* Les routes ADMIN Shop
+* Les routes de création de commande et de Checkout
+* Le webhook Stripe Shop
+* Les validations de prix, de livraison, de stock et de paiement
+* Les migrations et le schéma de base de données, uniquement si un changement est réellement nécessaire.
+
+Les modifications déjà présentes doivent être conservées et vérifiées.
+
+Séparation obligatoire des verrous
+
+BOUTIQUE_LIVE_CATALOG_SETUP_ENABLED doit permettre uniquement la préparation du catalogue par les administrateurs autorisés.
+
+BOUTIQUE_LIVE_ENABLED doit contrôler séparément l’ouverture du Checkout public LIVE.
+
+Exigences :
+
+* Les routes ADMIN doivent appliquer requireAdmin côté serveur.
+* Les droits ne doivent jamais dépendre uniquement d’un bouton masqué dans l’interface.
+* Un visiteur ou un compte non administrateur ne doit pas pouvoir modifier le catalogue, les prix, le stock ou les commandes.
+* Activer la préparation ADMIN ne doit jamais activer le Checkout public.
+* Les routes publiques doivent rester bloquées tant que les vérifications LIVE ne sont pas terminées.
+* Les erreurs ne doivent pas divulguer de secrets ou d’informations sensibles.
+
+Teste les deux verrous dans toutes les combinaisons pertinentes.
+
+5. Étape 4 — Vérification des clés et permissions Stripe LIVE
+
+Utilise uniquement les secrets déjà configurés dans Replit lorsqu’ils sont valides.
+
+Vérifie notamment :
+
+* STRIPE_BOUTIQUE_LIVE_SECRET_KEY
+* STRIPE_BOUTIQUE_LIVE_WEBHOOK_SECRET
+* BOUTIQUE_LIVE_ENABLED
+* BOUTIQUE_LIVE_CATALOG_SETUP_ENABLED
+
+Les deux derniers verrous doivent rester désactivés pendant les contrôles initiaux.
+
+Confirme que le code accepte uniquement les types de clés correspondant au mode utilisé :
+
+* LIVE : sk_live_ ou rk_live_
+* TEST : sk_test_ ou rk_test_
+
+Ne confonds jamais les clés publiques pk_ avec des clés secrètes.
+
+Vérifie, en lecture seule et avec les permissions réellement disponibles, que la clé LIVE autorise les opérations nécessaires à la boutique :
+
+* lecture du catalogue existant ;
+* création ou récupération des produits et des prix si nécessaire ;
+* création d’une session Checkout LIVE ;
+* lecture et vérification des sessions ;
+* opérations nécessaires au traitement du webhook.
+
+Une clé restreinte peut ne pas disposer de toutes ces permissions. Si une permission manque, indique précisément laquelle et explique comment la corriger dans le Dashboard Stripe. Ne modifie pas les clés ou les permissions de manière risquée sans autorisation.
+
+Ne considère pas une connexion Stripe en mode TEST comme une preuve d’accès LIVE.
+
+6. Étape 5 — Vérification et préparation du catalogue
+
+La boutique doit proposer uniquement les produits suivants :
+
+1. T-shirt rose
+2. T-shirt noir
+3. T-shirt blanc
+4. Bob blanc
+5. Bob noir
+6. Bob orange
+7. Tote bag, taille unique
+8. Hoodie, taille unique
+
+Prix : 15 € par article.
+
+Stock physique confirmé par variante :
+
+* T-shirt rose : 50 unités
+* T-shirt noir : 50 unités
+* T-shirt blanc : 50 unités
+* Bob blanc : 50 unités
+* Bob noir : 50 unités
+* Bob orange : 50 unités
+* Tote bag, taille unique : 50 unités
+* Hoodie, taille unique : 50 unités
+
+Total physique confirmé : 400 unités.
+
+Ne crée pas de casquettes, coques de téléphone ou autres produits non demandés.
+
+Livraison
+
+* France métropolitaine : gratuite.
+* Union européenne : 7 €.
+* Autres destinations : afficher une indication invitant le client à contacter INDAMORA avant de commander, sans calculer un tarif inventé.
+
+Vérifie les règles applicables aux pays, aux codes postaux, aux frais et à la devise.
+
+Initialisation
+
+Avant toute création :
+
+1. Identifie les vrais produits et prix Stripe existants.
+2. Identifie les identifiants réels des huit variantes internes.
+3. Compare les objets Stripe avec les données de la base.
+4. Repère les doublons et les références manquantes.
+5. Prépare une opération idempotente qui récupère les objets existants ou ne crée que ceux qui manquent.
+6. Préserve les commandes et mouvements de stock historiques.
+7. Initialise les quantités confirmées uniquement lorsque la sauvegarde et la stratégie de restauration sont validées.
+8. Vérifie les quantités obtenues et leur correspondance avec chaque variante.
+
+Ne remets jamais un stock à 50 à chaque redémarrage ou déploiement. Une réexécution ne doit ni dupliquer le catalogue ni réinitialiser les quantités.
+
+7. Étape 6 — Interface et expérience client
+
+Vérifie que la page /boutique est réellement utilisable sur ordinateur et mobile.
+
+L’identité doit rester moderne, premium, claire et cohérente avec INDAMORA PLAY, avec des accents roses maîtrisés et sans interface surchargée.
+
+La boutique doit afficher :
+
+* les vrais produits et leurs images ;
+* les variantes disponibles ;
+* le prix de chaque article ;
+* le stock disponible sans afficher de quantités trompeuses ;
+* le panier ;
+* les frais de livraison avant paiement ;
+* le montant total en euros ;
+* les coordonnées de livraison nécessaires ;
+* les conditions de vente et les informations légales appropriées ;
+* un bouton de commande fonctionnel ;
+* un message clair en cas de rupture, d’erreur ou de paiement refusé.
+
+Vérifie que le bouton d’achat n’est jamais présenté comme fonctionnel si le Checkout est bloqué.
+
+8. Étape 7 — Sécurité du panier, des commandes et du stock
+
+Le serveur doit recalculer lui-même le prix, les frais de livraison et le montant total. Ne fais jamais confiance au montant envoyé par le navigateur.
+
+Vérifie :
+
+* les quantités entières et strictement positives ;
+* les variantes réellement disponibles ;
+* les stocks suffisants ;
+* les pays de livraison autorisés ;
+* les montants en centimes d’euros ;
+* la devise EUR ;
+* la protection contre les doubles soumissions ;
+* la cohérence entre le panier, la commande et la session Stripe ;
+* l’absence de modification de prix par le client ;
+* l’absence de double décrément de stock ;
+* la protection contre les commandes concurrentes qui dépasseraient le stock ;
+* la conservation des traces d’audit.
+
+Si une réservation de stock est nécessaire, définis un mécanisme fiable avec expiration et libération des réservations abandonnées.
+
+Une commande ne doit pas être considérée comme payée simplement parce que le client revient sur une page de succès.
+
+9. Étape 8 — Webhook Stripe LIVE
+
+Vérifie l’endpoint existant :
+
+https://indamoraplay.com/api/store/stripe/webhook
+
+Événements attendus :
+
+* checkout.session.completed
+* checkout.session.async_payment_succeeded
+* checkout.session.async_payment_failed
+* checkout.session.expired
+
+Ne crée pas un endpoint en doublon et ne modifie pas les webhooks des abonnements ou des dons.
+
+Vérifie que le webhook :
+
+1. utilise le corps brut de la requête pour vérifier la signature ;
+2. vérifie la signature avec le secret correspondant à l’endpoint ;
+3. refuse les signatures invalides ou expirées ;
+4. vérifie le mode LIVE ;
+5. vérifie l’identifiant de session et les métadonnées attendues ;
+6. vérifie le montant, la devise et la commande associée ;
+7. traite les événements de manière idempotente ;
+8. gère les événements répétés ou reçus dans le désordre ;
+9. ne marque une commande comme payée qu’après confirmation fiable de Stripe ;
+10. ne décrémente jamais le stock deux fois pour la même commande.
+
+Exécute des tests simulés avec des signatures valides et invalides, sans faux paiement présenté comme réel.
+
+N’affirme pas que le webhook LIVE est opérationnel tant qu’une livraison LIVE valide n’a pas été constatée ou que les autres limites n’ont pas été explicitement signalées.
+
+10. Étape 9 — Tests automatisés et contrôles techniques
+
+Ajoute ou corrige les tests nécessaires, puis exécute :
+
+* tests unitaires ;
+* tests des permissions ADMIN ;
+* tests des deux verrous ;
+* tests de calcul des prix et de livraison ;
+* tests des stocks et des commandes concurrentes ;
+* tests d’idempotence ;
+* tests du webhook ;
+* tests des clés TEST et LIVE ;
+* tests des routes publiques ;
+* typecheck API ;
+* build API ;
+* build web ;
+* git diff --check ;
+* contrôle des secrets dans les changements ;
+* vérification des routes principales ;
+* vérification des fonctionnalités existantes qui ne doivent pas régresser.
+
+Utilise des données de test isolées. N’exécute pas de migration ou de nettoyage destructif en production pour faire passer les tests.
+
+Si une protection Git bloque une commande, ne la contourne pas : utilise une méthode autorisée et signale le résultat.
+
+Tous les contrôles critiques doivent passer avant la publication.
+
+11. Étape 10 — Publication de la version
+
+Lorsque les étapes précédentes sont validées :
+
+1. Vérifie que le diff contient uniquement les changements nécessaires.
+2. Vérifie qu’aucun secret, fichier temporaire ou jeu de données de test ne sera publié.
+3. Vérifie que les builds passent.
+4. Vérifie la disponibilité du déploiement et du domaine.
+5. Vérifie que les migrations nécessaires sont compatibles avec les données existantes.
+6. Déploie les changements de code selon le mécanisme Replit déjà en place, sans changer de forfait.
+7. Contrôle les logs et les routes après déploiement.
+8. Vérifie que la PWA mobile, l’authentification, les artistes, les abonnements Premium et les dons fonctionnent toujours.
+
+Ne déploie pas un code qui risque de bloquer les fonctionnalités existantes ou d’endommager les données.
+
+12. Étape 11 — Préparation de l’ouverture LIVE
+
+Avant d’activer le Checkout public, confirme les points suivants :
+
+* la sauvegarde et la récupération sont vérifiées autant que le permettent les accès disponibles ;
+* les huit variantes existent et sont correctement associées au catalogue ;
+* les prix et la livraison sont calculés côté serveur ;
+* les stocks sont initialisés et vérifiés ;
+* les permissions Stripe LIVE sont suffisantes ;
+* les secrets sont présents et utilisés uniquement côté serveur ;
+* le webhook est correctement configuré ;
+* les tests critiques passent ;
+* le déploiement public est sain ;
+* aucun incident critique n’est présent dans les logs ;
+* les routes ADMIN restent protégées ;
+* les routes de préparation ne peuvent pas ouvrir le Checkout.
+
+Si un de ces contrôles essentiels échoue, garde le Checkout fermé et fournis la correction précise à réaliser.
+
+13. Étape 12 — Activation et ouverture publique
+
+Une fois tous les contrôles critiques réussis :
+
+1. Active la préparation ADMIN uniquement si elle est encore nécessaire.
+2. Initialise ou finalise le catalogue selon la procédure idempotente validée.
+3. Vérifie les données après l’opération.
+4. Ferme le mode de préparation si cela est approprié.
+5. Vérifie une dernière fois les permissions ADMIN et les verrous.
+6. Active BOUTIQUE_LIVE_ENABLED uniquement lorsque tous les contrôles sont validés.
+7. Déploie ou redémarre le service selon les besoins.
+8. Vérifie que https://indamoraplay.com/boutique affiche les produits et que le parcours client arrive au Checkout Stripe LIVE.
+9. Vérifie que le serveur refuse toujours toute commande invalide ou non autorisée.
+10. Vérifie les logs et les éventuelles erreurs après ouverture.
+
+Ne lance pas de paiement réel pour valider la boutique sans autorisation distincte. La capacité de créer une session LIVE peut être vérifiée techniquement si les permissions le permettent, mais un paiement effectivement encaissé et remboursé nécessite une autorisation explicite et ne doit jamais être simulé.
+
+Si une confirmation manuelle est indispensable, demande uniquement cette confirmation précise. Ne laisse pas la boutique prétendument ouverte si le Checkout reste bloqué.
+
+14. Étape 13 — Rapport final obligatoire
+
+À la fin, fournis un rapport clair indiquant :
+
+* URL publique de la boutique ;
+* état réel du déploiement ;
+* état des deux verrous ;
+* état du catalogue et des huit variantes ;
+* quantités de stock vérifiées ;
+* prix et règles de livraison ;
+* état des permissions Stripe LIVE ;
+* état du webhook et des preuves de livraison ;
+* résultats des tests et builds ;
+* état des routes ADMIN ;
+* état du Checkout LIVE ;
+* éventuels blocages restants ;
+* actions manuelles encore nécessaires ;
+* confirmation qu’aucun paiement réel n’a été effectué sans autorisation.
+
+Distingue impérativement :
+
+* Vérifié
+* Corrigé et déployé
+* Prêt techniquement
+* Non vérifié
+* Bloqué
+
+Ne dis pas « boutique ouverte », « paiements fonctionnels » ou « boutique prête à encaisser » si le Checkout LIVE n’est pas réellement accessible et si les contrôles nécessaires ne sont pas terminés.
+
+Consigne finale
+
+Commence par vérifier l’état actuel du projet, puis avance dans cet ordre : sauvegarde, permissions Stripe, catalogue, stocks, tests, publication, contrôle post-déploiement et ouverture LIVE.
+
+Exécute toutes les étapes possibles sans frais supplémentaires. Ne t’arrête pas après avoir simplement rédigé un plan. Ne fais aucune opération risquée tant que ses conditions de sécurité ne sont pas satisfaites. Si une intervention manuelle est indispensable, explique exactement laquelle et poursuis tout le reste.
