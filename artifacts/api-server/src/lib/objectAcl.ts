@@ -1,6 +1,24 @@
-import { File } from "@google-cloud/storage";
+import { createClient } from "@supabase/supabase-js";
 
-const ACL_POLICY_METADATA_KEY = "custom:aclPolicy";
+const supabaseUrl = process.env.SUPABASE_URL;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !serviceRoleKey) {
+  throw new Error("Configuration Supabase manquante.");
+}
+
+export const supabaseAdmin = createClient(
+  supabaseUrl,
+  serviceRoleKey,
+  {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  }
+);
+
+const ACL_TABLE = "indamora_storage_acl";
 
 export type ObjectAclPolicy = {
   owner: string;
@@ -12,29 +30,61 @@ export enum ObjectPermission {
   WRITE = "write",
 }
 
-export async function setObjectAclPolicy(file: File, policy: ObjectAclPolicy): Promise<void> {
-  const [exists] = await file.exists();
-  if (!exists) throw new Error(`Object not found: ${file.name}`);
-  await file.setMetadata({ metadata: { [ACL_POLICY_METADATA_KEY]: JSON.stringify(policy) } });
+export async function setObjectAclPolicy(
+  objectPath: string,
+  policy: ObjectAclPolicy
+): Promise<void> {
+  const { error } = await supabaseAdmin
+    .from(ACL_TABLE)
+    .upsert(
+      {
+        object_path: objectPath,
+        owner_clerk_id: policy.owner,
+        visibility: policy.visibility,
+      },
+      { onConflict: "object_path" }
+    );
+
+  if (error) throw error;
 }
 
-export async function getObjectAclPolicy(file: File): Promise<ObjectAclPolicy | null> {
-  const [metadata] = await file.getMetadata();
-  const value = metadata.metadata?.[ACL_POLICY_METADATA_KEY];
-  return value ? JSON.parse(String(value)) as ObjectAclPolicy : null;
+export async function getObjectAclPolicy(
+  objectPath: string
+): Promise<ObjectAclPolicy | null> {
+  const { data, error } = await supabaseAdmin
+    .from(ACL_TABLE)
+    .select("owner_clerk_id, visibility")
+    .eq("object_path", objectPath)
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) return null;
+
+  return {
+    owner: data.owner_clerk_id,
+    visibility: data.visibility as "public" | "private",
+  };
 }
 
 export async function canAccessObject({
   userId,
-  objectFile,
+  objectPath,
   requestedPermission,
 }: {
   userId?: string;
-  objectFile: File;
+  objectPath: string;
   requestedPermission: ObjectPermission;
 }): Promise<boolean> {
-  const policy = await getObjectAclPolicy(objectFile);
+  const policy = await getObjectAclPolicy(objectPath);
+
   if (!policy) return false;
-  if (policy.visibility === "public" && requestedPermission === ObjectPermission.READ) return true;
+
+  if (
+    policy.visibility === "public" &&
+    requestedPermission === ObjectPermission.READ
+  ) {
+    return true;
+  }
+
   return Boolean(userId && policy.owner === userId);
 }
