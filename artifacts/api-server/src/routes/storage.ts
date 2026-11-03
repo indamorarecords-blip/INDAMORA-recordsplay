@@ -12,6 +12,7 @@ import { ObjectNotFoundError, ObjectStorageService } from "../lib/objectStorage"
 import { ObjectPermission } from "../lib/objectAcl";
 
 const router: IRouter = Router();
+const pendingUploads = new Map<string, string>();
 const storage = new ObjectStorageService();
 
 const streamResponse = async (
@@ -66,6 +67,7 @@ router.post("/storage/uploads/request-url", requireAuth, async (req, res) => {
   try {
     const uploadURL = await storage.getObjectEntityUploadURL();
     const objectPath = storage.normalizeObjectEntityPath(uploadURL);
+    pendingUploads.set(req.clerkUserId!, objectPath);
 
     res.json(
       RequestUploadUrlResponse.parse({
@@ -155,5 +157,61 @@ router.get("/storage/objects/*path", async (req, res) => {
     res.status(500).json({ error: "Failed to serve object" });
   }
 });
+router.put("/storage/uploads/send", requireAuth, async (req, res) => {
+  const userId = req.clerkUserId!;
+  const objectPath = pendingUploads.get(userId);
 
+  if (!objectPath) {
+    res.status(400).json({ error: "Aucun upload en attente." });
+    return;
+  }
+
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const bucket = process.env.SUPABASE_MEDIA_BUCKET || "indamora-media";
+
+  if (!supabaseUrl || !serviceKey) {
+    res.status(500).json({ error: "Configuration Supabase manquante." });
+    return;
+  }
+
+  try {
+    const path = objectPath.replace(/^\/objects\//, "");
+    const encodedPath = path.split("/").map(encodeURIComponent).join("/");
+
+    const response = await fetch(
+      `${supabaseUrl.replace(/\/$/, "")}/storage/v1/object/${bucket}/${encodedPath}`,
+      {
+        method: "POST",
+        headers: {
+          apikey: serviceKey,
+          Authorization: `Bearer ${serviceKey}`,
+          "Content-Type": req.headers["content-type"] || "application/octet-stream",
+          "x-upsert": "false",
+        },
+        body: req as any,
+        duplex: "half",
+      } as any,
+    );
+
+    if (!response.ok) {
+      const details = await response.text();
+      req.log.error({ status: response.status, details }, "Supabase upload failed");
+      res.status(502).json({ error: "Échec du transfert vers Supabase." });
+      return;
+    }
+
+    const completedPath = await storage.setAcl(objectPath, {
+      owner: userId,
+      visibility: "private",
+    });
+
+    pendingUploads.delete(userId);
+
+    res.json({ objectPath: completedPath });
+  } catch (error) {
+    req.log.error({ error }, "Upload send failed");
+    res.status(500).json({ error: "Erreur pendant le téléversement." });
+  }
+});
 export default router;
