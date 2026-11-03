@@ -10,7 +10,6 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@supabase/supabase-js": "2.57.4",
     "@clerk/express": "^2.1.69",
     "@clerk/shared": "^4.33.0",
     "@google-cloud/storage": "^8.2.0",
