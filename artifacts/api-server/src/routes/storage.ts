@@ -1,6 +1,6 @@
 import { Readable } from "stream";
 import { getAuth } from "@clerk/express";
-import { Router, type IRouter, type Request, type Response } from "express";
+import { Router, type IRouter, type Response } from "express";
 import {
   CompleteUploadBody,
   CompleteUploadResponse,
@@ -16,15 +16,13 @@ const storage = new ObjectStorageService();
 
 const streamResponse = async (
   response: Response,
-  result: globalThis.Response
+  result: globalThis.Response,
 ) => {
   response.status(result.status);
   result.headers.forEach((value, key) => response.setHeader(key, value));
 
   if (result.body) {
-    Readable.fromWeb(
-      result.body as ReadableStream<Uint8Array>
-    ).pipe(response);
+    Readable.fromWeb(result.body as ReadableStream<Uint8Array>).pipe(response);
   } else {
     response.end();
   }
@@ -39,9 +37,16 @@ router.post("/storage/uploads/request-url", requireAuth, async (req, res) => {
   }
 
   const allowed = [
-    "audio/mpeg", "audio/mp4", "audio/wav", "audio/ogg",
-    "video/mp4", "video/webm", "video/quicktime",
-    "image/jpeg", "image/png", "image/webp",
+    "audio/mpeg",
+    "audio/mp4",
+    "audio/wav",
+    "audio/ogg",
+    "video/mp4",
+    "video/webm",
+    "video/quicktime",
+    "image/jpeg",
+    "image/png",
+    "image/webp",
   ];
 
   const max = parsed.data.contentType.startsWith("video/")
@@ -54,9 +59,7 @@ router.post("/storage/uploads/request-url", requireAuth, async (req, res) => {
     !allowed.includes(parsed.data.contentType) ||
     parsed.data.size > max
   ) {
-    res.status(400).json({
-      error: "Type ou taille de fichier non autorisé.",
-    });
+    res.status(400).json({ error: "Type ou taille de fichier non autorisé." });
     return;
   }
 
@@ -69,13 +72,11 @@ router.post("/storage/uploads/request-url", requireAuth, async (req, res) => {
         uploadURL,
         objectPath,
         metadata: parsed.data,
-      })
+      }),
     );
   } catch (error) {
     req.log.error({ error }, "Unable to sign Supabase upload URL");
-    res.status(500).json({
-      error: "Impossible de préparer l'upload.",
-    });
+    res.status(500).json({ error: "Impossible de préparer l'upload." });
   }
 });
 
@@ -88,17 +89,15 @@ router.post("/storage/uploads/complete", requireAuth, async (req, res) => {
   }
 
   try {
-    const path = await storage.setAcl(parsed.data.objectPath, {
+    const objectPath = await storage.setAcl(parsed.data.objectPath, {
       owner: req.clerkUserId!,
       visibility: "private",
     });
 
-    res.json(CompleteUploadResponse.parse({ objectPath: path }));
+    res.json(CompleteUploadResponse.parse({ objectPath }));
   } catch (error) {
     req.log.error({ error }, "Unable to finalize Supabase upload");
-    res.status(400).json({
-      error: "Upload introuvable ou incomplet.",
-    });
+    res.status(400).json({ error: "Upload introuvable ou incomplet." });
   }
 });
 
@@ -144,7 +143,7 @@ router.get("/storage/objects/*path", async (req, res) => {
 
     await streamResponse(
       res,
-      await storage.downloadObject(file, req.headers.range)
+      await storage.downloadObject(file, req.headers.range),
     );
   } catch (error) {
     if (error instanceof ObjectNotFoundError) {
