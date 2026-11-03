@@ -16,12 +16,28 @@ export default function Submit() {
           Fichier audio
         </h2>
 
-        <SongUpload
-          onUploadComplete={(objectPath) => {
-            console.log("Fichier transféré :", objectPath);
-          }}
-        />
-      </section>
-    </main>
-  );
-}
+<SongUpload
+  onUploadComplete={async (objectPath) => {
+    try {
+      await createSongSubmission(
+        {
+          title,
+          artist,
+          category,
+          note,
+          duration,
+        },
+        objectPath
+      );
+
+      console.log("Soumission enregistrée avec succès.");
+    } catch (error) {
+      console.error("Erreur de soumission :", error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Erreur lors de l'enregistrement."
+      );
+    }
+  }}
+/>
