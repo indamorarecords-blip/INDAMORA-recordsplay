@@ -1,6 +1,6 @@
 import { Readable } from "stream";
 import { getAuth } from "@clerk/express";
-import { Router, type IRouter, type Response } from "express";
+import { Router, type IRouter } from "express";
 import {
   CompleteUploadBody,
   CompleteUploadResponse,
@@ -8,34 +8,29 @@ import {
   RequestUploadUrlResponse,
 } from "@workspace/api-zod";
 import { requireAuth, isAdminUser } from "../middlewares/auth";
-import {
-  ObjectNotFoundError,
-  ObjectStorageService,
-} from "../lib/objectStorage";
+import { ObjectNotFoundError, ObjectStorageService } from "../lib/objectStorage";
 import { ObjectPermission } from "../lib/objectAcl";
 
 const router: IRouter = Router();
 const storage = new ObjectStorageService();
 
-const streamResponse = async (
-  response: Response,
-  result: globalThis.Response,
-) => {
-  response.status(result.status);
-  result.headers.forEach((value, key) =>
-    response.setHeader(key, value),
-  );
+async function streamResponse(res: any, result: globalThis.Response) {
+  res.status(result.status);
+
+  result.headers.forEach((value, key) => {
+    res.setHeader(key, value);
+  });
 
   if (result.body) {
     Readable.fromWeb(
-      result.body as ReadableStream<Uint8Array>,
-    ).pipe(response);
+      result.body as ReadableStream<Uint8Array>
+    ).pipe(res);
   } else {
-    response.end();
+    res.end();
   }
-};
+}
 
-// 1. Génération de l'URL signée Supabase
+// 1. Préparer l'envoi du fichier
 router.post(
   "/storage/uploads/request-url",
   requireAuth,
@@ -43,9 +38,7 @@ router.post(
     const parsed = RequestUploadUrlBody.safeParse(req.body);
 
     if (!parsed.success) {
-      res.status(400).json({
-        error: "Métadonnées de fichier invalides.",
-      });
+      res.status(400).json({ error: "Informations du fichier invalides." });
       return;
     }
 
@@ -72,40 +65,29 @@ router.post(
       !allowed.includes(parsed.data.contentType) ||
       parsed.data.size > max
     ) {
-      res.status(400).json({
-        error: "Type ou taille de fichier non autorisé.",
-      });
+      res.status(400).json({ error: "Format ou taille non autorisé." });
       return;
     }
 
     try {
-      const uploadURL =
-        await storage.getObjectEntityUploadURL();
-
-      const objectPath =
-        storage.normalizeObjectEntityPath(uploadURL);
+      const uploadURL = await storage.getObjectEntityUploadURL();
+      const objectPath = storage.normalizeObjectEntityPath(uploadURL);
 
       res.json(
         RequestUploadUrlResponse.parse({
           uploadURL,
           objectPath,
           metadata: parsed.data,
-        }),
+        })
       );
     } catch (error) {
-      req.log.error(
-        { error },
-        "Unable to sign Supabase upload URL",
-      );
-
-      res.status(500).json({
-        error: "Impossible de préparer l'upload.",
-      });
+      req.log.error({ error }, "Erreur préparation upload");
+      res.status(500).json({ error: "Impossible de préparer l'envoi." });
     }
-  },
+  }
 );
 
-// 2. Confirmation et attribution des droits d'accès
+// 2. Confirmer l'enregistrement du fichier
 router.post(
   "/storage/uploads/complete",
   requireAuth,
@@ -113,133 +95,86 @@ router.post(
     const parsed = CompleteUploadBody.safeParse(req.body);
 
     if (!parsed.success) {
-      res.status(400).json({
-        error: "Chemin d'objet invalide.",
-      });
+      res.status(400).json({ error: "Chemin du fichier invalide." });
       return;
     }
 
     try {
-      const objectPath = await storage.setAcl(
+      const path = await storage.setAcl(
         parsed.data.objectPath,
         {
           owner: req.clerkUserId!,
           visibility: "private",
-        },
+        }
       );
 
       res.json(
-        CompleteUploadResponse.parse({ objectPath }),
+        CompleteUploadResponse.parse({ objectPath: path })
       );
     } catch (error) {
-      req.log.error(
-        { error },
-        "Unable to finalize Supabase upload",
-      );
-
-      res.status(400).json({
-        error: "Upload introuvable ou incomplet.",
-      });
+      req.log.error({ error }, "Erreur validation upload");
+      res.status(400).json({ error: "Fichier introuvable ou incomplet." });
     }
-  },
+  }
 );
 
-// 3. Lecture des fichiers publics
-router.get(
-  "/storage/public-objects/*filePath",
-  async (req, res) => {
-    try {
-      const raw = req.params.filePath;
+// 3. Servir les fichiers publics
+router.get("/storage/public-objects/*filePath", async (req, res) => {
+  try {
+    const raw = req.params.filePath;
+    const file = await storage.searchPublicObject(
+      Array.isArray(raw) ? raw.join("/") : raw
+    );
 
-      const filePath = Array.isArray(raw)
-        ? raw.join("/")
-        : raw;
-
-      const file = await storage.searchPublicObject(filePath);
-
-      if (!file) {
-        res.status(404).json({
-          error: "File not found",
-        });
-        return;
-      }
-
-      await streamResponse(
-        res,
-        await storage.downloadObject(file),
-      );
-    } catch (error) {
-      req.log.error(
-        { error },
-        "Unable to serve public Supabase object",
-      );
-
-      res.status(500).json({
-        error: "Failed to serve public object",
-      });
+    if (!file) {
+      res.status(404).json({ error: "Fichier introuvable." });
+      return;
     }
-  },
-);
 
-// 4. Lecture des fichiers privés
-router.get(
-  "/storage/objects/*path",
-  async (req, res) => {
-    try {
-      const raw = req.params.path;
+    await streamResponse(res, await storage.downloadObject(file));
+  } catch (error) {
+    req.log.error({ error }, "Erreur lecture fichier public");
+    res.status(500).json({ error: "Erreur lecture fichier." });
+  }
+});
 
-      const path = `/objects/${
-        Array.isArray(raw) ? raw.join("/") : raw
-      }`;
+// 4. Servir les fichiers privés avec vérification des droits
+router.get("/storage/objects/*path", async (req, res) => {
+  try {
+    const raw = req.params.path;
+    const file = await storage.getObjectEntityFile(
+      `/objects/${Array.isArray(raw) ? raw.join("/") : raw}`
+    );
 
-      const file = await storage.getObjectEntityFile(path);
+    const userId = getAuth(req).userId ?? undefined;
+    const admin = userId ? await isAdminUser(userId) : false;
 
-      const userId = getAuth(req).userId ?? undefined;
-
-      const admin = userId
-        ? await isAdminUser(userId)
-        : false;
-
-      const allowed =
-        admin ||
-        await storage.canAccessObjectEntity({
-          userId,
-          objectFile: file,
-          requestedPermission: ObjectPermission.READ,
-        });
-
-      if (!allowed) {
-        res.status(403).json({
-          error: "Forbidden",
-        });
-        return;
-      }
-
-      await streamResponse(
-        res,
-        await storage.downloadObject(
-          file,
-          req.headers.range,
-        ),
-      );
-    } catch (error) {
-      if (error instanceof ObjectNotFoundError) {
-        res.status(404).json({
-          error: "Object not found",
-        });
-        return;
-      }
-
-      req.log.error(
-        { error },
-        "Unable to serve Supabase object",
-      );
-
-      res.status(500).json({
-        error: "Failed to serve object",
+    const allowed =
+      admin ||
+      await storage.canAccessObjectEntity({
+        userId,
+        objectFile: file,
+        requestedPermission: ObjectPermission.READ,
       });
+
+    if (!allowed) {
+      res.status(403).json({ error: "Accès refusé." });
+      return;
     }
-  },
-);
+
+    await streamResponse(
+      res,
+      await storage.downloadObject(file, req.headers.range)
+    );
+  } catch (error) {
+    if (error instanceof ObjectNotFoundError) {
+      res.status(404).json({ error: "Fichier introuvable." });
+      return;
+    }
+
+    req.log.error({ error }, "Erreur lecture fichier privé");
+    res.status(500).json({ error: "Erreur lecture fichier." });
+  }
+});
 
 export default router;
