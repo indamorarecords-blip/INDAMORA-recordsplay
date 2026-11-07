@@ -1,58 +1,209 @@
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import {
   canAccessObject,
   getObjectAclPolicy,
-  setObjectAclPolicy,
   type ObjectAclPolicy,
   ObjectPermission,
+  setObjectAclPolicy,
 } from "./objectAcl";
+
+function getConfig() {
+  const url = process.env.SUPABASE_URL?.replace(/\/$/, "");
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const bucket = process.env.SUPABASE_MEDIA_BUCKET || "indamora-media";
+
+  if (!url || !key) {
+    throw new Error("Configuration Supabase manquante.");
+  }
+
+  return { url, key, bucket };
+}
+
+function getHeaders(extra: Record<string, string> = {}) {
+  const { key } = getConfig();
+
+  return {
+    apikey: key,
+    Authorization: `Bearer ${key}`,
+    ...extra,
+  };
+}
+
+function encodePath(path: string) {
+  return path.split("/").map(encodeURIComponent).join("/");
+}
+
+function validatePath(path: string) {
+  if (
+    !path ||
+    path.startsWith("/") ||
+    path.split("/").some(part =>
+      !part || part === "." || part === ".."
+    )
+  ) {
+    throw new Error("Chemin de fichier invalide.");
+  }
+
+  return path;
+}
 
 export class ObjectNotFoundError extends Error {
   constructor() {
-    super("Object not found");
+    super("Fichier introuvable.");
     this.name = "ObjectNotFoundError";
   }
 }
 
-export class ObjectStorageService {
-  private get url(): string {
-    const value = process.env.SUPABASE_URL;
-    if (!value) throw new Error("SUPABASE_URL manquante");
-    return value.replace(/\/$/, "");
+export class SupabaseFile {
+  constructor(public readonly name: string) {
+    validatePath(name);
   }
 
-  private get key(): string {
-    const value = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!value) throw new Error("SUPABASE_SERVICE_ROLE_KEY manquante");
-    return value;
+  private getObjectUrl() {
+    const { url, bucket } = getConfig();
+
+    return `${url}/storage/v1/object/${bucket}/${encodePath(this.name)}`;
   }
 
-  private get bucket(): string {
-    return process.env.SUPABASE_MEDIA_BUCKET || "indamora-media";
+  async exists(): Promise<[boolean]> {
+    const { url, bucket } = getConfig();
+
+    const response = await fetch(
+      `${url}/storage/v1/object/info/${bucket}/${encodePath(this.name)}`,
+      { headers: getHeaders() }
+    );
+
+    if (response.status === 404 || response.status === 400) {
+      return [false];
+    }
+
+    if (!response.ok) {
+      throw new Error(`Erreur Supabase : ${response.status}`);
+    }
+
+    return [true];
   }
 
-  private objectUrl(path: string): string {
-    const encoded = path.split("/").map(encodeURIComponent).join("/");
-    return `${this.url}/storage/v1/object/${this.bucket}/${encoded}`;
-  }
+  async getMetadata(): Promise<[{
+    size: string;
+    contentType: string;
+  }]> {
+    const { url, bucket } = getConfig();
 
-  private headers(extra: Record<string, string> = {}) {
-    return {
-      apikey: this.key,
-      Authorization: `Bearer ${this.key}`,
-      ...extra,
+    const response = await fetch(
+      `${url}/storage/v1/object/info/${bucket}/${encodePath(this.name)}`,
+      { headers: getHeaders() }
+    );
+
+    if (response.status === 404) {
+      throw new ObjectNotFoundError();
+    }
+
+    if (!response.ok) {
+      throw new Error(`Erreur métadonnées : ${response.status}`);
+    }
+
+    const data = await response.json() as {
+      metadata?: {
+        size?: number;
+        mimetype?: string;
+      };
     };
+
+    return [{
+      size: String(data.metadata?.size ?? 0),
+      contentType:
+        data.metadata?.mimetype ?? "application/octet-stream",
+    }];
+  }
+
+  async download(): Promise<[Buffer]> {
+    const response = await fetch(this.getObjectUrl(), {
+      headers: getHeaders(),
+    });
+
+    if (response.status === 404) {
+      throw new ObjectNotFoundError();
+    }
+
+    if (!response.ok) {
+      throw new Error(`Erreur téléchargement : ${response.status}`);
+    }
+
+    return [Buffer.from(await response.arrayBuffer())];
+  }
+
+  async save(
+    bytes: Buffer,
+    options?: {
+      metadata?: { contentType?: string };
+      resumable?: boolean;
+    }
+  ): Promise<void> {
+    const response = await fetch(this.getObjectUrl(), {
+      method: "POST",
+      headers: getHeaders({
+        "Content-Type":
+          options?.metadata?.contentType ??
+          "application/octet-stream",
+        "x-upsert": "false",
+      }),
+      body: new Uint8Array(bytes),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Erreur enregistrement : ${response.status}`);
+    }
+  }
+
+  async readResponse(range?: string): Promise<Response> {
+    const response = await fetch(this.getObjectUrl(), {
+      headers: getHeaders(range ? { Range: range } : {}),
+    });
+
+    if (response.status === 404) {
+      throw new ObjectNotFoundError();
+    }
+
+    if (!response.ok && response.status !== 206) {
+      throw new Error(`Erreur lecture : ${response.status}`);
+    }
+
+    return response;
+  }
+}
+
+export const objectStorageClient = {
+  bucket(_bucket: string) {
+    return {
+      file(name: string) {
+        return new SupabaseFile(name);
+      },
+    };
+  },
+};
+
+export class ObjectStorageService {
+  getPrivateObjectDir() {
+    return `/${getConfig().bucket}`;
+  }
+
+  getPublicObjectSearchPaths(): string[] {
+    return (process.env.PUBLIC_OBJECT_SEARCH_PATHS ?? "")
+      .split(",")
+      .map(path => path.trim())
+      .filter(Boolean);
   }
 
   async getObjectEntityUploadURL(): Promise<string> {
+    const { url, bucket } = getConfig();
     const path = `uploads/${randomUUID()}`;
-    const encoded = path.split("/").map(encodeURIComponent).join("/");
 
     const response = await fetch(
-      `${this.url}/storage/v1/object/upload/sign/${this.bucket}/${encoded}`,
+      `${url}/storage/v1/object/upload/sign/${bucket}/${encodePath(path)}`,
       {
         method: "POST",
-        headers: this.headers({
+        headers: getHeaders({
           "Content-Type": "application/json",
         }),
         body: JSON.stringify({ upsert: false }),
@@ -61,123 +212,110 @@ export class ObjectStorageService {
 
     if (!response.ok) {
       throw new Error(
-        `Supabase upload URL error: ${response.status} ${await response.text()}`
+        `Impossible de créer l'URL d'envoi : ${response.status}`
       );
     }
 
     const data = await response.json() as {
+      url?: string;
       signedURL?: string;
       signedUrl?: string;
-      url?: string;
     };
 
-    const signed = data.signedURL ?? data.signedUrl ?? data.url;
+    const signedUrl =
+      data.signedURL ?? data.signedUrl ?? data.url;
 
-    if (!signed) {
-      throw new Error("URL signée Supabase absente");
+    if (!signedUrl) {
+      throw new Error("URL Supabase manquante.");
     }
 
-    if (signed.startsWith("http")) return signed;
-
-    if (signed.startsWith("/storage/v1/")) {
-      return `${this.url}${signed}`;
-    }
-
-    return `${this.url}/storage/v1${signed.startsWith("/") ? signed : `/${signed}`}`;
+    return signedUrl.startsWith("http")
+      ? signedUrl
+      : `${url}${signedUrl}`;
   }
 
   normalizeObjectEntityPath(raw: string): string {
-    if (raw.startsWith("/objects/")) return raw;
+    if (raw.startsWith("/objects/")) {
+      return raw;
+    }
 
-    const url = new URL(raw, this.url);
-    const marker = `/object/upload/sign/${this.bucket}/`;
-    const index = url.pathname.indexOf(marker);
+    const { url, bucket } = getConfig();
+    const parsed = new URL(raw);
 
-    if (index === -1) {
-      throw new Error("URL Supabase invalide");
+    if (parsed.origin !== new URL(url).origin) {
+      throw new Error("URL de stockage invalide.");
+    }
+
+    const marker = `/object/upload/sign/${bucket}/`;
+    const position = parsed.pathname.indexOf(marker);
+
+    if (position < 0) {
+      throw new Error("Chemin de stockage invalide.");
     }
 
     const path = decodeURIComponent(
-      url.pathname.slice(index + marker.length)
+      parsed.pathname.slice(position + marker.length)
     );
 
-    if (!path || path.split("/").includes("..")) {
-      throw new Error("Chemin de fichier invalide");
-    }
-
-    return `/objects/${path}`;
+    return `/objects/${validatePath(path)}`;
   }
 
-  async getObjectEntityFile(path: string): Promise<string> {
-    if (
-      !path.startsWith("/objects/") ||
-      path.split("/").some(part => part === ".." || part === ".")
-    ) {
+  async getObjectEntityFile(path: string): Promise<SupabaseFile> {
+    if (!path.startsWith("/objects/")) {
       throw new ObjectNotFoundError();
     }
 
-    return path.slice("/objects/".length);
+    const file = new SupabaseFile(path.slice(9));
+
+    if (!(await file.exists())[0]) {
+      throw new ObjectNotFoundError();
+    }
+
+    return file;
   }
 
   async setAcl(
     path: string,
     policy: ObjectAclPolicy
   ): Promise<string> {
-    const normalized = path.startsWith("/objects/")
-      ? path.slice("/objects/".length)
-      : path;
+    const normalized = this.normalizeObjectEntityPath(path);
+    const file = await this.getObjectEntityFile(normalized);
 
-    await setObjectAclPolicy(normalized, policy);
+    await setObjectAclPolicy(file, policy);
 
-    return `/objects/${normalized}`;
+    return normalized;
   }
 
   async canAccessObjectEntity(args: {
     userId?: string;
-    objectFile: string;
+    objectFile: SupabaseFile;
     requestedPermission?: ObjectPermission;
-  }): Promise<boolean> {
+  }) {
     return canAccessObject({
-      userId: args.userId,
-      objectPath: args.objectFile,
+      ...args,
       requestedPermission:
         args.requestedPermission ?? ObjectPermission.READ,
     });
   }
 
-  async searchPublicObject(path: string): Promise<string | null> {
-    const objectPath = path.replace(/^\/+/, "");
-    const policy = await getObjectAclPolicy(objectPath);
-
-    if (!policy || policy.visibility !== "public") {
-      return null;
-    }
-
-    return objectPath;
-  }
-
   async downloadObject(
-    objectPath: string,
+    file: SupabaseFile,
     rangeHeader?: string
   ): Promise<Response> {
-    const headers: Record<string, string> = this.headers();
+    const response = await file.readResponse(rangeHeader);
+    const policy = await getObjectAclPolicy(file);
 
-    if (rangeHeader) {
-      headers.Range = rangeHeader;
-    }
+    const headers = new Headers(response.headers);
 
-    const response = await fetch(this.objectUrl(objectPath), {
-      method: "GET",
-      headers,
-    });
-
-    if (!response.ok && response.status !== 206) {
-      throw new Error(`Supabase download error: ${response.status}`);
-    }
+    headers.set("Cache-Control",
+      policy?.visibility === "public"
+        ? "public, max-age=300"
+        : "private, max-age=300"
+    );
 
     return new Response(response.body, {
       status: response.status,
-      headers: response.headers,
+      headers,
     });
   }
 }
