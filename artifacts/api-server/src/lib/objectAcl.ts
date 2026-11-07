@@ -1,5 +1,3 @@
-const ACL_TABLE = "indamora_storage_acl";
-
 export type ObjectAclPolicy = {
   owner: string;
   visibility: "public" | "private";
@@ -10,16 +8,20 @@ export enum ObjectPermission {
   WRITE = "write",
 }
 
-function config() {
-  const url = process.env.SUPABASE_URL;
+export type StorageFile = {
+  name: string;
+};
+
+function getConfig() {
+  const url = process.env.SUPABASE_URL?.replace(/\/$/, "");
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!url || !key) {
-    throw new Error("Configuration Supabase manquante");
+    throw new Error("Configuration Supabase manquante.");
   }
 
   return {
-    url: url.replace(/\/$/, ""),
+    url,
     headers: {
       apikey: key,
       Authorization: `Bearer ${key}`,
@@ -29,13 +31,13 @@ function config() {
 }
 
 export async function setObjectAclPolicy(
-  objectPath: string,
+  file: StorageFile,
   policy: ObjectAclPolicy
 ): Promise<void> {
-  const { url, headers } = config();
+  const { url, headers } = getConfig();
 
   const response = await fetch(
-    `${url}/rest/v1/${ACL_TABLE}?on_conflict=object_path`,
+    `${url}/rest/v1/indamora_storage_acl?on_conflict=object_path`,
     {
       method: "POST",
       headers: {
@@ -43,7 +45,7 @@ export async function setObjectAclPolicy(
         Prefer: "resolution=merge-duplicates,return=minimal",
       },
       body: JSON.stringify({
-        object_path: objectPath,
+        object_path: file.name,
         owner_clerk_id: policy.owner,
         visibility: policy.visibility,
       }),
@@ -51,22 +53,26 @@ export async function setObjectAclPolicy(
   );
 
   if (!response.ok) {
-    throw new Error(`ACL Supabase error: ${response.status} ${await response.text()}`);
+    throw new Error(
+      `Erreur Supabase ACL : ${response.status} ${await response.text()}`
+    );
   }
 }
 
 export async function getObjectAclPolicy(
-  objectPath: string
+  file: StorageFile
 ): Promise<ObjectAclPolicy | null> {
-  const { url, headers } = config();
+  const { url, headers } = getConfig();
 
   const response = await fetch(
-    `${url}/rest/v1/${ACL_TABLE}?select=owner_clerk_id,visibility&object_path=eq.${encodeURIComponent(objectPath)}`,
+    `${url}/rest/v1/indamora_storage_acl?select=owner_clerk_id,visibility&object_path=eq.${encodeURIComponent(file.name)}`,
     { headers }
   );
 
   if (!response.ok) {
-    throw new Error(`ACL Supabase error: ${response.status}`);
+    throw new Error(
+      `Erreur lecture ACL : ${response.status} ${await response.text()}`
+    );
   }
 
   const rows = await response.json() as Array<{
@@ -84,14 +90,14 @@ export async function getObjectAclPolicy(
 
 export async function canAccessObject({
   userId,
-  objectPath,
+  objectFile,
   requestedPermission,
 }: {
   userId?: string;
-  objectPath: string;
+  objectFile: StorageFile;
   requestedPermission: ObjectPermission;
 }): Promise<boolean> {
-  const policy = await getObjectAclPolicy(objectPath);
+  const policy = await getObjectAclPolicy(objectFile);
 
   if (!policy) return false;
 
@@ -102,5 +108,5 @@ export async function canAccessObject({
     return true;
   }
 
-  return Boolean(userId && policy.owner === userId);
+  return Boolean(userId && userId === policy.owner);
 }
