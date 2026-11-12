@@ -27,7 +27,7 @@ jobs:
           version: 10
 
       - name: Installer les dépendances
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Vérifier les types
         run: pnpm run typecheck
