@@ -1,5 +1,4 @@
 name: INDAMORA PLAY - Build et tests
-
 on:
   push:
     branches:
@@ -7,30 +6,26 @@ on:
   pull_request:
     branches:
       - main
-
 jobs:
   build:
+    name: Vérification et compilation
     runs-on: ubuntu-latest
-
+    env:
+      PORT: 5000
     steps:
       - name: Récupérer le code
         uses: actions/checkout@v4
-
       - name: Installer Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
-
       - name: Installer pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10
-
       - name: Installer les dépendances
         run: pnpm install --no-frozen-lockfile
-
-      - name: Vérifier les types
+      - name: Vérifier les types TypeScript
         run: pnpm run typecheck
-
-      - name: Compiler le projet
+      - name: Construire le projet
         run: pnpm run build
