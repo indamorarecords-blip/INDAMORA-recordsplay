@@ -1,23 +1,17 @@
 import { Router, type IRouter } from "express";
 import { requireAuth } from "../middlewares/auth";
-import { supabaseAdmin } from "../lib/objectAcl";
-import {
-  ObjectPermission,
-} from "../lib/objectAcl";
+import { supabaseAdmin } from "../lib/supabase";
+import { ObjectPermission } from "../lib/objectAcl";
 import { ObjectStorageService } from "../lib/objectStorage";
-
 const router: IRouter = Router();
 const storage = new ObjectStorageService();
-
 router.post("/submissions", requireAuth, async (req, res) => {
   try {
     const ownerId = req.clerkUserId;
-
     if (!ownerId) {
       res.status(401).json({ error: "Authentification requise." });
       return;
     }
-
     const {
       title,
       artist,
@@ -28,7 +22,6 @@ router.post("/submissions", requireAuth, async (req, res) => {
       coverObjectPath,
       duration,
     } = req.body ?? {};
-
     if (
       typeof title !== "string" ||
       !title.trim() ||
@@ -43,30 +36,25 @@ router.post("/submissions", requireAuth, async (req, res) => {
       });
       return;
     }
-
     if (mediaType !== "audio") {
       res.status(400).json({
         error: "Seuls les fichiers audio sont acceptés.",
       });
       return;
     }
-
-    // Vérifie que le fichier appartient bien à l'utilisateur connecté.
-    const objectFile = await storage.getObjectEntityFile(mediaObjectPath);
-
+    const objectFile =
+      await storage.getObjectEntityFile(mediaObjectPath);
     const canWrite = await storage.canAccessObjectEntity({
       userId: ownerId,
       objectFile,
       requestedPermission: ObjectPermission.WRITE,
     });
-
     if (!canWrite) {
       res.status(403).json({
         error: "Vous ne pouvez pas soumettre ce fichier.",
       });
       return;
     }
-
     const { data, error } = await supabaseAdmin
       .from("submissions")
       .insert({
@@ -78,7 +66,9 @@ router.post("/submissions", requireAuth, async (req, res) => {
         media_type: "audio",
         media_object_path: mediaObjectPath,
         cover_object_path:
-          typeof coverObjectPath === "string" ? coverObjectPath : null,
+          typeof coverObjectPath === "string"
+            ? coverObjectPath
+            : null,
         duration:
           duration === null || duration === undefined
             ? null
@@ -87,7 +77,6 @@ router.post("/submissions", requireAuth, async (req, res) => {
       })
       .select("*")
       .single();
-
     if (error) {
       req.log.error({ error }, "Database submission insert failed");
       res.status(500).json({
@@ -95,7 +84,6 @@ router.post("/submissions", requireAuth, async (req, res) => {
       });
       return;
     }
-
     res.status(201).json({
       success: true,
       submission: data,
@@ -107,5 +95,4 @@ router.post("/submissions", requireAuth, async (req, res) => {
     });
   }
 });
-
 export default router;
