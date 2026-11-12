@@ -1,1 +1,1 @@
-fix(storage): add searchPublicObject method
+import { randomUUID } from "node:crypto";
