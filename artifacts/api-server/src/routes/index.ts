@@ -5,6 +5,7 @@ import healthRouter from "./health";
 import indamoraRouter from "./indamora";
 import storageRouter from "./storage";
 import storageV2Router from "./storage-v2";
+import submissionsV2Router from "./submissions-v2";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(storageRouter);
 
 // Nouvelle route indépendante de téléversement
 router.use("/storage", storageV2Router);
+router.use(submissionsV2Router);
 
 export default router;
