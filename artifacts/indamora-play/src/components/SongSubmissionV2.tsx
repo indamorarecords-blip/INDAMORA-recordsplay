@@ -5,47 +5,68 @@ export default function SongSubmissionV2() {
   const [audioPath, setAudioPath] = useState("");
   const [title, setTitle] = useState("");
   const [artist, setArtist] = useState("");
+  const [category, setCategory] = useState("Musique");
+  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  function handleUploadComplete(path: string) {
-    setAudioPath(path);
-    setMessage("Audio transféré. Complète les informations de ton titre.");
-  }
-
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (!audioPath) {
-      setMessage("Envoie d'abord ton fichier audio.");
+      setMessage("Transfère d'abord ton fichier audio.");
       return;
     }
 
-    if (!title.trim() || !artist.trim()) {
-      setMessage("Renseigne le titre et le nom de l'artiste.");
-      return;
-    }
+    setLoading(true);
+    setMessage("");
 
-    setMessage(
-      "Audio transféré et informations saisies. L'enregistrement de la soumission reste à raccorder."
-    );
+    try {
+      const response = await fetch("/api/submissions-v2", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title,
+          artist,
+          category,
+          mediaObjectPath: audioPath,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result.error || "Impossible d'enregistrer la soumission."
+        );
+      }
+
+      setMessage("Ta soumission a bien été enregistrée !");
+      setTitle("");
+      setArtist("");
+      setAudioPath("");
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Une erreur est survenue."
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <section className="mx-auto w-full max-w-xl space-y-6 rounded-xl p-6">
-      <div>
-        <h2 className="text-2xl font-bold">
-          Soumettre un titre
-        </h2>
-        <p className="mt-2">
-          Propose ton morceau à INDAMORA PLAY.
-        </p>
-      </div>
+      <h2 className="text-2xl font-bold">Soumettre un titre</h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="song-title">Titre du morceau</label>
+          <label htmlFor="title">Titre du morceau</label>
           <input
-            id="song-title"
+            id="title"
             className="w-full rounded-lg border p-3"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -54,9 +75,9 @@ export default function SongSubmissionV2() {
         </div>
 
         <div>
-          <label htmlFor="song-artist">Nom de l'artiste</label>
+          <label htmlFor="artist">Nom de l'artiste</label>
           <input
-            id="song-artist"
+            id="artist"
             className="w-full rounded-lg border p-3"
             value={artist}
             onChange={(e) => setArtist(e.target.value)}
@@ -65,21 +86,38 @@ export default function SongSubmissionV2() {
         </div>
 
         <div>
+          <label htmlFor="category">Catégorie</label>
+          <select
+            id="category"
+            className="w-full rounded-lg border p-3"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            <option value="Musique">Musique</option>
+            <option value="Clip vidéo">Clip vidéo</option>
+            <option value="Autre">Autre</option>
+          </select>
+        </div>
+
+        <div>
           <p className="mb-2 font-semibold">Fichier audio</p>
-          <SongUploadV2 onUploadComplete={handleUploadComplete} />
+          <SongUploadV2
+            onUploadComplete={(path) => setAudioPath(path)}
+          />
         </div>
 
         {audioPath && (
           <p className="break-all text-sm">
-            Fichier transféré : {audioPath}
+            Audio transféré : {audioPath}
           </p>
         )}
 
         <button
           type="submit"
-          className="rounded-lg px-5 py-3 font-semibold"
+          disabled={loading || !audioPath}
+          className="rounded-lg px-5 py-3 font-semibold disabled:opacity-50"
         >
-          Préparer ma soumission
+          {loading ? "Enregistrement..." : "Envoyer ma soumission"}
         </button>
 
         {message && <p role="status">{message}</p>}
