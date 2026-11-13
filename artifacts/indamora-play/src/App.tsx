@@ -26,6 +26,7 @@ import { AdminUserList } from '@/components/admin-user-list';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import SubmitPage from "./pages/SubmitPage";
+import SongSubmissionV2Page from "./components/SongSubmissionV2Page";
 const queryClient = new QueryClient();
 const ADMIN_EMAIL = 'indamorarecords@gmail.com';
 const categories = ['Musique', 'Humour', 'Cinéma et vidéos', 'Podcasts', 'Autres créations'];
