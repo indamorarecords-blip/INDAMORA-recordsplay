@@ -23,7 +23,24 @@ import { randomUUID } from "node:crypto";
 +      throw error;
 +    }
 +  }
-+
++async searchPublicObject(path: string): Promise<SupabaseFile | null> {
+  try {
+    const normalized = path.replace(/^\/+/, "");
+    const file = await this.getObjectEntityFile(`/objects/${normalized}`);
+    const policy = await getObjectAclPolicy(file);
+
+    if (policy?.visibility !== "public") {
+      return null;
+    }
+
+    return file;
+  } catch (error) {
+    if (error instanceof ObjectNotFoundError) {
+      return null;
+    }
+    throw error;
+  }
+}
    async canAccessObjectEntity(args: {
      userId?: string;
      objectFile: SupabaseFile;
