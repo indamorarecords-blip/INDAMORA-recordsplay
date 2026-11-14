@@ -13,7 +13,7 @@ const MAX_SIZE = 100 * 1024 * 1024;
 
 router.put(
   "/uploads-v2/send",
-  async (req, res) => {
+    (req, res) => {
     try {
       const { userId } = getAuth(req);
 
