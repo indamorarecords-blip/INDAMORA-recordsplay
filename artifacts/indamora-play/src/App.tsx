@@ -25,7 +25,6 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import { AdminUserList } from '@/components/admin-user-list';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import SubmitPage from "./pages/SubmitPage";
 import SongSubmissionV2Page from "@/components/SongSubmissionV2Page";
 const queryClient = new QueryClient();
 const ADMIN_EMAIL = 'indamorarecords@gmail.com';
@@ -761,7 +760,7 @@ function NotFound() {
 
 function Router() {
   const [location] = useLocation();
-  return <ErrorBoundary resetKey={location}><Shell><Switch><Route path="/" component={Home} /><Route path="/explorer" component={Explorer} /><Route path="/recherche" component={SearchPage} /><Route path="/categorie/:slug" component={CategoryPage} /><Route path="/oeuvres/:id" component={WorkPage} /><Route path="/repertoire" component={() => <Directory />} /><Route path="/artists" component={() => <Directory />} /><Route path="/artists/:id" component={ArtistProfile} /><Route path="/presse" component={Presse} /><Route path="/submit" component={Submit} /><Route path="/espace-artiste" component={ArtistSpace} /><Route path="/moderation" component={Moderation} /><Route path="/administration" component={AdminDashboard} /><Route path="/pricing" component={Pricing} /><Route path="/soutenir" component={Support} /><Route path="/inscription" component={() => <Redirect to="/sign-up" />} /><Route path="/login" component={() => <Redirect to="/sign-in" />} /><Route path="/profil" component={Profile} /><Route component={NotFound} /></Switch></Shell></ErrorBoundary>;
+  return <ErrorBoundary resetKey={location}><Shell><Switch><Route path="/" component={Home} /><Route path="/explorer" component={Explorer} /><Route path="/recherche" component={SearchPage} /><Route path="/categorie/:slug" component={CategoryPage} /><Route path="/oeuvres/:id" component={WorkPage} /><Route path="/repertoire" component={() => <Directory />} /><Route path="/artists" component={() => <Directory />} /><Route path="/artists/:id" component={ArtistProfile} /><Route path="/presse" component={Presse} /><Route path="/submit" component={Submit} /><Route path="/submit-v2" component={SongSubmissionV2Page} /><Route path="/espace-artiste" component={ArtistSpace} /><Route path="/moderation" component={Moderation} /><Route path="/administration" component={AdminDashboard} /><Route path="/pricing" component={Pricing} /><Route path="/soutenir" component={Support} /><Route path="/inscription" component={() => <Redirect to="/sign-up" />} /><Route path="/login" component={() => <Redirect to="/sign-in" />} /><Route path="/profil" component={Profile} /><Route component={NotFound} /></Switch></Shell></ErrorBoundary>;
 }
 
 function ClerkQueryClientCacheInvalidator() {
