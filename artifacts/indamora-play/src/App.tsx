@@ -27,6 +27,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import SubmitPage from "./pages/SubmitPage";
 import SongSubmissionV2Page from "./components/SongSubmissionV2Page";
+import SongSubmissionV2Page from "@/components/SongSubmissionV2Page";
 <Route path="/submit" component={Submit} />
 <Route
   path="/submit-v2"
