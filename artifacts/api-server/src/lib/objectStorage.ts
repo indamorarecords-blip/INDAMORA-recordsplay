@@ -292,6 +292,23 @@ export class ObjectStorageService {
 
       const policy = await getObjectAclPolicy(file);
       return policy?.visibility === "public" ? file : null;
+--- a/artifacts/api-server/src/lib/objectStorage.ts
++++ b/artifacts/api-server/src/lib/objectStorage.ts
+@@ -286,6 +286,25 @@
+     return normalized;
+   }
+ 
+  async searchPublicObject(path: string): Promise<SupabaseFile | null> {
+    try {
+      const normalized = path.replace(/^\/+/, "");
+      const file = await this.getObjectEntityFile(`/objects/${normalized}`);
+      const policy = await getObjectAclPolicy(file);
+
+      if (policy?.visibility !== "public") {
+        return null;
+      }
+
+      return file;
     } catch (error) {
       if (error instanceof ObjectNotFoundError) {
         return null;
@@ -333,7 +350,8 @@ export class ObjectStorageService {
 
     const headers = new Headers(response.headers);
 
-    headers.set("Cache-Control",
+    headers.set(
+      "Cache-Control",
       policy?.visibility === "public"
         ? "public, max-age=300"
         : "private, max-age=300"
