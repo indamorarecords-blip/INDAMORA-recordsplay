@@ -33,6 +33,10 @@ import SongSubmissionV2Page from "@/components/SongSubmissionV2Page";
   path="/submit-v2"
   component={SongSubmissionV2Page}
 />
+    <Route
+  path="/submit-v2"
+  component={SongSubmissionV2Page}
+/>
 const queryClient = new QueryClient();
 const ADMIN_EMAIL = 'indamorarecords@gmail.com';
 const categories = ['Musique', 'Humour', 'Cinéma et vidéos', 'Podcasts', 'Autres créations'];
