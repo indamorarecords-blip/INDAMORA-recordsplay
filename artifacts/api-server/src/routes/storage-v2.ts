@@ -11,56 +11,67 @@ const bucket = process.env.SUPABASE_MEDIA_BUCKET;
 
 const MAX_SIZE = 100 * 1024 * 1024;
 
-router.put(
-  "/uploads-v2/send",
-    (req, res) => {
-    try {
-      const { userId } = getAuth(req);
+router.put("/uploads-v2/send", (req, res): void => {
+  try {
+    const { userId } = getAuth(req);
 
-      if (!userId) {
-        res.status(401).json({
-  error: "Authentification requise",
-});
-return;
-      }
+    if (!userId) {
+      res.status(401).json({ error: "Authentification requise" });
+      return;
+    }
 
-      if (!supabaseUrl || !supabaseKey || !bucket) {
-        return res.status(500).json({
-          error: "Configuration Supabase incomplète",
-        });
-      }
-
-      const contentType = req.headers["content-type"] || "";
-
-      if (!contentType.startsWith("audio/")) {
-        return res.status(415).json({
-          error: "Format audio non accepté",
-        });
-      }
-
-      const chunks: Buffer[] = [];
-      let totalSize = 0;
-
-      req.on("data", (chunk: Buffer) => {
-        totalSize += chunk.length;
-
-        if (totalSize > MAX_SIZE) {
-          req.destroy();
-          return;
-        }
-
-        chunks.push(chunk);
+    if (!supabaseUrl || !supabaseKey || !bucket) {
+      res.status(500).json({
+        error: "Configuration Supabase incomplète",
       });
+      return;
+    }
 
-      req.on("end", async () => {
+    const contentType = req.headers["content-type"] || "";
+
+    if (!contentType.startsWith("audio/")) {
+      res.status(415).json({
+        error: "Format audio non accepté",
+      });
+      return;
+    }
+
+    const chunks: Buffer[] = [];
+    let totalSize = 0;
+    let tooLarge = false;
+
+    req.on("data", (chunk: Buffer) => {
+      totalSize += chunk.length;
+
+      if (totalSize > MAX_SIZE) {
+        tooLarge = true;
+        return;
+      }
+
+      if (!tooLarge) {
+        chunks.push(chunk);
+      }
+    });
+
+    req.on("end", () => {
+      void (async (): Promise<void> => {
         try {
-          if (totalSize === 0 || totalSize > MAX_SIZE) {
-            return res.status(413).json({
-              error: "Fichier vide ou trop volumineux",
+          if (tooLarge || totalSize > MAX_SIZE) {
+            res.status(413).json({
+              error: "Fichier trop volumineux (100 Mo maximum)",
             });
+            return;
+          }
+
+          if (totalSize === 0) {
+            res.status(400).json({
+              error: "Le fichier audio est vide",
+            });
+            return;
           }
 
           const audioBuffer = Buffer.concat(chunks);
+
           const supabase = createClient(
             supabaseUrl,
             supabaseKey
@@ -85,12 +96,13 @@ return;
           if (error) {
             console.error("[UPLOAD-V2]", error);
 
-            return res.status(502).json({
+            res.status(502).json({
               error: "Échec du transfert Supabase",
             });
+            return;
           }
 
-          return res.status(200).json({
+          res.status(200).json({
             success: true,
             objectPath,
             size: totalSize,
@@ -99,19 +111,29 @@ return;
         } catch (error) {
           console.error("[UPLOAD-V2]", error);
 
-          return res.status(500).json({
+          res.status(500).json({
             error: "Erreur pendant le transfert",
           });
         }
-      });
-    } catch (error) {
-      console.error("[UPLOAD-V2]", error);
+      })();
+    });
 
-      return res.status(500).json({
-        error: "Erreur serveur",
-      });
-    }
+    req.on("error", (error) => {
+      console.error("[UPLOAD-V2] Erreur réception", error);
+
+      if (!res.headersSent) {
+        res.status(400).json({
+          error: "Erreur pendant la réception du fichier",
+        });
+      }
+    });
+  } catch (error) {
+    console.error("[UPLOAD-V2]", error);
+
+    res.status(500).json({
+      error: "Erreur serveur",
+    });
   }
-);
+});
 
 export default router;
