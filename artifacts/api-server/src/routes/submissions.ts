@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { requireAuth } from "../middlewares/auth";
-import { supabaseAdmin } from "../lib/objectAcl";
+
 import {
   ObjectPermission,
 } from "../lib/objectAcl";
