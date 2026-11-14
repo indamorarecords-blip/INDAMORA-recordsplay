@@ -30,7 +30,11 @@ export async function uploadFileV2(
     }
   );
 
-  const result = await response.json().catch(() => null);
+  const result: {
+  success?: boolean;
+  objectPath?: string;
+  error?: string;
+} | null = await response.json().catch(() => null);
 
   if (!response.ok) {
     throw new Error(
