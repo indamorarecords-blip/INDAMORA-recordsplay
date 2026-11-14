@@ -274,47 +274,17 @@ export class ObjectStorageService {
     return file;
   }
 
-  async searchPublicObject(path: string): Promise<SupabaseFile | null> {
-    let normalized: string;
+    async searchPublicObject(path: string): Promise<SupabaseFile | null> {
+    const normalized = this.normalizeObjectEntityPath(path);
+    const file = new SupabaseFile(normalized);
 
-    try {
-      normalized = validatePath(path.replace(/^\/+/, ""));
-    } catch {
+    if (!(await file.exists())[0]) {
       return null;
     }
 
-    const file = new SupabaseFile(normalized);
+    const policy = await getObjectAclPolicy(file);
 
-    try {
-      if (!(await file.exists())[0]) {
-        return null;
-      }
-
-      const policy = await getObjectAclPolicy(file);
-      return policy?.visibility === "public" ? file : null;
---- a/artifacts/api-server/src/lib/objectStorage.ts
-+++ b/artifacts/api-server/src/lib/objectStorage.ts
-@@ -286,6 +286,25 @@
-     return normalized;
-   }
- 
-  async searchPublicObject(path: string): Promise<SupabaseFile | null> {
-    try {
-      const normalized = path.replace(/^\/+/, "");
-      const file = await this.getObjectEntityFile(`/objects/${normalized}`);
-      const policy = await getObjectAclPolicy(file);
-
-      if (policy?.visibility !== "public") {
-        return null;
-      }
-
-      return file;
-    } catch (error) {
-      if (error instanceof ObjectNotFoundError) {
-        return null;
-      }
-      throw error;
-    }
+    return policy?.visibility === "public" ? file : null;
   }
 
   async setAcl(
