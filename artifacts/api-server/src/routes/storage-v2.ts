@@ -18,9 +18,10 @@ router.put(
       const { userId } = getAuth(req);
 
       if (!userId) {
-        return res.status(401).json({
-          error: "Authentification requise",
-        });
+        res.status(401).json({
+  error: "Authentification requise",
+});
+return;
       }
 
       if (!supabaseUrl || !supabaseKey || !bucket) {
