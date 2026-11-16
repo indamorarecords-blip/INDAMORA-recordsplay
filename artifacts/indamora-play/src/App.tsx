@@ -143,9 +143,17 @@ async function uploadAsset(file: File, userId: string, onProgress: (value: numbe
     });
   }
   const completed = await fetch('/api/storage/uploads/complete', {
-    method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ objectPath }),
-  });
+  method: 'POST',
+  credentials: 'include',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    objectPath,
+    size: file.size,
+    contentType,
+  }),
+});
   if (!completed.ok) throw new Error((await completed.json().catch(() => null))?.error ?? 'Le fichier téléversé n’a pas pu être vérifié.');
   try { localStorage.removeItem(storageKey); } catch { /* Resumable URL storage is also cleared on success. */ }
   return objectPath;
