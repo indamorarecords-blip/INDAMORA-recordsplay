@@ -1,3 +1,4 @@
+import AdminModeration from './pages/AdminModeration';
 import { type FormEvent, type ReactNode, lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { ClerkProvider, SignIn, SignUp, useClerk, useUser } from '@clerk/react';
