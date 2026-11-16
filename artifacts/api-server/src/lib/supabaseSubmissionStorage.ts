@@ -1,26 +1,25 @@
 import { createHash, randomUUID } from 'node:crypto';
 
-const BUCKET = process.env.SUPABASE_MEDIA_BUCKET || 'indamora-media';
+const DEFAULT_BUCKET = 'indamora-media';
 
-const AUDIO_LIMIT = 100 * 1024 * 1024;
-const VIDEO_LIMIT = 500 * 1024 * 1024;
-const COVER_LIMIT = 10 * 1024 * 1024;
+const MAX_AUDIO_SIZE = 100 * 1024 * 1024;
+const MAX_VIDEO_SIZE = 500 * 1024 * 1024;
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
 
-const MIME_TYPES: Record<string, { mime: string; category: 'audio' | 'video' | 'cover' }> = {
-  mp3: { mime: 'audio/mpeg', category: 'audio' },
-  wav: { mime: 'audio/wav', category: 'audio' },
-  m4a: { mime: 'audio/mp4', category: 'audio' },
-  flac: { mime: 'audio/flac', category: 'audio' },
-  ogg: { mime: 'audio/ogg', category: 'audio' },
-
-  mp4: { mime: 'video/mp4', category: 'video' },
-  mov: { mime: 'video/quicktime', category: 'video' },
-  webm: { mime: 'video/webm', category: 'video' },
-
-  jpg: { mime: 'image/jpeg', category: 'cover' },
-  jpeg: { mime: 'image/jpeg', category: 'cover' },
-  png: { mime: 'image/png', category: 'cover' },
-  webp: { mime: 'image/webp', category: 'cover' },
+const MIME_TYPES: Record<string, string> = {
+  mp3: 'audio/mpeg',
+  wav: 'audio/wav',
+  m4a: 'audio/mp4',
+  flac: 'audio/flac',
+  ogg: 'audio/ogg',
+  aac: 'audio/aac',
+  mp4: 'video/mp4',
+  webm: 'video/webm',
+  mov: 'video/quicktime',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
 };
 
 export interface PrepareUploadInput {
@@ -36,7 +35,7 @@ export interface PreparedUpload {
   uploadToken: string;
   bucketName: string;
   objectPath: string;
-  alreadyUploaded: false;
+  alreadyUploaded: boolean;
 }
 
 export interface VerifyUploadInput {
@@ -46,170 +45,225 @@ export interface VerifyUploadInput {
   expectedContentType: string;
 }
 
-function getConfig() {
+interface StorageConfig {
+  supabaseUrl: string;
+  storageUrl: string;
+  serviceKey: string;
+  bucket: string;
+}
+
+export class SubmissionUploadError extends Error {
+  statusCode: number;
+
+  constructor(message: string, statusCode = 500) {
+    super(message);
+    this.name = 'SubmissionUploadError';
+    this.statusCode = statusCode;
+  }
+}
+
+function getConfig(): StorageConfig {
   const supabaseUrl = process.env.SUPABASE_URL?.replace(/\/+$/, '');
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const bucket =
+    process.env.SUPABASE_MEDIA_BUCKET || DEFAULT_BUCKET;
 
   if (!supabaseUrl || !serviceKey) {
-    throw new Error(
-      'Configuration Supabase manquante : SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY sont nécessaires.'
+    throw new SubmissionUploadError(
+      'Configuration Supabase incomplète.',
+      500
     );
   }
 
-  const parsedUrl = new URL(supabaseUrl);
+  let parsedUrl: URL;
 
-  if (parsedUrl.protocol !== 'https:' && parsedUrl.hostname !== 'localhost') {
-    throw new Error('SUPABASE_URL doit utiliser HTTPS.');
+  try {
+    parsedUrl = new URL(supabaseUrl);
+  } catch {
+    throw new SubmissionUploadError(
+      'URL Supabase invalide.',
+      500
+    );
   }
 
-  const projectRef = parsedUrl.hostname.split('.')[0];
+  if (parsedUrl.protocol !== 'https:') {
+    throw new SubmissionUploadError(
+      'Une connexion HTTPS est obligatoire.',
+      500
+    );
+  }
 
-  const tusEndpoint =
-    process.env.SUPABASE_STORAGE_TUS_ENDPOINT ||
-    `https://${projectRef}.storage.supabase.co/storage/v1/upload/resumable`;
+  const hostname = parsedUrl.hostname;
+
+  if (!hostname.endsWith('.supabase.co')) {
+    throw new SubmissionUploadError(
+      'Domaine Supabase non reconnu pour le transfert direct.',
+      500
+    );
+  }
+
+  const projectRef = hostname.replace('.supabase.co', '');
 
   return {
     supabaseUrl,
+    storageUrl: `https://${projectRef}.storage.supabase.co`,
     serviceKey,
-    tusEndpoint,
+    bucket,
   };
 }
 
-function ownerFolder(userId: string) {
+function ownerFolder(userId: string): string {
   return createHash('sha256')
     .update(userId)
     .digest('hex')
     .slice(0, 32);
 }
 
-function safeExtension(fileName: string) {
-  const extension = fileName.split('.').pop()?.toLowerCase() ?? '';
-
-  if (!MIME_TYPES[extension]) {
-    throw new Error('Format de fichier non accepté.');
-  }
-
-  return extension;
+function encodePath(path: string): string {
+  return path
+    .split('/')
+    .map((part) => encodeURIComponent(part))
+    .join('/');
 }
 
 function validateFile(
   fileName: string,
   size: number,
   contentType: string
-) {
+): string {
   if (!fileName || fileName.length > 180) {
-    throw new Error('Nom de fichier invalide.');
+    throw new SubmissionUploadError(
+      'Nom de fichier invalide.',
+      400
+    );
   }
 
   if (!Number.isSafeInteger(size) || size <= 0) {
-    throw new Error('Taille de fichier invalide.');
-  }
-
-  const extension = safeExtension(fileName);
-  const definition = MIME_TYPES[extension];
-
-  if (contentType !== definition.mime) {
-    throw new Error(
-      `Type de fichier incorrect. Le format .${extension} doit utiliser ${definition.mime}.`
+    throw new SubmissionUploadError(
+      'Taille de fichier invalide.',
+      400
     );
   }
 
-  const limit =
-    definition.category === 'audio'
-      ? AUDIO_LIMIT
-      : definition.category === 'video'
-        ? VIDEO_LIMIT
-        : COVER_LIMIT;
+  const extension =
+    fileName.split('.').pop()?.toLowerCase() || '';
 
-  if (size > limit) {
-    throw new Error(
-      `Fichier trop volumineux. La limite autorisée est de ${Math.round(limit / 1024 / 1024)} Mio.`
+  const expectedMime = MIME_TYPES[extension];
+
+  if (!expectedMime) {
+    throw new SubmissionUploadError(
+      'Format de fichier non autorisé.',
+      400
     );
   }
 
-  return { extension, definition };
+  if (contentType !== expectedMime) {
+    throw new SubmissionUploadError(
+      'Le type du fichier ne correspond pas à son extension.',
+      400
+    );
+  }
+
+  if (expectedMime.startsWith('audio/') && size > MAX_AUDIO_SIZE) {
+    throw new SubmissionUploadError(
+      'Le fichier audio dépasse la limite de 100 Mo.',
+      413
+    );
+  }
+
+  if (expectedMime.startsWith('video/') && size > MAX_VIDEO_SIZE) {
+    throw new SubmissionUploadError(
+      'La vidéo dépasse la limite de 500 Mo.',
+      413
+    );
+  }
+
+  if (expectedMime.startsWith('image/') && size > MAX_IMAGE_SIZE) {
+    throw new SubmissionUploadError(
+      'L’image dépasse la limite de 10 Mo.',
+      413
+    );
+  }
+
+  return expectedMime;
 }
 
 async function supabaseRequest(
   path: string,
-  init: RequestInit = {}
-) {
-  const { supabaseUrl, serviceKey } = getConfig();
+  options: RequestInit = {}
+): Promise<Response> {
+  const config = getConfig();
 
-  const response = await fetch(`${supabaseUrl}/storage/v1${path}`, {
-    ...init,
-    headers: {
-      apikey: serviceKey,
-      Authorization: `Bearer ${serviceKey}`,
-      ...(init.headers || {}),
-    },
-  });
-
-  const responseText = await response.text();
-
-  let data: any = null;
-
-  try {
-    data = responseText ? JSON.parse(responseText) : null;
-  } catch {
-    data = responseText;
-  }
+  const response = await fetch(
+    `${config.supabaseUrl}/storage/v1${path}`,
+    {
+      ...options,
+      headers: {
+        apikey: config.serviceKey,
+        Authorization: `Bearer ${config.serviceKey}`,
+        ...options.headers,
+      },
+    }
+  );
 
   if (!response.ok) {
-    const message =
-      data?.message ||
-      data?.error ||
-      data?.msg ||
-      `Erreur Supabase Storage (${response.status}).`;
+    const details = await response.text().catch(() => '');
 
-    throw new Error(message);
+    console.error(
+      '[INDAMORA STORAGE] Supabase error:',
+      response.status,
+      details.slice(0, 1000)
+    );
+
+    throw new SubmissionUploadError(
+      'Le service de stockage a refusé la demande.',
+      response.status >= 400 && response.status < 500
+        ? response.status
+        : 502
+    );
   }
 
-  return data;
+  return response;
 }
 
-function encodeObjectPath(objectPath: string) {
-  return objectPath
-    .split('/')
-    .map((part) => encodeURIComponent(part))
-    .join('/');
+function buildObjectPath(
+  userId: string,
+  fileName: string,
+  uploadKey?: string
+): string {
+  const extension =
+    fileName.split('.').pop()?.toLowerCase() || '';
+
+  const safeKey =
+    uploadKey && /^[0-9a-f-]{36}$/i.test(uploadKey)
+      ? uploadKey
+      : randomUUID();
+
+  return `submissions/${ownerFolder(userId)}/${safeKey}.${extension}`;
 }
 
 /**
- * Prépare un transfert TUS sécurisé.
- * Cette fonction doit être appelée uniquement depuis une route
- * serveur après authentification Clerk.
+ * Prépare un transfert TUS signé.
  */
 export async function prepareSubmissionUpload(
   input: PrepareUploadInput
 ): Promise<PreparedUpload> {
-  if (!input.userId) {
-    throw new Error('Utilisateur non authentifié.');
-  }
+  const config = getConfig();
 
-  const { extension } = validateFile(
+  const contentType = validateFile(
     input.fileName,
     input.size,
     input.contentType
   );
 
-  const uploadKey = input.uploadKey || randomUUID();
+  const objectPath = buildObjectPath(
+    input.userId,
+    input.fileName,
+    input.uploadKey
+  );
 
-  if (
-    uploadKey.length > 80 ||
-    !/^[a-zA-Z0-9-]+$/.test(uploadKey)
-  ) {
-    throw new Error('Identifiant de téléversement invalide.');
-  }
-
-  const objectPath =
-    `submissions/${ownerFolder(input.userId)}/` +
-    `${uploadKey}.${extension}`;
-
-  const encodedPath = encodeObjectPath(objectPath);
-
-  const signed = await supabaseRequest(
-    `/object/upload/sign/${encodeURIComponent(BUCKET)}/${encodedPath}`,
+  const signedResponse = await supabaseRequest(
+    `/object/upload/sign/${encodeURIComponent(config.bucket)}/${encodePath(objectPath)}`,
     {
       method: 'POST',
       headers: {
@@ -221,86 +275,91 @@ export async function prepareSubmissionUpload(
     }
   );
 
-  if (!signed?.token) {
-    throw new Error(
-      'Supabase n’a pas fourni de jeton de téléversement.'
+  const signed = await signedResponse.json() as {
+    url?: string;
+    signedURL?: string;
+    token?: string;
+  };
+
+  const uploadToken = signed.token;
+
+  if (!uploadToken) {
+    throw new SubmissionUploadError(
+      'Supabase n’a pas fourni de jeton de transfert.',
+      502
     );
   }
 
-  const { tusEndpoint } = getConfig();
-
   return {
-    uploadURL: tusEndpoint,
-    uploadToken: signed.token,
-    bucketName: BUCKET,
+    uploadURL: `${config.storageUrl}/storage/v1/upload/resumable`,
+    uploadToken,
+    bucketName: config.bucket,
     objectPath,
     alreadyUploaded: false,
   };
 }
 
 /**
- * Vérifie que le fichier existe réellement dans le bucket privé,
- * qu'il appartient au propriétaire et que ses métadonnées
- * correspondent aux informations attendues.
+ * Vérifie l'existence, le propriétaire et les caractéristiques du fichier.
  */
 export async function verifySubmissionUpload(
   input: VerifyUploadInput
 ) {
-  if (!input.userId) {
-    throw new Error('Utilisateur non authentifié.');
+  const config = getConfig();
+
+  if (
+    !input.objectPath.startsWith(
+      `submissions/${ownerFolder(input.userId)}/`
+    )
+  ) {
+    throw new SubmissionUploadError(
+      'Accès interdit à ce fichier.',
+      403
+    );
   }
 
-  if (!input.objectPath || input.objectPath.includes('..')) {
-    throw new Error('Chemin de fichier invalide.');
-  }
-
-  const expectedPrefix =
-    `submissions/${ownerFolder(input.userId)}/`;
-
-  if (!input.objectPath.startsWith(expectedPrefix)) {
-    throw new Error('Ce fichier ne vous appartient pas.');
-  }
-
-  const encodedPath = encodeObjectPath(input.objectPath);
-
-  const info = await supabaseRequest(
-    `/object/info/${encodeURIComponent(BUCKET)}/${encodedPath}`,
-    {
-      method: 'GET',
-    }
+  const infoResponse = await supabaseRequest(
+    `/object/info/${encodeURIComponent(config.bucket)}/${encodePath(input.objectPath)}`
   );
 
-  if (!info) {
-    throw new Error('Fichier introuvable dans Supabase Storage.');
-  }
+  const info = await infoResponse.json() as {
+    name?: string;
+    size?: number;
+    content_type?: string;
+    contentType?: string;
+    metadata?: {
+      size?: number;
+      mimetype?: string;
+      contentType?: string;
+    };
+  };
 
-  const metadata = info.metadata || {};
-
-  const actualSize = Number(
-    metadata.size ?? info.size ?? 0
-  );
+  const actualSize =
+    Number(info.size ?? info.metadata?.size ?? 0);
 
   const actualContentType =
-    metadata.mimetype ||
-    metadata.contentType ||
-    info.mimetype ||
-    info.contentType;
+    info.content_type ??
+    info.contentType ??
+    info.metadata?.mimetype ??
+    info.metadata?.contentType;
 
   if (actualSize !== input.expectedSize) {
-    throw new Error(
-      'La taille du fichier reçu ne correspond pas au fichier envoyé.'
+    throw new SubmissionUploadError(
+      'La taille du fichier reçu ne correspond pas.',
+      422
     );
   }
 
   if (actualContentType !== input.expectedContentType) {
-    throw new Error(
-      'Le type MIME du fichier reçu ne correspond pas au fichier envoyé.'
+    throw new SubmissionUploadError(
+      'Le format du fichier reçu ne correspond pas.',
+      422
     );
   }
 
   return {
-    bucketName: BUCKET,
     objectPath: input.objectPath,
+    bucket: config.bucket,
     size: actualSize,
     contentType: actualContentType,
     verified: true,
