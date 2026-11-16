@@ -457,7 +457,61 @@ function ArtistProfile() {
           <h2 className="display text-3xl font-bold mb-4">À propos</h2>
           <p className="leading-8 text-muted-foreground whitespace-pre-wrap">{person.bio}</p>
 
-          {person.specialties && person.specialties.length > 0 && (
-            <d **…**
+                    {person.specialties && person.specialties.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-lg font-bold mb-3">Spécialités</h3>
+              <div className="flex flex-wrap gap-2">
+                {person.specialties.map((specialty) => (
+                  <span
+                    key={specialty}
+                    className="rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold"
+                  >
+                    {specialty}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {works.length > 0 && (
+            <div className="mt-12">
+              <SectionHeading title="Ses œuvres" />
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+                {works.map((work) => (
+                  <WorkArtwork
+                    key={work.id}
+                    work={work}
+                    onOpen={setSelectedWork}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <aside className="rounded-2xl border border-border bg-card p-6">
+          <h3 className="text-xl font-bold">Informations</h3>
+          <p className="mt-4 text-sm text-muted-foreground">
+            {person.location}
+            {person.country ? `, ${person.country}` : ''}
+          </p>
+          <Link
+            href="/repertoire"
+            className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Retour au répertoire
+          </Link>
+        </aside>
+      </div>
+    </section>
+
+    <WorkSheet
+      id={selectedWork}
+      onClose={() => setSelectedWork(null)}
+    />
+  </div>;
+}
+            
 
 _This response is too long to display in full._
