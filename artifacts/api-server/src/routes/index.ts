@@ -9,6 +9,7 @@ import submissionsV2Router from "./submissions-v2";
 import submissionMediaRouter from './submission-media';
 import submissionUploadRouter from './submission-upload';
 import submissionModerationRouter from './submission-moderation';
+import submissionAdminListRouter from './submission-admin-list';
 
 const router: IRouter = Router();
 
@@ -19,6 +20,7 @@ router.use(indamoraRouter);
 router.use('/submissions', submissionUploadRouter);
 router.use('/submissions', submissionMediaRouter);
 router.use('/submissions', submissionModerationRouter);
+router.use('/submissions', submissionAdminListRouter);
 
 // Ancien système de stockage : conservé
 router.use(storageRouter);
