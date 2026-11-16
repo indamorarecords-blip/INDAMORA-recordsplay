@@ -13,10 +13,17 @@ const router: IRouter = Router();
 router.use(adminUsersRouter);
 router.use(healthRouter);
 router.use(indamoraRouter);
+
+// Ancien système de stockage : conservé
 router.use(storageRouter);
 
-// Nouvelle route indépendante de téléversement
+// Nouveau système de téléversement
 router.use("/storage", storageV2Router);
+
+// Nouveau système de téléversement sécurisé
+router.use("/storage", storageRouter);
+
+// Gestion des soumissions
 router.use(submissionsV2Router);
 
 export default router;
