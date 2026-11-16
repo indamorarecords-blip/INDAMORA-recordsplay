@@ -428,6 +428,63 @@ function Directory({ defaultGroup = 'artists' }: { defaultGroup?: DirectoryGroup
 function ChevronRightIcon() { return <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1" />; }
 
 function ArtistProfile() {
+  function AppRoutes() {
+  return (
+    <Switch>
+      <Route path="/admin/moderation" component={AdminModeration} />
+
+      <Route path="/">
+        <Shell>
+          <Home />
+        </Shell>
+      </Route>
+
+      <Route path="/repertoire">
+        <Shell>
+          <Directory />
+        </Shell>
+      </Route>
+
+      <Route path="/artists/:id">
+        <Shell>
+          <ArtistProfile />
+        </Shell>
+      </Route>
+
+      <Route>
+        <Shell>
+          <div className="mx-auto max-w-3xl px-5 py-20 text-center">
+            <h1 className="display text-4xl font-bold">Page introuvable</h1>
+            <Link href="/" className="mt-6 inline-flex rounded-full bg-primary px-6 py-3 font-bold text-primary-foreground">
+              Retour à l'accueil
+            </Link>
+          </div>
+        </Shell>
+      </Route>
+    </Switch>
+  );
+}
+
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ClerkProvider
+        publishableKey={clerkPubKey}
+        localization={frFR}
+        appearance={clerkAppearance}
+        proxyUrl={clerkProxyUrl}
+      >
+        <TooltipProvider>
+          <ErrorBoundary>
+            <TrafficCollector />
+            <AppRoutes />
+            <Toaster />
+          </ErrorBoundary>
+        </TooltipProvider>
+      </ClerkProvider>
+    </QueryClientProvider>
+  );
+}
   const params = useParams<{ id: string }>();
   const id = Number(params.id);
   const [selectedWork, setSelectedWork] = useState<number | null>(null);
