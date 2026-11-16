@@ -8,6 +8,7 @@ import storageV2Router from "./storage-v2";
 import submissionsV2Router from "./submissions-v2";
 import submissionMediaRouter from './submission-media';
 import submissionUploadRouter from './submission-upload';
+import submissionModerationRouter from './submission-moderation';
 
 const router: IRouter = Router();
 
@@ -17,6 +18,7 @@ router.use(healthRouter);
 router.use(indamoraRouter);
 router.use('/submissions', submissionUploadRouter);
 router.use('/submissions', submissionMediaRouter);
+router.use('/submissions', submissionModerationRouter);
 
 // Ancien système de stockage : conservé
 router.use(storageRouter);
