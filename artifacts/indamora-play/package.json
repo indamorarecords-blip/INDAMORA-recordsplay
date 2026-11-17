@@ -78,5 +78,6 @@
     "@clerk/localizations": "^4.17.1",
     "@clerk/react": "^6.16.1",
     "@clerk/themes": "^2.4.57"
+    "tus-js-client": "^4.3.1"
   }
 }
