@@ -781,6 +781,7 @@ function Router() {
           {/* Modération */}
           <Route path="/moderation" component={Moderation} />
           <Route path="/admin/moderation" component={Moderation} />
+          <Route path="/admin/moderation" component={AdminModeration} />
 
           <Route path="/administration" component={AdminDashboard} />
           <Route path="/pricing" component={Pricing} />
