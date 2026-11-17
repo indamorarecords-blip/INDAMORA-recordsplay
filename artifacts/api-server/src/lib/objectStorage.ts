@@ -10,7 +10,10 @@ import {
 function getConfig() {
   const url = process.env.SUPABASE_URL?.replace(/\/$/, "");
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const bucket = process.env.SUPABASE_MEDIA_BUCKET || "indamora-media";
+  const bucket =
+  process.env.SUPABASE_STORAGE_BUCKET ||
+  process.env.SUPABASE_MEDIA_BUCKET ||
+  "indamora-media";
 
   if (!url || !key) {
     throw new Error("Configuration Supabase manquante.");
