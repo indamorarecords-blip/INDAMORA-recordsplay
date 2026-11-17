@@ -66,7 +66,9 @@ function getConfig(): StorageConfig {
   const supabaseUrl = process.env.SUPABASE_URL?.replace(/\/+$/, '');
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   const bucket =
-    process.env.SUPABASE_MEDIA_BUCKET || DEFAULT_BUCKET;
+  process.env.SUPABASE_STORAGE_BUCKET ||
+  process.env.SUPABASE_MEDIA_BUCKET ||
+  DEFAULT_BUCKET;
 
   if (!supabaseUrl || !serviceKey) {
     throw new SubmissionUploadError(
