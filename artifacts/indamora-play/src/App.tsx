@@ -577,7 +577,8 @@ function Submit() {
    const [coverFile, setCoverFile] = useState<File | null>(null);
    const [uploading, setUploading] = useState(false);
    const [uploadProgress, setUploadProgress] = useState(0);
-  const [done, setDone] = useState<Submission | null>(null);
+   const [done, setDone] = useState<Submission | null>(null);
+   const [doneProfile, setDoneProfile] = useState(false);
   const [error, setError] = useState('');
   const update = (key: keyof typeof form, value: string | boolean) => setForm((current) => ({ ...current, [key]: value }));
    const submit = async (event: FormEvent) => {
