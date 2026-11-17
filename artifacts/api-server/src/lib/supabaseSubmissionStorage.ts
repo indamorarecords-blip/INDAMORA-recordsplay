@@ -324,6 +324,107 @@ export async function verifySubmissionUpload(
     `/object/info/${encodeURIComponent(config.bucket)}/${encodePath(input.objectPath)}`
   );
 
+  let payload: unknown;
+
+  try {
+    payload = await infoResponse.json();
+  } catch {
+    throw new SubmissionUploadError(
+      'Réponse des métadonnées Supabase invalide.',
+      502
+    );
+  }
+
+  if (
+    !payload ||
+    typeof payload !== 'object' ||
+    Array.isArray(payload)
+  ) {
+    throw new SubmissionUploadError(
+      'Métadonnées du fichier invalides.',
+      502
+    );
+  }
+
+  const info = payload as Record<string, unknown>;
+
+  const metadata =
+    info.metadata &&
+    typeof info.metadata === 'object' &&
+    !Array.isArray(info.metadata)
+      ? info.metadata as Record<string, unknown>
+      : {};
+
+  const actualSize = Number(
+    info.size ?? metadata.size
+  );
+
+  const rawContentType =
+    info.content_type ??
+    info.contentType ??
+    metadata.mimetype ??
+    metadata.contentType ??
+    metadata.content_type;
+
+  const actualContentType = String(
+    rawContentType ?? ''
+  ).trim().toLowerCase().split(';')[0];
+
+  const expectedContentType = input.expectedContentType
+    .trim()
+    .toLowerCase()
+    .split(';')[0];
+
+  if (
+    !Number.isSafeInteger(actualSize) ||
+    actualSize < 1 ||
+    !actualContentType
+  ) {
+    throw new SubmissionUploadError(
+      'Les métadonnées du fichier sont incomplètes.',
+      502
+    );
+  }
+
+  if (actualSize !== input.expectedSize) {
+    throw new SubmissionUploadError(
+      'La taille du fichier reçu ne correspond pas.',
+      422
+    );
+  }
+
+  if (actualContentType !== expectedContentType) {
+    throw new SubmissionUploadError(
+      'Le format du fichier reçu ne correspond pas.',
+      422
+    );
+  }
+
+  return {
+    objectPath: input.objectPath,
+    bucket: config.bucket,
+    size: actualSize,
+    contentType: actualContentType,
+    verified: true,
+  };
+}
+  const config = getConfig();
+
+  if (
+    !input.objectPath.startsWith(
+      `submissions/${ownerFolder(input.userId)}/`
+    )
+  ) {
+    throw new SubmissionUploadError(
+      'Accès interdit à ce fichier.',
+      403
+    );
+  }
+
+  const infoResponse = await supabaseRequest(
+    `/object/info/${encodeURIComponent(config.bucket)}/${encodePath(input.objectPath)}`
+  );
+
   const info = await infoResponse.json() as {
     name?: string;
     size?: number;
