@@ -1,3 +1,4 @@
+import * as tus from 'tus-js-client';
 import AdminModeration from './pages/AdminModeration';
 import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
@@ -65,26 +66,97 @@ function isAdminEmail(email?: string | null) {
 }
 const storageUrl = (path?: string | null) => path ? `/api/storage${path}` : undefined;
 async function uploadAsset(file: File, onProgress: (value: number) => void) {
+  const uploadKey = crypto.randomUUID();
+
+  // 1. Demander une URL de transfert signée au backend
   const response = await fetch('/api/storage/uploads/request-url', {
-    method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type }),
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: file.name,
+      size: file.size,
+      contentType: file.type,
+      uploadKey,
+    }),
   });
-  if (!response.ok) throw new Error((await response.json().catch(() => null))?.error ?? 'Upload impossible.');
-  const { uploadURL, objectPath } = await response.json() as { uploadURL: string; objectPath: string };
-  await new Promise<void>((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('PUT', uploadURL);
-    xhr.setRequestHeader('Content-Type', file.type);
-    xhr.upload.onprogress = (event) => { if (event.lengthComputable) onProgress(Math.round(event.loaded / event.total * 100)); };
-    xhr.onload = () => xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error('Le téléversement a échoué.'));
-    xhr.onerror = () => reject(new Error('Le téléversement a échoué.'));
-    xhr.send(file);
-  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => null);
+    throw new Error(error?.error ?? 'Impossible de préparer le transfert.');
+  }
+
+  const {
+    uploadURL,
+    uploadToken,
+    bucketName,
+    objectPath,
+    alreadyUploaded,
+  } = await response.json();
+
+  if (!objectPath) {
+    throw new Error('Le chemin du fichier est manquant.');
+  }
+
+  // 2. Si le fichier existe déjà, passer directement à la vérification
+  if (!alreadyUploaded) {
+    if (!uploadURL || !uploadToken || !bucketName) {
+      throw new Error('Les informations de transfert Supabase sont incomplètes.');
+    }
+
+    await new Promise<void>((resolve, reject) => {
+      const upload = new tus.Upload(file, {
+        endpoint: uploadURL,
+        headers: {
+          'x-signature': uploadToken,
+        },
+        metadata: {
+          bucketName,
+          objectName: objectPath,
+          contentType: file.type,
+          cacheControl: '3600',
+        },
+        chunkSize: 6 * 1024 * 1024,
+        retryDelays: [0, 1000, 3000, 5000],
+        uploadDataDuringCreation: true,
+        removeFingerprintOnSuccess: true,
+
+        onError(error) {
+          reject(error);
+        },
+
+        onProgress(bytesUploaded, bytesTotal) {
+          const progress = Math.round((bytesUploaded / bytesTotal) * 100);
+          onProgress(progress);
+        },
+
+        onSuccess() {
+          onProgress(100);
+          resolve();
+        },
+      });
+
+      upload.start();
+    });
+  }
+
+  // 3. Vérifier et finaliser le fichier côté serveur
   const completed = await fetch('/api/storage/uploads/complete', {
-    method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ objectPath }),
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      objectPath,
+      size: file.size,
+      contentType: file.type,
+    }),
   });
-  if (!completed.ok) throw new Error('Le fichier téléversé n’a pas pu être finalisé.');
+
+  if (!completed.ok) {
+    const error = await completed.json().catch(() => null);
+    throw new Error(error?.error ?? 'Le fichier téléversé n’a pas pu être finalisé.');
+  }
+
   return objectPath;
 }
 const clerkAppearance = {
