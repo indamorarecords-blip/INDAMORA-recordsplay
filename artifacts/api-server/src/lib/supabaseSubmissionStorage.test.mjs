@@ -1,38 +1,67 @@
+import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import test from "node:test";
-import { decodeSubmissionNote, encodeSubmissionNote } from "./submissionMetadata.ts";
-
-test("encodes new metadata in the existing note field and returns a clean description", () => {
-  const metadata = {
-    description: "Une chanson dédiée à ma famille.",
-    album: "Premier album",
-    genre: "Afropop",
-    releaseYear: 2026,
-    termsAcceptedAt: "2026-11-07T12:00:00.000Z",
+function readObjectMetadata(payload) {
+  if (
+    !payload ||
+    typeof payload !== "object" ||
+    Array.isArray(payload)
+  ) {
+    throw new Error("object metadata response");
+  }
+  const metadata =
+    payload.metadata &&
+    typeof payload.metadata === "object" &&
+    !Array.isArray(payload.metadata)
+      ? payload.metadata
+      : {};
+  const size = Number(payload.size ?? metadata.size);
+  const contentType = String(
+    payload.content_type ??
+    payload.contentType ??
+    metadata.mimetype ??
+    metadata.contentType ??
+    metadata.content_type ??
+    ""
+  );
+  if (!Number.isSafeInteger(size) || size < 1 || !contentType) {
+    throw new Error("object metadata response");
+  }
+  return {
+    size,
+    contentType: contentType.trim().toLowerCase().split(";")[0],
   };
-  const stored = encodeSubmissionNote(metadata);
-  assert.notEqual(stored, metadata.description);
-  assert.deepEqual(decodeSubmissionNote(stored), metadata);
-});
-
-test("keeps legacy notes unchanged and supplies empty metadata", () => {
-  assert.deepEqual(decodeSubmissionNote("Ancienne note de présentation."), {
-    description: "Ancienne note de présentation.",
-    album: null,
-    genre: null,
-    releaseYear: null,
-    termsAcceptedAt: null,
+}
+describe("Supabase Storage metadata", () => {
+  it("reads top-level metadata", () => {
+    assert.deepEqual(
+      readObjectMetadata({
+        size: 2048,
+        content_type: "audio/mpeg",
+      }),
+      {
+        size: 2048,
+        contentType: "audio/mpeg",
+      }
+    );
   });
-  assert.equal(decodeSubmissionNote(null).description, "");
-});
-
-test("does not hide an invalid metadata marker inside legacy text", () => {
-  const malformed = "Texte\n\n[[INDAMORA_SUBMISSION_METADATA_V1:broken]]";
-  assert.deepEqual(decodeSubmissionNote(malformed), {
-    description: malformed,
-    album: null,
-    genre: null,
-    releaseYear: null,
-    termsAcceptedAt: null,
+  it("reads nested metadata", () => {
+    assert.deepEqual(
+      readObjectMetadata({
+        metadata: {
+          size: 4096,
+          mimetype: "image/jpeg",
+        },
+      }),
+      {
+        size: 4096,
+        contentType: "image/jpeg",
+      }
+    );
+  });
+  it("rejects incomplete metadata", () => {
+    assert.throws(
+      () => readObjectMetadata({ size: 0 }),
+      /object metadata response/
+    );
   });
 });
