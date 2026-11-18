@@ -248,9 +248,9 @@ export const GetSubmissionsQueryParams = zod.object({
 
 export const GetSubmissionsResponseItem = zod.object({
   "id": zod.number().int(),
-  "title": zod.string(),
-  "artist": zod.string(),
-  "category": zod.string(),
+  "title": zod.string().nullish(),
+  "artist": zod.string().nullish(),
+  "category": zod.string().nullish(),
   "submittedAt": zod.string(),
   "status": zod.enum(['pending', 'approved', 'rejected']),
   "note": zod.string().nullish(),
@@ -288,9 +288,9 @@ export const CreateSubmissionBody = zod.object({
 
 export const CreateSubmissionResponse = zod.object({
   "id": zod.number().int(),
-  "title": zod.string(),
-  "artist": zod.string(),
-  "category": zod.string(),
+  "title": zod.string().nullish(),
+  "artist": zod.string().nullish(),
+  "category": zod.string().nullish(),
   "submittedAt": zod.string(),
   "status": zod.enum(['pending', 'approved', 'rejected']),
   "note": zod.string().nullish(),
@@ -314,9 +314,9 @@ export const UpdateSubmissionStatusBody = zod.object({
 
 export const UpdateSubmissionStatusResponse = zod.object({
   "id": zod.number().int(),
-  "title": zod.string(),
-  "artist": zod.string(),
-  "category": zod.string(),
+  "title": zod.string().nullish(),
+  "artist": zod.string().nullish(),
+  "category": zod.string().nullish(),
   "submittedAt": zod.string(),
   "status": zod.enum(['pending', 'approved', 'rejected']),
   "note": zod.string().nullish(),
