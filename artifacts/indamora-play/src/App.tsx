@@ -593,6 +593,83 @@ function Submit() {
   event.preventDefault();
   setError('');
 
+  try {
+    setUploading(true);
+    setUploadProgress(0);
+
+    let mediaObjectPath: string | undefined;
+    let coverObjectPath: string | undefined;
+
+    // Audio ou vidéo uniquement si un fichier est joint
+    if (mediaFile) {
+      mediaObjectPath = await uploadAsset(
+        mediaFile,
+        (value) => setUploadProgress(
+          coverFile ? Math.round(value / 2) : value
+        )
+      );
+    }
+
+    // Couverture uniquement si une image est jointe
+    if (coverFile) {
+      coverObjectPath = await uploadAsset(
+        coverFile,
+        (value) => setUploadProgress(
+          mediaFile ? Math.round(50 + value / 2) : value
+        )
+      );
+    }
+
+    // Candidature de profil uniquement si la case est cochée
+    if (form.addProfile) {
+      await createArtist.mutateAsync({
+        data: {
+          name: form.artist.trim() || undefined,
+          category: form.category.trim() || undefined,
+          bio: form.bio.trim() || undefined,
+          location: form.location.trim() || undefined,
+        },
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: getGetArtistsQueryKey(),
+      });
+    }
+
+    // Envoi de la proposition, même sans aucun fichier
+    const created = await createSubmission.mutateAsync({
+      data: {
+        title: form.title.trim() || undefined,
+        artist: form.artist.trim() || undefined,
+        category: form.category.trim() || undefined,
+        note: form.note.trim() || undefined,
+        mediaType: mediaFile
+          ? mediaFile.type.startsWith('video/')
+            ? 'video'
+            : 'audio'
+          : undefined,
+        mediaObjectPath,
+        coverObjectPath,
+      },
+    });
+
+    setDone(created);
+
+    await queryClient.invalidateQueries({
+      queryKey: getGetSubmissionsQueryKey(),
+    });
+
+  } catch (submissionError) {
+    setError(
+      submissionError instanceof Error
+        ? submissionError.message
+        : "Votre proposition n'a pas pu être envoyée."
+    );
+  } finally {
+    setUploading(false);
+  }
+};
+
   const artistName = form.artist.trim();
   const biography = form.bio.trim();
 
