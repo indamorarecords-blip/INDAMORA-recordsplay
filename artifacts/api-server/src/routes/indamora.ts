@@ -343,54 +343,127 @@ router.get("/submissions", requireAuth, async (req, res): Promise<void> => {
 
 router.post("/submissions", requireAuth, async (req, res): Promise<void> => {
   const parsed = CreateSubmissionBody.safeParse(req.body);
+
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
+
+  const data = parsed.data;
+
+  // Un média peut être absent.
+  // En revanche, si un chemin de média est fourni, son type doit l'être aussi.
+  if (data.mediaObjectPath && !data.mediaType) {
+    res.status(400).json({
+      error: "Le type du média est nécessaire lorsque vous joignez un fichier.",
+    });
+    return;
+  }
+
   try {
-    const media = await objectStorage.getObjectEntityFile(parsed.data.mediaObjectPath);
-    const [mediaMetadata] = await media.getMetadata();
-    const mediaType = String(mediaMetadata.contentType ?? "");
-    const mediaSize = Number(mediaMetadata.size ?? 0);
-    const validMedia =
-      parsed.data.mediaType === "video"
-        ? allowedVideoTypes.has(mediaType) && mediaSize > 0 && mediaSize <= maxVideoBytes
-        : allowedAudioTypes.has(mediaType) && mediaSize > 0 && mediaSize <= maxAudioBytes;
-    if (!validMedia) {
-      res.status(400).json({ error: "Le type du fichier ne correspond pas à l’œuvre." });
-      return;
-    }
-    if (!(await objectStorage.canAccessObjectEntity({
-      userId: req.clerkUserId,
-      objectFile: media,
-      requestedPermission: ObjectPermission.WRITE,
-    }))) {
-      res.status(403).json({ error: "Le média doit être téléversé par votre compte." });
-      return;
-    }
-    if (parsed.data.coverObjectPath) {
-      const cover = await objectStorage.getObjectEntityFile(parsed.data.coverObjectPath);
-      const [coverMetadata] = await cover.getMetadata();
-      const coverType = String(coverMetadata.contentType ?? "");
-      const coverSize = Number(coverMetadata.size ?? 0);
-      if (!allowedImageTypes.has(coverType) || coverSize <= 0 || coverSize > maxImageBytes) {
-        res.status(400).json({ error: "La couverture doit être une image." });
+    // Vérification du média uniquement s'il existe
+    if (data.mediaObjectPath) {
+      const media = await objectStorage.getObjectEntityFile(
+        data.mediaObjectPath
+      );
+
+      const [mediaMetadata] = await media.getMetadata();
+      const mediaContentType = String(mediaMetadata.contentType ?? "");
+      const mediaSize = Number(mediaMetadata.size ?? 0);
+
+      const validMedia =
+        data.mediaType === "video"
+          ? allowedVideoTypes.has(mediaContentType) &&
+            mediaSize > 0 &&
+            mediaSize <= maxVideoBytes
+          : allowedAudioTypes.has(mediaContentType) &&
+            mediaSize > 0 &&
+            mediaSize <= maxAudioBytes;
+
+      if (!validMedia) {
+        res.status(400).json({
+          error: "Le type du fichier ne correspond pas à l’œuvre.",
+        });
         return;
       }
-      if (!(await objectStorage.canAccessObjectEntity({ userId: req.clerkUserId, objectFile: cover, requestedPermission: ObjectPermission.WRITE }))) {
-        res.status(403).json({ error: "La couverture doit être téléversée par votre compte." });
+
+      const canAccessMedia = await objectStorage.canAccessObjectEntity({
+        userId: req.clerkUserId,
+        objectFile: media,
+        requestedPermission: ObjectPermission.WRITE,
+      });
+
+      if (!canAccessMedia) {
+        res.status(403).json({
+          error: "Le média doit être téléversé par votre compte.",
+        });
+        return;
+      }
+    }
+
+    // Vérification de la couverture uniquement si elle existe
+    if (data.coverObjectPath) {
+      const cover = await objectStorage.getObjectEntityFile(
+        data.coverObjectPath
+      );
+
+      const [coverMetadata] = await cover.getMetadata();
+      const coverContentType = String(coverMetadata.contentType ?? "");
+      const coverSize = Number(coverMetadata.size ?? 0);
+
+      if (
+        !allowedImageTypes.has(coverContentType) ||
+        coverSize <= 0 ||
+        coverSize > maxImageBytes
+      ) {
+        res.status(400).json({
+          error: "La couverture doit être une image.",
+        });
+        return;
+      }
+
+      const canAccessCover = await objectStorage.canAccessObjectEntity({
+        userId: req.clerkUserId,
+        objectFile: cover,
+        requestedPermission: ObjectPermission.WRITE,
+      });
+
+      if (!canAccessCover) {
+        res.status(403).json({
+          error: "La couverture doit être téléversée par votre compte.",
+        });
         return;
       }
     }
   } catch {
-    res.status(400).json({ error: "Les fichiers téléversés sont introuvables." });
+    res.status(400).json({
+      error: "Les fichiers téléversés sont introuvables.",
+    });
     return;
   }
+
   const [submission] = await db
     .insert(submissionsTable)
-    .values({ ...parsed.data, ownerId: req.clerkUserId })
+    .values({
+      title: data.title?.trim() || null,
+      artist: data.artist?.trim() || null,
+      category: data.category?.trim() || null,
+      note: data.note?.trim() || null,
+      mediaType: data.mediaType ?? null,
+      mediaObjectPath: data.mediaObjectPath ?? null,
+      coverObjectPath: data.coverObjectPath ?? null,
+      duration: data.duration ?? null,
+      ownerId: req.clerkUserId,
+    })
     .returning();
-  res.status(201).json(CreateSubmissionResponse.parse(submissionsForClient([submission])[0]));
+
+  res
+    .status(201)
+    .json(
+      CreateSubmissionResponse.parse(
+        submissionsForClient([submission])[0]
+      )
+    );
 });
 
 router.patch("/submissions/:id/status", requireAdmin, async (req, res): Promise<void> => {
