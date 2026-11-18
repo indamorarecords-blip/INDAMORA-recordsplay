@@ -572,7 +572,15 @@ function Submit() {
   const createSubmission = useCreateSubmission();
   const createArtist = useCreateArtist();
   const queryClient = useQueryClient();
-   const [form, setForm] = useState({ title: '', artist: '', category: 'Musique', note: '', location: '', bio: '', addProfile: false });
+   const [form, setForm] = useState({
+  title: '',
+  artist: '',
+  category: '',
+  note: '',
+  location: '',
+  bio: '',
+  addProfile: false
+});
    const [mediaFile, setMediaFile] = useState<File | null>(null);
    const [coverFile, setCoverFile] = useState<File | null>(null);
    const [uploading, setUploading] = useState(false);
