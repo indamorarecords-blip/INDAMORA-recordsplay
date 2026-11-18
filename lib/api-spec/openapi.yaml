@@ -456,7 +456,7 @@ components:
         access:
           type: string
           enum: [free, premium]
-        Submission:
+            Submission:
       type: object
       required: [id, submittedAt, status]
       properties:
@@ -473,7 +473,7 @@ components:
         mediaObjectPath: { type: ["string", "null"] }
         coverObjectPath: { type: ["string", "null"] }
         duration: { type: ["string", "null"] }
-        SubmissionInput:
+            SubmissionInput:
       type: object
       properties:
         title: { type: string }
