@@ -597,8 +597,84 @@ function Submit() {
   };
 
   const submit = async (event: FormEvent) => {
-    event.preventDefault();
-    setError('');
+  event.preventDefault();
+  setError('');
+
+  try {
+    setUploading(true);
+    setUploadProgress(0);
+
+    let mediaObjectPath: string | undefined;
+    let coverObjectPath: string | undefined;
+    let mediaType: 'audio' | 'video' | undefined;
+
+    // Le média est facultatif
+    if (mediaFile) {
+      mediaObjectPath = await uploadAsset(mediaFile, (value) => {
+        setUploadProgress(coverFile ? Math.round(value / 2) : value);
+      });
+
+      mediaType = mediaFile.type.startsWith('video/')
+        ? 'video'
+        : 'audio';
+    }
+
+    // La couverture est facultative
+    if (coverFile) {
+      coverObjectPath = await uploadAsset(coverFile, (value) => {
+        setUploadProgress(
+          mediaFile ? Math.round(50 + value / 2) : value
+        );
+      });
+    }
+
+    // Création du profil uniquement si les informations sont complètes
+    if (
+      form.addProfile &&
+      form.artist.trim() &&
+      form.category.trim() &&
+      form.bio.trim() &&
+      form.location.trim()
+    ) {
+      await createArtist.mutateAsync({
+        data: {
+          name: form.artist.trim(),
+          category: form.category.trim(),
+          bio: form.bio.trim(),
+          location: form.location.trim(),
+        },
+      });
+    }
+
+    // Envoi de la proposition, même sans média
+    const created = await createSubmission.mutateAsync({
+      data: {
+        title: form.title.trim(),
+        artist: form.artist.trim(),
+        category: form.category.trim(),
+        note: form.note.trim() || undefined,
+        mediaType,
+        mediaObjectPath,
+        coverObjectPath,
+      },
+    });
+
+    setDone(created);
+
+    void queryClient.invalidateQueries({
+      queryKey: getGetSubmissionsQueryKey(),
+    });
+  } catch (submissionError) {
+    setError(
+      submissionError instanceof Error
+        ? submissionError.message
+        : 'Votre proposition n’a pas pu être envoyée.'
+    );
+  } finally {
+    setUploading(false);
+    setUploadProgress(0);
+  }
+};
 
     try {
       setUploading(true);
