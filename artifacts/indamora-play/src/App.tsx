@@ -845,8 +845,9 @@ function Submit() {
               </h2>
 
               <p className="mt-1 text-sm text-muted-foreground">
-                Tous les champs sont facultatifs.
-              </p>
+  Tous les champs sont facultatifs. Vous pouvez envoyer votre proposition
+  avec ou sans fichier.
+</p>
             </div>
 
             <FileMusic className="h-7 w-7 text-primary" />
