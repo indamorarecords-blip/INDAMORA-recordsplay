@@ -276,14 +276,14 @@ export const createSubmissionBodyCategoryMin = 2;
 
 
 export const CreateSubmissionBody = zod.object({
-  "title": zod.string().min(createSubmissionBodyTitleMin),
-  "artist": zod.string().min(createSubmissionBodyArtistMin),
-  "category": zod.string().min(createSubmissionBodyCategoryMin),
-  "note": zod.string().optional(),
-  "mediaType": zod.enum(['audio', 'video']),
-  "mediaObjectPath": zod.string().min(1),
-  "coverObjectPath": zod.string().min(1).optional(),
-  "duration": zod.string().optional()
+  "title": zod.string().nullish(),
+  "artist": zod.string().nullish(),
+  "category": zod.string().nullish(),
+  "note": zod.string().nullish(),
+  "mediaType": zod.enum(['audio', 'video']).nullish(),
+  "mediaObjectPath": zod.string().nullish(),
+  "coverObjectPath": zod.string().nullish(),
+  "duration": zod.string().nullish()
 })
 
 export const CreateSubmissionResponse = zod.object({
