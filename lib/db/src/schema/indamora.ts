@@ -41,11 +41,19 @@ export const worksTable = pgTable("works", {
 
 export const submissionsTable = pgTable("submissions", {
   id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  artist: text("artist").notNull(),
-  category: text("category").notNull(),
+  title: text("title"),
+  artist: text("artist"),
+  category: text("category"),
   submittedAt: timestamp("submitted_at", { withTimezone: true }).notNull().defaultNow(),
   status: text("status").notNull().default("pending"),
+  note: text("note"),
+  ownerId: text("owner_id"),
+  mediaType: text("media_type"),
+  mediaObjectPath: text("media_object_path"),
+  coverObjectPath: text("cover_object_path"),
+  duration: text("duration"),
+  publishedWorkId: integer("published_work_id"),
+});
   note: text("note"),
   ownerId: text("owner_id"),
   mediaType: text("media_type"),

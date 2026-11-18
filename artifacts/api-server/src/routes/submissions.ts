@@ -1,12 +1,24 @@
 import { Router, type IRouter } from "express";
 import { requireAuth } from "../middlewares/auth";
-import { supabaseAdmin } from "../lib/objectAcl";
+
 import {
   ObjectPermission,
 } from "../lib/objectAcl";
 import { ObjectStorageService } from "../lib/objectStorage";
+import { createClient } from "@supabase/supabase-js";
 
 const router: IRouter = Router();
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  throw new Error("Configuration Supabase manquante.");
+}
+
+const supabaseAdmin = createClient(
+  supabaseUrl,
+  supabaseServiceKey
+);
 const storage = new ObjectStorageService();
 
 router.post("/submissions", requireAuth, async (req, res) => {

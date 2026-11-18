@@ -1,3 +1,5 @@
+import * as tus from 'tus-js-client';
+import AdminModeration from './pages/AdminModeration';
 import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { ClerkProvider, SignIn, SignUp, useClerk, useUser } from '@clerk/react';
@@ -25,7 +27,7 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import { AdminUserList } from '@/components/admin-user-list';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import SubmitPage from "./pages/SubmitPage";
+
 const queryClient = new QueryClient();
 const ADMIN_EMAIL = 'indamorarecords@gmail.com';
 const categories = ['Musique', 'Humour', 'Cinéma et vidéos', 'Podcasts', 'Autres créations'];
@@ -64,26 +66,97 @@ function isAdminEmail(email?: string | null) {
 }
 const storageUrl = (path?: string | null) => path ? `/api/storage${path}` : undefined;
 async function uploadAsset(file: File, onProgress: (value: number) => void) {
+  const uploadKey = crypto.randomUUID();
+
+  // 1. Demander une URL de transfert signée au backend
   const response = await fetch('/api/storage/uploads/request-url', {
-    method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type }),
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: file.name,
+      size: file.size,
+      contentType: file.type,
+      uploadKey,
+    }),
   });
-  if (!response.ok) throw new Error((await response.json().catch(() => null))?.error ?? 'Upload impossible.');
-  const { uploadURL, objectPath } = await response.json() as { uploadURL: string; objectPath: string };
-  await new Promise<void>((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('PUT', uploadURL);
-    xhr.setRequestHeader('Content-Type', file.type);
-    xhr.upload.onprogress = (event) => { if (event.lengthComputable) onProgress(Math.round(event.loaded / event.total * 100)); };
-    xhr.onload = () => xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error('Le téléversement a échoué.'));
-    xhr.onerror = () => reject(new Error('Le téléversement a échoué.'));
-    xhr.send(file);
-  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => null);
+    throw new Error(error?.error ?? 'Impossible de préparer le transfert.');
+  }
+
+  const {
+    uploadURL,
+    uploadToken,
+    bucketName,
+    objectPath,
+    alreadyUploaded,
+  } = await response.json();
+
+  if (!objectPath) {
+    throw new Error('Le chemin du fichier est manquant.');
+  }
+
+  // 2. Si le fichier existe déjà, passer directement à la vérification
+  if (!alreadyUploaded) {
+    if (!uploadURL || !uploadToken || !bucketName) {
+      throw new Error('Les informations de transfert Supabase sont incomplètes.');
+    }
+
+    await new Promise<void>((resolve, reject) => {
+      const upload = new tus.Upload(file, {
+        endpoint: uploadURL,
+        headers: {
+          'x-signature': uploadToken,
+        },
+        metadata: {
+          bucketName,
+          objectName: objectPath,
+          contentType: file.type,
+          cacheControl: '3600',
+        },
+        chunkSize: 6 * 1024 * 1024,
+        retryDelays: [0, 1000, 3000, 5000],
+        uploadDataDuringCreation: true,
+        removeFingerprintOnSuccess: true,
+
+        onError(error) {
+          reject(error);
+        },
+
+        onProgress(bytesUploaded, bytesTotal) {
+          const progress = Math.round((bytesUploaded / bytesTotal) * 100);
+          onProgress(progress);
+        },
+
+        onSuccess() {
+          onProgress(100);
+          resolve();
+        },
+      });
+
+      upload.start();
+    });
+  }
+
+  // 3. Vérifier et finaliser le fichier côté serveur
   const completed = await fetch('/api/storage/uploads/complete', {
-    method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ objectPath }),
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      objectPath,
+      size: file.size,
+      contentType: file.type,
+    }),
   });
-  if (!completed.ok) throw new Error('Le fichier téléversé n’a pas pu être finalisé.');
+
+  if (!completed.ok) {
+    const error = await completed.json().catch(() => null);
+    throw new Error(error?.error ?? 'Le fichier téléversé n’a pas pu être finalisé.');
+  }
+
   return objectPath;
 }
 const clerkAppearance = {
@@ -495,99 +568,487 @@ function SearchPage() {
 }
 
 function Submit() {
-  const { isSignedIn } = useUser();
   const createSubmission = useCreateSubmission();
   const createArtist = useCreateArtist();
   const queryClient = useQueryClient();
-   const [form, setForm] = useState({ title: '', artist: '', category: 'Musique', note: '', location: '', bio: '', addProfile: false });
-   const [mediaFile, setMediaFile] = useState<File | null>(null);
-   const [coverFile, setCoverFile] = useState<File | null>(null);
-   const [uploading, setUploading] = useState(false);
-   const [uploadProgress, setUploadProgress] = useState(0);
+
+  const [form, setForm] = useState({
+    title: '',
+    artist: '',
+    category: '',
+    note: '',
+    location: '',
+    bio: '',
+    addProfile: false,
+  });
+
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [done, setDone] = useState<Submission | null>(null);
   const [error, setError] = useState('');
-  const update = (key: keyof typeof form, value: string | boolean) => setForm((current) => ({ ...current, [key]: value }));
-   const submit = async (event: FormEvent) => {
-    event.preventDefault(); setError('');
-    if (form.title.trim().length < 2 || form.artist.trim().length < 2) { setError('Ajoutez un titre et un nom d’artiste pour que l’équipe retrouve votre œuvre.'); return; }
-     if (!mediaFile) { setError('Ajoutez le fichier audio ou vidéo de votre œuvre.'); return; }
-     try {
-       setUploading(true);
-       const mediaObjectPath = await uploadAsset(mediaFile, (value) => setUploadProgress(coverFile ? Math.round(value / 2) : value));
-       const coverObjectPath = coverFile ? await uploadAsset(coverFile, (value) => setUploadProgress(Math.round(50 + value / 2))) : undefined;
-       if (form.addProfile) await createArtist.mutateAsync({ data: { name: form.artist, category: form.category, bio: form.bio, location: form.location } });
-       const created = await createSubmission.mutateAsync({ data: { title: form.title, artist: form.artist, category: form.category, note: form.note || undefined, mediaType: mediaFile.type.startsWith('video/') ? 'video' : 'audio', mediaObjectPath, coverObjectPath } });
-       setDone(created); void queryClient.invalidateQueries({ queryKey: getGetSubmissionsQueryKey() });
-     } catch (submissionError) {
-       setError(submissionError instanceof Error ? submissionError.message : 'Votre proposition n’a pas pu être envoyée.');
-     } finally { setUploading(false); }
+
+  const update = (key: keyof typeof form, value: string | boolean) => {
+    setForm((current) => ({
+      ...current,
+      [key]: value,
+    }));
   };
-  if (!isSignedIn) return <Redirect to="/sign-in" />;
-  if (done) return <div className="mx-auto max-w-2xl px-5 py-20 text-center lg:py-28"><div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-accent text-accent-foreground"><Check className="h-9 w-9" /></div><div className="mt-8 font-mono text-[10px] uppercase tracking-[.2em] text-primary">Reçu par Indamora Records</div><h1 className="display mt-3 text-5xl font-bold">Votre œuvre est bien arrivée.</h1><p className="mx-auto mt-5 max-w-md leading-7 text-muted-foreground">Nous avons reçu <strong className="text-foreground">{done.title}</strong> dans notre espace d’écoute. Notre équipe va l’examiner avec attention et vous répondre.</p><Link href="/" className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground" data-testid="link-submission-home">Retour à la découverte <ArrowRight className="h-4 w-4" /></Link></div>;
-   const pending = uploading || createSubmission.isPending || createArtist.isPending;
-  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr]"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Indamora Records</div><h1 className="display mt-3 text-5xl font-bold leading-[.95] md:text-6xl">Mettez votre œuvre<br /><span className="text-primary">dans la lumière.</span></h1><p className="mt-6 max-w-sm leading-7 text-muted-foreground">Une façon simple de présenter votre musique, votre humour, votre cinéma ou votre podcast à un public qui cherche quelque chose de vrai.</p><div className="mt-10 space-y-4 border-l-2 border-accent pl-5 text-sm font-semibold"><p>01 · Parlez-nous de votre création</p><p>02 · Notre équipe l’écoute avec attention</p><p>03 · Si elle trouve sa place, elle rencontre son public</p></div></div><form onSubmit={submit} className="rounded-[2rem] border border-border bg-card p-6 shadow-[var(--shadow-card)] md:p-9"><div className="mb-8 flex items-center justify-between"><div><h2 className="display text-2xl font-bold">Détails de l’œuvre</h2><p className="mt-1 text-sm text-muted-foreground">Les champs marqués d’un astérisque sont essentiels.</p></div><FileMusic className="h-7 w-7 text-primary" /></div><div className="grid gap-5 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold sm:col-span-2">Titre <input required value={form.title} onChange={(e) => update('title', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15" placeholder="Comment s’appelle-t-elle&nbsp;?" data-testid="input-submission-title" /></label><label className="grid gap-2 text-sm font-bold">Artiste ou collectif <input required value={form.artist} onChange={(e) => update('artist', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Votre nom public" data-testid="input-submission-artist" /></label><label className="grid gap-2 text-sm font-bold">Catégorie <select value={form.category} onChange={(e) => update('category', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="select-submission-category">{categories.map((item) => <option key={item} value={item}>{categoryLabel(item)}</option>)}</select></label><label className="grid gap-2 text-sm font-bold sm:col-span-2">Un mot pour l’équipe d’écoute <textarea value={form.note} onChange={(e) => update('note', e.target.value)} className="min-h-28 resize-y rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Dites-nous ce que cette œuvre représente pour vous…" data-testid="textarea-submission-note" /></label></div><div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Audio ou vidéo <input required type="file" accept="audio/mpeg,audio/mp4,audio/wav,audio/ogg,video/mp4,video/webm,video/quicktime" onChange={(e) => setMediaFile(e.target.files?.[0] ?? null)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal" data-testid="input-submission-media" />{mediaFile && <span className="text-xs text-muted-foreground">{mediaFile.name}</span>}</label><label className="grid gap-2 text-sm font-bold">Couverture (optionnelle) <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal" data-testid="input-submission-cover" />{coverFile && <span className="text-xs text-muted-foreground">{coverFile.name}</span>}</label></div><label className="mt-6 flex cursor-pointer items-start gap-3 rounded-2xl bg-muted p-4 text-sm"><input type="checkbox" checked={form.addProfile} onChange={(e) => update('addProfile', e.target.checked)} className="mt-1 h-4 w-4 accent-[hsl(var(--primary))]" data-testid="checkbox-create-profile" /><span><strong>Ajouter mon profil au répertoire</strong><span className="mt-1 block text-xs leading-5 text-muted-foreground">Partagez votre biographie et votre lieu pour que l’on découvre aussi vos autres créations.</span></span></label>{form.addProfile && <div className="mt-4 grid gap-5 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Où êtes-vous basé&nbsp;? <input required value={form.location} onChange={(e) => update('location', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Bangui, République centrafricaine" data-testid="input-artist-location" /></label><label className="grid gap-2 text-sm font-bold">Courte biographie <textarea required value={form.bio} onChange={(e) => update('bio', e.target.value)} className="min-h-12 rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Que créez-vous&nbsp;?" data-testid="textarea-artist-bio" /></label></div>}{error && <p className="mt-5 rounded-xl bg-destructive/10 px-4 py-3 text-sm font-semibold text-destructive" data-testid="status-submission-error">{error}</p>}<button disabled={pending} className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground transition-all hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-60" data-testid="button-submit-work">{pending ? <><LoaderCircle className="h-4 w-4 animate-spin" /> Envoi en cours… {uploadProgress > 0 && `${uploadProgress}%`}</> : <><Send className="h-4 w-4" /> Envoyer pour examen</>}</button></form></div></div>;
-}
 
-function SubmissionPreview({ submission }: { submission: Submission }) {
-  const source = storageUrl(submission.mediaObjectPath);
-  if (!source) return null;
-  return submission.mediaType === 'video'
-    ? <video controls preload="metadata" src={source} className="mt-4 max-h-52 w-full max-w-md rounded-xl bg-black" data-testid={`moderation-video-${submission.id}`} />
-    : <audio controls preload="metadata" src={source} className="mt-4 w-full max-w-md" data-testid={`moderation-audio-${submission.id}`} />;
-}
+  const submit = async (event: FormEvent) => {
+  event.preventDefault();
+  setError('');
 
-function Moderation() {
-  const { isSignedIn, user } = useUser();
-  const isAdmin = isAdminEmail(user?.primaryEmailAddress?.emailAddress);
-  const queryClient = useQueryClient();
-  const [filter, setFilter] = useState<'pending' | 'approved' | 'rejected'>('pending');
-  const submissions = useGetSubmissions({ status: filter }, { query: { enabled: Boolean(isSignedIn && isAdmin), queryKey: getGetSubmissionsQueryKey({ status: filter }) } });
-  const updateStatus = useUpdateSubmissionStatus();
-  const review = (submission: Submission, status: 'approved' | 'rejected') => updateStatus.mutate({ id: submission.id, data: { status } }, { onSuccess: () => { void queryClient.invalidateQueries({ queryKey: getGetSubmissionsQueryKey({ status: filter }) }); void queryClient.invalidateQueries({ queryKey: getGetCatalogQueryKey() }); } });
-  if (!isSignedIn) return <Redirect to="/sign-in" />;
-  if (!isAdmin) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><ShieldCheck className="mx-auto h-10 w-10 text-destructive" /><h1 className="display mt-5 text-4xl font-bold">Accès réservé</h1><p className="mt-3 text-muted-foreground">La modération est réservée à l’équipe INDAMORA RECORDS.</p></div>;
-  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Espace de modération</div><h1 className="display mt-3 text-5xl font-bold">INDAMORA<br /><span className="text-primary">RECORDS.</span></h1><p className="mt-4 text-muted-foreground">Donnez à chaque proposition l’attention qu’elle mérite.</p></div><div className="rounded-2xl bg-secondary px-5 py-4 text-secondary-foreground"><div className="font-mono text-[10px] uppercase tracking-[.15em] text-accent">État de la file</div><div className="mt-2 flex items-center gap-2 text-sm font-bold"><span className="h-2 w-2 animate-pulse rounded-full bg-accent" /> File de revue active</div></div></div><div className="mt-12 flex gap-2 overflow-x-auto border-b border-border pb-3">{(['pending', 'approved', 'rejected'] as const).map((item) => <button onClick={() => setFilter(item)} key={item} className={cx('shrink-0 rounded-full px-4 py-2 text-sm font-bold capitalize', filter === item ? 'bg-primary text-primary-foreground' : 'hover:bg-muted')} data-testid={`button-filter-submissions-${item}`}>{item === 'pending' ? 'En attente' : item === 'approved' ? 'Approuvées' : 'Refusées'}</button>)}</div>{submissions.isLoading ? <div className="mt-6 space-y-3">{[1, 2, 3].map((i) => <div key={i} className="skeleton h-28 rounded-2xl" />)}</div> : submissions.error ? <div className="mt-6"><QueryState error={submissions.error} onRetry={() => void submissions.refetch()} label="submissions" /></div> : (submissions.data ?? []).length === 0 ? <div className="mt-6 rounded-2xl border border-dashed border-border px-5 py-20 text-center"><div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-muted"><Check className="h-6 w-6 text-secondary" /></div><h2 className="mt-4 font-bold">Aucune œuvre dans cette file</h2><p className="mt-1 text-sm text-muted-foreground">La file est vide pour le moment.</p></div> : <div className="mt-6 space-y-3">{(submissions.data ?? []).map((submission) => <div key={submission.id} className="group rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary/50" data-testid={`row-submission-${submission.id}`}><div className="flex flex-col gap-5 md:flex-row md:items-center"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-muted text-primary"><FileMusic className="h-5 w-5" /></div><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h2 className="font-bold">{submission.title}</h2><span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider">{categoryLabel(submission.category)}</span></div><p className="mt-1 text-sm text-muted-foreground">{submission.artist} · {new Date(submission.submittedAt).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric', year: 'numeric' })}</p>{submission.note && <p className="mt-3 max-w-2xl text-sm leading-6 text-foreground/75">“{submission.note}”</p>}<SubmissionPreview submission={submission} /></div>{filter === 'pending' && <div className="flex gap-2"><button disabled={updateStatus.isPending} onClick={() => review(submission, 'rejected')} className="rounded-full border border-border px-4 py-2 text-sm font-bold hover:border-destructive hover:text-destructive disabled:opacity-50" data-testid={`button-reject-${submission.id}`}>Refuser</button><button disabled={updateStatus.isPending} onClick={() => review(submission, 'approved')} className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground hover:bg-primary hover:text-primary-foreground disabled:opacity-50" data-testid={`button-approve-${submission.id}`}>Approuver</button></div>} {filter !== 'pending' && <span className={cx('rounded-full px-3 py-1 text-xs font-bold capitalize', filter === 'approved' ? 'bg-secondary/10 text-secondary' : 'bg-destructive/10 text-destructive')}>{filter === 'approved' ? 'Approuvée' : 'Refusée'}</span>}</div></div>)}</div>}</div>;
-}
+  try {
+    setUploading(true);
+    setUploadProgress(0);
 
-function Pricing() {
-  const premiumBenefits = ['Tout le catalogue gratuit', 'Débloquer les sorties Premium', 'Accéder en avant-première aux nouveautés', 'Soutenir le développement d’INDAMORA PLAY'];
-  const futureUses = ['Soutenir les artistes et créateurs', 'Accompagner certains projets artistiques', 'Produire de nouvelles créations et fonctionnalités', 'Contribuer au développement de la création centrafricaine et africaine'];
-  return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-20">
-    <div className="mx-auto max-w-3xl text-center">
-      <div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Soutenir le mouvement</div>
-      <h1 className="display mt-3 text-5xl font-bold leading-none md:text-7xl">Plus de ce qui<br /><span className="text-primary">vous fait vibrer.</span></h1>
-      <p className="mt-6 text-lg leading-7 text-muted-foreground">Votre abonnement contribue au développement d’INDAMORA PLAY et au soutien des artistes et créateurs.</p>
-    </div>
+    let mediaObjectPath: string | undefined;
+    let coverObjectPath: string | undefined;
+    let mediaType: 'audio' | 'video' | undefined;
 
-    <div className="mx-auto mt-14 grid max-w-6xl gap-5 lg:grid-cols-3">
-      <div className="rounded-[2rem] border border-border bg-card p-7 md:p-8">
-        <div className="flex items-center justify-between">
-          <div><h2 className="display text-3xl font-bold">Gratuit</h2><p className="mt-1 text-sm text-muted-foreground">Pour découvrir la plateforme.</p></div>
-          <Ticket className="h-7 w-7 text-secondary" />
+    // Le média est facultatif
+    if (mediaFile) {
+      mediaObjectPath = await uploadAsset(mediaFile, (value) => {
+        setUploadProgress(coverFile ? Math.round(value / 2) : value);
+      });
+
+      mediaType = mediaFile.type.startsWith('video/')
+        ? 'video'
+        : 'audio';
+    }
+
+    // La couverture est facultative
+    if (coverFile) {
+      coverObjectPath = await uploadAsset(coverFile, (value) => {
+        setUploadProgress(
+          mediaFile ? Math.round(50 + value / 2) : value
+        );
+      });
+    }
+
+    // Création du profil uniquement si les informations sont complètes
+    if (
+      form.addProfile &&
+      form.artist.trim() &&
+      form.category.trim() &&
+      form.bio.trim() &&
+      form.location.trim()
+    ) {
+      await createArtist.mutateAsync({
+        data: {
+          name: form.artist.trim(),
+          category: form.category.trim(),
+          bio: form.bio.trim(),
+          location: form.location.trim(),
+        },
+      });
+    }
+
+    // Envoi de la proposition, même sans média
+    const created = await createSubmission.mutateAsync({
+      data: {
+        title: form.title.trim(),
+        artist: form.artist.trim(),
+        category: form.category.trim(),
+        note: form.note.trim() || undefined,
+        mediaType,
+        mediaObjectPath,
+        coverObjectPath,
+      },
+    });
+
+    setDone(created);
+
+    void queryClient.invalidateQueries({
+      queryKey: getGetSubmissionsQueryKey(),
+    });
+  } catch (submissionError) {
+    setError(
+      submissionError instanceof Error
+        ? submissionError.message
+        : 'Votre proposition n’a pas pu être envoyée.'
+    );
+  } finally {
+    setUploading(false);
+    setUploadProgress(0);
+  }
+};
+
+    try {
+      setUploading(true);
+      setUploadProgress(0);
+
+      let mediaObjectPath: string | undefined;
+      let coverObjectPath: string | undefined;
+
+      // 1. Téléversement audio ou vidéo si un fichier est sélectionné.
+      if (mediaFile) {
+        mediaObjectPath = await uploadAsset(
+          mediaFile,
+          (value) => {
+            setUploadProgress(
+              coverFile ? Math.round(value / 2) : value
+            );
+          }
+        );
+      }
+
+      // 2. Téléversement de la couverture si elle est sélectionnée.
+      if (coverFile) {
+        coverObjectPath = await uploadAsset(
+          coverFile,
+          (value) => {
+            setUploadProgress(
+              mediaFile
+                ? Math.round(50 + value / 2)
+                : value
+            );
+          }
+        );
+      }
+
+      // 3. Création du profil artiste uniquement si demandé.
+      if (form.addProfile) {
+        await createArtist.mutateAsync({
+          data: {
+            name: form.artist.trim() || undefined,
+            category: form.category.trim() || undefined,
+            bio: form.bio.trim() || undefined,
+            location: form.location.trim() || undefined,
+          },
+        });
+
+        await queryClient.invalidateQueries({
+          queryKey: getGetArtistsQueryKey(),
+        });
+      }
+
+      // 4. Création de la proposition.
+      // Tous les champs sont facultatifs.
+      const created = await createSubmission.mutateAsync({
+        data: {
+          title: form.title.trim() || undefined,
+          artist: form.artist.trim() || undefined,
+          category: form.category.trim() || undefined,
+          note: form.note.trim() || undefined,
+
+          mediaType: mediaFile
+            ? mediaFile.type.startsWith('video/')
+              ? 'video'
+              : 'audio'
+            : undefined,
+
+          mediaObjectPath,
+          coverObjectPath,
+        },
+      });
+
+      setDone(created);
+
+      await queryClient.invalidateQueries({
+        queryKey: getGetSubmissionsQueryKey(),
+      });
+
+    } catch (submissionError) {
+      setError(
+        submissionError instanceof Error
+          ? submissionError.message
+          : "Votre proposition n'a pas pu être envoyée."
+      );
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // 5. Confirmation après envoi.
+  if (done) {
+    return (
+      <div className="mx-auto max-w-2xl px-5 py-20 text-center lg:py-28">
+
+        <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-accent text-accent-foreground">
+          <Check className="h-9 w-9" />
         </div>
-        <div className="mt-8 text-4xl font-bold">0 <span className="text-sm font-medium text-muted-foreground">FCFA / mois</span></div>
-        <ul className="mt-8 space-y-4 text-sm">{['Découvrir les œuvres à la une', 'Explorer le répertoire des artistes', 'Écouter les sorties gratuites', 'Suivre les créateurs d’ici'].map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-4 w-4 text-secondary" />{item}</li>)}</ul>
-        <Link href="/" className="mt-10 block rounded-full border border-border py-3 text-center text-sm font-bold hover:border-primary hover:text-primary" data-testid="link-pricing-free">Continuer la découverte</Link>
-      </div>
 
-      <div className="relative rounded-[2rem] bg-secondary p-7 text-secondary-foreground shadow-xl md:p-8 lg:-translate-y-4">
-        <div className="absolute right-6 top-6 rounded-full bg-accent px-3 py-1 font-mono text-[9px] font-bold uppercase tracking-widest text-accent-foreground">Pour l’Afrique</div>
-        <div className="flex items-center justify-between gap-4"><div><h2 className="display text-3xl font-bold">Premium Afrique</h2><p className="mt-1 text-sm text-secondary-foreground/65">Pour les membres situés en Afrique.</p></div><Crown className="h-7 w-7 shrink-0 text-accent" /></div>
-        <div className="mt-8 text-4xl font-bold">500 <span className="text-sm font-medium text-secondary-foreground/65">FCFA / mois</span></div>
-        <ul className="mt-8 space-y-4 text-sm text-secondary-foreground/85">{premiumBenefits.map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-4 w-4 shrink-0 text-accent" />{item}</li>)}</ul>
-        <span className="mt-10 flex items-center justify-center gap-2 rounded-full bg-accent/30 py-3 text-center text-sm font-bold text-secondary-foreground/70" data-testid="status-pricing-africa"><LockKeyhole className="h-4 w-4" /> Bientôt disponible</span>
-      </div>
+        <div className="mt-8 font-mono text-[10px] uppercase tracking-[.2em] text-primary">
+          Reçu par Indamora Records
+        </div>
 
-      <div className="rounded-[2rem] border border-primary/30 bg-card p-7 shadow-[var(--shadow-card)] md:p-8">
-        <div className="flex items-center justify-between gap-4"><div><h2 className="display text-3xl font-bold">Premium International</h2><p className="mt-1 text-sm text-muted-foreground">Pour l’Europe, les États-Unis et les autres pays hors Afrique.</p></div><Crown className="h-7 w-7 shrink-0 text-primary" /></div>
-        <div className="mt-8 text-4xl font-bold">5 <span className="text-sm font-medium text-muted-foreground">€ / mois</span></div>
-        <ul className="mt-8 space-y-4 text-sm">{premiumBenefits.map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-4 w-4 shrink-0 text-primary" />{item}</li>)}</ul>
-        <span className="mt-10 flex items-center justify-center gap-2 rounded-full bg-primary/10 py-3 text-center text-sm font-bold text-primary/70" data-testid="status-pricing-international"><LockKeyhole className="h-4 w-4" /> Bientôt disponible</span>
+        <h1 className="display mt-3 text-5xl font-bold">
+          Votre proposition a bien été reçue.
+        </h1>
+
+        <p className="mx-auto mt-5 max-w-md leading-7 text-muted-foreground">
+          Notre équipe examinera votre proposition avec attention.
+        </p>
+
+        <Link
+          href="/"
+          className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground"
+          data-testid="link-submission-home"
+        >
+          Retour à la découverte
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+
+      </div>
+    );
+  }
+
+  const pending =
+    uploading ||
+    createSubmission.isPending ||
+    createArtist.isPending;
+
+  // 6. Formulaire.
+  return (
+    <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16">
+
+      <div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr]">
+
+        <div>
+          <div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">
+            Indamora Records
+          </div>
+
+          <h1 className="display mt-3 text-5xl font-bold leading-[.95] md:text-6xl">
+            Mettez votre œuvre
+            <br />
+            <span className="text-primary">
+              dans la lumière.
+            </span>
+          </h1>
+
+          <p className="mt-6 max-w-sm leading-7 text-muted-foreground">
+            Une façon simple de présenter votre musique,
+            votre humour, votre cinéma ou votre podcast
+            à un public qui cherche quelque chose de vrai.
+          </p>
+
+          <div className="mt-10 space-y-4 border-l-2 border-accent pl-5 text-sm font-semibold">
+            <p>01 · Parlez-nous de votre création</p>
+            <p>02 · Notre équipe examine votre proposition</p>
+            <p>03 · Votre création peut rencontrer son public</p>
+          </div>
+        </div>
+
+        <form
+          onSubmit={submit}
+          className="rounded-[2rem] border border-border bg-card p-6 shadow-[var(--shadow-card)] md:p-9"
+        >
+
+          <div className="mb-8 flex items-center justify-between">
+            <div>
+              <h2 className="display text-2xl font-bold">
+                Détails de votre proposition
+              </h2>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+  Tous les champs sont facultatifs. Vous pouvez envoyer votre proposition
+  avec ou sans fichier.
+</p>
+            </div>
+
+            <FileMusic className="h-7 w-7 text-primary" />
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+
+            {/* TITRE */}
+            <label className="grid gap-2 text-sm font-bold sm:col-span-2">
+              Titre
+
+              <input
+                value={form.title}
+                onChange={(e) => update('title', e.target.value)}
+                className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary"
+                placeholder="Comment s'appelle votre création ?"
+                data-testid="input-submission-title"
+              />
+            </label>
+
+            {/* ARTISTE */}
+            <label className="grid gap-2 text-sm font-bold">
+              Artiste ou collectif
+
+              <input
+                value={form.artist}
+                onChange={(e) => update('artist', e.target.value)}
+                className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary"
+                placeholder="Votre nom public"
+                data-testid="input-submission-artist"
+              />
+            </label>
+
+            {/* CATÉGORIE */}
+            <label className="grid gap-2 text-sm font-bold">
+              Catégorie
+
+              <select
+                value={form.category}
+                onChange={(e) => update('category', e.target.value)}
+                className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary"
+                data-testid="select-submission-category"
+              >
+                <option value="">
+                  Choisir une catégorie (facultatif)
+                </option>
+
+                {categories.map((item) => (
+                  <option key={item} value={item}>
+                    {categoryLabel(item)}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            {/* NOTE */}
+            <label className="grid gap-2 text-sm font-bold sm:col-span-2">
+              Un mot pour l'équipe d'écoute
+
+              <textarea
+                value={form.note}
+                onChange={(e) => update('note', e.target.value)}
+                className="min-h-28 resize-y rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary"
+                placeholder="Présentez votre projet si vous le souhaitez..."
+                data-testid="textarea-submission-note"
+              />
+            </label>
+
+          </div>
+
+          {/* FICHIERS */}
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+
+            <label className="grid gap-2 text-sm font-bold">
+              Audio ou vidéo (facultatif)
+
+              <input
+                type="file"
+                accept="audio/mpeg,audio/mp4,audio/wav,audio/ogg,video/mp4,video/webm,video/quicktime"
+                onChange={(e) => setMediaFile(e.target.files?.[0] ?? null)}
+                className="rounded-xl border border-input bg-background px-4 py-3 font-normal"
+                data-testid="input-submission-media"
+              />
+
+              {mediaFile && (
+                <span className="text-xs text-muted-foreground">
+                  {mediaFile.name}
+                </span>
+              )}
+            </label>
+
+            <label className="grid gap-2 text-sm font-bold">
+              Couverture (facultative)
+
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
+                className="rounded-xl border border-input bg-background px-4 py-3 font-normal"
+                data-testid="input-submission-cover"
+              />
+
+              {coverFile && (
+                <span className="text-xs text-muted-foreground">
+                  {coverFile.name}
+                </span>
+              )}
+            </label>
+
+          </div>
+
+          {/* PROFIL ARTISTE */}
+          <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-2xl bg-muted p-4 text-sm">
+
+            <input
+              type="checkbox"
+              checked={form.addProfile}
+              onChange={(e) => update('addProfile', e.target.checked)}
+              className="mt-1 h-4 w-4 accent-[hsl(var(--primary))]"
+              data-testid="checkbox-create-profile"
+            />
+
+            <span>
+              <strong>
+                Ajouter mon profil au répertoire
+              </strong>
+
+              <span className="mt-1 block text-xs leading-5 text-muted-foreground">
+                Partagez votre biographie et votre localisation
+                si vous souhaitez présenter votre profil.
+              </span>
+            </span>
+
+          </label>
+
+          {form.addProfile && (
+            <div className="mt-4 grid gap-5 sm:grid-cols-2">
+
+              <label className="grid gap-2 text-sm font-bold">
+                Localisation (facultative)
+
+                <input
+                  value={form.location}
+                  onChange={(e) => update('location', e.target.value)}
+                  className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary"
+                  placeholder="Votre ville"
+                  data-testid="input-artist-location"
+                />
+              </label>
+
+              <label className="grid gap-2 text-sm font-bold">
+                Biographie (facultative)
+
+                <textarea
+                  value={form.bio}
+                  onChange={(e) => update('bio', e.target.value)}
+                  className="min-h-12 rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary"
+                  placeholder="Présentez-vous..."
+                  data-testid="textarea-artist-bio"
+                />
+              </label>
+
+            </div>
+          )}
+
+          {/* ERREUR */}
+          {error && (
+            <p
+              className="mt-5 rounded-xl bg-destructive/10 px-4 py-3 text-sm font-semibold text-destructive"
+              data-testid="status-submission-error"
+            >
+              {error}
+            </p>
+          )}
+
+          {/* BOUTON */}
+          <button
+            type="submit"
+            disabled={pending}
+            className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground transition-all hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-60"
+            data-testid="button-submit-work"
+          >
+            {pending ? (
+              <>
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+                Envoi en cours...
+                {uploadProgress > 0 && ` ${uploadProgress}%`}
+              </>
+            ) : (
+              <>
+                <Send className="h-4 w-4" />
+                Envoyer pour examen
+              </>
+            )}
+          </button>
+
+        </form>
       </div>
     </div>
-
-    <section className="mx-auto mt-16 max-w-5xl rounded-[2rem] bg-muted p-7 md:p-10">
-      <div className="max-w-2xl">
+  );
+}
         <div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">À quoi sert votre soutien&nbsp;?</div>
         <h2 className="display mt-3 text-3xl font-bold md:text-4xl">Une communauté Premium qui grandit permet d’aller plus loin.</h2>
         <p className="mt-4 leading-7 text-muted-foreground">Plus la communauté Premium grandira, plus INDAMORA PLAY pourra développer ses projets et mettre en place des mécanismes de soutien aux créateurs.</p>
@@ -760,7 +1221,325 @@ function NotFound() {
 
 function Router() {
   const [location] = useLocation();
-  return <ErrorBoundary resetKey={location}><Shell><Switch><Route path="/" component={Home} /><Route path="/explorer" component={Explorer} /><Route path="/recherche" component={SearchPage} /><Route path="/categorie/:slug" component={CategoryPage} /><Route path="/oeuvres/:id" component={WorkPage} /><Route path="/repertoire" component={() => <Directory />} /><Route path="/artists" component={() => <Directory />} /><Route path="/artists/:id" component={ArtistProfile} /><Route path="/presse" component={Presse} /><Route path="/submit" component={Submit} /><Route path="/espace-artiste" component={ArtistSpace} /><Route path="/moderation" component={Moderation} /><Route path="/administration" component={AdminDashboard} /><Route path="/pricing" component={Pricing} /><Route path="/soutenir" component={Support} /><Route path="/inscription" component={() => <Redirect to="/sign-up" />} /><Route path="/login" component={() => <Redirect to="/sign-in" />} /><Route path="/profil" component={Profile} /><Route component={NotFound} /></Switch></Shell></ErrorBoundary>;
+
+  return (
+    <ErrorBoundary resetKey={location}>
+      <Shell>
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/explorer" component={Explorer} />
+          <Route path="/recherche" component={SearchPage} />
+          <Route path="/categorie/:slug" component={CategoryPage} />
+          <Route path="/oeuvres/:id" component={WorkPage} />
+          <Route path="/repertoire" component={() => <Directory />} />
+          <Route path="/artists" component={() => <Directory />} />
+          <Route path="/artists/:id" component={ArtistProfile} />
+          <Route path="/presse" component={Presse} />
+          <Route path="/submit" component={Submit} />
+          <Route path="/espace-artiste" component={ArtistSpace} />
+
+          {/* Modération */}
+          <Route path="/moderation" component={Moderation} />
+          <Route path="/admin/moderation" component={Moderation} />
+          <Route path="/admin/moderation" component={AdminModeration} />
+
+          <Route path="/administration" component={AdminDashboard} />
+          <Route path="/pricing" component={Pricing} />
+          <Route path="/soutenir" component={Support} />
+          <Route path="/inscription" component={() => <Redirect to="/sign-up" />} />
+          <Route path="/login" component={() => <Redirect to="/sign-in" />} />
+          <Route path="/profil" component={Profile} />
+
+          <Route component={NotFound} />
+        </Switch>
+      </Shell>
+    </ErrorBoundary>
+  );
+}
+
+function ClerkQueryClientCacheInvalidator() {
+  const { addListener } = useClerk();
+  const queryClient = useQueryClient();
+  const previousUserId = useRef<string | null | undefined>(undefined);
+
+  useEffect(() => addListener(({ user }) => {
+    const userId = user?.id ?? null;
+    if (previousUserId.current !== undefined && previousUserId.current !== userId) {
+      queryClient.clear();
+    }
+    previousUserId.current = userId;
+  }), [addListener, queryClient]);
+
+  return null;
+}
+
+function ClerkApp() {
+  const [, setLocation] = useLocation();
+  return <ClerkProvider publishableKey={clerkPubKey} proxyUrl={clerkProxyUrl} appearance={clerkAppearance} signInUrl={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} localization={frFR} routerPush={(to) => setLocation(stripBase(to))} routerReplace={(to) => setLocation(stripBase(to), { replace: true })}><QueryClientProvider client={queryClient}><ClerkQueryClientCacheInvalidator /><TooltipProvider><Switch><Route path="/sign-in/*?" component={() => <AuthPage><SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} /></AuthPage>} /><Route path="/sign-up/*?" component={() => <AuthPage><SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} /></AuthPage>} /><Route component={Router} /></Switch><Toaster /></TooltipProvider></QueryClientProvider></ClerkProvider>;
+}
+
+function App() {
+  if (!clerkPubKey) throw new Error('Missing VITE_CLERK_PUBLISHABLE_KEY in .env file');
+  return <WouterRouter base={basePath}><ClerkApp /></WouterRouter>;
+}
+
+export default App;
+function SubmissionPreview({ submission }: { submission: Submission }) {
+  const source = storageUrl(submission.mediaObjectPath);
+  if (!source) return null;
+  return submission.mediaType === 'video'
+    ? <video controls preload="metadata" src={source} className="mt-4 max-h-52 w-full max-w-md rounded-xl bg-black" data-testid={`moderation-video-${submission.id}`} />
+    : <audio controls preload="metadata" src={source} className="mt-4 w-full max-w-md" data-testid={`moderation-audio-${submission.id}`} />;
+}
+
+function Moderation() {
+  const { isSignedIn, user } = useUser();
+  const isAdmin = isAdminEmail(user?.primaryEmailAddress?.emailAddress);
+  const queryClient = useQueryClient();
+  const [filter, setFilter] = useState<'pending' | 'approved' | 'rejected'>('pending');
+  const submissions = useGetSubmissions({ status: filter }, { query: { enabled: Boolean(isSignedIn && isAdmin), queryKey: getGetSubmissionsQueryKey({ status: filter }) } });
+  const updateStatus = useUpdateSubmissionStatus();
+  const review = (submission: Submission, status: 'approved' | 'rejected') => updateStatus.mutate({ id: submission.id, data: { status } }, { onSuccess: () => { void queryClient.invalidateQueries({ queryKey: getGetSubmissionsQueryKey({ status: filter }) }); void queryClient.invalidateQueries({ queryKey: getGetCatalogQueryKey() }); } });
+  if (!isSignedIn) return <Redirect to="/sign-in" />;
+  if (!isAdmin) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><ShieldCheck className="mx-auto h-10 w-10 text-destructive" /><h1 className="display mt-5 text-4xl font-bold">Accès réservé</h1><p className="mt-3 text-muted-foreground">La modération est réservée à l’équipe INDAMORA RECORDS.</p></div>;
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Espace de modération</div><h1 className="display mt-3 text-5xl font-bold">INDAMORA<br /><span className="text-primary">RECORDS.</span></h1><p className="mt-4 text-muted-foreground">Donnez à chaque proposition l’attention qu’elle mérite.</p></div><div className="rounded-2xl bg-secondary px-5 py-4 text-secondary-foreground"><div className="font-mono text-[10px] uppercase tracking-[.15em] text-accent">État de la file</div><div className="mt-2 flex items-center gap-2 text-sm font-bold"><span className="h-2 w-2 animate-pulse rounded-full bg-accent" /> File de revue active</div></div></div><div className="mt-12 flex gap-2 overflow-x-auto border-b border-border pb-3">{(['pending', 'approved', 'rejected'] as const).map((item) => <button onClick={() => setFilter(item)} key={item} className={cx('shrink-0 rounded-full px-4 py-2 text-sm font-bold capitalize', filter === item ? 'bg-primary text-primary-foreground' : 'hover:bg-muted')} data-testid={`button-filter-submissions-${item}`}>{item === 'pending' ? 'En attente' : item === 'approved' ? 'Approuvées' : 'Refusées'}</button>)}</div>{submissions.isLoading ? <div className="mt-6 space-y-3">{[1, 2, 3].map((i) => <div key={i} className="skeleton h-28 rounded-2xl" />)}</div> : submissions.error ? <div className="mt-6"><QueryState error={submissions.error} onRetry={() => void submissions.refetch()} label="submissions" /></div> : (submissions.data ?? []).length === 0 ? <div className="mt-6 rounded-2xl border border-dashed border-border px-5 py-20 text-center"><div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-muted"><Check className="h-6 w-6 text-secondary" /></div><h2 className="mt-4 font-bold">Aucune œuvre dans cette file</h2><p className="mt-1 text-sm text-muted-foreground">La file est vide pour le moment.</p></div> : <div className="mt-6 space-y-3">{(submissions.data ?? []).map((submission) => <div key={submission.id} className="group rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary/50" data-testid={`row-submission-${submission.id}`}><div className="flex flex-col gap-5 md:flex-row md:items-center"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-muted text-primary"><FileMusic className="h-5 w-5" /></div><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h2 className="font-bold">{submission.title}</h2><span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider">{categoryLabel(submission.category)}</span></div><p className="mt-1 text-sm text-muted-foreground">{submission.artist} · {new Date(submission.submittedAt).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric', year: 'numeric' })}</p>{submission.note && <p className="mt-3 max-w-2xl text-sm leading-6 text-foreground/75">“{submission.note}”</p>}<SubmissionPreview submission={submission} /></div>{filter === 'pending' && <div className="flex gap-2"><button disabled={updateStatus.isPending} onClick={() => review(submission, 'rejected')} className="rounded-full border border-border px-4 py-2 text-sm font-bold hover:border-destructive hover:text-destructive disabled:opacity-50" data-testid={`button-reject-${submission.id}`}>Refuser</button><button disabled={updateStatus.isPending} onClick={() => review(submission, 'approved')} className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground hover:bg-primary hover:text-primary-foreground disabled:opacity-50" data-testid={`button-approve-${submission.id}`}>Approuver</button></div>} {filter !== 'pending' && <span className={cx('rounded-full px-3 py-1 text-xs font-bold capitalize', filter === 'approved' ? 'bg-secondary/10 text-secondary' : 'bg-destructive/10 text-destructive')}>{filter === 'approved' ? 'Approuvée' : 'Refusée'}</span>}</div></div>)}</div>}</div>;
+}
+
+function Pricing() {
+  const premiumBenefits = ['Tout le catalogue gratuit', 'Débloquer les sorties Premium', 'Accéder en avant-première aux nouveautés', 'Soutenir le développement d’INDAMORA PLAY'];
+  const futureUses = ['Soutenir les artistes et créateurs', 'Accompagner certains projets artistiques', 'Produire de nouvelles créations et fonctionnalités', 'Contribuer au développement de la création centrafricaine et africaine'];
+  return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-20">
+    <div className="mx-auto max-w-3xl text-center">
+      <div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Soutenir le mouvement</div>
+      <h1 className="display mt-3 text-5xl font-bold leading-none md:text-7xl">Plus de ce qui<br /><span className="text-primary">vous fait vibrer.</span></h1>
+      <p className="mt-6 text-lg leading-7 text-muted-foreground">Votre abonnement contribue au développement d’INDAMORA PLAY et au soutien des artistes et créateurs.</p>
+    </div>
+
+    <div className="mx-auto mt-14 grid max-w-6xl gap-5 lg:grid-cols-3">
+      <div className="rounded-[2rem] border border-border bg-card p-7 md:p-8">
+        <div className="flex items-center justify-between">
+          <div><h2 className="display text-3xl font-bold">Gratuit</h2><p className="mt-1 text-sm text-muted-foreground">Pour découvrir la plateforme.</p></div>
+          <Ticket className="h-7 w-7 text-secondary" />
+        </div>
+        <div className="mt-8 text-4xl font-bold">0 <span className="text-sm font-medium text-muted-foreground">FCFA / mois</span></div>
+        <ul className="mt-8 space-y-4 text-sm">{['Découvrir les œuvres à la une', 'Explorer le répertoire des artistes', 'Écouter les sorties gratuites', 'Suivre les créateurs d’ici'].map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-4 w-4 text-secondary" />{item}</li>)}</ul>
+        <Link href="/" className="mt-10 block rounded-full border border-border py-3 text-center text-sm font-bold hover:border-primary hover:text-primary" data-testid="link-pricing-free">Continuer la découverte</Link>
+      </div>
+
+      <div className="relative rounded-[2rem] bg-secondary p-7 text-secondary-foreground shadow-xl md:p-8 lg:-translate-y-4">
+        <div className="absolute right-6 top-6 rounded-full bg-accent px-3 py-1 font-mono text-[9px] font-bold uppercase tracking-widest text-accent-foreground">Pour l’Afrique</div>
+        <div className="flex items-center justify-between gap-4"><div><h2 className="display text-3xl font-bold">Premium Afrique</h2><p className="mt-1 text-sm text-secondary-foreground/65">Pour les membres situés en Afrique.</p></div><Crown className="h-7 w-7 shrink-0 text-accent" /></div>
+        <div className="mt-8 text-4xl font-bold">500 <span className="text-sm font-medium text-secondary-foreground/65">FCFA / mois</span></div>
+        <ul className="mt-8 space-y-4 text-sm text-secondary-foreground/85">{premiumBenefits.map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-4 w-4 shrink-0 text-accent" />{item}</li>)}</ul>
+        <span className="mt-10 flex items-center justify-center gap-2 rounded-full bg-accent/30 py-3 text-center text-sm font-bold text-secondary-foreground/70" data-testid="status-pricing-africa"><LockKeyhole className="h-4 w-4" /> Bientôt disponible</span>
+      </div>
+
+      <div className="rounded-[2rem] border border-primary/30 bg-card p-7 shadow-[var(--shadow-card)] md:p-8">
+        <div className="flex items-center justify-between gap-4"><div><h2 className="display text-3xl font-bold">Premium International</h2><p className="mt-1 text-sm text-muted-foreground">Pour l’Europe, les États-Unis et les autres pays hors Afrique.</p></div><Crown className="h-7 w-7 shrink-0 text-primary" /></div>
+        <div className="mt-8 text-4xl font-bold">5 <span className="text-sm font-medium text-muted-foreground">€ / mois</span></div>
+        <ul className="mt-8 space-y-4 text-sm">{premiumBenefits.map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-4 w-4 shrink-0 text-primary" />{item}</li>)}</ul>
+        <span className="mt-10 flex items-center justify-center gap-2 rounded-full border border-primary/20 bg-primary/5 py-3 text-center text-sm font-bold text-primary" data-testid="status-pricing-international"><LockKeyhole className="h-4 w-4" /> Bientôt disponible</span>
+      </div>
+    </div>
+    <div className="mx-auto mt-10 max-w-4xl rounded-3xl border border-border bg-card p-7 md:p-9"><h3 className="display text-2xl font-bold">Votre soutien fait grandir la scène.</h3><p className="mt-3 leading-7 text-muted-foreground">Les contributions permettront de soutenir les artistes et créateurs, d’accompagner certains projets et de développer de nouvelles fonctionnalités. Les modalités précises seront communiquées avant l’ouverture des abonnements.</p><ul className="mt-6 grid gap-3 sm:grid-cols-2">{futureUses.map((item) => <li key={item} className="flex gap-3 text-sm"><Check className="h-4 w-4 shrink-0 text-primary" />{item}</li>)}</ul></div>
+  </div>;
+}
+function AdminDashboardContent() {
+  const { isSignedIn, user } = useUser();
+  const isAdmin = isAdminEmail(user?.primaryEmailAddress?.emailAddress);
+  const submissions = useGetSubmissions(undefined, { query: { enabled: Boolean(isSignedIn && isAdmin), queryKey: getGetSubmissionsQueryKey() } });
+  const catalog = useGetCatalog({ query: { queryKey: getGetCatalogQueryKey() } });
+  if (!isSignedIn) return <Redirect to="/sign-in" />;
+  if (!isAdmin) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><ShieldCheck className="mx-auto h-10 w-10 text-destructive" /><h1 className="display mt-5 text-4xl font-bold">Accès réservé</h1><p className="mt-3 text-muted-foreground">L’administration est réservée à INDAMORA RECORDS.</p></div>;
+  const all = submissions.data ?? [];
+  const counts = { pending: all.filter((item) => item.status === 'pending').length, approved: all.filter((item) => item.status === 'approved').length, rejected: all.filter((item) => item.status === 'rejected').length };
+  return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Tableau de bord</div><h1 className="display mt-3 text-5xl font-bold">Piloter INDAMORA<br /><span className="text-primary">RECORDS.</span></h1><p className="mt-4 text-muted-foreground">Une vue simple sur le catalogue et la file de validation.</p></div><Link href="/moderation" className="inline-flex items-center justify-center gap-2 rounded-full bg-secondary px-5 py-3 text-sm font-bold text-secondary-foreground" data-testid="link-dashboard-moderation"><ShieldCheck className="h-4 w-4" /> Ouvrir la modération</Link></div><div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><div className="rounded-2xl border border-border bg-card p-5"><BarChart3 className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{catalog.data?.length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">Œuvres publiées</p></div><div className="rounded-2xl border border-border bg-card p-5"><LoaderCircle className="h-5 w-5 text-accent-foreground" /><div className="mt-5 text-3xl font-bold">{counts.pending}</div><p className="mt-1 text-sm text-muted-foreground">En attente</p></div><div className="rounded-2xl border border-border bg-card p-5"><Check className="h-5 w-5 text-secondary" /><div className="mt-5 text-3xl font-bold">{counts.approved}</div><p className="mt-1 text-sm text-muted-foreground">Validées</p></div><div className="rounded-2xl border border-border bg-card p-5"><ShieldCheck className="h-5 w-5 text-destructive" /><div className="mt-5 text-3xl font-bold">{counts.rejected}</div><p className="mt-1 text-sm text-muted-foreground">Refusées</p></div></div><div className="mt-12 rounded-[2rem] bg-muted p-6 md:p-8"><div className="flex items-center gap-3"><LayoutDashboard className="h-5 w-5 text-primary" /><h2 className="display text-2xl font-bold">Prochaine action</h2></div><p className="mt-3 max-w-2xl leading-7 text-muted-foreground">{counts.pending > 0 ? `Il reste ${counts.pending} œuvre${counts.pending > 1 ? 's' : ''} à examiner par INDAMORA RECORDS.` : 'La file de validation est à jour pour le moment.'}</p><Link href="/moderation" className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground" data-testid="link-dashboard-review">Examiner la file <ArrowRight className="h-4 w-4" /></Link></div></div>;
+}
+
+function AdminDashboard() {
+  const { isSignedIn, user } = useUser();
+  const isAdmin = isAdminEmail(user?.primaryEmailAddress?.emailAddress);
+
+  return <>
+    <AdminDashboardContent />
+    {isSignedIn && isAdmin && <div className="mx-auto max-w-7xl px-5 pb-16 lg:px-8"><AdminUserList /></div>}
+  </>;
+}
+
+const pressSchema = z.object({
+  name: z.string().min(2, 'Nom requis'),
+  organization: z.string().min(2, 'Organisation requise'),
+  role: z.string().min(2, 'Rôle requis'),
+  email: z.string().email('E-mail invalide'),
+  phone: z.string().optional(),
+  requestType: z.string().min(2, 'Type de demande requis'),
+  subject: z.string().min(2, 'Sujet requis'),
+  message: z.string().min(10, 'Message trop court'),
+  requestedDate: z.string().optional(),
+});
+
+function Presse() {
+  const { toast } = useToast();
+  const createPress = useCreatePressRequest();
+  const form = useForm<z.infer<typeof pressSchema>>({
+    resolver: zodResolver(pressSchema),
+    defaultValues: { name: '', organization: '', role: '', email: '', phone: '', requestType: 'Interview', subject: '', message: '', requestedDate: '' }
+  });
+
+  const onSubmit = (data: z.infer<typeof pressSchema>) => {
+    createPress.mutate({ data }, {
+      onSuccess: () => {
+        toast({ title: 'Demande envoyée', description: 'Notre équipe presse vous répondra dans les plus brefs délais.' });
+        form.reset();
+      },
+      onError: () => {
+        toast({ title: 'Erreur', description: 'Impossible d\'envoyer la demande.', variant: 'destructive' });
+      }
+    });
+  };
+
+  const { register, handleSubmit, formState: { errors } } = form;
+  const pending = createPress.isPending;
+
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-20">
+    <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:items-start">
+      <div>
+        <div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Relations Presse</div>
+        <h1 className="display mt-3 text-5xl font-bold leading-[.95] md:text-6xl">Espace<br /><span className="text-primary">Médias.</span></h1>
+        <p className="mt-6 leading-7 text-muted-foreground">INDAMORA PLAY met en lumière les artistes, les créations et les initiatives culturelles d’Afrique centrale et de sa diaspora. Cet espace reçoit les demandes professionnelles des journalistes, radios, télévisions et médias en ligne.</p>
+
+        <div className="mt-10 rounded-3xl bg-secondary p-8 text-secondary-foreground shadow-sm">
+          <h3 className="mb-2 flex items-center gap-2 text-lg font-bold"><Newspaper className="h-5 w-5 text-accent" /> Ressources presse</h3>
+          <p className="text-sm leading-relaxed text-secondary-foreground/80">Les logos, photos officielles, visuels, présentations institutionnelles et communiqués seront publiés ici lorsqu’ils seront disponibles. Aucun document provisoire n’est présenté comme officiel.</p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="rounded-[2.5rem] border border-border bg-card p-6 shadow-[var(--shadow-card)] md:p-10">
+        <h2 className="display mb-8 text-2xl font-bold">Nouvelle demande</h2>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <label className="grid gap-2 text-sm font-bold">Nom complet <input {...register('name')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Votre nom" data-testid="input-press-name" />{errors.name && <span className="text-xs text-destructive">{errors.name.message}</span>}</label>
+          <label className="grid gap-2 text-sm font-bold">Média / Organisation <input {...register('organization')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Nom du média" data-testid="input-press-org" />{errors.organization && <span className="text-xs text-destructive">{errors.organization.message}</span>}</label>
+          <label className="grid gap-2 text-sm font-bold">Rôle <input {...register('role')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Journaliste, Rédacteur..." data-testid="input-press-role" />{errors.role && <span className="text-xs text-destructive">{errors.role.message}</span>}</label>
+          <label className="grid gap-2 text-sm font-bold">E-mail <input type="email" {...register('email')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="adresse@media.com" data-testid="input-press-email" />{errors.email && <span className="text-xs text-destructive">{errors.email.message}</span>}</label>
+          <label className="grid gap-2 text-sm font-bold">Type de demande <select {...register('requestType')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="select-press-type"><option value="Interview">Interview</option><option value="Demande d’informations">Demande d’informations</option><option value="Demande de visuels">Demande de visuels</option><option value="Demande de communiqué">Demande de communiqué</option><option value="Demande de partenariat média">Partenariat média</option><option value="Autre">Autre</option></select>{errors.requestType && <span className="text-xs text-destructive">{errors.requestType.message}</span>}</label>
+          <label className="grid gap-2 text-sm font-bold">Téléphone <input {...register('phone')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="+236..." data-testid="input-press-phone" /></label>
+          <label className="grid gap-2 text-sm font-bold sm:col-span-2">Date souhaitée (optionnelle) <input type="date" {...register('requestedDate')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="input-press-date" /></label>
+          <label className="grid gap-2 text-sm font-bold sm:col-span-2">Sujet <input {...register('subject')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Objet de votre demande" data-testid="input-press-subject" />{errors.subject && <span className="text-xs text-destructive">{errors.subject.message}</span>}</label>
+          <label className="grid gap-2 text-sm font-bold sm:col-span-2">Message <textarea {...register('message')} className="min-h-32 rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Détaillez votre demande..." data-testid="textarea-press-message" />{errors.message && <span className="text-xs text-destructive">{errors.message.message}</span>}</label>
+        </div>
+        <button disabled={pending} className="mt-8 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-4 font-bold text-primary-foreground transition-all hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-60" data-testid="button-submit-press">{pending ? <><LoaderCircle className="h-5 w-5 animate-spin" /> Envoi en cours...</> : <><Send className="h-5 w-5" /> Envoyer la demande</>}</button>
+      </form>
+    </div>
+  </div>;
+}
+function Support() {
+  const amounts = [1, 5, 10, 20, 50, 100];
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(10);
+  const [customAmount, setCustomAmount] = useState('');
+
+  const chooseAmount = (amount: number) => {
+    setSelectedAmount(amount);
+    setCustomAmount('');
+  };
+
+  const enterCustomAmount = (value: string) => {
+    setCustomAmount(value);
+    setSelectedAmount(null);
+  };
+
+  const displayAmount = selectedAmount ?? Number(customAmount || 0);
+
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-20">
+    <div className="grid gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-start">
+      <div>
+        <div className="w-40 rounded-2xl bg-white p-2 shadow-[var(--shadow-card)]"><Logo variant="full" /></div>
+        <div className="mt-8 font-mono text-[10px] uppercase tracking-[.22em] text-primary">Donner / Soutenir INDAMORA</div>
+        <h1 className="display mt-3 text-5xl font-bold leading-none md:text-7xl">Chaque contribution<br /><span className="text-primary">compte.</span></h1>
+        <p className="mt-6 max-w-xl text-lg leading-8 text-muted-foreground">Votre don aide INDAMORA à développer INDAMORA PLAY, à soutenir les artistes indépendants à travers VOIX DE L’AVENIR et à faire grandir nos projets.</p>
+        <div className="mt-8 rounded-2xl border border-border bg-muted p-5 text-sm leading-6 text-muted-foreground">
+          <strong className="text-foreground">VOIX DE L’AVENIR</strong> est une branche de l’écosystème INDAMORA dédiée aux artistes indépendants et aux projets de l’association.
+        </div>
+      </div>
+      <section className="rounded-[2rem] border border-border bg-card p-6 shadow-[var(--shadow-card)] md:p-9">
+        <div className="flex items-center justify-between gap-4">
+          <div><h2 className="display text-3xl font-bold">Choisir une contribution</h2><p className="mt-2 text-sm text-muted-foreground">Le don est indépendant de l’abonnement Premium.</p></div>
+          <HeartHandshake className="h-8 w-8 shrink-0 text-primary" />
+        </div>
+        <div className="mt-8 grid grid-cols-3 gap-3">{amounts.map((amount) => <button type="button" key={amount} onClick={() => chooseAmount(amount)} className={cx('rounded-2xl border px-3 py-4 font-bold transition-colors', selectedAmount === amount ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:border-primary')} data-testid={`button-donation-${amount}`}>{amount} €</button>)}</div>
+        <label className="mt-5 grid gap-2 text-sm font-bold">Autre montant
+          <div className="flex items-center rounded-2xl border border-input bg-background px-4 focus-within:border-primary"><input type="number" min="1" step="1" value={customAmount} onChange={(event) => enterCustomAmount(event.target.value)} className="min-w-0 flex-1 bg-transparent py-4 font-normal outline-none" placeholder="Montant libre" data-testid="input-donation-custom" /><span className="font-bold text-muted-foreground">€</span></div>
+        </label>
+        <div className="mt-6 rounded-2xl bg-secondary p-5 text-secondary-foreground"><div className="font-mono text-[10px] uppercase tracking-[.18em] text-accent">Votre sélection</div><div className="mt-2 text-3xl font-bold">{displayAmount > 0 ? `${displayAmount} €` : 'À définir'}</div></div>
+        <button type="button" disabled className="mt-6 flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full bg-muted py-3.5 font-bold text-muted-foreground" data-testid="button-donation-unavailable"><LockKeyhole className="h-4 w-4" /> Paiement bientôt disponible</button>
+        <p className="mt-4 text-center text-xs leading-5 text-muted-foreground">Aucun paiement n’est envoyé actuellement. Un fournisseur sécurisé doit encore être connecté et configuré côté serveur.</p>
+      </section>
+    </div>
+    <div className="mt-14 grid gap-4 md:grid-cols-3">
+      {['Développer INDAMORA PLAY', 'Accompagner les artistes indépendants', 'Faire grandir les projets INDAMORA'].map((item) => <div key={item} className="rounded-2xl border border-border bg-card p-5"><Check className="h-5 w-5 text-primary" /><h2 className="mt-4 font-bold">{item}</h2></div>)}
+    </div>
+    <p className="mx-auto mt-10 max-w-2xl text-center text-xs leading-5 text-muted-foreground">Aucune déductibilité fiscale, aucun pourcentage reversé et aucun revenu artistique ne sont garantis par cette présentation.</p>
+  </div>;
+}
+
+function AuthPage({ children }: { children: ReactNode }) {
+  return <div className="min-h-[calc(100dvh-4.5rem)] bg-secondary px-4 py-10 text-foreground md:grid md:place-items-center"><div className="w-full max-w-2xl rounded-[2rem] bg-background p-3 shadow-2xl md:p-6"><div className="mb-4 flex justify-center"><Logo variant="full" className="max-w-[11rem]" /></div>{children}</div></div>;
+}
+
+function Profile() {
+  const { isSignedIn, user } = useUser();
+  const { signOut } = useClerk();
+  if (!isSignedIn) return <Redirect to="/sign-in" />;
+  const name = user?.fullName ?? user?.firstName ?? 'Membre INDAMORA';
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-6 rounded-[2rem] bg-secondary p-7 text-secondary-foreground md:flex-row md:items-center md:justify-between md:p-10"><div className="flex items-center gap-5"><Avatar name={name} src={user?.imageUrl} size="lg" /><div><div className="font-mono text-[10px] uppercase tracking-[.2em] text-accent">Mon profil</div><h1 className="display mt-2 text-4xl font-bold">{name}</h1><p className="mt-1 text-secondary-foreground/70">{user?.primaryEmailAddress?.emailAddress}</p></div></div><button onClick={() => void signOut({ redirectUrl: basePath || '/' })} className="inline-flex items-center justify-center gap-2 rounded-full border border-secondary-foreground/25 px-4 py-2 text-sm font-bold hover:border-accent hover:text-accent" data-testid="button-profile-logout">Se déconnecter</button></div><div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"><Link href="/explorer" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><History className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Mes découvertes</h2></Link><Link href="/espace-artiste" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><FileMusic className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Espace artiste</h2></Link><Link href="/pricing" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><Crown className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Offres Premium</h2></Link><Link href="/soutenir" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><HeartHandshake className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Soutenir INDAMORA</h2></Link></div></div>;
+}
+
+function ArtistSpace() {
+  const { isSignedIn, user } = useUser();
+  const submissions = useGetSubmissions(undefined, { query: { enabled: Boolean(isSignedIn), queryKey: getGetSubmissionsQueryKey() } });
+  if (!isSignedIn) return <Redirect to="/sign-in" />;
+  const statusLabel = (status: string) => status === 'approved' ? 'Validée' : status === 'rejected' ? 'Refusée' : 'En attente';
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-6 rounded-[2rem] bg-primary p-7 text-primary-foreground md:flex-row md:items-end md:justify-between md:p-10"><div><div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary-foreground/70">Espace artiste</div><h1 className="display mt-3 text-5xl font-bold">{user?.fullName ?? user?.firstName ?? 'Votre espace de création'}</h1><p className="mt-4 max-w-xl leading-7 text-primary-foreground/80">Envoyez vos œuvres à INDAMORA RECORDS et suivez chaque étape de leur examen.</p></div><Link href="/submit" className="inline-flex items-center justify-center gap-2 rounded-full bg-background px-5 py-3 text-sm font-bold text-foreground" data-testid="link-artist-submit"><Plus className="h-4 w-4" /> Envoyer une œuvre</Link></div><div className="mt-12 grid gap-4 sm:grid-cols-3"><div className="rounded-2xl border border-border bg-card p-5"><div className="text-3xl font-bold">{submissions.data?.length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">Œuvres envoyées</p></div><div className="rounded-2xl border border-border bg-card p-5"><div className="text-3xl font-bold text-accent-foreground">{submissions.data?.filter((item) => item.status === 'approved').length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">Validées</p></div><div className="rounded-2xl border border-border bg-card p-5"><div className="text-3xl font-bold">{submissions.data?.filter((item) => item.status === 'pending').length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">En attente</p></div></div><section className="mt-12"><SectionHeading eyebrow="Suivi des propositions" title="Le chemin de vos œuvres" />{submissions.isLoading ? <div className="space-y-3"><div className="skeleton h-24 rounded-2xl" /><div className="skeleton h-24 rounded-2xl" /></div> : submissions.error ? <QueryState error={submissions.error} onRetry={() => void submissions.refetch()} label="espace-artiste" /> : <div className="space-y-3">{(submissions.data ?? []).slice(0, 6).map((item) => <div key={item.id} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-muted text-primary"><FileMusic className="h-5 w-5" /></div><div className="min-w-0 flex-1"><h2 className="font-bold">{item.title}</h2><p className="mt-1 text-sm text-muted-foreground">{categoryLabel(item.category)} · Envoyée le {new Date(item.submittedAt).toLocaleDateString('fr-FR')}</p></div><span className={cx('rounded-full px-3 py-1 text-xs font-bold', item.status === 'approved' ? 'bg-secondary/10 text-secondary' : item.status === 'rejected' ? 'bg-destructive/10 text-destructive' : 'bg-accent/20 text-foreground')}>{statusLabel(item.status)}</span></div>)}</div>}</section></div>;
+}
+function NotFound() {
+  return <div className="mx-auto max-w-xl px-5 py-32 text-center"><div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary">404 / hors piste</div><h1 className="display mt-4 text-6xl font-bold">Cette piste<br />n’existe pas.</h1><Link href="/" className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground" data-testid="link-404-home">Retour à la découverte <ArrowRight className="h-4 w-4" /></Link></div>;
+}
+
+function Router() {
+  const [location] = useLocation();
+
+  return (
+    <ErrorBoundary resetKey={location}>
+      <Shell>
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/explorer" component={Explorer} />
+          <Route path="/recherche" component={SearchPage} />
+          <Route path="/categorie/:slug" component={CategoryPage} />
+          <Route path="/oeuvres/:id" component={WorkPage} />
+          <Route path="/repertoire" component={() => <Directory />} />
+          <Route path="/artists" component={() => <Directory />} />
+          <Route path="/artists/:id" component={ArtistProfile} />
+          <Route path="/presse" component={Presse} />
+          <Route path="/submit" component={Submit} />
+          <Route path="/espace-artiste" component={ArtistSpace} />
+
+          {/* Modération */}
+          <Route path="/moderation" component={Moderation} />
+          <Route path="/admin/moderation" component={Moderation} />
+          <Route path="/admin/moderation" component={AdminModeration} />
+
+          <Route path="/administration" component={AdminDashboard} />
+          <Route path="/pricing" component={Pricing} />
+          <Route path="/soutenir" component={Support} />
+          <Route path="/inscription" component={() => <Redirect to="/sign-up" />} />
+          <Route path="/login" component={() => <Redirect to="/sign-in" />} />
+          <Route path="/profil" component={Profile} />
+
+          <Route component={NotFound} />
+        </Switch>
+      </Shell>
+    </ErrorBoundary>
+  );
 }
 
 function ClerkQueryClientCacheInvalidator() {
