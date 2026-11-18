@@ -438,7 +438,7 @@ components:
         subject: { type: string, minLength: 2 }
         message: { type: string, minLength: 10 }
         requestedDate: { type: string }
-    Work:
+        Work:
       type: object
       required: [id, title, artist, category, description, duration, image, featured, access, mediaType, mediaObjectPath, coverObjectPath]
       properties:
@@ -456,7 +456,8 @@ components:
         access:
           type: string
           enum: [free, premium]
-                Submission:
+
+    Submission:
       type: object
       required: [id, submittedAt, status]
       properties:
@@ -487,7 +488,7 @@ components:
         mediaObjectPath: { type: string }
         coverObjectPath: { type: string }
         duration: { type: string }
-        
+
     SubmissionStatusInput:
       type: object
       required: [status]
