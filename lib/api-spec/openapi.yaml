@@ -4,9 +4,11 @@ info:
   title: Api
   version: 0.1.0
   description: API specification
+
 servers:
   - url: /api
     description: Base API path
+
 tags:
   - name: health
     description: Health operations
@@ -22,6 +24,7 @@ tags:
     description: Private administration operations
   - name: Storage
     description: Object storage upload and serving endpoints.
+
 paths:
   /healthz:
     get:
@@ -36,6 +39,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
   /catalog:
     get:
       operationId: getCatalog
@@ -50,6 +54,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Work"
+
   /catalog/{id}:
     get:
       operationId: getWork
@@ -70,6 +75,7 @@ paths:
                 $ref: "#/components/schemas/Work"
         "404":
           description: Work not found
+
   /artists:
     get:
       operationId: getArtists
@@ -85,15 +91,18 @@ paths:
         - name: subcategory
           in: query
           required: false
-          schema: { type: string }
+          schema:
+            type: string
         - name: country
           in: query
           required: false
-          schema: { type: string }
+          schema:
+            type: string
         - name: search
           in: query
           required: false
-          schema: { type: string }
+          schema:
+            type: string
       responses:
         "200":
           description: Artist profiles
@@ -103,6 +112,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Artist"
+
     post:
       operationId: createArtist
       tags: [artists]
@@ -122,6 +132,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Artist"
+
   /artists/{id}:
     get:
       operationId: getArtist
@@ -142,6 +153,7 @@ paths:
                 $ref: "#/components/schemas/Artist"
         "404":
           description: Artist not found
+
   /press-requests:
     post:
       operationId: createPressRequest
@@ -160,6 +172,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/PressRequest"
+
   /admin/users:
     get:
       operationId: getAdminUsers
@@ -188,6 +201,7 @@ paths:
           description: Authentication required
         "403":
           description: Administrator access denied
+
   /submissions:
     get:
       operationId: getSubmissions
@@ -211,6 +225,7 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Submission"
+
     post:
       operationId: createSubmission
       tags: [submissions]
@@ -230,6 +245,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Submission"
+
   /submissions/{id}/status:
     patch:
       operationId: updateSubmissionStatus
@@ -256,6 +272,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Submission"
+
   /storage/uploads/request-url:
     post:
       operationId: requestUploadUrl
@@ -276,6 +293,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/UploadUrlResponse"
+
   /storage/uploads/complete:
     post:
       operationId: completeUpload
@@ -296,6 +314,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CompleteUploadResult"
+
   /storage/public-objects/{filePath}:
     get:
       operationId: getPublicObject
@@ -305,13 +324,17 @@ paths:
         - name: filePath
           in: path
           required: true
-          schema: { type: string }
+          schema:
+            type: string
       responses:
         "200":
           description: Object content
           content:
             "*/*":
-              schema: { type: string, format: binary }
+              schema:
+                type: string
+                format: binary
+
   /storage/objects/{objectPath}:
     get:
       operationId: getStorageObject
@@ -321,19 +344,24 @@ paths:
         - name: objectPath
           in: path
           required: true
-          schema: { type: string }
+          schema:
+            type: string
       responses:
         "200":
           description: Object content
           content:
             "*/*":
-              schema: { type: string, format: binary }
+              schema:
+                type: string
+                format: binary
+
 components:
   securitySchemes:
     clerkSession:
       type: apiKey
       in: cookie
       name: __session
+
   schemas:
     HealthStatus:
       type: object
@@ -342,16 +370,25 @@ components:
           type: string
       required:
         - status
+
     AdminUser:
       type: object
       required: [id, firstName, lastName, username, email, createdAt]
       properties:
-        id: { type: string }
-        firstName: { type: ["string", "null"] }
-        lastName: { type: ["string", "null"] }
-        username: { type: ["string", "null"] }
-        email: { type: ["string", "null"] }
-        createdAt: { type: string, format: date-time }
+        id:
+          type: string
+        firstName:
+          type: ["string", "null"]
+        lastName:
+          type: ["string", "null"]
+        username:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
     AdminUsersPage:
       type: object
       required: [users, totalCount, offset, limit]
@@ -360,133 +397,271 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/AdminUser"
-        totalCount: { type: integer, minimum: 0 }
-        offset: { type: integer, minimum: 0 }
-        limit: { type: integer, minimum: 1 }
+        totalCount:
+          type: integer
+          minimum: 0
+        offset:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+          minimum: 1
+
     Artist:
       type: object
-      required: [id, name, category, bio, location, worksCount, profileGroup, specialties, socialLinks]
+      required:
+        - id
+        - name
+        - category
+        - bio
+        - location
+        - worksCount
+        - profileGroup
+        - specialties
+        - socialLinks
       properties:
-        id: { type: integer }
-        name: { type: string }
-        category: { type: string }
-        bio: { type: string }
-        location: { type: string }
-        avatar: { type: ["string", "null"] }
-        worksCount: { type: integer }
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+        bio:
+          type: string
+        location:
+          type: string
+        avatar:
+          type: ["string", "null"]
+        worksCount:
+          type: integer
         profileGroup:
           type: string
           enum: [artists, creations, partners, press]
-        subcategory: { type: ["string", "null"] }
-        country: { type: ["string", "null"] }
+        subcategory:
+          type: ["string", "null"]
+        country:
+          type: ["string", "null"]
         specialties:
           type: array
-          items: { type: string }
-        website: { type: ["string", "null"], format: uri }
+          items:
+            type: string
+        website:
+          type: ["string", "null"]
+          format: uri
         socialLinks:
           type: array
-          items: { type: string, format: uri }
-        professionalContact: { type: ["string", "null"] }
+          items:
+            type: string
+            format: uri
+        professionalContact:
+          type: ["string", "null"]
+
     ArtistInput:
       type: object
-      required: [name, category, bio, location]
       properties:
-        name: { type: string, minLength: 2 }
-        category: { type: string, minLength: 2 }
-        bio: { type: string, minLength: 10 }
-        location: { type: string, minLength: 2 }
-        avatar: { type: string }
+        name:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+        bio:
+          type: ["string", "null"]
+        location:
+          type: ["string", "null"]
+        avatar:
+          type: ["string", "null"]
         profileGroup:
           type: string
           enum: [artists, creations, partners, press]
-        subcategory: { type: string }
-        country: { type: string }
+        subcategory:
+          type: ["string", "null"]
+        country:
+          type: ["string", "null"]
         specialties:
           type: array
-          items: { type: string }
-        website: { type: string, format: uri }
+          items:
+            type: string
+        website:
+          type: ["string", "null"]
+          format: uri
         socialLinks:
           type: array
-          items: { type: string, format: uri }
-        professionalContact: { type: string }
+          items:
+            type: string
+            format: uri
+        professionalContact:
+          type: ["string", "null"]
+
     PressRequest:
       type: object
-      required: [id, name, organization, role, email, requestType, subject, message, status, createdAt]
+      required:
+        - id
+        - name
+        - organization
+        - role
+        - email
+        - requestType
+        - subject
+        - message
+        - status
+        - createdAt
       properties:
-        id: { type: integer }
-        name: { type: string }
-        organization: { type: string }
-        role: { type: string }
-        email: { type: string, format: email }
-        phone: { type: ["string", "null"] }
-        requestType: { type: string }
-        subject: { type: string }
-        message: { type: string }
-        requestedDate: { type: ["string", "null"] }
-        status: { type: string, enum: [pending, handled, archived] }
-        createdAt: { type: string }
+        id:
+          type: integer
+        name:
+          type: string
+        organization:
+          type: string
+        role:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: ["string", "null"]
+        requestType:
+          type: string
+        subject:
+          type: string
+        message:
+          type: string
+        requestedDate:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, handled, archived]
+        createdAt:
+          type: string
+
     PressRequestInput:
       type: object
-      required: [name, organization, role, email, requestType, subject, message]
+      required:
+        - name
+        - organization
+        - role
+        - email
+        - requestType
+        - subject
+        - message
       properties:
-        name: { type: string, minLength: 2 }
-        organization: { type: string, minLength: 2 }
-        role: { type: string, minLength: 2 }
-        email: { type: string, format: email }
-        phone: { type: string }
-        requestType: { type: string, minLength: 2 }
-        subject: { type: string, minLength: 2 }
-        message: { type: string, minLength: 10 }
-        requestedDate: { type: string }
+        name:
+          type: string
+          minLength: 2
+        organization:
+          type: string
+          minLength: 2
+        role:
+          type: string
+          minLength: 2
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        requestType:
+          type: string
+          minLength: 2
+        subject:
+          type: string
+          minLength: 2
+        message:
+          type: string
+          minLength: 10
+        requestedDate:
+          type: string
+
     Work:
       type: object
-      required: [id, title, artist, category, description, duration, image, featured, access, mediaType, mediaObjectPath, coverObjectPath]
+      required:
+        - id
+        - title
+        - artist
+        - category
+        - description
+        - duration
+        - image
+        - featured
+        - access
+        - mediaType
+        - mediaObjectPath
+        - coverObjectPath
       properties:
-        id: { type: integer }
-        title: { type: string }
-        artist: { type: string }
-        category: { type: string }
-        description: { type: string }
-        duration: { type: ["string", "null"] }
-        image: { type: string }
-        mediaType: { type: ["string", "null"] }
-        mediaObjectPath: { type: ["string", "null"] }
-        coverObjectPath: { type: ["string", "null"] }
-        featured: { type: boolean }
+        id:
+          type: integer
+        title:
+          type: string
+        artist:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        duration:
+          type: ["string", "null"]
+        image:
+          type: string
+        mediaType:
+          type: ["string", "null"]
+        mediaObjectPath:
+          type: ["string", "null"]
+        coverObjectPath:
+          type: ["string", "null"]
+        featured:
+          type: boolean
         access:
           type: string
           enum: [free, premium]
+
+    # CORRECTION : les informations d'une proposition peuvent être absentes.
     Submission:
       type: object
-      required: [id, title, artist, category, submittedAt, status]
+      required: [id, submittedAt, status]
       properties:
-        id: { type: integer }
-        title: { type: string }
-        artist: { type: string }
-        category: { type: string }
-        submittedAt: { type: string }
+        id:
+          type: integer
+        title:
+          type: ["string", "null"]
+        artist:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+        submittedAt:
+          type: string
         status:
           type: string
           enum: [pending, approved, rejected]
-        note: { type: ["string", "null"] }
-        mediaType: { type: ["string", "null"] }
-        mediaObjectPath: { type: ["string", "null"] }
-        coverObjectPath: { type: ["string", "null"] }
-        duration: { type: ["string", "null"] }
+        note:
+          type: ["string", "null"]
+        mediaType:
+          type: ["string", "null"]
+        mediaObjectPath:
+          type: ["string", "null"]
+        coverObjectPath:
+          type: ["string", "null"]
+        duration:
+          type: ["string", "null"]
+
+    # CORRECTION : aucun champ n'est obligatoire pour envoyer une proposition.
     SubmissionInput:
       type: object
-      required: [title, artist, category, mediaType, mediaObjectPath]
       properties:
-        title: { type: string, minLength: 2 }
-        artist: { type: string, minLength: 2 }
-        category: { type: string, minLength: 2 }
-        note: { type: string }
+        title:
+          type: ["string", "null"]
+        artist:
+          type: ["string", "null"]
+        category:
+          type: ["string", "null"]
+        note:
+          type: ["string", "null"]
         mediaType:
-          type: string
-          enum: [audio, video]
-        mediaObjectPath: { type: string, minLength: 1 }
-        coverObjectPath: { type: string, minLength: 1 }
-        duration: { type: string }
+          type: ["string", "null"]
+          enum: [audio, video, null]
+        mediaObjectPath:
+          type: ["string", "null"]
+        coverObjectPath:
+          type: ["string", "null"]
+        duration:
+          type: ["string", "null"]
+
     SubmissionStatusInput:
       type: object
       required: [status]
@@ -494,29 +669,44 @@ components:
         status:
           type: string
           enum: [pending, approved, rejected]
+
     UploadUrlRequest:
       type: object
       required: [name, size, contentType]
       properties:
-        name: { type: string, minLength: 1 }
-        size: { type: integer, minimum: 1 }
-        contentType: { type: string, minLength: 1 }
+        name:
+          type: string
+          minLength: 1
+        size:
+          type: integer
+          minimum: 1
+        contentType:
+          type: string
+          minLength: 1
+
     UploadUrlResponse:
       type: object
       required: [uploadURL, objectPath]
       properties:
-        uploadURL: { type: string, format: uri }
-        objectPath: { type: string }
+        uploadURL:
+          type: string
+          format: uri
+        objectPath:
+          type: string
         metadata:
           $ref: "#/components/schemas/UploadUrlRequest"
+
     CompleteUploadRequest:
       type: object
       required: [objectPath]
       properties:
-        objectPath: { type: string, minLength: 1 }
+        objectPath:
+          type: string
+          minLength: 1
+
     CompleteUploadResult:
       type: object
       required: [objectPath]
       properties:
-        objectPath: { type: string }
-
+        objectPath:
+          type: string
