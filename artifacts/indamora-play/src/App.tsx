@@ -1147,7 +1147,74 @@ function Presse() {
     </div>
   </div>;
 }
+function Support() {
+  const amounts = [1, 5, 10, 20, 50, 100];
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(10);
+  const [customAmount, setCustomAmount] = useState('');
 
+  const chooseAmount = (amount: number) => {
+    setSelectedAmount(amount);
+    setCustomAmount('');
+  };
+
+  const enterCustomAmount = (value: string) => {
+    setCustomAmount(value);
+    setSelectedAmount(null);
+  };
+
+  const displayAmount = selectedAmount ?? Number(customAmount || 0);
+
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-20">
+    <div className="grid gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-start">
+      <div>
+        <div className="w-40 rounded-2xl bg-white p-2 shadow-[var(--shadow-card)]"><Logo variant="full" /></div>
+        <div className="mt-8 font-mono text-[10px] uppercase tracking-[.22em] text-primary">Donner / Soutenir INDAMORA</div>
+        <h1 className="display mt-3 text-5xl font-bold leading-none md:text-7xl">Chaque contribution<br /><span className="text-primary">compte.</span></h1>
+        <p className="mt-6 max-w-xl text-lg leading-8 text-muted-foreground">Votre don aide INDAMORA à développer INDAMORA PLAY, à soutenir les artistes indépendants à travers VOIX DE L’AVENIR et à faire grandir nos projets.</p>
+        <div className="mt-8 rounded-2xl border border-border bg-muted p-5 text-sm leading-6 text-muted-foreground">
+          <strong className="text-foreground">VOIX DE L’AVENIR</strong> est une branche de l’écosystème INDAMORA dédiée aux artistes indépendants et aux projets de l’association.
+        </div>
+      </div>
+      <section className="rounded-[2rem] border border-border bg-card p-6 shadow-[var(--shadow-card)] md:p-9">
+        <div className="flex items-center justify-between gap-4">
+          <div><h2 className="display text-3xl font-bold">Choisir une contribution</h2><p className="mt-2 text-sm text-muted-foreground">Le don est indépendant de l’abonnement Premium.</p></div>
+          <HeartHandshake className="h-8 w-8 shrink-0 text-primary" />
+        </div>
+        <div className="mt-8 grid grid-cols-3 gap-3">{amounts.map((amount) => <button type="button" key={amount} onClick={() => chooseAmount(amount)} className={cx('rounded-2xl border px-3 py-4 font-bold transition-colors', selectedAmount === amount ? 'border-primary bg-primary text-primary-foreground' : 'border-border hover:border-primary')} data-testid={`button-donation-${amount}`}>{amount} €</button>)}</div>
+        <label className="mt-5 grid gap-2 text-sm font-bold">Autre montant
+          <div className="flex items-center rounded-2xl border border-input bg-background px-4 focus-within:border-primary"><input type="number" min="1" step="1" value={customAmount} onChange={(event) => enterCustomAmount(event.target.value)} className="min-w-0 flex-1 bg-transparent py-4 font-normal outline-none" placeholder="Montant libre" data-testid="input-donation-custom" /><span className="font-bold text-muted-foreground">€</span></div>
+        </label>
+        <div className="mt-6 rounded-2xl bg-secondary p-5 text-secondary-foreground"><div className="font-mono text-[10px] uppercase tracking-[.18em] text-accent">Votre sélection</div><div className="mt-2 text-3xl font-bold">{displayAmount > 0 ? `${displayAmount} €` : 'À définir'}</div></div>
+        <button type="button" disabled className="mt-6 flex w-full cursor-not-allowed items-center justify-center gap-2 rounded-full bg-muted py-3.5 font-bold text-muted-foreground" data-testid="button-donation-unavailable"><LockKeyhole className="h-4 w-4" /> Paiement bientôt disponible</button>
+        <p className="mt-4 text-center text-xs leading-5 text-muted-foreground">Aucun paiement n’est envoyé actuellement. Un fournisseur sécurisé doit encore être connecté et configuré côté serveur.</p>
+      </section>
+    </div>
+    <div className="mt-14 grid gap-4 md:grid-cols-3">
+      {['Développer INDAMORA PLAY', 'Accompagner les artistes indépendants', 'Faire grandir les projets INDAMORA'].map((item) => <div key={item} className="rounded-2xl border border-border bg-card p-5"><Check className="h-5 w-5 text-primary" /><h2 className="mt-4 font-bold">{item}</h2></div>)}
+    </div>
+    <p className="mx-auto mt-10 max-w-2xl text-center text-xs leading-5 text-muted-foreground">Aucune déductibilité fiscale, aucun pourcentage reversé et aucun revenu artistique ne sont garantis par cette présentation.</p>
+  </div>;
+}
+
+function AuthPage({ children }: { children: ReactNode }) {
+  return <div className="min-h-[calc(100dvh-4.5rem)] bg-secondary px-4 py-10 text-foreground md:grid md:place-items-center"><div className="w-full max-w-2xl rounded-[2rem] bg-background p-3 shadow-2xl md:p-6"><div className="mb-4 flex justify-center"><Logo variant="full" className="max-w-[11rem]" /></div>{children}</div></div>;
+}
+
+function Profile() {
+  const { isSignedIn, user } = useUser();
+  const { signOut } = useClerk();
+  if (!isSignedIn) return <Redirect to="/sign-in" />;
+  const name = user?.fullName ?? user?.firstName ?? 'Membre INDAMORA';
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-6 rounded-[2rem] bg-secondary p-7 text-secondary-foreground md:flex-row md:items-center md:justify-between md:p-10"><div className="flex items-center gap-5"><Avatar name={name} src={user?.imageUrl} size="lg" /><div><div className="font-mono text-[10px] uppercase tracking-[.2em] text-accent">Mon profil</div><h1 className="display mt-2 text-4xl font-bold">{name}</h1><p className="mt-1 text-secondary-foreground/70">{user?.primaryEmailAddress?.emailAddress}</p></div></div><button onClick={() => void signOut({ redirectUrl: basePath || '/' })} className="inline-flex items-center justify-center gap-2 rounded-full border border-secondary-foreground/25 px-4 py-2 text-sm font-bold hover:border-accent hover:text-accent" data-testid="button-profile-logout">Se déconnecter</button></div><div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4"><Link href="/explorer" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><History className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Mes découvertes</h2></Link><Link href="/espace-artiste" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><FileMusic className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Espace artiste</h2></Link><Link href="/pricing" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><Crown className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Offres Premium</h2></Link><Link href="/soutenir" className="rounded-2xl border border-border bg-card p-6 hover:border-primary"><HeartHandshake className="h-6 w-6 text-primary" /><h2 className="mt-5 font-bold">Soutenir INDAMORA</h2></Link></div></div>;
+}
+
+function ArtistSpace() {
+  const { isSignedIn, user } = useUser();
+  const submissions = useGetSubmissions(undefined, { query: { enabled: Boolean(isSignedIn), queryKey: getGetSubmissionsQueryKey() } });
+  if (!isSignedIn) return <Redirect to="/sign-in" />;
+  const statusLabel = (status: string) => status === 'approved' ? 'Validée' : status === 'rejected' ? 'Refusée' : 'En attente';
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-6 rounded-[2rem] bg-primary p-7 text-primary-foreground md:flex-row md:items-end md:justify-between md:p-10"><div><div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary-foreground/70">Espace artiste</div><h1 className="display mt-3 text-5xl font-bold">{user?.fullName ?? user?.firstName ?? 'Votre espace de création'}</h1><p className="mt-4 max-w-xl leading-7 text-primary-foreground/80">Envoyez vos œuvres à INDAMORA RECORDS et suivez chaque étape de leur examen.</p></div><Link href="/submit" className="inline-flex items-center justify-center gap-2 rounded-full bg-background px-5 py-3 text-sm font-bold text-foreground" data-testid="link-artist-submit"><Plus className="h-4 w-4" /> Envoyer une œuvre</Link></div><div className="mt-12 grid gap-4 sm:grid-cols-3"><div className="rounded-2xl border border-border bg-card p-5"><div className="text-3xl font-bold">{submissions.data?.length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">Œuvres envoyées</p></div><div className="rounded-2xl border border-border bg-card p-5"><div className="text-3xl font-bold text-accent-foreground">{submissions.data?.filter((item) => item.status === 'approved').length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">Validées</p></div><div className="rounded-2xl border border-border bg-card p-5"><div className="text-3xl font-bold">{submissions.data?.filter((item) => item.status === 'pending').length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">En attente</p></div></div><section className="mt-12"><SectionHeading eyebrow="Suivi des propositions" title="Le chemin de vos œuvres" />{submissions.isLoading ? <div className="space-y-3"><div className="skeleton h-24 rounded-2xl" /><div className="skeleton h-24 rounded-2xl" /></div> : submissions.error ? <QueryState error={submissions.error} onRetry={() => void submissions.refetch()} label="espace-artiste" /> : <div className="space-y-3">{(submissions.data ?? []).slice(0, 6).map((item) => <div key={item.id} className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 sm:flex-row sm:items-center"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-muted text-primary"><FileMusic className="h-5 w-5" /></div><div className="min-w-0 flex-1"><h2 className="font-bold">{item.title}</h2><p className="mt-1 text-sm text-muted-foreground">{categoryLabel(item.category)} · Envoyée le {new Date(item.submittedAt).toLocaleDateString('fr-FR')}</p></div><span className={cx('rounded-full px-3 py-1 text-xs font-bold', item.status === 'approved' ? 'bg-secondary/10 text-secondary' : item.status === 'rejected' ? 'bg-destructive/10 text-destructive' : 'bg-accent/20 text-foreground')}>{statusLabel(item.status)}</span></div>)}</div>}</section></div>;
+}
 function NotFound() {
   return <div className="mx-auto max-w-xl px-5 py-32 text-center"><div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary">404 / hors piste</div><h1 className="display mt-4 text-6xl font-bold">Cette piste<br />n’existe pas.</h1><Link href="/" className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground" data-testid="link-404-home">Retour à la découverte <ArrowRight className="h-4 w-4" /></Link></div>;
 }
