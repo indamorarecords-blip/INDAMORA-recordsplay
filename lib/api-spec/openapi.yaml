@@ -456,14 +456,14 @@ components:
         access:
           type: string
           enum: [free, premium]
-    Submission:
+        Submission:
       type: object
-      required: [id, title, artist, category, submittedAt, status]
+      required: [id, submittedAt, status]
       properties:
         id: { type: integer }
-        title: { type: string }
-        artist: { type: string }
-        category: { type: string }
+        title: { type: [string, "null"] }
+        artist: { type: [string, "null"] }
+        category: { type: [string, "null"] }
         submittedAt: { type: string }
         status:
           type: string
@@ -473,19 +473,18 @@ components:
         mediaObjectPath: { type: ["string", "null"] }
         coverObjectPath: { type: ["string", "null"] }
         duration: { type: ["string", "null"] }
-    SubmissionInput:
+        SubmissionInput:
       type: object
-      required: [title, artist, category, mediaType, mediaObjectPath]
       properties:
-        title: { type: string, minLength: 2 }
-        artist: { type: string, minLength: 2 }
-        category: { type: string, minLength: 2 }
+        title: { type: string }
+        artist: { type: string }
+        category: { type: string }
         note: { type: string }
         mediaType:
           type: string
           enum: [audio, video]
-        mediaObjectPath: { type: string, minLength: 1 }
-        coverObjectPath: { type: string, minLength: 1 }
+        mediaObjectPath: { type: string }
+        coverObjectPath: { type: string }
         duration: { type: string }
     SubmissionStatusInput:
       type: object
