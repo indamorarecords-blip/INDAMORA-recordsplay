@@ -568,201 +568,102 @@ function SearchPage() {
 }
 
 function Submit() {
-  const { isSignedIn } = useUser();
   const createSubmission = useCreateSubmission();
   const createArtist = useCreateArtist();
   const queryClient = useQueryClient();
-   const [form, setForm] = useState({
-  title: '',
-  artist: '',
-  category: '',
-  note: '',
-  location: '',
-  bio: '',
-  addProfile: false
-});
-   const [mediaFile, setMediaFile] = useState<File | null>(null);
-   const [coverFile, setCoverFile] = useState<File | null>(null);
-   const [uploading, setUploading] = useState(false);
-   const [uploadProgress, setUploadProgress] = useState(0);
-   const [done, setDone] = useState<Submission | null>(null);
-   const [doneProfile, setDoneProfile] = useState(false);
+
+  const [form, setForm] = useState({
+    title: '',
+    artist: '',
+    category: '',
+    note: '',
+    location: '',
+    bio: '',
+    addProfile: false,
+  });
+
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [done, setDone] = useState<Submission | null>(null);
   const [error, setError] = useState('');
-  const update = (key: keyof typeof form, value: string | boolean) => setForm((current) => ({ ...current, [key]: value }));
-   const submit = async (event: FormEvent) => {
-  event.preventDefault();
-  setError('');
 
-  try {
-    setUploading(true);
-    setUploadProgress(0);
+  const update = (key: keyof typeof form, value: string | boolean) => {
+    setForm((current) => ({
+      ...current,
+      [key]: value,
+    }));
+  };
 
-    let mediaObjectPath: string | undefined;
-    let coverObjectPath: string | undefined;
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    setError('');
 
-    // Audio ou vidéo uniquement si un fichier est joint
-    if (mediaFile) {
-      mediaObjectPath = await uploadAsset(
-        mediaFile,
-        (value) => setUploadProgress(
-          coverFile ? Math.round(value / 2) : value
-        )
-      );
-    }
+    try {
+      setUploading(true);
+      setUploadProgress(0);
 
-    // Couverture uniquement si une image est jointe
-    if (coverFile) {
-      coverObjectPath = await uploadAsset(
-        coverFile,
-        (value) => setUploadProgress(
-          mediaFile ? Math.round(50 + value / 2) : value
-        )
-      );
-    }
+      let mediaObjectPath: string | undefined;
+      let coverObjectPath: string | undefined;
 
-    // Candidature de profil uniquement si la case est cochée
-    if (form.addProfile) {
-      await createArtist.mutateAsync({
-        data: {
-          name: form.artist.trim() || undefined,
-          category: form.category.trim() || undefined,
-          bio: form.bio.trim() || undefined,
-          location: form.location.trim() || undefined,
-        },
-      });
+      // 1. Téléversement audio ou vidéo si un fichier est sélectionné.
+      if (mediaFile) {
+        mediaObjectPath = await uploadAsset(
+          mediaFile,
+          (value) => {
+            setUploadProgress(
+              coverFile ? Math.round(value / 2) : value
+            );
+          }
+        );
+      }
 
-      await queryClient.invalidateQueries({
-        queryKey: getGetArtistsQueryKey(),
-      });
-    }
+      // 2. Téléversement de la couverture si elle est sélectionnée.
+      if (coverFile) {
+        coverObjectPath = await uploadAsset(
+          coverFile,
+          (value) => {
+            setUploadProgress(
+              mediaFile
+                ? Math.round(50 + value / 2)
+                : value
+            );
+          }
+        );
+      }
 
-    // Envoi de la proposition, même sans aucun fichier
-    const created = await createSubmission.mutateAsync({
-      data: {
-        title: form.title.trim() || undefined,
-        artist: form.artist.trim() || undefined,
-        category: form.category.trim() || undefined,
-        note: form.note.trim() || undefined,
-        mediaType: mediaFile
-          ? mediaFile.type.startsWith('video/')
-            ? 'video'
-            : 'audio'
-          : undefined,
-        mediaObjectPath,
-        coverObjectPath,
-      },
-    });
-
-    setDone(created);
-
-    await queryClient.invalidateQueries({
-      queryKey: getGetSubmissionsQueryKey(),
-    });
-
-  } catch (submissionError) {
-    setError(
-      submissionError instanceof Error
-        ? submissionError.message
-        : "Votre proposition n'a pas pu être envoyée."
-    );
-  } finally {
-    setUploading(false);
-  }
-};
-
-  const artistName = form.artist.trim();
-  const biography = form.bio.trim();
-
-  // Vérification de la candidature artiste
-  if (form.addProfile) {
-    if (artistName.length < 2) {
-      setError("Le nom d'artiste est obligatoire.");
-      return;
-    }
-
-    if (!form.category.trim()) {
-      setError("Veuillez choisir une catégorie.");
-      return;
-    }
-
-    if (biography.length < 10) {
-      setError("Votre biographie doit contenir au moins 10 caractères.");
-      return;
-    }
-  }
-
-  // Sans fichier, seule une candidature artiste est autorisée.
-  if (!mediaFile && !form.addProfile) {
-    setError("Ajoutez un fichier audio ou vidéo, ou choisissez de présenter votre profil artiste.");
-    return;
-  }
-
-  // Une proposition d'œuvre conserve ses champs obligatoires.
-  if (mediaFile && (form.title.trim().length < 2 || artistName.length < 2)) {
-    setError("Ajoutez un titre et un nom d'artiste pour votre œuvre.");
-    return;
-  }
-
-  try {
-    setUploading(true);
-    setUploadProgress(0);
-
-    // Candidature artiste sans fichier
-    if (form.addProfile && !mediaFile) {
-      await createArtist.mutateAsync({
-        data: {
-          name: artistName,
-          category: form.category,
-          bio: biography,
-          location: form.location.trim() || "Non renseigné",
-        },
-      });
-
-      setDoneProfile(true);
-
-      await queryClient.invalidateQueries({
-        queryKey: getGetArtistsQueryKey(),
-      });
-
-      return;
-    }
-
-    // Proposition d'œuvre : fonctionnement actuel conservé
-    if (mediaFile) {
-      const mediaObjectPath = await uploadAsset(
-        mediaFile,
-        (value) => setUploadProgress(
-          coverFile ? Math.round(value / 2) : value
-        )
-      );
-
-      const coverObjectPath = coverFile
-        ? await uploadAsset(
-            coverFile,
-            (value) => setUploadProgress(Math.round(50 + value / 2))
-          )
-        : undefined;
-
+      // 3. Création du profil artiste uniquement si demandé.
       if (form.addProfile) {
         await createArtist.mutateAsync({
           data: {
-            name: artistName,
-            category: form.category,
-            bio: biography,
-            location: form.location.trim() || "Non renseigné",
+            name: form.artist.trim() || undefined,
+            category: form.category.trim() || undefined,
+            bio: form.bio.trim() || undefined,
+            location: form.location.trim() || undefined,
           },
+        });
+
+        await queryClient.invalidateQueries({
+          queryKey: getGetArtistsQueryKey(),
         });
       }
 
+      // 4. Création de la proposition.
+      // Tous les champs sont facultatifs.
       const created = await createSubmission.mutateAsync({
         data: {
-          title: form.title.trim(),
-          artist: artistName,
-          category: form.category,
-          note: form.note || undefined,
-          mediaType: mediaFile.type.startsWith("video/")
-            ? "video"
-            : "audio",
+          title: form.title.trim() || undefined,
+          artist: form.artist.trim() || undefined,
+          category: form.category.trim() || undefined,
+          note: form.note.trim() || undefined,
+
+          mediaType: mediaFile
+            ? mediaFile.type.startsWith('video/')
+              ? 'video'
+              : 'audio'
+            : undefined,
+
           mediaObjectPath,
           coverObjectPath,
         },
@@ -770,85 +671,307 @@ function Submit() {
 
       setDone(created);
 
-      void queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: getGetSubmissionsQueryKey(),
       });
+
+    } catch (submissionError) {
+      setError(
+        submissionError instanceof Error
+          ? submissionError.message
+          : "Votre proposition n'a pas pu être envoyée."
+      );
+    } finally {
+      setUploading(false);
     }
-  } catch (submissionError) {
-    setError(
-      submissionError instanceof Error
-        ? submissionError.message
-        : "Votre proposition n'a pas pu être envoyée."
-    );
-  } finally {
-    setUploading(false);
-  }
-};
-  if (done) return <div className="mx-auto max-w-2xl px-5 py-20 text-center lg:py-28"><div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-accent text-accent-foreground"><Check className="h-9 w-9" /></div><div className="mt-8 font-mono text-[10px] uppercase tracking-[.2em] text-primary">Reçu par Indamora Records</div><h1 className="display mt-3 text-5xl font-bold">Votre œuvre est bien arrivée.</h1><p className="mx-auto mt-5 max-w-md leading-7 text-muted-foreground">Nous avons reçu <strong className="text-foreground">{done.title}</strong> dans notre espace d’écoute. Notre équipe va l’examiner avec attention et vous répondre.</p><Link href="/" className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground" data-testid="link-submission-home">Retour à la découverte <ArrowRight className="h-4 w-4" /></Link></div>;
-   const pending = uploading || createSubmission.isPending || createArtist.isPending;
-  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr]"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Indamora Records</div><h1 className="display mt-3 text-5xl font-bold leading-[.95] md:text-6xl">Mettez votre œuvre<br /><span className="text-primary">dans la lumière.</span></h1><p className="mt-6 max-w-sm leading-7 text-muted-foreground">Une façon simple de présenter votre musique, votre humour, votre cinéma ou votre podcast à un public qui cherche quelque chose de vrai.</p><div className="mt-10 space-y-4 border-l-2 border-accent pl-5 text-sm font-semibold"><p>01 · Parlez-nous de votre création</p><p>02 · Notre équipe l’écoute avec attention</p><p>03 · Si elle trouve sa place, elle rencontre son public</p></div></div><form onSubmit={submit} className="rounded-[2rem] border border-border bg-card p-6 shadow-[var(--shadow-card)] md:p-9"><div className="mb-8 flex items-center justify-between"><div><h2 className="display text-2xl font-bold">Détails de l’œuvre</h2><p className="mt-1 text-sm text-muted-foreground">Les champs marqués d’un astérisque sont essentiels.</p></div><FileMusic className="h-7 w-7 text-primary" /></div><div className="grid gap-5 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold sm:col-span-2">Titre <input required value={form.title} onChange={(e) => update('title', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15" placeholder="Comment s’appelle-t-elle&nbsp;?" data-testid="input-submission-title" /></label><label className="grid gap-2 text-sm font-bold">Artiste ou collectif <input required value={form.artist} onChange={(e) => update('artist', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Votre nom public" data-testid="input-submission-artist" /></label><label className="grid gap-2 text-sm font-bold">Catégorie <select value={form.category} onChange={(e) => update('category', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="select-submission-category">{categories.map((item) => <option key={item} value={item}>{categoryLabel(item)}</option>)}</select></label><label className="grid gap-2 text-sm font-bold sm:col-span-2">Un mot pour l’équipe d’écoute <textarea value={form.note} onChange={(e) => update('note', e.target.value)} className="min-h-28 resize-y rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Dites-nous ce que cette œuvre représente pour vous…" data-testid="textarea-submission-note" /></label></div><div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Audio ou vidéo <input required type="file" accept="audio/mpeg,audio/mp4,audio/wav,audio/ogg,video/mp4,video/webm,video/quicktime" onChange={(e) => setMediaFile(e.target.files?.[0] ?? null)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal" data-testid="input-submission-media" />{mediaFile && <span className="text-xs text-muted-foreground">{mediaFile.name}</span>}</label><label className="grid gap-2 text-sm font-bold">Couverture (optionnelle) <input type="file" accept="image/jpeg,image/png,image/webp" onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal" data-testid="input-submission-cover" />{coverFile && <span className="text-xs text-muted-foreground">{coverFile.name}</span>}</label></div><label className="mt-6 flex cursor-pointer items-start gap-3 rounded-2xl bg-muted p-4 text-sm"><input type="checkbox" checked={form.addProfile} onChange={(e) => update('addProfile', e.target.checked)} className="mt-1 h-4 w-4 accent-[hsl(var(--primary))]" data-testid="checkbox-create-profile" /><span><strong>Ajouter mon profil au répertoire</strong><span className="mt-1 block text-xs leading-5 text-muted-foreground">Partagez votre biographie et votre lieu pour que l’on découvre aussi vos autres créations.</span></span></label>{form.addProfile && <div className="mt-4 grid gap-5 sm:grid-cols-2"><label className="grid gap-2 text-sm font-bold">Où êtes-vous basé&nbsp;? <input required value={form.location} onChange={(e) => update('location', e.target.value)} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Bangui, République centrafricaine" data-testid="input-artist-location" /></label><label className="grid gap-2 text-sm font-bold">Courte biographie <textarea required value={form.bio} onChange={(e) => update('bio', e.target.value)} className="min-h-12 rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Que créez-vous&nbsp;?" data-testid="textarea-artist-bio" /></label></div>}{error && <p className="mt-5 rounded-xl bg-destructive/10 px-4 py-3 text-sm font-semibold text-destructive" data-testid="status-submission-error">{error}</p>}<button disabled={pending} className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground transition-all hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-60" data-testid="button-submit-work">{pending ? <><LoaderCircle className="h-4 w-4 animate-spin" /> Envoi en cours… {uploadProgress > 0 && `${uploadProgress}%`}</> : <><Send className="h-4 w-4" /> Envoyer pour examen</>}</button></form></div></div>;
-}
+  };
 
-function SubmissionPreview({ submission }: { submission: Submission }) {
-  const source = storageUrl(submission.mediaObjectPath);
-  if (!source) return null;
-  return submission.mediaType === 'video'
-    ? <video controls preload="metadata" src={source} className="mt-4 max-h-52 w-full max-w-md rounded-xl bg-black" data-testid={`moderation-video-${submission.id}`} />
-    : <audio controls preload="metadata" src={source} className="mt-4 w-full max-w-md" data-testid={`moderation-audio-${submission.id}`} />;
-}
+  // 5. Confirmation après envoi.
+  if (done) {
+    return (
+      <div className="mx-auto max-w-2xl px-5 py-20 text-center lg:py-28">
 
-function Moderation() {
-  const { isSignedIn, user } = useUser();
-  const isAdmin = isAdminEmail(user?.primaryEmailAddress?.emailAddress);
-  const queryClient = useQueryClient();
-  const [filter, setFilter] = useState<'pending' | 'approved' | 'rejected'>('pending');
-  const submissions = useGetSubmissions({ status: filter }, { query: { enabled: Boolean(isSignedIn && isAdmin), queryKey: getGetSubmissionsQueryKey({ status: filter }) } });
-  const updateStatus = useUpdateSubmissionStatus();
-  const review = (submission: Submission, status: 'approved' | 'rejected') => updateStatus.mutate({ id: submission.id, data: { status } }, { onSuccess: () => { void queryClient.invalidateQueries({ queryKey: getGetSubmissionsQueryKey({ status: filter }) }); void queryClient.invalidateQueries({ queryKey: getGetCatalogQueryKey() }); } });
-  if (!isSignedIn) return <Redirect to="/sign-in" />;
-  if (!isAdmin) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><ShieldCheck className="mx-auto h-10 w-10 text-destructive" /><h1 className="display mt-5 text-4xl font-bold">Accès réservé</h1><p className="mt-3 text-muted-foreground">La modération est réservée à l’équipe INDAMORA RECORDS.</p></div>;
-  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Espace de modération</div><h1 className="display mt-3 text-5xl font-bold">INDAMORA<br /><span className="text-primary">RECORDS.</span></h1><p className="mt-4 text-muted-foreground">Donnez à chaque proposition l’attention qu’elle mérite.</p></div><div className="rounded-2xl bg-secondary px-5 py-4 text-secondary-foreground"><div className="font-mono text-[10px] uppercase tracking-[.15em] text-accent">État de la file</div><div className="mt-2 flex items-center gap-2 text-sm font-bold"><span className="h-2 w-2 animate-pulse rounded-full bg-accent" /> File de revue active</div></div></div><div className="mt-12 flex gap-2 overflow-x-auto border-b border-border pb-3">{(['pending', 'approved', 'rejected'] as const).map((item) => <button onClick={() => setFilter(item)} key={item} className={cx('shrink-0 rounded-full px-4 py-2 text-sm font-bold capitalize', filter === item ? 'bg-primary text-primary-foreground' : 'hover:bg-muted')} data-testid={`button-filter-submissions-${item}`}>{item === 'pending' ? 'En attente' : item === 'approved' ? 'Approuvées' : 'Refusées'}</button>)}</div>{submissions.isLoading ? <div className="mt-6 space-y-3">{[1, 2, 3].map((i) => <div key={i} className="skeleton h-28 rounded-2xl" />)}</div> : submissions.error ? <div className="mt-6"><QueryState error={submissions.error} onRetry={() => void submissions.refetch()} label="submissions" /></div> : (submissions.data ?? []).length === 0 ? <div className="mt-6 rounded-2xl border border-dashed border-border px-5 py-20 text-center"><div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-muted"><Check className="h-6 w-6 text-secondary" /></div><h2 className="mt-4 font-bold">Aucune œuvre dans cette file</h2><p className="mt-1 text-sm text-muted-foreground">La file est vide pour le moment.</p></div> : <div className="mt-6 space-y-3">{(submissions.data ?? []).map((submission) => <div key={submission.id} className="group rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary/50" data-testid={`row-submission-${submission.id}`}><div className="flex flex-col gap-5 md:flex-row md:items-center"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-muted text-primary"><FileMusic className="h-5 w-5" /></div><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h2 className="font-bold">{submission.title}</h2><span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider">{categoryLabel(submission.category)}</span></div><p className="mt-1 text-sm text-muted-foreground">{submission.artist} · {new Date(submission.submittedAt).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric', year: 'numeric' })}</p>{submission.note && <p className="mt-3 max-w-2xl text-sm leading-6 text-foreground/75">“{submission.note}”</p>}<SubmissionPreview submission={submission} /></div>{filter === 'pending' && <div className="flex gap-2"><button disabled={updateStatus.isPending} onClick={() => review(submission, 'rejected')} className="rounded-full border border-border px-4 py-2 text-sm font-bold hover:border-destructive hover:text-destructive disabled:opacity-50" data-testid={`button-reject-${submission.id}`}>Refuser</button><button disabled={updateStatus.isPending} onClick={() => review(submission, 'approved')} className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground hover:bg-primary hover:text-primary-foreground disabled:opacity-50" data-testid={`button-approve-${submission.id}`}>Approuver</button></div>} {filter !== 'pending' && <span className={cx('rounded-full px-3 py-1 text-xs font-bold capitalize', filter === 'approved' ? 'bg-secondary/10 text-secondary' : 'bg-destructive/10 text-destructive')}>{filter === 'approved' ? 'Approuvée' : 'Refusée'}</span>}</div></div>)}</div>}</div>;
-}
-
-function Pricing() {
-  const premiumBenefits = ['Tout le catalogue gratuit', 'Débloquer les sorties Premium', 'Accéder en avant-première aux nouveautés', 'Soutenir le développement d’INDAMORA PLAY'];
-  const futureUses = ['Soutenir les artistes et créateurs', 'Accompagner certains projets artistiques', 'Produire de nouvelles créations et fonctionnalités', 'Contribuer au développement de la création centrafricaine et africaine'];
-  return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-20">
-    <div className="mx-auto max-w-3xl text-center">
-      <div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Soutenir le mouvement</div>
-      <h1 className="display mt-3 text-5xl font-bold leading-none md:text-7xl">Plus de ce qui<br /><span className="text-primary">vous fait vibrer.</span></h1>
-      <p className="mt-6 text-lg leading-7 text-muted-foreground">Votre abonnement contribue au développement d’INDAMORA PLAY et au soutien des artistes et créateurs.</p>
-    </div>
-
-    <div className="mx-auto mt-14 grid max-w-6xl gap-5 lg:grid-cols-3">
-      <div className="rounded-[2rem] border border-border bg-card p-7 md:p-8">
-        <div className="flex items-center justify-between">
-          <div><h2 className="display text-3xl font-bold">Gratuit</h2><p className="mt-1 text-sm text-muted-foreground">Pour découvrir la plateforme.</p></div>
-          <Ticket className="h-7 w-7 text-secondary" />
+        <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-accent text-accent-foreground">
+          <Check className="h-9 w-9" />
         </div>
-        <div className="mt-8 text-4xl font-bold">0 <span className="text-sm font-medium text-muted-foreground">FCFA / mois</span></div>
-        <ul className="mt-8 space-y-4 text-sm">{['Découvrir les œuvres à la une', 'Explorer le répertoire des artistes', 'Écouter les sorties gratuites', 'Suivre les créateurs d’ici'].map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-4 w-4 text-secondary" />{item}</li>)}</ul>
-        <Link href="/" className="mt-10 block rounded-full border border-border py-3 text-center text-sm font-bold hover:border-primary hover:text-primary" data-testid="link-pricing-free">Continuer la découverte</Link>
-      </div>
 
-      <div className="relative rounded-[2rem] bg-secondary p-7 text-secondary-foreground shadow-xl md:p-8 lg:-translate-y-4">
-        <div className="absolute right-6 top-6 rounded-full bg-accent px-3 py-1 font-mono text-[9px] font-bold uppercase tracking-widest text-accent-foreground">Pour l’Afrique</div>
-        <div className="flex items-center justify-between gap-4"><div><h2 className="display text-3xl font-bold">Premium Afrique</h2><p className="mt-1 text-sm text-secondary-foreground/65">Pour les membres situés en Afrique.</p></div><Crown className="h-7 w-7 shrink-0 text-accent" /></div>
-        <div className="mt-8 text-4xl font-bold">500 <span className="text-sm font-medium text-secondary-foreground/65">FCFA / mois</span></div>
-        <ul className="mt-8 space-y-4 text-sm text-secondary-foreground/85">{premiumBenefits.map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-4 w-4 shrink-0 text-accent" />{item}</li>)}</ul>
-        <span className="mt-10 flex items-center justify-center gap-2 rounded-full bg-accent/30 py-3 text-center text-sm font-bold text-secondary-foreground/70" data-testid="status-pricing-africa"><LockKeyhole className="h-4 w-4" /> Bientôt disponible</span>
-      </div>
+        <div className="mt-8 font-mono text-[10px] uppercase tracking-[.2em] text-primary">
+          Reçu par Indamora Records
+        </div>
 
-      <div className="rounded-[2rem] border border-primary/30 bg-card p-7 shadow-[var(--shadow-card)] md:p-8">
-        <div className="flex items-center justify-between gap-4"><div><h2 className="display text-3xl font-bold">Premium International</h2><p className="mt-1 text-sm text-muted-foreground">Pour l’Europe, les États-Unis et les autres pays hors Afrique.</p></div><Crown className="h-7 w-7 shrink-0 text-primary" /></div>
-        <div className="mt-8 text-4xl font-bold">5 <span className="text-sm font-medium text-muted-foreground">€ / mois</span></div>
-        <ul className="mt-8 space-y-4 text-sm">{premiumBenefits.map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-4 w-4 shrink-0 text-primary" />{item}</li>)}</ul>
-        <span className="mt-10 flex items-center justify-center gap-2 rounded-full bg-primary/10 py-3 text-center text-sm font-bold text-primary/70" data-testid="status-pricing-international"><LockKeyhole className="h-4 w-4" /> Bientôt disponible</span>
+        <h1 className="display mt-3 text-5xl font-bold">
+          Votre proposition a bien été reçue.
+        </h1>
+
+        <p className="mx-auto mt-5 max-w-md leading-7 text-muted-foreground">
+          Notre équipe examinera votre proposition avec attention.
+        </p>
+
+        <Link
+          href="/"
+          className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground"
+          data-testid="link-submission-home"
+        >
+          Retour à la découverte
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+
+      </div>
+    );
+  }
+
+  const pending =
+    uploading ||
+    createSubmission.isPending ||
+    createArtist.isPending;
+
+  // 6. Formulaire.
+  return (
+    <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16">
+
+      <div className="grid gap-12 lg:grid-cols-[.8fr_1.2fr]">
+
+        <div>
+          <div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">
+            Indamora Records
+          </div>
+
+          <h1 className="display mt-3 text-5xl font-bold leading-[.95] md:text-6xl">
+            Mettez votre œuvre
+            <br />
+            <span className="text-primary">
+              dans la lumière.
+            </span>
+          </h1>
+
+          <p className="mt-6 max-w-sm leading-7 text-muted-foreground">
+            Une façon simple de présenter votre musique,
+            votre humour, votre cinéma ou votre podcast
+            à un public qui cherche quelque chose de vrai.
+          </p>
+
+          <div className="mt-10 space-y-4 border-l-2 border-accent pl-5 text-sm font-semibold">
+            <p>01 · Parlez-nous de votre création</p>
+            <p>02 · Notre équipe examine votre proposition</p>
+            <p>03 · Votre création peut rencontrer son public</p>
+          </div>
+        </div>
+
+        <form
+          onSubmit={submit}
+          className="rounded-[2rem] border border-border bg-card p-6 shadow-[var(--shadow-card)] md:p-9"
+        >
+
+          <div className="mb-8 flex items-center justify-between">
+            <div>
+              <h2 className="display text-2xl font-bold">
+                Détails de votre proposition
+              </h2>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                Tous les champs sont facultatifs.
+              </p>
+            </div>
+
+            <FileMusic className="h-7 w-7 text-primary" />
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+
+            {/* TITRE */}
+            <label className="grid gap-2 text-sm font-bold sm:col-span-2">
+              Titre
+
+              <input
+                value={form.title}
+                onChange={(e) => update('title', e.target.value)}
+                className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary"
+                placeholder="Comment s'appelle votre création ?"
+                data-testid="input-submission-title"
+              />
+            </label>
+
+            {/* ARTISTE */}
+            <label className="grid gap-2 text-sm font-bold">
+              Artiste ou collectif
+
+              <input
+                value={form.artist}
+                onChange={(e) => update('artist', e.target.value)}
+                className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary"
+                placeholder="Votre nom public"
+                data-testid="input-submission-artist"
+              />
+            </label>
+
+            {/* CATÉGORIE */}
+            <label className="grid gap-2 text-sm font-bold">
+              Catégorie
+
+              <select
+                value={form.category}
+                onChange={(e) => update('category', e.target.value)}
+                className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary"
+                data-testid="select-submission-category"
+              >
+                <option value="">
+                  Choisir une catégorie (facultatif)
+                </option>
+
+                {categories.map((item) => (
+                  <option key={item} value={item}>
+                    {categoryLabel(item)}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            {/* NOTE */}
+            <label className="grid gap-2 text-sm font-bold sm:col-span-2">
+              Un mot pour l'équipe d'écoute
+
+              <textarea
+                value={form.note}
+                onChange={(e) => update('note', e.target.value)}
+                className="min-h-28 resize-y rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary"
+                placeholder="Présentez votre projet si vous le souhaitez..."
+                data-testid="textarea-submission-note"
+              />
+            </label>
+
+          </div>
+
+          {/* FICHIERS */}
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+
+            <label className="grid gap-2 text-sm font-bold">
+              Audio ou vidéo (facultatif)
+
+              <input
+                type="file"
+                accept="audio/mpeg,audio/mp4,audio/wav,audio/ogg,video/mp4,video/webm,video/quicktime"
+                onChange={(e) => setMediaFile(e.target.files?.[0] ?? null)}
+                className="rounded-xl border border-input bg-background px-4 py-3 font-normal"
+                data-testid="input-submission-media"
+              />
+
+              {mediaFile && (
+                <span className="text-xs text-muted-foreground">
+                  {mediaFile.name}
+                </span>
+              )}
+            </label>
+
+            <label className="grid gap-2 text-sm font-bold">
+              Couverture (facultative)
+
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
+                className="rounded-xl border border-input bg-background px-4 py-3 font-normal"
+                data-testid="input-submission-cover"
+              />
+
+              {coverFile && (
+                <span className="text-xs text-muted-foreground">
+                  {coverFile.name}
+                </span>
+              )}
+            </label>
+
+          </div>
+
+          {/* PROFIL ARTISTE */}
+          <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-2xl bg-muted p-4 text-sm">
+
+            <input
+              type="checkbox"
+              checked={form.addProfile}
+              onChange={(e) => update('addProfile', e.target.checked)}
+              className="mt-1 h-4 w-4 accent-[hsl(var(--primary))]"
+              data-testid="checkbox-create-profile"
+            />
+
+            <span>
+              <strong>
+                Ajouter mon profil au répertoire
+              </strong>
+
+              <span className="mt-1 block text-xs leading-5 text-muted-foreground">
+                Partagez votre biographie et votre localisation
+                si vous souhaitez présenter votre profil.
+              </span>
+            </span>
+
+          </label>
+
+          {form.addProfile && (
+            <div className="mt-4 grid gap-5 sm:grid-cols-2">
+
+              <label className="grid gap-2 text-sm font-bold">
+                Localisation (facultative)
+
+                <input
+                  value={form.location}
+                  onChange={(e) => update('location', e.target.value)}
+                  className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary"
+                  placeholder="Votre ville"
+                  data-testid="input-artist-location"
+                />
+              </label>
+
+              <label className="grid gap-2 text-sm font-bold">
+                Biographie (facultative)
+
+                <textarea
+                  value={form.bio}
+                  onChange={(e) => update('bio', e.target.value)}
+                  className="min-h-12 rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary"
+                  placeholder="Présentez-vous..."
+                  data-testid="textarea-artist-bio"
+                />
+              </label>
+
+            </div>
+          )}
+
+          {/* ERREUR */}
+          {error && (
+            <p
+              className="mt-5 rounded-xl bg-destructive/10 px-4 py-3 text-sm font-semibold text-destructive"
+              data-testid="status-submission-error"
+            >
+              {error}
+            </p>
+          )}
+
+          {/* BOUTON */}
+          <button
+            type="submit"
+            disabled={pending}
+            className="mt-7 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground transition-all hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-60"
+            data-testid="button-submit-work"
+          >
+            {pending ? (
+              <>
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+                Envoi en cours...
+                {uploadProgress > 0 && ` ${uploadProgress}%`}
+              </>
+            ) : (
+              <>
+                <Send className="h-4 w-4" />
+                Envoyer pour examen
+              </>
+            )}
+          </button>
+
+        </form>
       </div>
     </div>
-
-    <section className="mx-auto mt-16 max-w-5xl rounded-[2rem] bg-muted p-7 md:p-10">
-      <div className="max-w-2xl">
+  );
+}
         <div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">À quoi sert votre soutien&nbsp;?</div>
         <h2 className="display mt-3 text-3xl font-bold md:text-4xl">Une communauté Premium qui grandit permet d’aller plus loin.</h2>
         <p className="mt-4 leading-7 text-muted-foreground">Plus la communauté Premium grandira, plus INDAMORA PLAY pourra développer ses projets et mettre en place des mécanismes de soutien aux créateurs.</p>
