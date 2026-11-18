@@ -485,10 +485,12 @@ router.patch("/submissions/:id/status", requireAdmin, async (req, res): Promise<
     }
     if (body.data.status === "approved" && !existing.publishedWorkId) {
       const [work] = await tx.insert(worksTable).values({
-        title: existing.title,
-        artist: existing.artist,
-        category: existing.category,
-        description: existing.note || "Une nouvelle création validée par INDAMORA RECORDS.",
+        title: existing.title?.trim() || "Proposition sans titre",
+artist: existing.artist?.trim() || "Artiste non renseigné",
+category: existing.category?.trim() || "Autres créations",
+description:
+  existing.note?.trim() ||
+  "Une proposition validée par INDAMORA RECORDS.",
         duration: existing.duration,
         image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=900&q=80",
         mediaType: existing.mediaType,
