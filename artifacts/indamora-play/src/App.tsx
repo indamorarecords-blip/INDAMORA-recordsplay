@@ -999,3 +999,221 @@ function App() {
 }
 
 export default App;
+function SubmissionPreview({ submission }: { submission: Submission }) {
+  const source = storageUrl(submission.mediaObjectPath);
+  if (!source) return null;
+  return submission.mediaType === 'video'
+    ? <video controls preload="metadata" src={source} className="mt-4 max-h-52 w-full max-w-md rounded-xl bg-black" data-testid={`moderation-video-${submission.id}`} />
+    : <audio controls preload="metadata" src={source} className="mt-4 w-full max-w-md" data-testid={`moderation-audio-${submission.id}`} />;
+}
+
+function Moderation() {
+  const { isSignedIn, user } = useUser();
+  const isAdmin = isAdminEmail(user?.primaryEmailAddress?.emailAddress);
+  const queryClient = useQueryClient();
+  const [filter, setFilter] = useState<'pending' | 'approved' | 'rejected'>('pending');
+  const submissions = useGetSubmissions({ status: filter }, { query: { enabled: Boolean(isSignedIn && isAdmin), queryKey: getGetSubmissionsQueryKey({ status: filter }) } });
+  const updateStatus = useUpdateSubmissionStatus();
+  const review = (submission: Submission, status: 'approved' | 'rejected') => updateStatus.mutate({ id: submission.id, data: { status } }, { onSuccess: () => { void queryClient.invalidateQueries({ queryKey: getGetSubmissionsQueryKey({ status: filter }) }); void queryClient.invalidateQueries({ queryKey: getGetCatalogQueryKey() }); } });
+  if (!isSignedIn) return <Redirect to="/sign-in" />;
+  if (!isAdmin) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><ShieldCheck className="mx-auto h-10 w-10 text-destructive" /><h1 className="display mt-5 text-4xl font-bold">Accès réservé</h1><p className="mt-3 text-muted-foreground">La modération est réservée à l’équipe INDAMORA RECORDS.</p></div>;
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Espace de modération</div><h1 className="display mt-3 text-5xl font-bold">INDAMORA<br /><span className="text-primary">RECORDS.</span></h1><p className="mt-4 text-muted-foreground">Donnez à chaque proposition l’attention qu’elle mérite.</p></div><div className="rounded-2xl bg-secondary px-5 py-4 text-secondary-foreground"><div className="font-mono text-[10px] uppercase tracking-[.15em] text-accent">État de la file</div><div className="mt-2 flex items-center gap-2 text-sm font-bold"><span className="h-2 w-2 animate-pulse rounded-full bg-accent" /> File de revue active</div></div></div><div className="mt-12 flex gap-2 overflow-x-auto border-b border-border pb-3">{(['pending', 'approved', 'rejected'] as const).map((item) => <button onClick={() => setFilter(item)} key={item} className={cx('shrink-0 rounded-full px-4 py-2 text-sm font-bold capitalize', filter === item ? 'bg-primary text-primary-foreground' : 'hover:bg-muted')} data-testid={`button-filter-submissions-${item}`}>{item === 'pending' ? 'En attente' : item === 'approved' ? 'Approuvées' : 'Refusées'}</button>)}</div>{submissions.isLoading ? <div className="mt-6 space-y-3">{[1, 2, 3].map((i) => <div key={i} className="skeleton h-28 rounded-2xl" />)}</div> : submissions.error ? <div className="mt-6"><QueryState error={submissions.error} onRetry={() => void submissions.refetch()} label="submissions" /></div> : (submissions.data ?? []).length === 0 ? <div className="mt-6 rounded-2xl border border-dashed border-border px-5 py-20 text-center"><div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-muted"><Check className="h-6 w-6 text-secondary" /></div><h2 className="mt-4 font-bold">Aucune œuvre dans cette file</h2><p className="mt-1 text-sm text-muted-foreground">La file est vide pour le moment.</p></div> : <div className="mt-6 space-y-3">{(submissions.data ?? []).map((submission) => <div key={submission.id} className="group rounded-2xl border border-border bg-card p-5 transition-colors hover:border-primary/50" data-testid={`row-submission-${submission.id}`}><div className="flex flex-col gap-5 md:flex-row md:items-center"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-muted text-primary"><FileMusic className="h-5 w-5" /></div><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h2 className="font-bold">{submission.title}</h2><span className="rounded-full bg-muted px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider">{categoryLabel(submission.category)}</span></div><p className="mt-1 text-sm text-muted-foreground">{submission.artist} · {new Date(submission.submittedAt).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric', year: 'numeric' })}</p>{submission.note && <p className="mt-3 max-w-2xl text-sm leading-6 text-foreground/75">“{submission.note}”</p>}<SubmissionPreview submission={submission} /></div>{filter === 'pending' && <div className="flex gap-2"><button disabled={updateStatus.isPending} onClick={() => review(submission, 'rejected')} className="rounded-full border border-border px-4 py-2 text-sm font-bold hover:border-destructive hover:text-destructive disabled:opacity-50" data-testid={`button-reject-${submission.id}`}>Refuser</button><button disabled={updateStatus.isPending} onClick={() => review(submission, 'approved')} className="rounded-full bg-secondary px-4 py-2 text-sm font-bold text-secondary-foreground hover:bg-primary hover:text-primary-foreground disabled:opacity-50" data-testid={`button-approve-${submission.id}`}>Approuver</button></div>} {filter !== 'pending' && <span className={cx('rounded-full px-3 py-1 text-xs font-bold capitalize', filter === 'approved' ? 'bg-secondary/10 text-secondary' : 'bg-destructive/10 text-destructive')}>{filter === 'approved' ? 'Approuvée' : 'Refusée'}</span>}</div></div>)}</div>}</div>;
+}
+
+function Pricing() {
+  const premiumBenefits = ['Tout le catalogue gratuit', 'Débloquer les sorties Premium', 'Accéder en avant-première aux nouveautés', 'Soutenir le développement d’INDAMORA PLAY'];
+  const futureUses = ['Soutenir les artistes et créateurs', 'Accompagner certains projets artistiques', 'Produire de nouvelles créations et fonctionnalités', 'Contribuer au développement de la création centrafricaine et africaine'];
+  return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-20">
+    <div className="mx-auto max-w-3xl text-center">
+      <div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Soutenir le mouvement</div>
+      <h1 className="display mt-3 text-5xl font-bold leading-none md:text-7xl">Plus de ce qui<br /><span className="text-primary">vous fait vibrer.</span></h1>
+      <p className="mt-6 text-lg leading-7 text-muted-foreground">Votre abonnement contribue au développement d’INDAMORA PLAY et au soutien des artistes et créateurs.</p>
+    </div>
+
+    <div className="mx-auto mt-14 grid max-w-6xl gap-5 lg:grid-cols-3">
+      <div className="rounded-[2rem] border border-border bg-card p-7 md:p-8">
+        <div className="flex items-center justify-between">
+          <div><h2 className="display text-3xl font-bold">Gratuit</h2><p className="mt-1 text-sm text-muted-foreground">Pour découvrir la plateforme.</p></div>
+          <Ticket className="h-7 w-7 text-secondary" />
+        </div>
+        <div className="mt-8 text-4xl font-bold">0 <span className="text-sm font-medium text-muted-foreground">FCFA / mois</span></div>
+        <ul className="mt-8 space-y-4 text-sm">{['Découvrir les œuvres à la une', 'Explorer le répertoire des artistes', 'Écouter les sorties gratuites', 'Suivre les créateurs d’ici'].map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-4 w-4 text-secondary" />{item}</li>)}</ul>
+        <Link href="/" className="mt-10 block rounded-full border border-border py-3 text-center text-sm font-bold hover:border-primary hover:text-primary" data-testid="link-pricing-free">Continuer la découverte</Link>
+      </div>
+
+      <div className="relative rounded-[2rem] bg-secondary p-7 text-secondary-foreground shadow-xl md:p-8 lg:-translate-y-4">
+        <div className="absolute right-6 top-6 rounded-full bg-accent px-3 py-1 font-mono text-[9px] font-bold uppercase tracking-widest text-accent-foreground">Pour l’Afrique</div>
+        <div className="flex items-center justify-between gap-4"><div><h2 className="display text-3xl font-bold">Premium Afrique</h2><p className="mt-1 text-sm text-secondary-foreground/65">Pour les membres situés en Afrique.</p></div><Crown className="h-7 w-7 shrink-0 text-accent" /></div>
+        <div className="mt-8 text-4xl font-bold">500 <span className="text-sm font-medium text-secondary-foreground/65">FCFA / mois</span></div>
+        <ul className="mt-8 space-y-4 text-sm text-secondary-foreground/85">{premiumBenefits.map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-4 w-4 shrink-0 text-accent" />{item}</li>)}</ul>
+        <span className="mt-10 flex items-center justify-center gap-2 rounded-full bg-accent/30 py-3 text-center text-sm font-bold text-secondary-foreground/70" data-testid="status-pricing-africa"><LockKeyhole className="h-4 w-4" /> Bientôt disponible</span>
+      </div>
+
+      <div className="rounded-[2rem] border border-primary/30 bg-card p-7 shadow-[var(--shadow-card)] md:p-8">
+        <div className="flex items-center justify-between gap-4"><div><h2 className="display text-3xl font-bold">Premium International</h2><p className="mt-1 text-sm text-muted-foreground">Pour l’Europe, les États-Unis et les autres pays hors Afrique.</p></div><Crown className="h-7 w-7 shrink-0 text-primary" /></div>
+        <div className="mt-8 text-4xl font-bold">5 <span className="text-sm font-medium text-muted-foreground">€ / mois</span></div>
+        <ul className="mt-8 space-y-4 text-sm">{premiumBenefits.map((item) => <li key={item} className="flex items-center gap-3"><Check className="h-4 w-4 shrink-0 text-primary" />{item}</li>)}</ul>
+        <span className="mt-10 flex items-center justify-center gap-2 rounded-full border border-primary/20 bg-primary/5 py-3 text-center text-sm font-bold text-primary" data-testid="status-pricing-international"><LockKeyhole className="h-4 w-4" /> Bientôt disponible</span>
+      </div>
+    </div>
+    <div className="mx-auto mt-10 max-w-4xl rounded-3xl border border-border bg-card p-7 md:p-9"><h3 className="display text-2xl font-bold">Votre soutien fait grandir la scène.</h3><p className="mt-3 leading-7 text-muted-foreground">Les contributions permettront de soutenir les artistes et créateurs, d’accompagner certains projets et de développer de nouvelles fonctionnalités. Les modalités précises seront communiquées avant l’ouverture des abonnements.</p><ul className="mt-6 grid gap-3 sm:grid-cols-2">{futureUses.map((item) => <li key={item} className="flex gap-3 text-sm"><Check className="h-4 w-4 shrink-0 text-primary" />{item}</li>)}</ul></div>
+  </div>;
+}
+function AdminDashboardContent() {
+  const { isSignedIn, user } = useUser();
+  const isAdmin = isAdminEmail(user?.primaryEmailAddress?.emailAddress);
+  const submissions = useGetSubmissions(undefined, { query: { enabled: Boolean(isSignedIn && isAdmin), queryKey: getGetSubmissionsQueryKey() } });
+  const catalog = useGetCatalog({ query: { queryKey: getGetCatalogQueryKey() } });
+  if (!isSignedIn) return <Redirect to="/sign-in" />;
+  if (!isAdmin) return <div className="mx-auto max-w-2xl px-5 py-24 text-center"><ShieldCheck className="mx-auto h-10 w-10 text-destructive" /><h1 className="display mt-5 text-4xl font-bold">Accès réservé</h1><p className="mt-3 text-muted-foreground">L’administration est réservée à INDAMORA RECORDS.</p></div>;
+  const all = submissions.data ?? [];
+  const counts = { pending: all.filter((item) => item.status === 'pending').length, approved: all.filter((item) => item.status === 'approved').length, rejected: all.filter((item) => item.status === 'rejected').length };
+  return <div className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16"><div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><div><div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Tableau de bord</div><h1 className="display mt-3 text-5xl font-bold">Piloter INDAMORA<br /><span className="text-primary">RECORDS.</span></h1><p className="mt-4 text-muted-foreground">Une vue simple sur le catalogue et la file de validation.</p></div><Link href="/moderation" className="inline-flex items-center justify-center gap-2 rounded-full bg-secondary px-5 py-3 text-sm font-bold text-secondary-foreground" data-testid="link-dashboard-moderation"><ShieldCheck className="h-4 w-4" /> Ouvrir la modération</Link></div><div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"><div className="rounded-2xl border border-border bg-card p-5"><BarChart3 className="h-5 w-5 text-primary" /><div className="mt-5 text-3xl font-bold">{catalog.data?.length ?? 0}</div><p className="mt-1 text-sm text-muted-foreground">Œuvres publiées</p></div><div className="rounded-2xl border border-border bg-card p-5"><LoaderCircle className="h-5 w-5 text-accent-foreground" /><div className="mt-5 text-3xl font-bold">{counts.pending}</div><p className="mt-1 text-sm text-muted-foreground">En attente</p></div><div className="rounded-2xl border border-border bg-card p-5"><Check className="h-5 w-5 text-secondary" /><div className="mt-5 text-3xl font-bold">{counts.approved}</div><p className="mt-1 text-sm text-muted-foreground">Validées</p></div><div className="rounded-2xl border border-border bg-card p-5"><ShieldCheck className="h-5 w-5 text-destructive" /><div className="mt-5 text-3xl font-bold">{counts.rejected}</div><p className="mt-1 text-sm text-muted-foreground">Refusées</p></div></div><div className="mt-12 rounded-[2rem] bg-muted p-6 md:p-8"><div className="flex items-center gap-3"><LayoutDashboard className="h-5 w-5 text-primary" /><h2 className="display text-2xl font-bold">Prochaine action</h2></div><p className="mt-3 max-w-2xl leading-7 text-muted-foreground">{counts.pending > 0 ? `Il reste ${counts.pending} œuvre${counts.pending > 1 ? 's' : ''} à examiner par INDAMORA RECORDS.` : 'La file de validation est à jour pour le moment.'}</p><Link href="/moderation" className="mt-6 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground" data-testid="link-dashboard-review">Examiner la file <ArrowRight className="h-4 w-4" /></Link></div></div>;
+}
+
+function AdminDashboard() {
+  const { isSignedIn, user } = useUser();
+  const isAdmin = isAdminEmail(user?.primaryEmailAddress?.emailAddress);
+
+  return <>
+    <AdminDashboardContent />
+    {isSignedIn && isAdmin && <div className="mx-auto max-w-7xl px-5 pb-16 lg:px-8"><AdminUserList /></div>}
+  </>;
+}
+
+const pressSchema = z.object({
+  name: z.string().min(2, 'Nom requis'),
+  organization: z.string().min(2, 'Organisation requise'),
+  role: z.string().min(2, 'Rôle requis'),
+  email: z.string().email('E-mail invalide'),
+  phone: z.string().optional(),
+  requestType: z.string().min(2, 'Type de demande requis'),
+  subject: z.string().min(2, 'Sujet requis'),
+  message: z.string().min(10, 'Message trop court'),
+  requestedDate: z.string().optional(),
+});
+
+function Presse() {
+  const { toast } = useToast();
+  const createPress = useCreatePressRequest();
+  const form = useForm<z.infer<typeof pressSchema>>({
+    resolver: zodResolver(pressSchema),
+    defaultValues: { name: '', organization: '', role: '', email: '', phone: '', requestType: 'Interview', subject: '', message: '', requestedDate: '' }
+  });
+
+  const onSubmit = (data: z.infer<typeof pressSchema>) => {
+    createPress.mutate({ data }, {
+      onSuccess: () => {
+        toast({ title: 'Demande envoyée', description: 'Notre équipe presse vous répondra dans les plus brefs délais.' });
+        form.reset();
+      },
+      onError: () => {
+        toast({ title: 'Erreur', description: 'Impossible d\'envoyer la demande.', variant: 'destructive' });
+      }
+    });
+  };
+
+  const { register, handleSubmit, formState: { errors } } = form;
+  const pending = createPress.isPending;
+
+  return <div className="mx-auto max-w-6xl px-5 py-12 lg:px-8 lg:py-20">
+    <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:items-start">
+      <div>
+        <div className="font-mono text-[10px] uppercase tracking-[.22em] text-primary">Relations Presse</div>
+        <h1 className="display mt-3 text-5xl font-bold leading-[.95] md:text-6xl">Espace<br /><span className="text-primary">Médias.</span></h1>
+        <p className="mt-6 leading-7 text-muted-foreground">INDAMORA PLAY met en lumière les artistes, les créations et les initiatives culturelles d’Afrique centrale et de sa diaspora. Cet espace reçoit les demandes professionnelles des journalistes, radios, télévisions et médias en ligne.</p>
+
+        <div className="mt-10 rounded-3xl bg-secondary p-8 text-secondary-foreground shadow-sm">
+          <h3 className="mb-2 flex items-center gap-2 text-lg font-bold"><Newspaper className="h-5 w-5 text-accent" /> Ressources presse</h3>
+          <p className="text-sm leading-relaxed text-secondary-foreground/80">Les logos, photos officielles, visuels, présentations institutionnelles et communiqués seront publiés ici lorsqu’ils seront disponibles. Aucun document provisoire n’est présenté comme officiel.</p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="rounded-[2.5rem] border border-border bg-card p-6 shadow-[var(--shadow-card)] md:p-10">
+        <h2 className="display mb-8 text-2xl font-bold">Nouvelle demande</h2>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <label className="grid gap-2 text-sm font-bold">Nom complet <input {...register('name')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Votre nom" data-testid="input-press-name" />{errors.name && <span className="text-xs text-destructive">{errors.name.message}</span>}</label>
+          <label className="grid gap-2 text-sm font-bold">Média / Organisation <input {...register('organization')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Nom du média" data-testid="input-press-org" />{errors.organization && <span className="text-xs text-destructive">{errors.organization.message}</span>}</label>
+          <label className="grid gap-2 text-sm font-bold">Rôle <input {...register('role')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Journaliste, Rédacteur..." data-testid="input-press-role" />{errors.role && <span className="text-xs text-destructive">{errors.role.message}</span>}</label>
+          <label className="grid gap-2 text-sm font-bold">E-mail <input type="email" {...register('email')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="adresse@media.com" data-testid="input-press-email" />{errors.email && <span className="text-xs text-destructive">{errors.email.message}</span>}</label>
+          <label className="grid gap-2 text-sm font-bold">Type de demande <select {...register('requestType')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="select-press-type"><option value="Interview">Interview</option><option value="Demande d’informations">Demande d’informations</option><option value="Demande de visuels">Demande de visuels</option><option value="Demande de communiqué">Demande de communiqué</option><option value="Demande de partenariat média">Partenariat média</option><option value="Autre">Autre</option></select>{errors.requestType && <span className="text-xs text-destructive">{errors.requestType.message}</span>}</label>
+          <label className="grid gap-2 text-sm font-bold">Téléphone <input {...register('phone')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="+236..." data-testid="input-press-phone" /></label>
+          <label className="grid gap-2 text-sm font-bold sm:col-span-2">Date souhaitée (optionnelle) <input type="date" {...register('requestedDate')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" data-testid="input-press-date" /></label>
+          <label className="grid gap-2 text-sm font-bold sm:col-span-2">Sujet <input {...register('subject')} className="rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Objet de votre demande" data-testid="input-press-subject" />{errors.subject && <span className="text-xs text-destructive">{errors.subject.message}</span>}</label>
+          <label className="grid gap-2 text-sm font-bold sm:col-span-2">Message <textarea {...register('message')} className="min-h-32 rounded-xl border border-input bg-background px-4 py-3 font-normal outline-none focus:border-primary" placeholder="Détaillez votre demande..." data-testid="textarea-press-message" />{errors.message && <span className="text-xs text-destructive">{errors.message.message}</span>}</label>
+        </div>
+        <button disabled={pending} className="mt-8 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-4 font-bold text-primary-foreground transition-all hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-60" data-testid="button-submit-press">{pending ? <><LoaderCircle className="h-5 w-5 animate-spin" /> Envoi en cours...</> : <><Send className="h-5 w-5" /> Envoyer la demande</>}</button>
+      </form>
+    </div>
+  </div>;
+}
+
+function NotFound() {
+  return <div className="mx-auto max-w-xl px-5 py-32 text-center"><div className="font-mono text-[10px] uppercase tracking-[.2em] text-primary">404 / hors piste</div><h1 className="display mt-4 text-6xl font-bold">Cette piste<br />n’existe pas.</h1><Link href="/" className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-bold text-primary-foreground" data-testid="link-404-home">Retour à la découverte <ArrowRight className="h-4 w-4" /></Link></div>;
+}
+
+function Router() {
+  const [location] = useLocation();
+
+  return (
+    <ErrorBoundary resetKey={location}>
+      <Shell>
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/explorer" component={Explorer} />
+          <Route path="/recherche" component={SearchPage} />
+          <Route path="/categorie/:slug" component={CategoryPage} />
+          <Route path="/oeuvres/:id" component={WorkPage} />
+          <Route path="/repertoire" component={() => <Directory />} />
+          <Route path="/artists" component={() => <Directory />} />
+          <Route path="/artists/:id" component={ArtistProfile} />
+          <Route path="/presse" component={Presse} />
+          <Route path="/submit" component={Submit} />
+          <Route path="/espace-artiste" component={ArtistSpace} />
+
+          {/* Modération */}
+          <Route path="/moderation" component={Moderation} />
+          <Route path="/admin/moderation" component={Moderation} />
+          <Route path="/admin/moderation" component={AdminModeration} />
+
+          <Route path="/administration" component={AdminDashboard} />
+          <Route path="/pricing" component={Pricing} />
+          <Route path="/soutenir" component={Support} />
+          <Route path="/inscription" component={() => <Redirect to="/sign-up" />} />
+          <Route path="/login" component={() => <Redirect to="/sign-in" />} />
+          <Route path="/profil" component={Profile} />
+
+          <Route component={NotFound} />
+        </Switch>
+      </Shell>
+    </ErrorBoundary>
+  );
+}
+
+function ClerkQueryClientCacheInvalidator() {
+  const { addListener } = useClerk();
+  const queryClient = useQueryClient();
+  const previousUserId = useRef<string | null | undefined>(undefined);
+
+  useEffect(() => addListener(({ user }) => {
+    const userId = user?.id ?? null;
+    if (previousUserId.current !== undefined && previousUserId.current !== userId) {
+      queryClient.clear();
+    }
+    previousUserId.current = userId;
+  }), [addListener, queryClient]);
+
+  return null;
+}
+
+function ClerkApp() {
+  const [, setLocation] = useLocation();
+  return <ClerkProvider publishableKey={clerkPubKey} proxyUrl={clerkProxyUrl} appearance={clerkAppearance} signInUrl={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} localization={frFR} routerPush={(to) => setLocation(stripBase(to))} routerReplace={(to) => setLocation(stripBase(to), { replace: true })}><QueryClientProvider client={queryClient}><ClerkQueryClientCacheInvalidator /><TooltipProvider><Switch><Route path="/sign-in/*?" component={() => <AuthPage><SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} /></AuthPage>} /><Route path="/sign-up/*?" component={() => <AuthPage><SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} /></AuthPage>} /><Route component={Router} /></Switch><Toaster /></TooltipProvider></QueryClientProvider></ClerkProvider>;
+}
+
+function App() {
+  if (!clerkPubKey) throw new Error('Missing VITE_CLERK_PUBLISHABLE_KEY in .env file');
+  return <WouterRouter base={basePath}><ClerkApp /></WouterRouter>;
+}
+
+export default App;
