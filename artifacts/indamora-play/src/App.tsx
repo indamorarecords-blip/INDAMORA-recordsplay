@@ -26,6 +26,8 @@ import { AdminUserList } from '@/components/admin-user-list';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import SubmitPage from "./pages/SubmitPage";
+import PressPage from "./pages/PressPage";
+import PressArticlePage from "./pages/PressArticlePage";
 const queryClient = new QueryClient();
 const ADMIN_EMAIL = 'indamorarecords@gmail.com';
 const categories = ['Musique', 'Humour', 'Cinéma et vidéos', 'Podcasts', 'Autres créations'];
@@ -699,7 +701,7 @@ const pressSchema = z.object({
   requestedDate: z.string().optional(),
 });
 
-function Presse() {
+function PressContactPage() {
   const { toast } = useToast();
   const createPress = useCreatePressRequest();
   const form = useForm<z.infer<typeof pressSchema>>({
@@ -760,7 +762,63 @@ function NotFound() {
 
 function Router() {
   const [location] = useLocation();
-  return <ErrorBoundary resetKey={location}><Shell><Switch><Route path="/" component={Home} /><Route path="/explorer" component={Explorer} /><Route path="/recherche" component={SearchPage} /><Route path="/categorie/:slug" component={CategoryPage} /><Route path="/oeuvres/:id" component={WorkPage} /><Route path="/repertoire" component={() => <Directory />} /><Route path="/artists" component={() => <Directory />} /><Route path="/artists/:id" component={ArtistProfile} /><Route path="/presse" component={Presse} /><Route path="/submit" component={Submit} /><Route path="/espace-artiste" component={ArtistSpace} /><Route path="/moderation" component={Moderation} /><Route path="/administration" component={AdminDashboard} /><Route path="/pricing" component={Pricing} /><Route path="/soutenir" component={Support} /><Route path="/inscription" component={() => <Redirect to="/sign-up" />} /><Route path="/login" component={() => <Redirect to="/sign-in" />} /><Route path="/profil" component={Profile} /><Route component={NotFound} /></Switch></Shell></ErrorBoundary>;
+
+  return (
+    <ErrorBoundary resetKey={location}>
+      <Shell>
+        <Switch>
+          {/* ACCUEIL */}
+          <Route path="/" component={Home} />
+
+          {/* EXPLORATION */}
+          <Route path="/explorer" component={Explorer} />
+          <Route path="/recherche" component={SearchPage} />
+          <Route path="/categorie/:slug" component={CategoryPage} />
+          <Route path="/oeuvres/:id" component={WorkPage} />
+
+          {/* RÉPERTOIRE */}
+          <Route path="/repertoire" component={() => <Directory />} />
+          <Route path="/artists" component={() => <Directory />} />
+          <Route path="/artists/:id" component={ArtistProfile} />
+
+          {/* PRESSE : ARTICLES PUBLICS */}
+          <Route path="/presse/:slug" component={PressArticlePage} />
+          <Route path="/presse" component={PressPage} />
+
+          {/* CONTACT */}
+          <Route path="/nous-ecrire" component={PressContactPage} />
+
+          {/* CONTRIBUTIONS */}
+          <Route path="/submit" component={Submit} />
+
+          {/* ESPACES UTILISATEURS */}
+          <Route path="/espace-artiste" component={ArtistSpace} />
+          <Route path="/profil" component={Profile} />
+
+          {/* ADMINISTRATION */}
+          <Route path="/moderation" component={Moderation} />
+          <Route path="/administration" component={AdminDashboard} />
+
+          {/* OFFRES ET SOUTIEN */}
+          <Route path="/pricing" component={Pricing} />
+          <Route path="/soutenir" component={Support} />
+
+          {/* AUTHENTIFICATION */}
+          <Route
+            path="/inscription"
+            component={() => <Redirect to="/sign-up" />}
+          />
+          <Route
+            path="/login"
+            component={() => <Redirect to="/sign-in" />}
+          />
+
+          {/* PAGE INCONNUE */}
+          <Route component={NotFound} />
+        </Switch>
+      </Shell>
+    </ErrorBoundary>
+  );
 }
 
 function ClerkQueryClientCacheInvalidator() {
