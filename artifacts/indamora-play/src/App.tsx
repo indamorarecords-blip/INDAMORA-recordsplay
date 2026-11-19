@@ -162,12 +162,14 @@ function Shell({ children }: { children: ReactNode }) {
   const { signOut } = useClerk();
   const isAdmin = isAdminEmail(user?.primaryEmailAddress?.emailAddress);
   const nav = [
-    { href: '/', label: 'Accueil', icon: Sparkles },
-    { href: '/explorer', label: 'Explorer', icon: CirclePlay },
-    { href: '/repertoire', label: 'Répertoire', icon: UsersRound },
-    { href: '/pricing', label: 'Premium', icon: Crown },
-    { href: '/soutenir', label: 'Soutenir', icon: HeartHandshake },
-  ];
+  { href: '/', label: 'Accueil', icon: Sparkles },
+  { href: '/explorer', label: 'Explorer', icon: CirclePlay },
+  { href: '/repertoire', label: 'Répertoire', icon: UsersRound },
+  { href: '/presse', label: 'Presse', icon: Newspaper },
+  { href: '/nous-ecrire', label: 'Nous écrire', icon: Mail },
+  { href: '/pricing', label: 'Premium', icon: Crown },
+  { href: '/soutenir', label: 'Soutenir', icon: HeartHandshake },
+];
   return (
     <div className="grain min-h-[100dvh] bg-background">
       <header className="sticky top-0 z-40 border-b border-border/70 bg-background/90 backdrop-blur-xl">
