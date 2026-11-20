@@ -80,7 +80,9 @@ async (url: string, options: RequestInit = {}) => {
 const token = await getToken();
 
   if (!token) {
-    throw new Error("Session administrateur introuvable. Reconnectez-vous.");
+    throw new Error(
+      "Session administrateur introuvable. Reconnectez-vous."
+    );
   }
   const headers = new Headers(options.headers);
   headers.set("Authorization", `Bearer ${token}`);
@@ -117,7 +119,9 @@ try {
     "/admin/press/articles",
     { method: "GET" }
   );
-  setArticles(Array.isArray(data.articles) ? data.articles : []);
+  setArticles(
+    Array.isArray(data.articles) ? data.articles : []
+  );
 } catch (err) {
   setError(
     err instanceof Error
@@ -313,7 +317,7 @@ try {
 
 }
 
-async function handleCoverSelection(
+function handleCoverSelection(
 event: React.ChangeEvent
 ) {
 const file = event.target.files?.[0];
@@ -335,7 +339,7 @@ if (file.size > 10 * 1024 * 1024) {
   return;
 }
 setError(
-  "Le téléversement des couvertures publiques nécessite encore la route sécurisée dédiée. Aucun fichier n'a été envoyé."
+  "Le téléversement automatique sera activé après la création de la route sécurisée des couvertures publiques."
 );
 event.target.value = "";
 
@@ -369,15 +373,16 @@ const draftCount = articles.filter(
 function formatDate(value: string | null) {
 if (!value) return “Non publié”;
 
+const date = new Date(value);
+if (Number.isNaN(date.getTime())) return "Date inconnue";
 return new Intl.DateTimeFormat("fr-FR", {
   dateStyle: "medium",
   timeStyle: "short",
-}).format(new Date(value));
+}).format(date);
 
 }
 
 return (
-    {/* EN-TÊTE */}
     <header className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
       <div>
         <div className="mb-2 flex items-center gap-2 text-primary">
@@ -413,7 +418,6 @@ return (
         </button>
       </div>
     </header>
-    {/* MESSAGES */}
     {error && (
       <div
         role="alert"
@@ -437,7 +441,6 @@ return (
         {success}
       </div>
     )}
-    {/* STATISTIQUES */}
     <section className="grid gap-4 sm:grid-cols-3">
       <div className="rounded-xl border bg-card p-5">
         <p className="text-sm text-muted-foreground">
@@ -464,7 +467,6 @@ return (
         </p>
       </div>
     </section>
-    {/* FORMULAIRE */}
     {showForm && (
       <section className="rounded-xl border bg-card p-5 shadow-sm md:p-8">
         <div className="mb-6 flex items-center justify-between gap-3">
@@ -489,6 +491,7 @@ return (
           </button>
         </div>
         <form
+          id="press-article-form"
           onSubmit={(event) => handleSubmit(event)}
           className="space-y-5"
         >
@@ -588,8 +591,8 @@ return (
                 />
                 <p className="mt-2 text-xs text-muted-foreground">
                   Le téléversement automatique sera activé après
-                  l'ajout de la route sécurisée pour les couvertures
-                  publiques. Tu peux renseigner un chemin existant.
+                  la création de la route sécurisée des couvertures
+                  publiques.
                 </p>
               </div>
             </div>
@@ -608,8 +611,7 @@ return (
                 className="w-full resize-y rounded-lg border bg-background px-4 py-3 leading-7 outline-none focus:border-primary"
               />
               <p className="mt-1 text-xs text-muted-foreground">
-                Tu peux rédiger ton texte avec des paragraphes.
-                L'éditeur enrichi pourra être ajouté séparément.
+                Vous pouvez rédiger votre texte avec des paragraphes.
               </p>
             </div>
           </div>
@@ -639,30 +641,42 @@ return (
             <button
               type="button"
               disabled={saving}
-              onClick={(event) => {
-                const formElement = event.currentTarget.closest("form");
-                formElement?.requestSubmit(
-                  document.createElement("button")
-                );
-                setForm((previous) => ({
-                  ...previous,
-                  status: "draft",
-                }));
+              onClick={() => {
+                const formElement = document.getElementById(
+                  "press-article-form"
+                ) as HTMLFormElement | null;
+                if (formElement?.reportValidity()) {
+                  void handleSubmit(
+                    {
+                      preventDefault: () => {},
+                    } as FormEvent<HTMLFormElement>,
+                    "draft"
+                  );
+                }
               }}
               className="inline-flex items-center gap-2 rounded-lg border px-5 py-3 text-sm font-semibold hover:bg-muted disabled:opacity-50"
             >
-              <Save size={17} />
+              {saving ? (
+                <LoaderCircle size={17} className="animate-spin" />
+              ) : (
+                <Save size={17} />
+              )}
               Enregistrer en brouillon
             </button>
             <button
               type="button"
               disabled={saving}
               onClick={() => {
-                const formElement = document.querySelector(
-                  "#press-article-form"
+                const formElement = document.getElementById(
+                  "press-article-form"
                 ) as HTMLFormElement | null;
-                if (formElement) {
-                  formElement.requestSubmit();
+                if (formElement?.reportValidity()) {
+                  void handleSubmit(
+                    {
+                      preventDefault: () => {},
+                    } as FormEvent<HTMLFormElement>,
+                    "published"
+                  );
                 }
               }}
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-bold text-primary-foreground hover:opacity-90 disabled:opacity-50"
@@ -678,7 +692,6 @@ return (
         </form>
       </section>
     )}
-    {/* FILTRES */}
     <section className="flex flex-col gap-3 sm:flex-row">
       <div className="relative flex-1">
         <Search
@@ -704,7 +717,6 @@ return (
         <option value="draft">Brouillons</option>
       </select>
     </section>
-    {/* LISTE DES ARTICLES */}
     <section className="overflow-hidden rounded-xl border bg-card">
       <div className="flex items-center justify-between border-b p-5">
         <h2 className="font-bold">
