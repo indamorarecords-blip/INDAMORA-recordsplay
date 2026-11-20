@@ -1,5 +1,6 @@
 import { useAuth } from “@clerk/clerk-react”;
 import { useCallback, useEffect, useState, type FormEvent } from “react”;
+import { uploadPressCover } from "../services/pressUpload";
 import {
 Plus,
 Search,
@@ -74,7 +75,8 @@ const [search, setSearch] = useState(””);
 const [filter, setFilter] = useState<“all” | ArticleStatus>(“all”);
 const [error, setError] = useState(””);
 const [success, setSuccess] = useState(””);
-
+const [uploadingCover, setUploadingCover] = useState(false);
+  
 const authenticatedFetch = useCallback(
 async (url: string, options: RequestInit = {}) => {
 const token = await getToken();
