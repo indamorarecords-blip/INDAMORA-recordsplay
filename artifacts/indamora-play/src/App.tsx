@@ -27,6 +27,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import PressPage from "./pages/PressPage";
 import PressArticlePage from "./pages/PressArticlePage";
+import AdminPressPage from "./pages/AdminPressPage";
 
 const queryClient = new QueryClient();
 const ADMIN_EMAIL = 'indamorarecords@gmail.com';
